@@ -1,25 +1,29 @@
 extern crate clap;
 
-use clap::{Arg, App};
+use clap::{Arg, App, AppSettings, SubCommand};
 
 fn main() {
-    let app = App::new("specdown")
-        .about("A tool to test markdown files and drive devlopment from documentation.");
-
     let spec_file = Arg::with_name("spec-file")
-        .long("spec-file")
-        .takes_value(true)
+        .index(1)
         .help("The spec file to run")
         .required(true);
 
     let output_file = Arg::with_name("output-file")
         .long("output-file")
+        .short("o")
         .takes_value(true)
-        .help("The generated output file")
-        .required(true);
+        .help("Location of where to save the generated MarkDown")
+        .required(false);
 
-    let app = app.arg(spec_file);
-    let app = app.arg(output_file);
+    let run = SubCommand::with_name("run")
+        .about("Runs a given Markdown Specification.")
+        .arg(spec_file)
+        .arg(output_file);
+
+    let app = App::new("specdown")
+        .about("A tool to test markdown files and drive devlopment from documentation.")
+        .subcommand(run)
+        .setting(AppSettings::ArgRequiredElseHelp);
 
     let _matches = app.get_matches();
 
