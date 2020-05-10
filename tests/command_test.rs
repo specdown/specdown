@@ -9,6 +9,7 @@ fn test_displays_help() {
         .success()
         .stdout(
             indoc!("specdown 
+            A tool to test markdown files and drive devlopment from documentation.
 
             USAGE:
                 specdown --output-file <output-file> --spec-file <spec-file>

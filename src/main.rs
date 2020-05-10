@@ -3,7 +3,8 @@ extern crate clap;
 use clap::{Arg, App};
 
 fn main() {
-    let app = App::new("specdown");
+    let app = App::new("specdown")
+        .about("A tool to test markdown files and drive devlopment from documentation.");
 
     let spec_file = Arg::with_name("spec-file")
         .long("spec-file")
