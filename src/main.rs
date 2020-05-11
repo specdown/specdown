@@ -3,6 +3,8 @@ extern crate clap;
 use clap::{App, AppSettings};
 
 mod run_subcommand;
+mod parser;
+mod types;
 
 fn main() {
     let app = App::new("specdown")

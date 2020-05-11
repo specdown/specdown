@@ -2,15 +2,13 @@
 
 You can run SpecDown with no sub-commands and it will display the help.
 
-```shell
-{{ specdown::script_name = "with-no-args}}
+```shell,script(name="with-no-args")
 specdown
 ```
 
 Outputs:
 
-```
-{{ specdown::verify script_output["with-no-args"] }}
+```,verify(source_name="with-no-args", stream=output)
 specdown 
 A tool to test markdown files and drive devlopment from documentation.
 
@@ -31,15 +29,13 @@ SUBCOMMANDS:
 You can also run a specific sub-command with the `--help` argument for help on that sub-command.
 For example:
 
-```shell
-{{ specdown::script_name = "run-with-help}}
+```shell,script(name="run-with-help")
 specdown run --help
 ```
 
 Displays:
 
-```
-{{ specdown::verify script_output["with-no-args"] }}
+```,verify(source_name="with-no-args", source_type=output)
 specdown-run 
 Runs a given Markdown Specification.
 
