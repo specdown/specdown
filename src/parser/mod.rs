@@ -6,6 +6,7 @@ use comrak::nodes::{AstNode, NodeValue, NodeCodeBlock};
 use crate::types::Action;
 
 mod actions;
+mod blockquote_info;
 
 #[derive(Debug, PartialEq)]
 pub enum Error {

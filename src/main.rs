@@ -1,5 +1,7 @@
 extern crate clap;
 
+extern crate nom;
+
 use clap::{App, AppSettings};
 
 mod run_subcommand;
