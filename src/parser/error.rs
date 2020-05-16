@@ -9,8 +9,16 @@ pub enum Error {
     ParserFailed(String),
     UnknownFunction(String),
     MissingArgument(String, String),
-    IncorrectArgumentType { expected: String, got: String },
-    InvalidArgumentValue { got: String, expected: String },
+    IncorrectArgumentType {
+        function: String,
+        argument: String,
+        expected: String,
+        got: String,
+    },
+    InvalidArgumentValue {
+        got: String,
+        expected: String,
+    },
 }
 
 impl fmt::Display for Error {
@@ -27,10 +35,15 @@ impl fmt::Display for Error {
             Self::MissingArgument(func, arg) => {
                 write!(f, "Function {} requires argument {}", func, arg)
             }
-            Self::IncorrectArgumentType { expected, got } => write!(
+            Self::IncorrectArgumentType {
+                function,
+                argument,
+                expected,
+                got,
+            } => write!(
                 f,
-                "Invalid argument type. Expected {}, got {}",
-                expected, got
+                "Function {} requires argument {} to be a {}, got {}",
+                function, argument, expected, got
             ),
             Self::InvalidArgumentValue { got, expected } => write!(
                 f,
@@ -94,11 +107,13 @@ mod tests {
             format!(
                 "{}",
                 Error::IncorrectArgumentType {
+                    function: "test_func".to_string(),
+                    argument: "test_arg".to_string(),
                     expected: "token".to_string(),
                     got: "string".to_string()
                 }
             ),
-            "Invalid argument type. Expected token, got string"
+            "Function test_func requires argument test_arg to be a token, got string"
         )
     }
 

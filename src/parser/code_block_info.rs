@@ -60,6 +60,8 @@ fn get_string_argument(f: &function_string::Function, name: &str) -> Result<Stri
     match arg {
         function_string::ArgumentValue::String(s) => Ok(s.clone()),
         function_string::ArgumentValue::Token(_) => Err(Error::IncorrectArgumentType {
+            function: f.name.to_string(),
+            argument: name.to_string(),
             expected: "string".to_string(),
             got: "token".to_string(),
         }),
@@ -75,6 +77,8 @@ fn get_token_argument(f: &function_string::Function, name: &str) -> Result<Strin
     match arg {
         function_string::ArgumentValue::Token(t) => Ok(t.clone()),
         function_string::ArgumentValue::String(_) => Err(Error::IncorrectArgumentType {
+            function: f.name.to_string(),
+            argument: name.to_string(),
             expected: "token".to_string(),
             got: "string".to_string(),
         }),
