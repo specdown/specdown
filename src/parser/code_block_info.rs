@@ -26,23 +26,27 @@ pub fn parse(input: &str) -> Result<CodeBlockType> {
 
 fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
     match &f.name[..] {
-        "script" => {
-            let name = get_string_argument(&f, "name")?;
-            Ok(CodeBlockType::Script(ScriptName(name)))
-        }
-        "verify" => {
-            let name = ScriptName(get_string_argument(&f, "script_name")?);
-            let stream_name = get_token_argument(&f, "stream")?;
-            let stream = to_stream(&stream_name).ok_or_else(|| Error::InvalidArgumentValue {
-                function: f.name.to_string(),
-                argument: "stream".to_string(),
-                got: stream_name.to_string(),
-                expected: "output, stdout or stderr".to_string(),
-            })?;
-            Ok(CodeBlockType::Verify(Source { name, stream }))
-        }
+        "script" => script_to_code_block_type(f),
+        "verify" => verify_to_code_block_type(f),
         _ => Err(Error::UnknownFunction(f.name.clone())),
     }
+}
+
+fn script_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
+    let name = get_string_argument(&f, "name")?;
+    Ok(CodeBlockType::Script(ScriptName(name)))
+}
+
+fn verify_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
+    let name = ScriptName(get_string_argument(&f, "script_name")?);
+    let stream_name = get_token_argument(&f, "stream")?;
+    let stream = to_stream(&stream_name).ok_or_else(|| Error::InvalidArgumentValue {
+        function: f.name.to_string(),
+        argument: "stream".to_string(),
+        got: stream_name.to_string(),
+        expected: "output, stdout or stderr".to_string(),
+    })?;
+    Ok(CodeBlockType::Verify(Source { name, stream }))
 }
 
 fn to_stream(stream_name: &str) -> Option<Stream> {
