@@ -4,8 +4,8 @@ extern crate nom;
 
 use clap::{App, AppSettings};
 
-mod run_subcommand;
 mod parser;
+mod run_subcommand;
 mod types;
 
 fn main() {

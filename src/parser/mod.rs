@@ -1,7 +1,7 @@
-use std::string::{String, FromUtf8Error};
+use std::string::{FromUtf8Error, String};
 
+use comrak::nodes::{AstNode, NodeCodeBlock, NodeValue};
 use comrak::{parse_document, Arena, ComrakOptions};
-use comrak::nodes::{AstNode, NodeValue, NodeCodeBlock};
 
 use crate::types::Action;
 
@@ -13,7 +13,7 @@ mod function_string;
 pub enum Error {
     RootMustBeDocument,
     StringEncodingFailed(FromUtf8Error),
-    BlockQuoteError(blockquote_info::Error)
+    BlockQuoteError(blockquote_info::Error),
 }
 
 type Result<T> = std::result::Result<T, Error>;
@@ -62,10 +62,8 @@ fn node_block_to_components(block: NodeCodeBlock) -> Result<(String, String)> {
 fn char_vec_to_string(chars: &[u8]) -> Result<String> {
     match String::from_utf8(chars.to_vec()) {
         Ok(string) => Ok(string),
-        Err(err) => Err(Error::StringEncodingFailed(err))
+        Err(err) => Err(Error::StringEncodingFailed(err)),
     }
 }
 
-mod tests {
-
-}
+mod tests {}

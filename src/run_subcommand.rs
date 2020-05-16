@@ -1,6 +1,6 @@
+use clap::{Arg, SubCommand};
 use std::fs;
 use std::path::Path;
-use clap::{Arg, SubCommand};
 
 use crate::parser;
 

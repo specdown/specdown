@@ -3,7 +3,8 @@ use indoc::indoc;
 
 #[test]
 fn test_displays_help() {
-    Command::cargo_bin("specdown").unwrap()
+    Command::cargo_bin("specdown")
+        .unwrap()
         .arg("--help")
         .assert()
         .success()
@@ -21,13 +22,14 @@ fn test_displays_help() {
             SUBCOMMANDS:
                 help    Prints this message or the help of the given subcommand(s)
                 run     Runs a given Markdown Specification.
-            ")
-        );
+            "
+        ));
 }
 
 #[test]
 fn test_doc_displays_help() {
-    Command::cargo_bin("specdown").unwrap()
+    Command::cargo_bin("specdown")
+        .unwrap()
         .arg("run")
         .arg("doc/help.spec.md")
         .assert()
@@ -36,7 +38,8 @@ fn test_doc_displays_help() {
 
 #[test]
 fn test_displays_error_when_required_args_are_missing() {
-    Command::cargo_bin("specdown").unwrap()
+    Command::cargo_bin("specdown")
+        .unwrap()
         .assert()
         .failure()
         .stderr(
@@ -53,6 +56,6 @@ fn test_displays_error_when_required_args_are_missing() {
             SUBCOMMANDS:
                 help    Prints this message or the help of the given subcommand(s)
                 run     Runs a given Markdown Specification.
-            ")
-        );
+            "
+        ));
 }

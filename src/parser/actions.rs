@@ -1,17 +1,19 @@
-use nom::{IResult};
+use nom::IResult;
 
-use crate::types::{Action, ScriptCode, ScriptName, Source, Stream, VerifyValue};
-use crate::parser::{Result, Error};
 use crate::parser::blockquote_info;
+use crate::parser::{Error, Result};
+use crate::types::{Action, ScriptCode, ScriptName, Source, Stream, VerifyValue};
 
 pub fn create_action(info: String, literal: String) -> Result<Action> {
     let block = blockquote_info::parse(&info).map_err(Error::BlockQuoteError)?;
 
     match block {
-        blockquote_info::BlockQuoteTypes::Script(name) =>
-            Ok(Action::Script(name, ScriptCode(literal))),
-        blockquote_info::BlockQuoteTypes::Verify(source) =>
-            Ok(Action::Verify(source, VerifyValue(literal))),
+        blockquote_info::BlockQuoteTypes::Script(name) => {
+            Ok(Action::Script(name, ScriptCode(literal)))
+        }
+        blockquote_info::BlockQuoteTypes::Verify(source) => {
+            Ok(Action::Verify(source, VerifyValue(literal)))
+        }
     }
 }
 
@@ -25,12 +27,10 @@ mod tests {
                 "shell,script(name=\"script-name\")".to_string(),
                 "code".to_string()
             ),
-            Ok(
-                Action::Script(
-                    ScriptName("script-name".to_string()),
-                    ScriptCode("code".to_string())
-                )
-            ) as Result<Action>
+            Ok(Action::Script(
+                ScriptName("script-name".to_string()),
+                ScriptCode("code".to_string())
+            )) as Result<Action>
         );
     }
 
@@ -57,15 +57,13 @@ mod tests {
                 ",verify(script_name=\"script-name\", stream=output)".to_string(),
                 "value".to_string()
             ),
-            Ok(
-                Action::Verify(
-                    Source {
-                        name: ScriptName("script-name".to_string()),
-                        stream: Stream::Output,
-                    },
-                    VerifyValue("value".to_string())
-                )
-            ) as Result<Action>
+            Ok(Action::Verify(
+                Source {
+                    name: ScriptName("script-name".to_string()),
+                    stream: Stream::Output,
+                },
+                VerifyValue("value".to_string())
+            )) as Result<Action>
         );
     }
 }

@@ -60,7 +60,7 @@ fn to_stream(stream_name: &str) -> Result<Stream, Error> {
         _ => Err(Error::InvalidArgumentValue {
             got: stream_name.to_string(),
             expected: "output, stdout or stderr".to_string(),
-        })
+        }),
     }
 }
 
@@ -80,14 +80,17 @@ fn get_string_argument(f: &function_string::Function, name: &str) -> Result<Stri
 }
 
 fn get_token_argument(f: &function_string::Function, name: &str) -> Result<String, Error> {
-    let arg = f
-        .arguments
-        .get(name)
-        .ok_or(Error::MissingArgumentError(String::from(f.name), name.to_string()))?;
+    let arg = f.arguments.get(name).ok_or(Error::MissingArgumentError(
+        String::from(f.name),
+        name.to_string(),
+    ))?;
 
     match arg {
         function_string::ArgumentValue::Token(t) => Ok(String::from(*t)),
-        function_string::ArgumentValue::String(_) => Err(Error::IncorrectArgumentType { expected: "token".to_string(), got: "string".to_string() }),
+        function_string::ArgumentValue::String(_) => Err(Error::IncorrectArgumentType {
+            expected: "token".to_string(),
+            got: "string".to_string(),
+        }),
     }
 }
 
