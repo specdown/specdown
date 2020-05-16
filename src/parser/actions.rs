@@ -3,7 +3,7 @@ use crate::parser::{Error, Result};
 use crate::types::{Action, ScriptCode, VerifyValue};
 
 pub fn create_action(info: &str, literal: String) -> Result<Action> {
-    let block = code_block_info::parse(&info).map_err(Error::CodeBlockParsingFailed)?;
+    let block = code_block_info::parse(&info)?;
 
     match block {
         code_block_info::CodeBlockType::Script(name) => {

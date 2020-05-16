@@ -1,12 +1,14 @@
 use std::fmt;
 
-use crate::parser::code_block_info;
-
 #[derive(Debug, PartialEq)]
 pub enum Error {
     RootMustBeDocument,
     StringEncodingFailed(String),
-    CodeBlockParsingFailed(code_block_info::Error),
+    ParserFailed(String),
+    UnknownFunction(String),
+    MissingArgument(String, String),
+    IncorrectArgumentType { expected: String, got: String },
+    InvalidArgumentValue { got: String, expected: String },
 }
 
 impl fmt::Display for Error {
@@ -18,9 +20,21 @@ impl fmt::Display for Error {
             Self::StringEncodingFailed(msg) => {
                 write!(f, "Failed to encode string. Got error: {}", msg)
             }
-            Self::CodeBlockParsingFailed(error) => {
-                write!(f, "Failed to parse code block: {}", error)
+            Self::ParserFailed(msg) => write!(f, "The parser failed: {}", msg),
+            Self::UnknownFunction(name) => write!(f, "Unknown function: {}", name),
+            Self::MissingArgument(func, arg) => {
+                write!(f, "Function {} requires argument {}", func, arg)
             }
+            Self::IncorrectArgumentType { expected, got } => write!(
+                f,
+                "Invalid argument type. Expected {}, got {}",
+                expected, got
+            ),
+            Self::InvalidArgumentValue { got, expected } => write!(
+                f,
+                "Invalid argument value. Expected {}, got {}",
+                expected, got
+            ),
         }
     }
 }
@@ -46,15 +60,57 @@ mod tests {
     }
 
     #[test]
-    fn display_code_block_parsing_failed() {
+    fn display_parser_failed() {
+        assert_eq!(
+            format!("{}", Error::ParserFailed("reason".to_string())),
+            "The parser failed: reason"
+        )
+    }
+
+    #[test]
+    fn display_unknown_function() {
+        assert_eq!(
+            format!("{}", Error::UnknownFunction("funcy".to_string())),
+            "Unknown function: funcy"
+        )
+    }
+
+    #[test]
+    fn display_missing_argument() {
         assert_eq!(
             format!(
                 "{}",
-                Error::CodeBlockParsingFailed(code_block_info::Error::UnknownFunction(
-                    "xzy".to_string()
-                ))
+                Error::MissingArgument("funcy".to_string(), "argy".to_string())
             ),
-            "Failed to parse code block: Unknown function: xzy"
+            "Function funcy requires argument argy"
+        )
+    }
+
+    #[test]
+    fn display_incorrect_argument_type() {
+        assert_eq!(
+            format!(
+                "{}",
+                Error::IncorrectArgumentType {
+                    expected: "token".to_string(),
+                    got: "string".to_string()
+                }
+            ),
+            "Invalid argument type. Expected token, got string"
+        )
+    }
+
+    #[test]
+    fn display_invalid_argument_value() {
+        assert_eq!(
+            format!(
+                "{}",
+                Error::InvalidArgumentValue {
+                    expected: "true or false".to_string(),
+                    got: "maybe".to_string()
+                }
+            ),
+            "Invalid argument value. Expected true or false, got maybe"
         )
     }
 }

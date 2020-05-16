@@ -6,6 +6,7 @@ use nom::{
     sequence::tuple,
 };
 
+use crate::parser::error::Error;
 use crate::parser::function_string;
 use crate::types::{ScriptName, Source, Stream};
 
@@ -13,37 +14,6 @@ use crate::types::{ScriptName, Source, Stream};
 pub enum CodeBlockType {
     Script(ScriptName),
     Verify(Source),
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Error {
-    ParserFailed(String),
-    UnknownFunction(String),
-    MissingArgument(String, String),
-    IncorrectArgumentType { expected: String, got: String },
-    InvalidArgumentValue { got: String, expected: String },
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::ParserFailed(msg) => write!(f, "The parser failed: {}", msg),
-            Self::UnknownFunction(name) => write!(f, "Unknown function: {}", name),
-            Self::MissingArgument(func, arg) => {
-                write!(f, "Function {} requires argument {}", func, arg)
-            }
-            Self::IncorrectArgumentType { expected, got } => write!(
-                f,
-                "Invalid argument type. Expected {}, got {}",
-                expected, got
-            ),
-            Self::InvalidArgumentValue { got, expected } => write!(
-                f,
-                "Invalid argument value. Expected {}, got {}",
-                expected, got
-            ),
-        }
-    }
 }
 
 pub fn parse(input: &str) -> Result<CodeBlockType, Error> {
@@ -116,66 +86,6 @@ fn get_token_argument(f: &function_string::Function, name: &str) -> Result<Strin
 mod tests {
     #[cfg(test)]
     use super::*;
-
-    mod error {
-        #[cfg(test)]
-        use super::*;
-
-        #[test]
-        fn display_parser_failed() {
-            assert_eq!(
-                format!("{}", Error::ParserFailed("reason".to_string())),
-                "The parser failed: reason"
-            )
-        }
-
-        #[test]
-        fn display_unknown_function() {
-            assert_eq!(
-                format!("{}", Error::UnknownFunction("funcy".to_string())),
-                "Unknown function: funcy"
-            )
-        }
-
-        #[test]
-        fn display_missing_argument() {
-            assert_eq!(
-                format!(
-                    "{}",
-                    Error::MissingArgument("funcy".to_string(), "argy".to_string())
-                ),
-                "Function funcy requires argument argy"
-            )
-        }
-
-        #[test]
-        fn display_incorrect_argument_type() {
-            assert_eq!(
-                format!(
-                    "{}",
-                    Error::IncorrectArgumentType {
-                        expected: "token".to_string(),
-                        got: "string".to_string()
-                    }
-                ),
-                "Invalid argument type. Expected token, got string"
-            )
-        }
-
-        #[test]
-        fn display_invalid_argument_value() {
-            assert_eq!(
-                format!(
-                    "{}",
-                    Error::InvalidArgumentValue {
-                        expected: "true or false".to_string(),
-                        got: "maybe".to_string()
-                    }
-                ),
-                "Invalid argument value. Expected true or false, got maybe"
-            )
-        }
-    }
 
     mod parse {
         #[cfg(test)]
