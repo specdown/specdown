@@ -1,5 +1,3 @@
-use std::fmt;
-
 use comrak::nodes::{AstNode, NodeCodeBlock, NodeValue};
 use comrak::{parse_document, Arena, ComrakOptions};
 
@@ -7,30 +5,10 @@ use crate::types::Action;
 
 mod actions;
 mod code_block_info;
+mod error;
 mod function_string;
 
-#[derive(Debug, PartialEq)]
-pub enum Error {
-    RootMustBeDocument,
-    StringEncodingFailed(String),
-    CodeBlockParsingFailed(code_block_info::Error),
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::RootMustBeDocument => {
-                write!(f, "RootMustBeDocument :: This error should never occur")
-            }
-            Self::StringEncodingFailed(msg) => {
-                write!(f, "Failed to encode string. Got error: {}", msg)
-            }
-            Self::CodeBlockParsingFailed(error) => {
-                write!(f, "Failed to parse code block: {}", error)
-            }
-        }
-    }
-}
+use error::Error;
 
 type Result<T> = std::result::Result<T, Error>;
 
