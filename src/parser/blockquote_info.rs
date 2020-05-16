@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use nom::{
     bytes::streaming::{tag, take_until},
     combinator::map,
@@ -17,9 +15,9 @@ pub enum BlockQuoteTypes {
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
-    ParserError(String),
+    ParserFailed(String),
     UnknownFunction(String),
-    MissingArgumentError(String, String),
+    MissingArgument(String, String),
     IncorrectArgumentType { expected: String, got: String },
     InvalidArgumentValue { got: String, expected: String },
 }
@@ -30,25 +28,22 @@ pub fn parse(input: &str) -> Result<BlockQuoteTypes, Error> {
 
     match p(input) {
         Ok((_, func)) => to_blockquote_type(&func),
-        Err(_nom_error) => Err(Error::ParserError(String::from(_nom_error.to_string()))),
+        Err(nom_error) => Err(Error::ParserFailed(nom_error.to_string())),
     }
 }
 
 fn to_blockquote_type(f: &function_string::Function) -> Result<BlockQuoteTypes, Error> {
-    match f.name {
+    match (&f.name[..]) {
         "script" => {
             let name = get_string_argument(&f, "name")?;
             Ok(BlockQuoteTypes::Script(ScriptName(name)))
         }
         "verify" => {
-            let script_name = get_string_argument(&f, "script_name")?;
+            let name = ScriptName(get_string_argument(&f, "script_name")?);
             let stream = to_stream(&get_token_argument(&f, "stream")?)?;
-            Ok(BlockQuoteTypes::Verify(Source {
-                name: ScriptName(script_name),
-                stream: stream,
-            }))
+            Ok(BlockQuoteTypes::Verify(Source { name, stream }))
         }
-        _ => Err(Error::UnknownFunction(String::from(f.name))),
+        _ => Err(Error::UnknownFunction(f.name.clone())),
     }
 }
 
@@ -65,13 +60,13 @@ fn to_stream(stream_name: &str) -> Result<Stream, Error> {
 }
 
 fn get_string_argument(f: &function_string::Function, name: &str) -> Result<String, Error> {
-    let arg = f.arguments.get(name).ok_or(Error::MissingArgumentError(
-        String::from(f.name),
+    let arg = f.arguments.get(name).ok_or_else(|| Error::MissingArgument(
+        f.name.clone(),
         name.to_string(),
     ))?;
 
     match arg {
-        function_string::ArgumentValue::String(s) => Ok(String::from(*s)),
+        function_string::ArgumentValue::String(s) => Ok(s.clone()),
         function_string::ArgumentValue::Token(_) => Err(Error::IncorrectArgumentType {
             expected: "string".to_string(),
             got: "token".to_string(),
@@ -80,13 +75,13 @@ fn get_string_argument(f: &function_string::Function, name: &str) -> Result<Stri
 }
 
 fn get_token_argument(f: &function_string::Function, name: &str) -> Result<String, Error> {
-    let arg = f.arguments.get(name).ok_or(Error::MissingArgumentError(
-        String::from(f.name),
+    let arg = f.arguments.get(name).ok_or_else(|| Error::MissingArgument(
+        f.name.clone(),
         name.to_string(),
     ))?;
 
     match arg {
-        function_string::ArgumentValue::Token(t) => Ok(String::from(*t)),
+        function_string::ArgumentValue::Token(t) => Ok(t.clone()),
         function_string::ArgumentValue::String(_) => Err(Error::IncorrectArgumentType {
             expected: "token".to_string(),
             got: "string".to_string(),
@@ -95,12 +90,15 @@ fn get_token_argument(f: &function_string::Function, name: &str) -> Result<Strin
 }
 
 mod tests {
+    #[cfg(test)]
     use super::*;
 
     mod parse {
+        #[cfg(test)]
         use super::*;
 
         mod script {
+            #[cfg(test)]
             use super::*;
 
             #[test]
@@ -119,7 +117,7 @@ mod tests {
                 let result = parse("shell,script()");
                 assert_eq!(
                     result,
-                    Err(Error::MissingArgumentError(
+                    Err(Error::MissingArgument(
                         "script".to_string(),
                         "name".to_string()
                     ))
@@ -128,6 +126,7 @@ mod tests {
         }
 
         mod verify {
+            #[cfg(test)]
             use super::*;
 
             #[test]
@@ -183,7 +182,7 @@ mod tests {
                 let result = parse("shell,verify(stream=stderr)");
                 assert_eq!(
                     result,
-                    Err(Error::MissingArgumentError(
+                    Err(Error::MissingArgument(
                         "verify".to_string(),
                         "script_name".to_string()
                     ))
@@ -195,7 +194,7 @@ mod tests {
                 let result = parse("shell,verify(script_name=\"the-script\")");
                 assert_eq!(
                     result,
-                    Err(Error::MissingArgumentError(
+                    Err(Error::MissingArgument(
                         "verify".to_string(),
                         "stream".to_string()
                     ))

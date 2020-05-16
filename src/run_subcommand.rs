@@ -22,5 +22,5 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
 
 fn execute_run(spec_file: &Path) {
     let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
-    let _ast = parser::parse(contents);
+    let _ast = parser::parse(&contents);
 }

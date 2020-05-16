@@ -1,11 +1,9 @@
-use nom::IResult;
-
 use crate::parser::blockquote_info;
 use crate::parser::{Error, Result};
-use crate::types::{Action, ScriptCode, ScriptName, Source, Stream, VerifyValue};
+use crate::types::{Action, ScriptCode, VerifyValue};
 
-pub fn create_action(info: String, literal: String) -> Result<Action> {
-    let block = blockquote_info::parse(&info).map_err(Error::BlockQuoteError)?;
+pub fn create_action(info: &str, literal: String) -> Result<Action> {
+    let block = blockquote_info::parse(&info).map_err(Error::BlockQuoteParsingFailed)?;
 
     match block {
         blockquote_info::BlockQuoteTypes::Script(name) => {
@@ -18,14 +16,18 @@ pub fn create_action(info: String, literal: String) -> Result<Action> {
 }
 
 mod tests {
+    #[cfg(test)]
     use super::*;
+
+    #[cfg(test)]
+    use crate::types::{ScriptName, Source, Stream};
 
     #[test]
     fn create_action_for_script() {
         assert_eq!(
             create_action(
-                "shell,script(name=\"script-name\")".to_string(),
-                "code".to_string()
+                "shell,script(name=\"script-name\")",
+                "code".to_string(),
             ),
             Ok(Action::Script(
                 ScriptName("script-name".to_string()),
@@ -54,7 +56,7 @@ mod tests {
     fn create_action_for_verify() {
         assert_eq!(
             create_action(
-                ",verify(script_name=\"script-name\", stream=output)".to_string(),
+                ",verify(script_name=\"script-name\", stream=output)",
                 "value".to_string()
             ),
             Ok(Action::Verify(
