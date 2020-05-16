@@ -1,22 +1,17 @@
-use crate::types::{Action, ScriptCode, ScriptName, Source, Stream, VerifyValue};
-use crate::parser::Result;
-
 use nom::{IResult};
 
+use crate::types::{Action, ScriptCode, ScriptName, Source, Stream, VerifyValue};
+use crate::parser::{Result, Error};
+use crate::parser::blockquote_info;
+
 pub fn create_action(info: String, literal: String) -> Result<Action> {
-    if !info.contains("verify") {
-        Ok(Action::Script(
-            ScriptName("script-name".to_string()),
-            ScriptCode("code".to_string())
-        ))
-    } else {
-        Ok(Action::Verify(
-            Source {
-                name: ScriptName("script-name".to_string()),
-                stream: Stream::Output
-            },
-            VerifyValue("value".to_string())
-        ))
+    let block = blockquote_info::parse(&info).map_err(Error::BlockQuoteError)?;
+
+    match block {
+        blockquote_info::BlockQuoteTypes::Script(name) =>
+            Ok(Action::Script(name, ScriptCode(literal))),
+        blockquote_info::BlockQuoteTypes::Verify(source) =>
+            Ok(Action::Verify(source, VerifyValue(literal))),
     }
 }
 
@@ -59,7 +54,7 @@ mod tests {
     fn create_action_for_verify() {
         assert_eq!(
             create_action(
-                ",verify(source_name=\"script-name\", stream=output)".to_string(),
+                ",verify(script_name=\"script-name\", stream=output)".to_string(),
                 "value".to_string()
             ),
             Ok(

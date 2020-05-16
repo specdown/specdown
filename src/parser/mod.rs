@@ -7,11 +7,13 @@ use crate::types::Action;
 
 mod actions;
 mod blockquote_info;
+mod function_string;
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
     RootMustBeDocument,
     StringEncodingFailed(FromUtf8Error),
+    BlockQuoteError(blockquote_info::Error)
 }
 
 type Result<T> = std::result::Result<T, Error>;
