@@ -8,7 +8,10 @@ pub enum Error {
     StringEncodingFailed(String),
     ParserFailed(String),
     UnknownFunction(String),
-    MissingArgument(String, String),
+    MissingArgument {
+        function: String,
+        argument: String,
+    },
     IncorrectArgumentType {
         function: String,
         argument: String,
@@ -32,8 +35,8 @@ impl fmt::Display for Error {
             }
             Self::ParserFailed(msg) => write!(f, "The parser failed: {}", msg),
             Self::UnknownFunction(name) => write!(f, "Unknown function: {}", name),
-            Self::MissingArgument(func, arg) => {
-                write!(f, "Function {} requires argument {}", func, arg)
+            Self::MissingArgument { function, argument } => {
+                write!(f, "Function {} requires argument {}", function, argument)
             }
             Self::IncorrectArgumentType {
                 function,
@@ -95,7 +98,10 @@ mod tests {
         assert_eq!(
             format!(
                 "{}",
-                Error::MissingArgument("funcy".to_string(), "argy".to_string())
+                Error::MissingArgument {
+                    function: "funcy".to_string(),
+                    argument: "argy".to_string()
+                }
             ),
             "Function funcy requires argument argy"
         )

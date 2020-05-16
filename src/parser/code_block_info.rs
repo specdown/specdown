@@ -55,7 +55,10 @@ fn get_string_argument(f: &function_string::Function, name: &str) -> Result<Stri
     let arg = f
         .arguments
         .get(name)
-        .ok_or_else(|| Error::MissingArgument(f.name.clone(), name.to_string()))?;
+        .ok_or_else(|| Error::MissingArgument {
+            function: f.name.clone(),
+            argument: name.to_string(),
+        })?;
 
     match arg {
         function_string::ArgumentValue::String(s) => Ok(s.clone()),
@@ -72,7 +75,10 @@ fn get_token_argument(f: &function_string::Function, name: &str) -> Result<Strin
     let arg = f
         .arguments
         .get(name)
-        .ok_or_else(|| Error::MissingArgument(f.name.clone(), name.to_string()))?;
+        .ok_or_else(|| Error::MissingArgument {
+            function: f.name.clone(),
+            argument: name.to_string(),
+        })?;
 
     match arg {
         function_string::ArgumentValue::Token(t) => Ok(t.clone()),
@@ -113,10 +119,10 @@ mod tests {
                 let result = parse("shell,script()");
                 assert_eq!(
                     result,
-                    Err(Error::MissingArgument(
-                        "script".to_string(),
-                        "name".to_string()
-                    ))
+                    Err(Error::MissingArgument {
+                        function: "script".to_string(),
+                        argument: "name".to_string()
+                    })
                 )
             }
         }
@@ -178,10 +184,10 @@ mod tests {
                 let result = parse("shell,verify(stream=stderr)");
                 assert_eq!(
                     result,
-                    Err(Error::MissingArgument(
-                        "verify".to_string(),
-                        "script_name".to_string()
-                    ))
+                    Err(Error::MissingArgument {
+                        function: "verify".to_string(),
+                        argument: "script_name".to_string()
+                    })
                 )
             }
 
@@ -190,10 +196,10 @@ mod tests {
                 let result = parse("shell,verify(script_name=\"the-script\")");
                 assert_eq!(
                     result,
-                    Err(Error::MissingArgument(
-                        "verify".to_string(),
-                        "stream".to_string()
-                    ))
+                    Err(Error::MissingArgument {
+                        function: "verify".to_string(),
+                        argument: "stream".to_string()
+                    })
                 )
             }
         }
