@@ -25,10 +25,7 @@ mod tests {
     #[test]
     fn create_action_for_script() {
         assert_eq!(
-            create_action(
-                "shell,script(name=\"script-name\")",
-                "code".to_string(),
-            ),
+            create_action("shell,script(name=\"script-name\")", "code".to_string(),),
             Ok(Action::Script(
                 ScriptName("script-name".to_string()),
                 ScriptCode("code".to_string())

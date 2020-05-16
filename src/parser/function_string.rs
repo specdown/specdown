@@ -26,7 +26,10 @@ pub enum ArgumentValue {
 
 pub fn parse(input: &str) -> IResult<&str, Function> {
     let p = tuple((alpha1, argument_list));
-    map(p, |(name, arguments)| Function { name: name.to_string(), arguments: arguments })(input)
+    map(p, |(name, arguments)| Function {
+        name: name.to_string(),
+        arguments,
+    })(input)
 }
 
 fn argument_list(input: &str) -> IResult<&str, HashMap<String, ArgumentValue>> {
@@ -75,7 +78,9 @@ fn string_value(input: &str) -> IResult<&str, ArgumentValue> {
 }
 
 fn token_value(input: &str) -> IResult<&str, ArgumentValue> {
-    map(alpha1, |token: &str| ArgumentValue::Token(token.to_string()))(input)
+    map(alpha1, |token: &str| {
+        ArgumentValue::Token(token.to_string())
+    })(input)
 }
 
 // mod tests {

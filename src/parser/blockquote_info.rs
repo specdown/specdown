@@ -60,10 +60,10 @@ fn to_stream(stream_name: &str) -> Result<Stream, Error> {
 }
 
 fn get_string_argument(f: &function_string::Function, name: &str) -> Result<String, Error> {
-    let arg = f.arguments.get(name).ok_or_else(|| Error::MissingArgument(
-        f.name.clone(),
-        name.to_string(),
-    ))?;
+    let arg = f
+        .arguments
+        .get(name)
+        .ok_or_else(|| Error::MissingArgument(f.name.clone(), name.to_string()))?;
 
     match arg {
         function_string::ArgumentValue::String(s) => Ok(s.clone()),
@@ -75,10 +75,10 @@ fn get_string_argument(f: &function_string::Function, name: &str) -> Result<Stri
 }
 
 fn get_token_argument(f: &function_string::Function, name: &str) -> Result<String, Error> {
-    let arg = f.arguments.get(name).ok_or_else(|| Error::MissingArgument(
-        f.name.clone(),
-        name.to_string(),
-    ))?;
+    let arg = f
+        .arguments
+        .get(name)
+        .ok_or_else(|| Error::MissingArgument(f.name.clone(), name.to_string()))?;
 
     match arg {
         function_string::ArgumentValue::Token(t) => Ok(t.clone()),

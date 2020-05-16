@@ -1,3 +1,13 @@
+.DEFAULT_GOAL := build
+
+.PHONY=build
+build: dist/specdown
+
+.PHONY=clean
+clean:
+	rm -rf target
+	rm -rf dist
+
 .PHONY=check
 check:
 	cargo fmt --all -- --check
@@ -12,8 +22,10 @@ format:
 test: check
 	cargo test
 
-dist/specdown: test
-	cargo build --release dist
+dist:
+	mkdir -p dist
 
-.PHONY=build
-build: dist/specdown
+dist/specdown: dist test
+	cargo build --release
+	cp target/release/specdown dist
+
