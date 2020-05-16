@@ -33,7 +33,7 @@ pub fn parse(input: &str) -> Result<BlockQuoteTypes, Error> {
 }
 
 fn to_blockquote_type(f: &function_string::Function) -> Result<BlockQuoteTypes, Error> {
-    match (&f.name[..]) {
+    match &f.name[..] {
         "script" => {
             let name = get_string_argument(&f, "name")?;
             Ok(BlockQuoteTypes::Script(ScriptName(name)))
