@@ -8,9 +8,7 @@ mod code_block_info;
 mod error;
 mod function_string;
 
-use error::Error;
-
-type Result<T> = std::result::Result<T, Error>;
+use error::{Error, Result};
 
 pub fn parse(markdown: &str) -> Result<Vec<Action>> {
     let arena = Arena::new();

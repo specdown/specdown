@@ -1,5 +1,3 @@
-use std::fmt;
-
 use nom::{
     bytes::streaming::{tag, take_until},
     combinator::map,
