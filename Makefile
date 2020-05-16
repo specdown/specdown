@@ -21,6 +21,7 @@ format:
 .PHONY=test
 test: check
 	cargo test
+	PATH="target/debug:${PATH}" specdown run README.md
 
 dist:
 	mkdir -p dist
