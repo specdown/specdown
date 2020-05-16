@@ -1,11 +1,11 @@
 use clap::{Arg, SubCommand};
-use std::fs;
-use std::process::Command;
 use std::collections::HashMap;
+use std::fs;
 use std::path::Path;
+use std::process::Command;
 
 use crate::parser;
-use crate::types::{Action, ScriptName, ScriptCode, Source, Stream, VerifyValue};
+use crate::types::{Action, ScriptCode, ScriptName, Source, VerifyValue};
 
 pub fn create() -> clap::App<'static, 'static> {
     let spec_file = Arg::with_name("spec-file")
@@ -39,7 +39,10 @@ struct State {
 }
 
 fn run_actions(actions: &[Action]) {
-    let mut state = State { count: 0, scripts: HashMap::new() };
+    let mut state = State {
+        count: 0,
+        scripts: HashMap::new(),
+    };
     println!("Found {} actions", actions.len());
 
     for action in actions {
@@ -68,10 +71,7 @@ fn run_script(name: &ScriptName, code: &ScriptCode, state: &mut State) {
     println!("### Running script {}\n", name_string);
     println!("```\n{}\n```\n", code_string);
 
-    let result = Command::new("sh")
-                    .arg("-c")
-                    .arg(code_string)
-                    .output();
+    let result = Command::new("sh").arg("-c").arg(code_string).output();
 
     match result {
         Ok(output) => {
@@ -79,16 +79,16 @@ fn run_script(name: &ScriptName, code: &ScriptCode, state: &mut State) {
             println!("Output {}", output_string);
             state.scripts.insert(name_string.clone(), output_string);
             println!("**Result**: success\n");
-        },
-        Err(err) => {
-            println!("**Result**: failed")
         }
+        Err(_err) => println!("**Result**: failed"),
     }
-    
 }
 
 fn run_verify(source: &Source, value: &VerifyValue, state: &mut State) {
-    let Source { name: ScriptName(script_name), stream } = source;
+    let Source {
+        name: ScriptName(script_name),
+        stream: _stream,
+    } = source;
     let VerifyValue(value_string) = value;
 
     println!("### Running verify against output from {}\n", script_name);

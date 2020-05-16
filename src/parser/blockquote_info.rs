@@ -27,17 +27,17 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Error::ParserFailed(msg) => write!(f, "The parser failed: {}", msg),
-            Error::UnknownFunction(name) => write!(f, "Unknown function: {}", name),
-            Error::MissingArgument(func, arg) => {
+            Self::ParserFailed(msg) => write!(f, "The parser failed: {}", msg),
+            Self::UnknownFunction(name) => write!(f, "Unknown function: {}", name),
+            Self::MissingArgument(func, arg) => {
                 write!(f, "Function {} requires argument {}", func, arg)
             }
-            Error::IncorrectArgumentType { expected, got } => write!(
+            Self::IncorrectArgumentType { expected, got } => write!(
                 f,
                 "Invalid argument type. Expected {}, got {}",
                 expected, got
             ),
-            Error::InvalidArgumentValue { got, expected } => write!(
+            Self::InvalidArgumentValue { got, expected } => write!(
                 f,
                 "Invalid argument value. Expected {}, got {}",
                 expected, got

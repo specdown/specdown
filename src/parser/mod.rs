@@ -19,13 +19,13 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Error::RootMustBeDocument => {
+            Self::RootMustBeDocument => {
                 write!(f, "RootMustBeDocument :: This error should never occur")
             }
-            Error::StringEncodingFailed(msg) => {
+            Self::StringEncodingFailed(msg) => {
                 write!(f, "Failed to encode string. Got error: {}", msg)
             }
-            Error::BlockQuoteParsingFailed(error) => {
+            Self::BlockQuoteParsingFailed(error) => {
                 write!(f, "Failed to parse blockquote: {}", error)
             }
         }
