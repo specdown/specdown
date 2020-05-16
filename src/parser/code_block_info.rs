@@ -59,43 +59,45 @@ fn to_stream(stream_name: &str) -> Option<Stream> {
 }
 
 fn get_string_argument(f: &function_string::Function, name: &str) -> Result<String> {
-    let arg = f
-        .arguments
-        .get(name)
-        .ok_or_else(|| Error::MissingArgument {
-            function: f.name.clone(),
-            argument: name.to_string(),
-        })?;
-
-    match arg {
+    match get_required_argument(f, name)? {
         function_string::ArgumentValue::String(s) => Ok(s.clone()),
-        function_string::ArgumentValue::Token(_) => Err(Error::IncorrectArgumentType {
-            function: f.name.to_string(),
-            argument: name.to_string(),
-            expected: "string".to_string(),
-            got: "token".to_string(),
-        }),
+        function_string::ArgumentValue::Token(_) => {
+            incorrect_argument_type_error(f, name, "string", "token")
+        }
     }
 }
 
 fn get_token_argument(f: &function_string::Function, name: &str) -> Result<String> {
-    let arg = f
-        .arguments
-        .get(name)
-        .ok_or_else(|| Error::MissingArgument {
-            function: f.name.clone(),
-            argument: name.to_string(),
-        })?;
-
-    match arg {
+    match get_required_argument(f, name)? {
         function_string::ArgumentValue::Token(t) => Ok(t.clone()),
-        function_string::ArgumentValue::String(_) => Err(Error::IncorrectArgumentType {
-            function: f.name.to_string(),
-            argument: name.to_string(),
-            expected: "token".to_string(),
-            got: "string".to_string(),
-        }),
+        function_string::ArgumentValue::String(_) => {
+            incorrect_argument_type_error(f, name, "token", "string")
+        }
     }
+}
+
+fn get_required_argument<'a>(
+    f: &'a function_string::Function,
+    name: &str,
+) -> Result<&'a function_string::ArgumentValue> {
+    f.arguments.get(name).ok_or_else(|| Error::MissingArgument {
+        function: f.name.clone(),
+        argument: name.to_string(),
+    })
+}
+
+fn incorrect_argument_type_error(
+    f: &function_string::Function,
+    argument: &str,
+    expected: &str,
+    got: &str,
+) -> Result<String> {
+    Err(Error::IncorrectArgumentType {
+        function: f.name.to_string(),
+        argument: argument.to_string(),
+        expected: expected.to_string(),
+        got: got.to_string(),
+    })
 }
 
 mod tests {
