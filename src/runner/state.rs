@@ -4,6 +4,7 @@ pub struct State {
     number_of_scripts: u32,
     number_of_verifies: u32,
     script_results: HashMap<String, String>,
+    is_success: bool,
 }
 
 impl State {
@@ -12,6 +13,7 @@ impl State {
             number_of_scripts: 0,
             number_of_verifies: 0,
             script_results: HashMap::new(),
+            is_success: true,
         }
     }
 
@@ -32,6 +34,18 @@ impl State {
     pub fn get_script_output(&self, name: &str) -> Option<&str> {
         self.script_results.get(name).map(|s| &s[..])
     }
+
+    pub fn is_success(&self) -> bool {
+        return self.is_success;
+    }
+
+    pub fn verify_success(&mut self) {
+        self.number_of_verifies += 1
+    }
+
+    pub fn verify_failure(&mut self) {
+        self.is_success = false
+    }
 }
 
 mod tests {
@@ -43,6 +57,13 @@ mod tests {
         let state = State::new();
         assert_eq!(state.number_of_scripts(), 0);
         assert_eq!(state.number_of_verifies(), 0);
+    }
+
+
+    #[test]
+    fn sets_success_zero_when_new_state() {
+        let state = State::new();
+        assert_eq!(state.is_success(), true);
     }
 
     #[test]
@@ -67,5 +88,21 @@ mod tests {
     fn returns_none_when_script_output_does_not_exists() {
         let state = State::new();
         assert_eq!(state.get_script_output("does-not-exist"), None);
+    }
+
+    #[test]
+    fn increments_verify_counter_when_verify_success() {
+        let mut state = State::new();
+        state.verify_success();
+        assert_eq!(state.number_of_verifies(), 1);
+        state.verify_success();
+        assert_eq!(state.number_of_verifies(), 2);
+    }
+
+    #[test]
+    fn is_failure_when_verify_failure_called() {
+        let mut state = State::new();
+        state.verify_failure();
+        assert_eq!(state.is_success(), false);
     }
 }

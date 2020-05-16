@@ -45,6 +45,10 @@ fn run_actions(actions: &[Action]) {
         "Ran {} actions",
         state.number_of_scripts() + state.number_of_verifies()
     );
+
+    if !state.is_success() {
+        std::process::exit(1);
+    }
 }
 
 fn run_action(action: &Action, state: &mut State) {
@@ -62,14 +66,12 @@ fn run_script(name: &ScriptName, code: &ScriptCode, state: &mut State) {
     let ScriptCode(code_string) = code;
 
     println!("### Running script {}\n", name_string);
-    println!("```\n{}\n```\n", code_string);
 
     let result = Command::new("sh").arg("-c").arg(code_string).output();
 
     match result {
         Ok(output) => {
             let output_string = String::from_utf8_lossy(&output.stdout).to_string();
-            println!("Output {}", output_string);
             state.add_script_result(name_string, &output_string);
             println!("**Result**: success\n");
         }
@@ -84,20 +86,19 @@ fn run_verify(source: &Source, value: &VerifyValue, state: &mut State) {
     } = source;
     let VerifyValue(value_string) = value;
 
-    println!("### Running verify against output from {}\n", script_name);
-    println!("#### Expected\n");
-
-    println!("```\n{}\n```\n", value_string);
-
-    println!("#### Got\n");
-
+    println!("Running verify against output from {}\n", script_name);
     let got = state.get_script_output(script_name).expect("failed");
 
-    println!("```\n{}\n```\n", got);
-
     if value_string == got {
-        println!("**Result**: success\n");
+        println!("Result: success\n");
+        state.verify_success();
     } else {
-        println!("**Result**: failed\n");
+        println!("Result: failed\n");
+        println!("#### Expected\n");
+        println!("```\n{}\n```\n", value_string);
+        println!("#### Got\n");
+        println!("```\n{}\n```\n", got);
+
+        state.verify_failure()
     }
 }
