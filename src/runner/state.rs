@@ -8,8 +8,8 @@ pub struct State {
 }
 
 impl State {
-    pub fn new() -> State {
-        State {
+    pub fn new() -> Self {
+        Self {
             number_of_scripts: 0,
             number_of_verifies: 0,
             script_results: HashMap::new(),
@@ -36,7 +36,7 @@ impl State {
     }
 
     pub fn is_success(&self) -> bool {
-        return self.is_success;
+        self.is_success
     }
 
     pub fn verify_success(&mut self) {
@@ -58,7 +58,6 @@ mod tests {
         assert_eq!(state.number_of_scripts(), 0);
         assert_eq!(state.number_of_verifies(), 0);
     }
-
 
     #[test]
     fn sets_success_zero_when_new_state() {
