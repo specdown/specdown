@@ -1,3 +1,5 @@
+use std::fmt;
+
 use comrak::nodes::{AstNode, NodeCodeBlock, NodeValue};
 use comrak::{parse_document, Arena, ComrakOptions};
 
@@ -14,14 +16,28 @@ pub enum Error {
     BlockQuoteParsingFailed(blockquote_info::Error),
 }
 
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Error::RootMustBeDocument => {
+                write!(f, "RootMustBeDocument :: This error should never occur")
+            }
+            Error::StringEncodingFailed(msg) => {
+                write!(f, "Failed to encode string. Got error: {}", msg)
+            }
+            Error::BlockQuoteParsingFailed(error) => {
+                write!(f, "Failed to parse blockquote: {}", error)
+            }
+        }
+    }
+}
+
 type Result<T> = std::result::Result<T, Error>;
 
 pub fn parse(markdown: &str) -> Result<Vec<Action>> {
     let arena = Arena::new();
     let root = parse_document(&arena, &markdown, &ComrakOptions::default());
     let actions = extract_actions(root)?;
-
-    print!("Found {} actions", actions.len());
 
     Ok(actions)
 }
@@ -63,4 +79,41 @@ fn char_vec_to_string(chars: &[u8]) -> Result<String> {
     }
 }
 
-mod tests {}
+mod tests {
+    #[cfg(test)]
+    use super::*;
+
+    mod errors {
+        #[cfg(test)]
+        use super::*;
+
+        #[test]
+        fn display_root_must_be_document() {
+            assert_eq!(
+                format!("{}", Error::RootMustBeDocument),
+                "RootMustBeDocument :: This error should never occur"
+            )
+        }
+
+        #[test]
+        fn display_string_encoding_failed() {
+            assert_eq!(
+                format!("{}", Error::StringEncodingFailed("message".to_string())),
+                "Failed to encode string. Got error: message"
+            )
+        }
+
+        #[test]
+        fn display_blockquote_parsing_failed() {
+            assert_eq!(
+                format!(
+                    "{}",
+                    Error::BlockQuoteParsingFailed(blockquote_info::Error::UnknownFunction(
+                        "xzy".to_string()
+                    ))
+                ),
+                "Failed to parse blockquote: Unknown function: xzy"
+            )
+        }
+    }
+}

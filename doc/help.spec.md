@@ -8,7 +8,7 @@ specdown
 
 Outputs:
 
-```,verify(source_name="with-no-args", stream=output)
+```,verify(script_name="with-no-args", stream=output)
 specdown 
 A tool to test markdown files and drive devlopment from documentation.
 
@@ -35,7 +35,7 @@ specdown run --help
 
 Displays:
 
-```,verify(source_name="with-no-args", source_type=output)
+```,verify(script_name="with-no-args", stream=output)
 specdown-run 
 Runs a given Markdown Specification.
 
