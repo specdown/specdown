@@ -6,14 +6,14 @@ use comrak::{parse_document, Arena, ComrakOptions};
 use crate::types::Action;
 
 mod actions;
-mod blockquote_info;
+mod code_block_info;
 mod function_string;
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
     RootMustBeDocument,
     StringEncodingFailed(String),
-    BlockQuoteParsingFailed(blockquote_info::Error),
+    CodeBlockParsingFailed(code_block_info::Error),
 }
 
 impl fmt::Display for Error {
@@ -25,8 +25,8 @@ impl fmt::Display for Error {
             Self::StringEncodingFailed(msg) => {
                 write!(f, "Failed to encode string. Got error: {}", msg)
             }
-            Self::BlockQuoteParsingFailed(error) => {
-                write!(f, "Failed to parse blockquote: {}", error)
+            Self::CodeBlockParsingFailed(error) => {
+                write!(f, "Failed to parse code block: {}", error)
             }
         }
     }
@@ -104,15 +104,15 @@ mod tests {
         }
 
         #[test]
-        fn display_blockquote_parsing_failed() {
+        fn display_code_block_parsing_failed() {
             assert_eq!(
                 format!(
                     "{}",
-                    Error::BlockQuoteParsingFailed(blockquote_info::Error::UnknownFunction(
+                    Error::CodeBlockParsingFailed(code_block_info::Error::UnknownFunction(
                         "xzy".to_string()
                     ))
                 ),
-                "Failed to parse blockquote: Unknown function: xzy"
+                "Failed to parse code block: Unknown function: xzy"
             )
         }
     }

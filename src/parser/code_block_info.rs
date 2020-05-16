@@ -10,7 +10,7 @@ use crate::parser::function_string;
 use crate::types::{ScriptName, Source, Stream};
 
 #[derive(Debug, PartialEq)]
-pub enum BlockQuoteTypes {
+pub enum CodeBlockType {
     Script(ScriptName),
     Verify(Source),
 }
@@ -46,26 +46,26 @@ impl fmt::Display for Error {
     }
 }
 
-pub fn parse(input: &str) -> Result<BlockQuoteTypes, Error> {
+pub fn parse(input: &str) -> Result<CodeBlockType, Error> {
     let p = tuple((take_until(","), tag(","), function_string::parse));
     let p = map(p, |(_language, _comma, func)| func);
 
     match p(input) {
-        Ok((_, func)) => to_blockquote_type(&func),
+        Ok((_, func)) => to_code_block_type(&func),
         Err(nom_error) => Err(Error::ParserFailed(nom_error.to_string())),
     }
 }
 
-fn to_blockquote_type(f: &function_string::Function) -> Result<BlockQuoteTypes, Error> {
+fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType, Error> {
     match &f.name[..] {
         "script" => {
             let name = get_string_argument(&f, "name")?;
-            Ok(BlockQuoteTypes::Script(ScriptName(name)))
+            Ok(CodeBlockType::Script(ScriptName(name)))
         }
         "verify" => {
             let name = ScriptName(get_string_argument(&f, "script_name")?);
             let stream = to_stream(&get_token_argument(&f, "stream")?)?;
-            Ok(BlockQuoteTypes::Verify(Source { name, stream }))
+            Ok(CodeBlockType::Verify(Source { name, stream }))
         }
         _ => Err(Error::UnknownFunction(f.name.clone())),
     }
@@ -190,7 +190,7 @@ mod tests {
                 let result = parse("shell,script(name=\"example-script\")");
                 assert_eq!(
                     result,
-                    Ok(BlockQuoteTypes::Script(ScriptName(
+                    Ok(CodeBlockType::Script(ScriptName(
                         "example-script".to_string()
                     )))
                 )
@@ -218,7 +218,7 @@ mod tests {
                 let result = parse(",verify(script_name=\"example-script\", stream=output)");
                 assert_eq!(
                     result,
-                    Ok(BlockQuoteTypes::Verify(Source {
+                    Ok(CodeBlockType::Verify(Source {
                         name: ScriptName("example-script".to_string()),
                         stream: Stream::Output
                     }))
@@ -230,7 +230,7 @@ mod tests {
                 let result = parse(",verify(script_name=\"example-script\", stream=stdout)");
                 assert_eq!(
                     result,
-                    Ok(BlockQuoteTypes::Verify(Source {
+                    Ok(CodeBlockType::Verify(Source {
                         name: ScriptName("example-script".to_string()),
                         stream: Stream::StdOut
                     }))
@@ -242,7 +242,7 @@ mod tests {
                 let result = parse(",verify(script_name=\"example-script\", stream=stderr)");
                 assert_eq!(
                     result,
-                    Ok(BlockQuoteTypes::Verify(Source {
+                    Ok(CodeBlockType::Verify(Source {
                         name: ScriptName("example-script".to_string()),
                         stream: Stream::StdErr
                     }))

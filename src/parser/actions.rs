@@ -1,15 +1,15 @@
-use crate::parser::blockquote_info;
+use crate::parser::code_block_info;
 use crate::parser::{Error, Result};
 use crate::types::{Action, ScriptCode, VerifyValue};
 
 pub fn create_action(info: &str, literal: String) -> Result<Action> {
-    let block = blockquote_info::parse(&info).map_err(Error::BlockQuoteParsingFailed)?;
+    let block = code_block_info::parse(&info).map_err(Error::CodeBlockParsingFailed)?;
 
     match block {
-        blockquote_info::BlockQuoteTypes::Script(name) => {
+        code_block_info::CodeBlockType::Script(name) => {
             Ok(Action::Script(name, ScriptCode(literal)))
         }
-        blockquote_info::BlockQuoteTypes::Verify(source) => {
+        code_block_info::CodeBlockType::Verify(source) => {
             Ok(Action::Verify(source, VerifyValue(literal)))
         }
     }
