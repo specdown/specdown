@@ -24,3 +24,37 @@ impl fmt::Display for Error {
         }
     }
 }
+
+mod tests {
+    #[cfg(test)]
+    use super::*;
+
+    #[test]
+    fn display_root_must_be_document() {
+        assert_eq!(
+            format!("{}", Error::RootMustBeDocument),
+            "RootMustBeDocument :: This error should never occur"
+        )
+    }
+
+    #[test]
+    fn display_string_encoding_failed() {
+        assert_eq!(
+            format!("{}", Error::StringEncodingFailed("message".to_string())),
+            "Failed to encode string. Got error: message"
+        )
+    }
+
+    #[test]
+    fn display_code_block_parsing_failed() {
+        assert_eq!(
+            format!(
+                "{}",
+                Error::CodeBlockParsingFailed(code_block_info::Error::UnknownFunction(
+                    "xzy".to_string()
+                ))
+            ),
+            "Failed to parse code block: Unknown function: xzy"
+        )
+    }
+}
