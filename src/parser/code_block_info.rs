@@ -4,7 +4,7 @@ use nom::{
     sequence::tuple,
 };
 
-use crate::parser::error::Error;
+use crate::parser::error::{Error, Result};
 use crate::parser::function_string;
 use crate::types::{ScriptName, Source, Stream};
 
@@ -14,7 +14,7 @@ pub enum CodeBlockType {
     Verify(Source),
 }
 
-pub fn parse(input: &str) -> Result<CodeBlockType, Error> {
+pub fn parse(input: &str) -> Result<CodeBlockType> {
     let p = tuple((take_until(","), tag(","), function_string::parse));
     let p = map(p, |(_language, _comma, func)| func);
 
@@ -24,7 +24,7 @@ pub fn parse(input: &str) -> Result<CodeBlockType, Error> {
     }
 }
 
-fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType, Error> {
+fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
     match &f.name[..] {
         "script" => {
             let name = get_string_argument(&f, "name")?;
@@ -39,7 +39,7 @@ fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType, Er
     }
 }
 
-fn to_stream(stream_name: &str) -> Result<Stream, Error> {
+fn to_stream(stream_name: &str) -> Result<Stream> {
     match stream_name {
         "output" => Ok(Stream::Output),
         "stdout" => Ok(Stream::StdOut),
@@ -51,7 +51,7 @@ fn to_stream(stream_name: &str) -> Result<Stream, Error> {
     }
 }
 
-fn get_string_argument(f: &function_string::Function, name: &str) -> Result<String, Error> {
+fn get_string_argument(f: &function_string::Function, name: &str) -> Result<String> {
     let arg = f
         .arguments
         .get(name)
@@ -66,7 +66,7 @@ fn get_string_argument(f: &function_string::Function, name: &str) -> Result<Stri
     }
 }
 
-fn get_token_argument(f: &function_string::Function, name: &str) -> Result<String, Error> {
+fn get_token_argument(f: &function_string::Function, name: &str) -> Result<String> {
     let arg = f
         .arguments
         .get(name)
