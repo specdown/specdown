@@ -1,10 +1,10 @@
 use clap::{Arg, SubCommand};
-use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
 
 use crate::parser;
+use crate::runner::state::State;
 use crate::types::{Action, ScriptCode, ScriptName, Source, VerifyValue};
 
 pub fn create() -> clap::App<'static, 'static> {
@@ -33,35 +33,28 @@ fn execute_run(spec_file: &Path) {
     }
 }
 
-struct State {
-    count: u32,
-    scripts: HashMap<String, String>,
-}
-
 fn run_actions(actions: &[Action]) {
-    let mut state = State {
-        count: 0,
-        scripts: HashMap::new(),
-    };
+    let mut state = State::new();
     println!("Found {} actions", actions.len());
 
     for action in actions {
         run_action(action, &mut state);
     }
 
-    println!("Ran {} actions", state.count);
+    println!(
+        "Ran {} actions",
+        state.number_of_scripts() + state.number_of_verifies()
+    );
 }
 
 fn run_action(action: &Action, state: &mut State) {
-    let action_number = state.count + 1;
+    let action_number = state.number_of_scripts() + state.number_of_verifies() + 1;
     println!("## Running action {}\n", action_number);
 
     match action {
         Action::Script(name, code) => run_script(name, code, state),
         Action::Verify(source, value) => run_verify(source, value, state),
     }
-
-    state.count = action_number;
 }
 
 fn run_script(name: &ScriptName, code: &ScriptCode, state: &mut State) {
@@ -77,7 +70,7 @@ fn run_script(name: &ScriptName, code: &ScriptCode, state: &mut State) {
         Ok(output) => {
             let output_string = String::from_utf8_lossy(&output.stdout).to_string();
             println!("Output {}", output_string);
-            state.scripts.insert(name_string.clone(), output_string);
+            state.add_script_result(name_string, &output_string);
             println!("**Result**: success\n");
         }
         Err(_err) => println!("**Result**: failed"),
@@ -98,7 +91,7 @@ fn run_verify(source: &Source, value: &VerifyValue, state: &mut State) {
 
     println!("#### Got\n");
 
-    let got = state.scripts.get(script_name).expect("failed");
+    let got = state.get_script_output(script_name).expect("failed");
 
     println!("```\n{}\n```\n", got);
 

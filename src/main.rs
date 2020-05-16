@@ -6,6 +6,7 @@ use clap::{App, AppSettings};
 
 mod parser;
 mod run_subcommand;
+mod runner;
 mod types;
 
 fn main() {
