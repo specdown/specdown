@@ -19,8 +19,10 @@ pub enum Error {
         got: String,
     },
     InvalidArgumentValue {
-        got: String,
+        function: String,
+        argument: String,
         expected: String,
+        got: String,
     },
 }
 
@@ -48,10 +50,15 @@ impl fmt::Display for Error {
                 "Function {} requires argument {} to be a {}, got {}",
                 function, argument, expected, got
             ),
-            Self::InvalidArgumentValue { got, expected } => write!(
+            Self::InvalidArgumentValue {
+                function,
+                argument,
+                expected,
+                got,
+            } => write!(
                 f,
-                "Invalid argument value. Expected {}, got {}",
-                expected, got
+                "Argument {} for function {} must be {}, got {}",
+                argument, function, expected, got
             ),
         }
     }
@@ -129,11 +136,13 @@ mod tests {
             format!(
                 "{}",
                 Error::InvalidArgumentValue {
+                    function: "func".to_string(),
+                    argument: "arg".to_string(),
                     expected: "true or false".to_string(),
                     got: "maybe".to_string()
                 }
             ),
-            "Invalid argument value. Expected true or false, got maybe"
+            "Argument arg for function func must be true or false, got maybe"
         )
     }
 }

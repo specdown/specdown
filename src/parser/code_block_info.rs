@@ -32,22 +32,25 @@ fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
         }
         "verify" => {
             let name = ScriptName(get_string_argument(&f, "script_name")?);
-            let stream = to_stream(&get_token_argument(&f, "stream")?)?;
+            let stream_name = get_token_argument(&f, "stream")?;
+            let stream = to_stream(&stream_name).ok_or_else(|| Error::InvalidArgumentValue {
+                function: f.name.to_string(),
+                argument: "stream".to_string(),
+                got: stream_name.to_string(),
+                expected: "output, stdout or stderr".to_string(),
+            })?;
             Ok(CodeBlockType::Verify(Source { name, stream }))
         }
         _ => Err(Error::UnknownFunction(f.name.clone())),
     }
 }
 
-fn to_stream(stream_name: &str) -> Result<Stream> {
+fn to_stream(stream_name: &str) -> Option<Stream> {
     match stream_name {
-        "output" => Ok(Stream::Output),
-        "stdout" => Ok(Stream::StdOut),
-        "stderr" => Ok(Stream::StdErr),
-        _ => Err(Error::InvalidArgumentValue {
-            got: stream_name.to_string(),
-            expected: "output, stdout or stderr".to_string(),
-        }),
+        "output" => Some(Stream::Output),
+        "stdout" => Some(Stream::StdOut),
+        "stderr" => Some(Stream::StdErr),
+        _ => None,
     }
 }
 
@@ -173,8 +176,10 @@ mod tests {
                 assert_eq!(
                     result,
                     Err(Error::InvalidArgumentValue {
+                        function: "verify".to_string(),
+                        argument: "stream".to_string(),
+                        expected: "output, stdout or stderr".to_string(),
                         got: "unknown".to_string(),
-                        expected: "output, stdout or stderr".to_string()
                     })
                 )
             }
