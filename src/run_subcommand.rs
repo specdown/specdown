@@ -36,41 +36,61 @@ fn execute_run(spec_file: &Path) {
 
 fn run_actions(actions: &[Action]) {
     let mut state = State::new();
-    println!("Found {} actions", actions.len());
-
+    
     for action in actions {
-        run_action(action, &mut state);
+        let result = run_action(action, &mut state);
+        match result {
+            Ok(result) => print_result(&result),
+            Err(_err) => println!("Action failed..."),
+        }
     }
-
-    println!(
-        "Ran {} actions",
-        state.number_of_scripts() + state.number_of_verifies()
-    );
 
     if !state.is_success() {
         std::process::exit(1);
     }
 }
 
-fn run_action(action: &Action, state: &mut State) {
-    let action_number = state.number_of_scripts() + state.number_of_verifies() + 1;
-    println!("## Running action {}\n", action_number);
+fn print_result(result: &TestResult) {
+    match result {
+        TestResult::ScriptResult { name, success, .. } => println!(
+            "Script {} {}",
+            name,
+            if *success { "succeeded" } else { "failed" }
+        ),
+        TestResult::VerifyResult {
+            script_name,
+            success,
+            ..
+        } => println!(
+            "Verify output from {} {}",
+            script_name,
+            if *success { "succeeded" } else { "failed" }
+        ),
+    }
+}
 
+fn run_action(action: &Action, state: &mut State) -> Result<TestResult, RunnerError> {
     match action {
         Action::Script(name, code) => run_script(name, code, state),
         Action::Verify(source, value) => run_verify(source, value, state),
     }
 }
 
-fn run_script(name: &ScriptName, code: &ScriptCode, state: &mut State) {
+enum RunnerError {
+    CommandFailed,
+}
+
+fn run_script(
+    name: &ScriptName,
+    code: &ScriptCode,
+    state: &mut State,
+) -> Result<TestResult, RunnerError> {
     let ScriptName(name_string) = name;
     let ScriptCode(code_string) = code;
 
-    println!("### Running script {}\n", name_string);
+    let command_result = Command::new("sh").arg("-c").arg(code_string).output();
 
-    let result = Command::new("sh").arg("-c").arg(code_string).output();
-
-    match result {
+    match command_result {
         Ok(output) => {
             let output_string = String::from_utf8_lossy(&output.stdout).to_string();
             let result = TestResult::ScriptResult {
@@ -83,20 +103,23 @@ fn run_script(name: &ScriptName, code: &ScriptCode, state: &mut State) {
                 success: true,
             };
             state.add_result(&result);
-            println!("**Result**: success\n");
+            Ok(result)
         }
-        Err(_err) => println!("**Result**: failed"),
+        Err(_err) => Err(RunnerError::CommandFailed),
     }
 }
 
-fn run_verify(source: &Source, value: &VerifyValue, state: &mut State) {
+fn run_verify(
+    source: &Source,
+    value: &VerifyValue,
+    state: &mut State,
+) -> Result<TestResult, RunnerError> {
     let Source {
         name: ScriptName(script_name),
         stream: _stream,
     } = source;
     let VerifyValue(value_string) = value;
 
-    println!("Running verify against output from {}\n", script_name);
     let got = state.get_script_output(script_name).expect("failed");
 
     let result = TestResult::VerifyResult {
@@ -107,15 +130,7 @@ fn run_verify(source: &Source, value: &VerifyValue, state: &mut State) {
         success: value_string == got,
     };
 
-    if value_string == got {
-        println!("Result: success\n");
-    } else {
-        println!("Result: failed\n");
-        println!("#### Expected\n");
-        println!("```\n{}\n```\n", value_string);
-        println!("#### Got\n");
-        println!("```\n{}\n```\n", got);
-    }
-
     state.add_result(&result);
+
+    Ok(result)
 }
