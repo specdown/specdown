@@ -36,7 +36,7 @@ fn execute_run(spec_file: &Path) {
 
 fn run_actions(actions: &[Action]) {
     let mut state = State::new();
-    
+
     for action in actions {
         let result = run_action(action, &mut state);
         match result {
@@ -97,7 +97,7 @@ fn run_script(
                 name: name_string.to_string(),
                 exit_code: 0,
                 script: code_string.to_string(),
-                output: output_string.clone(),
+                output: output_string,
                 stdout: "FIXME stderr".to_string(),
                 stderr: "FIXME stderr1".to_string(),
                 success: true,
