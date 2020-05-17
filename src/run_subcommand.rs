@@ -5,6 +5,7 @@ use std::process::Command;
 
 use crate::parser;
 use crate::runner::state::State;
+use crate::runner::test_result::TestResult;
 use crate::types::{Action, ScriptCode, ScriptName, Source, VerifyValue};
 
 pub fn create() -> clap::App<'static, 'static> {
@@ -72,7 +73,16 @@ fn run_script(name: &ScriptName, code: &ScriptCode, state: &mut State) {
     match result {
         Ok(output) => {
             let output_string = String::from_utf8_lossy(&output.stdout).to_string();
-            state.add_script_result(name_string, &output_string);
+            let result = TestResult::ScriptResult {
+                name: name_string.to_string(),
+                exit_code: 0,
+                script: code_string.to_string(),
+                output: output_string.clone(),
+                stdout: "FIXME stderr".to_string(),
+                stderr: "FIXME stderr1".to_string(),
+                success: true,
+            };
+            state.add_result(&result);
             println!("**Result**: success\n");
         }
         Err(_err) => println!("**Result**: failed"),
@@ -89,16 +99,23 @@ fn run_verify(source: &Source, value: &VerifyValue, state: &mut State) {
     println!("Running verify against output from {}\n", script_name);
     let got = state.get_script_output(script_name).expect("failed");
 
+    let result = TestResult::VerifyResult {
+        script_name: script_name.to_string(),
+        stream: "FIXME output".to_string(),
+        expected: value_string.to_string(),
+        got: got.to_string(),
+        success: value_string == got,
+    };
+
     if value_string == got {
         println!("Result: success\n");
-        state.verify_success();
     } else {
         println!("Result: failed\n");
         println!("#### Expected\n");
         println!("```\n{}\n```\n", value_string);
         println!("#### Got\n");
         println!("```\n{}\n```\n", got);
-
-        state.verify_failure()
     }
+
+    state.add_result(&result);
 }
