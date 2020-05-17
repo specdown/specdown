@@ -4,8 +4,8 @@ use nom::{
     sequence::tuple,
 };
 
-use crate::parser::error::{Error, Result};
-use crate::parser::function_string;
+use super::error::{Error, Result};
+use super::function_string;
 use crate::types::{ScriptName, Source, Stream};
 
 #[derive(Debug, PartialEq)]

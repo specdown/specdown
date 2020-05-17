@@ -1,5 +1,5 @@
-use crate::parser::code_block_info;
-use crate::parser::error::Result;
+use super::code_block_info;
+use super::error::Result;
 use crate::types::{Action, ScriptCode, VerifyValue};
 
 pub fn create_action(info: &str, literal: String) -> Result<Action> {
