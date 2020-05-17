@@ -15,11 +15,9 @@ pub fn create_action(info: &str, literal: String) -> Result<Action> {
     }
 }
 
+#[cfg(test)]
 mod tests {
-    #[cfg(test)]
     use super::*;
-
-    #[cfg(test)]
     use crate::types::{ScriptName, Source, Stream};
 
     #[test]

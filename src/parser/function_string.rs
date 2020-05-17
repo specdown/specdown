@@ -83,12 +83,11 @@ fn token_value(input: &str) -> IResult<&str, ArgumentValue> {
     })(input)
 }
 
+#[cfg(test)]
 mod tests {
-    #[cfg(test)]
     use super::*;
 
     mod parse {
-        #[cfg(test)]
         use super::*;
 
         #[test]
@@ -178,7 +177,6 @@ mod tests {
     }
 
     mod argument_list {
-        #[cfg(test)]
         use super::*;
 
         #[test]
@@ -231,7 +229,6 @@ mod tests {
     }
 
     mod argument {
-        #[cfg(test)]
         use super::*;
 
         #[test]
@@ -268,7 +265,7 @@ mod tests {
         }
 
         #[test]
-        fn succeds_with_token_argument() {
+        fn succeeds_with_token_argument() {
             assert_eq!(
                 argument("arg=token,more..."),
                 Ok((
@@ -299,7 +296,6 @@ mod tests {
     }
 
     mod argument_value {
-        #[cfg(test)]
         use super::*;
 
         #[test]
@@ -317,7 +313,6 @@ mod tests {
         // }
 
         mod string_value {
-            #[cfg(test)]
             use super::*;
 
             #[test]
@@ -349,7 +344,6 @@ mod tests {
         }
 
         mod token_value {
-            #[cfg(test)]
             use super::*;
 
             #[test]

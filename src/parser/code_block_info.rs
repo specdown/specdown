@@ -100,16 +100,14 @@ fn incorrect_argument_type_error(
     })
 }
 
+#[cfg(test)]
 mod tests {
-    #[cfg(test)]
     use super::*;
 
     mod parse {
-        #[cfg(test)]
         use super::*;
 
         mod script {
-            #[cfg(test)]
             use super::*;
 
             #[test]
@@ -137,7 +135,6 @@ mod tests {
         }
 
         mod verify {
-            #[cfg(test)]
             use super::*;
 
             #[test]
