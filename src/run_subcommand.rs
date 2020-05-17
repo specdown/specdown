@@ -4,6 +4,8 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::parser;
+use crate::results::basic_printer::BasicPrinter;
+use crate::results::printer::Printer;
 use crate::results::test_result::TestResult;
 use crate::runner::state::State;
 use crate::types::{Action, ScriptCode, ScriptName, Source, VerifyValue};
@@ -36,36 +38,18 @@ fn execute_run(spec_file: &Path) {
 
 fn run_actions(actions: &[Action]) {
     let mut state = State::new();
+    let printer: Box<dyn Printer> = Box::new(BasicPrinter::new());
 
     for action in actions {
         let result = run_action(action, &mut state);
         match result {
-            Ok(result) => print_result(&result),
+            Ok(result) => printer.print(&result),
             Err(_err) => println!("Action failed..."),
         }
     }
 
     if !state.is_success() {
         std::process::exit(1);
-    }
-}
-
-fn print_result(result: &TestResult) {
-    match result {
-        TestResult::ScriptResult { name, success, .. } => println!(
-            "Script {} {}",
-            name,
-            if *success { "succeeded" } else { "failed" }
-        ),
-        TestResult::VerifyResult {
-            script_name,
-            success,
-            ..
-        } => println!(
-            "Verify output from {} {}",
-            script_name,
-            if *success { "succeeded" } else { "failed" }
-        ),
     }
 }
 
