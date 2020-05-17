@@ -5,6 +5,7 @@ extern crate nom;
 use clap::{App, AppSettings};
 
 mod parser;
+mod results;
 mod run_subcommand;
 mod runner;
 mod types;

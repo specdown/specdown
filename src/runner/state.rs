@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::test_result::TestResult;
+use crate::results::test_result::TestResult;
 
 pub struct State {
     script_results: HashMap<String, String>,

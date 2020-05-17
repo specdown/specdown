@@ -4,8 +4,8 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::parser;
+use crate::results::test_result::TestResult;
 use crate::runner::state::State;
-use crate::runner::test_result::TestResult;
 use crate::types::{Action, ScriptCode, ScriptName, Source, VerifyValue};
 
 pub fn create() -> clap::App<'static, 'static> {
