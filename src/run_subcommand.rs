@@ -19,7 +19,9 @@ pub fn create() -> clap::App<'static, 'static> {
 }
 
 pub fn execute(run_matches: &clap::ArgMatches<'_>) {
-    let spec_file = run_matches.value_of("spec-file").unwrap();
+    let spec_file = run_matches
+        .value_of("spec-file")
+        .expect("spec-file should always exist");
     execute_run(Path::new(spec_file));
 }
 
