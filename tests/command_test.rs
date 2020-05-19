@@ -27,11 +27,31 @@ fn test_displays_help() {
 }
 
 #[test]
-fn test_doc_displays_help() {
+fn test_readme() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("doc/help.spec.md")
+        .arg("README.md")
+        .assert()
+        .success();
+}
+
+#[test]
+fn test_doc_index() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("README.md")
+        .assert()
+        .success();
+}
+
+#[test]
+fn test_doc_display_help() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("doc/display_help.md")
         .assert()
         .success();
 }
