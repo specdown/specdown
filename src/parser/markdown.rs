@@ -27,7 +27,13 @@ fn extract_elements<'a>(root: &'a AstNode<'a>) -> Result<Vec<Element>> {
 
 fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Result<Element>> {
     match node.data.borrow().value.clone() {
-        NodeValue::CodeBlock(block) => Some(to_fenced_code_block_element(&block)),
+        NodeValue::CodeBlock(block) => {
+            if block.fenced {
+                Some(to_fenced_code_block_element(&block))
+            } else {
+                None
+            }
+        }
         _ => None,
     }
 }
@@ -96,5 +102,12 @@ mod tests {
                 },
             ])
         );
+    }
+
+    #[test]
+    fn it_does_not_return_an_element_when_a_code_bloc_is_not_fenced() {
+        let markdown = "# Non-fenced\n    this code block is not fenced";
+
+        assert_eq!(parse(markdown), Ok(vec![]));
     }
 }
