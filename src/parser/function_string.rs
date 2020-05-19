@@ -43,13 +43,10 @@ fn argument_list(input: &str) -> IResult<&str, HashMap<String, ArgumentValue>> {
 }
 
 fn list_of_args_to_hash_map(arguments: &[Argument]) -> HashMap<String, ArgumentValue> {
-    let mut result = HashMap::new();
-
-    for (name, value) in arguments {
-        result.insert(String::from(*name), value.clone());
-    }
-
-    result
+    arguments
+        .iter()
+        .map(|(name, value)| (String::from(*name), value.clone()))
+        .collect()
 }
 
 fn argument(input: &str) -> IResult<&str, Argument> {
