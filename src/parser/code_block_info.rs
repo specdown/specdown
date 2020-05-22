@@ -6,12 +6,13 @@ use nom::{
 
 use super::error::{Error, Result};
 use super::function_string;
-use crate::types::{ScriptName, Source, Stream};
+use crate::types::{FilePath, ScriptName, Source, Stream};
 
 #[derive(Debug, PartialEq)]
 pub enum CodeBlockType {
     Script(ScriptName),
     Verify(Source),
+    CreateFile(FilePath),
 }
 
 pub fn parse(input: &str) -> Result<CodeBlockType> {
@@ -28,6 +29,7 @@ fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
     match &f.name[..] {
         "script" => script_to_code_block_type(f),
         "verify" => verify_to_code_block_type(f),
+        "file" => file_to_code_block_type(f),
         _ => Err(Error::UnknownFunction(f.name.clone())),
     }
 }
@@ -35,6 +37,11 @@ fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
 fn script_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
     let name = get_string_argument(&f, "name")?;
     Ok(CodeBlockType::Script(ScriptName(name)))
+}
+
+fn file_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
+    let path = get_string_argument(&f, "path")?;
+    Ok(CodeBlockType::CreateFile(FilePath(path)))
 }
 
 fn verify_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
@@ -207,6 +214,33 @@ mod tests {
                     Err(Error::MissingArgument {
                         function: "verify".to_string(),
                         argument: "stream".to_string()
+                    })
+                )
+            }
+        }
+
+        mod file {
+            use super::*;
+
+            #[test]
+            fn succeeds_when_function_is_file() {
+                let result = parse("text,file(path=\"example.txt\")");
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockType::CreateFile(FilePath(
+                        "example.txt".to_string()
+                    )))
+                )
+            }
+
+            #[test]
+            fn fails_when_path_is_missing() {
+                let result = parse("text,file()");
+                assert_eq!(
+                    result,
+                    Err(Error::MissingArgument {
+                        function: "file".to_string(),
+                        argument: "path".to_string()
                     })
                 )
             }

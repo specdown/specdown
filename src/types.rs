@@ -21,7 +21,14 @@ pub struct ScriptCode(pub String);
 pub struct VerifyValue(pub String);
 
 #[derive(Debug, PartialEq)]
+pub struct FilePath(pub String);
+
+#[derive(Debug, PartialEq)]
+pub struct FileContent(pub String);
+
+#[derive(Debug, PartialEq)]
 pub enum Action {
     Script(ScriptName, ScriptCode),
     Verify(Source, VerifyValue),
+    CreateFile(FilePath, FileContent),
 }

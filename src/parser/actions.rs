@@ -1,6 +1,6 @@
 use super::code_block_info;
 use super::error::Result;
-use crate::types::{Action, ScriptCode, VerifyValue};
+use crate::types::{Action, FileContent, ScriptCode, VerifyValue};
 
 pub fn create_action(info: &str, literal: String) -> Result<Action> {
     let block = code_block_info::parse(&info)?;
@@ -12,13 +12,16 @@ pub fn create_action(info: &str, literal: String) -> Result<Action> {
         code_block_info::CodeBlockType::Verify(source) => {
             Ok(Action::Verify(source, VerifyValue(literal)))
         }
+        code_block_info::CodeBlockType::CreateFile(file_path) => {
+            Ok(Action::CreateFile(file_path, FileContent(literal)))
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{ScriptName, Source, Stream};
+    use crate::types::{FilePath, ScriptName, Source, Stream};
 
     #[test]
     fn create_action_for_script() {
@@ -44,6 +47,17 @@ mod tests {
                     stream: Stream::Output,
                 },
                 VerifyValue("value".to_string())
+            )) as Result<Action>
+        );
+    }
+
+    #[test]
+    fn create_action_for_file() {
+        assert_eq!(
+            create_action(",file(path=\"file.txt\")", "content".to_string()),
+            Ok(Action::CreateFile(
+                FilePath("file.txt".to_string()),
+                FileContent("content".to_string())
             )) as Result<Action>
         );
     }

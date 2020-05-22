@@ -28,5 +28,6 @@ fn run_action(action: &Action, state: &mut State) -> Result<TestResult, error::E
     match action {
         Action::Script(name, code) => script::run(name, code, state),
         Action::Verify(source, value) => verify::run(source, value, state),
+        Action::CreateFile(_file_path, _content) => panic!("Not implemented"),
     }
 }
