@@ -13,7 +13,7 @@ pub fn run(source: &Source, value: &VerifyValue, state: &mut State) -> Result<Te
 
     let got = state.get_script_output(script_name).expect("failed");
 
-    let result = TestResult::VerifyResult {
+    let result = TestResult::Verify {
         script_name: script_name.to_string(),
         stream: "FIXME output".to_string(),
         expected: value_string.to_string(),

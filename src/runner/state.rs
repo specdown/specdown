@@ -17,15 +17,16 @@ impl State {
 
     pub fn add_result(&mut self, test_result: &TestResult) {
         match test_result {
-            TestResult::ScriptResult { name, output, .. } => {
+            TestResult::Script { name, output, .. } => {
                 self.script_results
                     .insert(name.to_string(), output.to_string());
             }
-            TestResult::VerifyResult { success, .. } => {
+            TestResult::Verify { success, .. } => {
                 if !success {
                     self.is_success = *success;
                 }
             }
+            TestResult::File { .. } => {}
         }
     }
 
@@ -43,14 +44,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn sets_success_zero_when_new_state() {
+    fn sets_success_when_initialized() {
         let state = State::new();
         assert_eq!(state.is_success(), true);
     }
 
     #[test]
     fn does_not_update_success_when_script_result_is_added() {
-        let script_result1 = TestResult::ScriptResult {
+        let script_result1 = TestResult::Script {
             name: "script1".to_string(),
             exit_code: 0,
             script: "script1".to_string(),
@@ -65,8 +66,18 @@ mod tests {
     }
 
     #[test]
-    fn returns_the_output_when_script_output_exists() {
-        let script_result1 = TestResult::ScriptResult {
+    fn does_not_update_success_when_file_result_is_added() {
+        let file_result = TestResult::File {
+            path: "example.txt".to_string(),
+        };
+        let mut state = State::new();
+        state.add_result(&file_result);
+        assert_eq!(state.is_success(), true);
+    }
+
+    #[test]
+    fn get_script_output_returns_the_output_when_script_output_exists() {
+        let script_result1 = TestResult::Script {
             name: "script1".to_string(),
             exit_code: 0,
             script: "script1".to_string(),
@@ -75,7 +86,7 @@ mod tests {
             stderr: "stderr1".to_string(),
             success: true,
         };
-        let script_result2 = TestResult::ScriptResult {
+        let script_result2 = TestResult::Script {
             name: "script2".to_string(),
             exit_code: 0,
             script: "script1".to_string(),
@@ -92,14 +103,14 @@ mod tests {
     }
 
     #[test]
-    fn returns_none_when_script_output_does_not_exists() {
+    fn get_script_output_returns_none_when_script_output_does_not_exists() {
         let state = State::new();
         assert_eq!(state.get_script_output("does-not-exist"), None);
     }
 
     #[test]
     fn does_not_fail_when_verify_was_successful() {
-        let verify_result = TestResult::VerifyResult {
+        let verify_result = TestResult::Verify {
             script_name: "script2".to_string(),
             stream: "output".to_string(),
             expected: "abc".to_string(),
@@ -112,15 +123,15 @@ mod tests {
     }
 
     #[test]
-    fn does_not_fail_when_verify_was_successful_after_failure() {
-        let verify_result_failure = TestResult::VerifyResult {
+    fn does_not_succeed_when_verify_was_successful_after_failure() {
+        let verify_result_failure = TestResult::Verify {
             script_name: "script1".to_string(),
             stream: "output".to_string(),
             expected: "abc".to_string(),
             got: "abc".to_string(),
             success: false,
         };
-        let verify_result_success = TestResult::VerifyResult {
+        let verify_result_success = TestResult::Verify {
             script_name: "script2".to_string(),
             stream: "output".to_string(),
             expected: "abc".to_string(),
@@ -135,7 +146,7 @@ mod tests {
 
     #[test]
     fn it_fails_when_verify_was_not_successful() {
-        let verify_result = TestResult::VerifyResult {
+        let verify_result = TestResult::Verify {
             script_name: "script2".to_string(),
             stream: "output".to_string(),
             expected: "abc".to_string(),

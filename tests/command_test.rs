@@ -57,6 +57,16 @@ fn test_doc_display_help() {
 }
 
 #[test]
+fn test_doc_files() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("doc/files.md")
+        .assert()
+        .success();
+}
+
+#[test]
 fn test_displays_error_when_required_args_are_missing() {
     Command::cargo_bin("specdown")
         .unwrap()

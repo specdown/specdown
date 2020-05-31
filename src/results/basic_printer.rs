@@ -17,12 +17,12 @@ impl Printer for BasicPrinter {
     fn print(&self, result: &TestResult) {
         let display = &self.display;
         match result {
-            TestResult::ScriptResult { name, success, .. } => display(&format!(
+            TestResult::Script { name, success, .. } => display(&format!(
                 "Script {} {}",
                 name,
                 if *success { "succeeded" } else { "failed" }
             )),
-            TestResult::VerifyResult {
+            TestResult::Verify {
                 script_name,
                 success,
                 ..
@@ -31,6 +31,7 @@ impl Printer for BasicPrinter {
                 script_name,
                 if *success { "succeeded" } else { "failed" }
             )),
+            TestResult::File { path } => display(&format!("File {} created", path)),
         }
     }
 }

@@ -1,5 +1,6 @@
+#[derive(Debug, PartialEq)]
 pub enum TestResult {
-    ScriptResult {
+    Script {
         name: String,
         exit_code: u8,
         script: String,
@@ -8,11 +9,14 @@ pub enum TestResult {
         stderr: String,
         success: bool,
     },
-    VerifyResult {
+    Verify {
         script_name: String,
         stream: String,
         expected: String,
         got: String,
         success: bool,
+    },
+    File {
+        path: String,
     },
 }

@@ -15,7 +15,7 @@ pub fn run(name: &ScriptName, code: &ScriptCode, state: &mut State) -> Result<Te
     match command_result {
         Ok(output) => {
             let output_string = String::from_utf8_lossy(&output.stdout).to_string();
-            let result = TestResult::ScriptResult {
+            let result = TestResult::Script {
                 name: name_string.to_string(),
                 exit_code: 0,
                 script: code_string.to_string(),
