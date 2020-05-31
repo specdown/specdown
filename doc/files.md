@@ -12,7 +12,7 @@ Example file content
 The file path is then set in an environment variable which is available in future scripts.
 
 ```shell,script(name="cat-file")
-cat "$FILE_EXAMPLE_TXT"
+cat example.txt
 ```
 
 Will output:
