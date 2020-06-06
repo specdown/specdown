@@ -6,7 +6,8 @@ All documentation is written as SpecDown tests and form part of the test suite.
 ## Table of Contents
 
 - CLI
-    - [Displaying help](./display_help.md)
+    - [Displaying Help](./display_help.md)
+    - [Running Specs](./running_specs.md)
 - Specs
     - _Verifying Script Output_
     - [Virtual File System](./virtual_file_system.md)
