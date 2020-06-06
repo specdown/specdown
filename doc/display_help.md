@@ -40,11 +40,14 @@ specdown-run
 Runs a given Markdown Specification.
 
 USAGE:
-    specdown run <spec-file>
+    specdown run [OPTIONS] <spec-file>
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
+
+OPTIONS:
+        --running-dir <running-dir>    The directory where commands will be executed
 
 ARGS:
     <spec-file>    The spec file to run

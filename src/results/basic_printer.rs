@@ -25,12 +25,26 @@ impl Printer for BasicPrinter {
             TestResult::Verify {
                 script_name,
                 success,
+                expected,
+                got,
                 ..
-            } => display(&format!(
-                "Verify output from {} {}",
-                script_name,
-                if *success { "succeeded" } else { "failed" }
-            )),
+            } => {
+                display(&format!(
+                    "Verify output from {} {}",
+                    script_name,
+                    if *success { "succeeded" } else { "failed" }
+                ));
+
+                if !*success {
+                    display(
+                        &format!(
+                            "=== Expected ===\n{}\n--- Got ---\n{}\n",
+                            expected,
+                            got
+                        )
+                    );
+                }
+            }
             TestResult::File { path } => display(&format!("File {} created", path)),
         }
     }

@@ -67,11 +67,11 @@ fn test_doc_running_specs() {
 }
 
 #[test]
-fn test_doc_files() {
+fn test_doc_creating_test_files() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("doc/files.md")
+        .arg("doc/creating_test_files.md")
         .assert()
         .success();
 }
