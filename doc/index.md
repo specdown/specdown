@@ -10,4 +10,4 @@ All documentation is written as SpecDown tests and form part of the test suite.
     - [Running Specs](./running_specs.md)
 - Specs
     - _Verifying Script Output_
-    - [Virtual File System](./virtual_file_system.md)
+    - [Creating Test Files](./creating_test_files.md)
