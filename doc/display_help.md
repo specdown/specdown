@@ -3,7 +3,7 @@
 You can run SpecDown with no sub-commands and it will display the help.
 
 ```shell,script(name="with-no-args")
-target/debug/specdown 2>&1
+specdown 2>&1
 ```
 
 Outputs:
@@ -30,7 +30,7 @@ You can also run a specific sub-command with the `--help` argument for help on t
 For example:
 
 ```shell,script(name="run-with-help")
-target/debug/specdown run --help 2>&1
+specdown run --help 2>&1
 ```
 
 Displays:

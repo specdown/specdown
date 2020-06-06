@@ -20,7 +20,8 @@ format:
 
 .PHONY=test
 test: check
-	cargo test
+	mkdir -p .specdown
+	export PATH="$$(pwd)/target/debug:$$PATH"; cargo test
 
 dist:
 	mkdir -p dist

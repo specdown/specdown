@@ -2,35 +2,12 @@ use assert_cmd::Command;
 use indoc::indoc;
 
 #[test]
-fn test_displays_help() {
-    Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("--help")
-        .assert()
-        .success()
-        .stdout(indoc!(
-            "specdown 
-            A tool to test markdown files and drive devlopment from documentation.
-
-            USAGE:
-                specdown [SUBCOMMAND]
-
-            FLAGS:
-                -h, --help       Prints help information
-                -V, --version    Prints version information
-
-            SUBCOMMANDS:
-                help    Prints this message or the help of the given subcommand(s)
-                run     Runs a given Markdown Specification.
-            "
-        ));
-}
-
-#[test]
 fn test_readme() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
         .arg("README.md")
         .assert()
         .success();
@@ -41,6 +18,8 @@ fn test_doc_index() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
         .arg("README.md")
         .assert()
         .success();
@@ -51,6 +30,8 @@ fn test_doc_display_help() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
         .arg("doc/display_help.md")
         .assert()
         .success();
@@ -61,6 +42,8 @@ fn test_doc_running_specs() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
         .arg("doc/running_specs.md")
         .assert()
         .success();
@@ -71,6 +54,8 @@ fn test_doc_creating_test_files() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
         .arg("doc/creating_test_files.md")
         .assert()
         .success();

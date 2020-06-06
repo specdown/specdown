@@ -23,7 +23,7 @@ Hello world
 You can run:
 
 ```shell,script(name="run_example")
-target/debug/specdown run example-spec.md
+specdown run example-spec.md
 ```
 
 And you will get the following output:
@@ -73,7 +73,7 @@ file in working dir
 Now we can run specdown using the following command:
 
 ```shell,script(name="running_dir_example")
-target/debug/specdown run --running-dir running_dir running_dir_example.md
+specdown run --running-dir running_dir running_dir_example.md
 ```
 
 ```text,verify(script_name="running_dir_example", stream=output)
@@ -88,7 +88,7 @@ Verify output from cat succeeded
 You can display all the options available by using `--help` on the `run` sub-command.
 
 ```shell,script(name="run_help")
-target/debug/specdown run --help 2>&1
+specdown run --help 2>&1
 ```
 
 ```text,verify(script_name="run_help", stream=output)
