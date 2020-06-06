@@ -36,13 +36,10 @@ impl Printer for BasicPrinter {
                 ));
 
                 if !*success {
-                    display(
-                        &format!(
-                            "=== Expected ===\n{}\n--- Got ---\n{}\n",
-                            expected,
-                            got
-                        )
-                    );
+                    display(&format!(
+                        "=== Expected ===\n{}\n--- Got ---\n{}\n",
+                        expected, got
+                    ));
                 }
             }
             TestResult::File { path } => display(&format!("File {} created", path)),

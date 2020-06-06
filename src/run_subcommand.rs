@@ -31,9 +31,7 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
         .map(Path::new)
         .expect("spec-file should always exist");
 
-    let running_dir = run_matches
-        .value_of("running-dir")
-        .map(Path::new);
+    let running_dir = run_matches.value_of("running-dir").map(Path::new);
 
     execute_run(spec_file, running_dir);
 }
