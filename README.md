@@ -23,4 +23,4 @@ It is currently an experiment to see if the idea is worth following through.
 
 ## Documentation
 
-The documentation is written as executable specification can be read [here](./doc/index.md).
+The documentation is written as executable specifications and can be read [here](./doc/index.md).

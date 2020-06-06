@@ -33,7 +33,7 @@ Script command_1 succeeded
 Verify output from command_1 succeeded
 ```
 
-## Setting the Running
+## Setting the Running Directory
 
 You can set the directory for the commands to be executed in using the `--running-dir` argument.
 
