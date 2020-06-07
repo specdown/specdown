@@ -1,10 +1,9 @@
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TestResult {
     Script {
         name: String,
         exit_code: u8,
         script: String,
-        output: String,
         stdout: String,
         stderr: String,
         success: bool,

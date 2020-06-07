@@ -38,13 +38,13 @@ mod tests {
     fn create_action_for_verify() {
         assert_eq!(
             create_action(
-                ",verify(script_name=\"script-name\", stream=output)",
+                ",verify(script_name=\"script-name\", stream=stdout)",
                 "value".to_string()
             ),
             Ok(Action::Verify(
                 Source {
                     name: ScriptName("script-name".to_string()),
-                    stream: Stream::Output,
+                    stream: Stream::StdOut,
                 },
                 VerifyValue("value".to_string())
             )) as Result<Action>

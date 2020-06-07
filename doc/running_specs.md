@@ -15,7 +15,7 @@ echo "Hello world"
 
 Outputs:
 
-```text,verify(script_name="command_1", stream=output)
+```text,verify(script_name="command_1", stream=stdout)
 Hello world
 ```
 ~~~
@@ -28,7 +28,7 @@ specdown run example-spec.md
 
 And you will get the following output:
 
-```text,verify(script_name="run_example", stream=output)
+```text,verify(script_name="run_example", stream=stdout)
 Script command_1 succeeded
 Verify output from command_1 succeeded
 ```
@@ -55,7 +55,7 @@ And we can create a spec called `running_dir_example.md`:
 ls
 ```
 
-```text,verify(script_name="ls", stream=output)
+```text,verify(script_name="ls", stream=stdout)
 test_file.txt
 ```
 
@@ -65,7 +65,7 @@ test_file.txt
 cat test_file.txt
 ```
 
-```text,verify(script_name="cat", stream=output)
+```text,verify(script_name="cat", stream=stdout)
 file in working dir
 ```
 ~~~
@@ -76,7 +76,7 @@ Now we can run specdown using the following command:
 specdown run --running-dir running_dir running_dir_example.md
 ```
 
-```text,verify(script_name="running_dir_example", stream=output)
+```text,verify(script_name="running_dir_example", stream=stdout)
 Script ls succeeded
 Verify output from ls succeeded
 Script cat succeeded
@@ -91,7 +91,7 @@ You can display all the options available by using `--help` on the `run` sub-com
 specdown run --help 2>&1
 ```
 
-```text,verify(script_name="run_help", stream=output)
+```text,verify(script_name="run_help", stream=stdout)
 specdown-run 
 Runs a given Markdown Specification.
 

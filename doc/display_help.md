@@ -3,12 +3,12 @@
 You can run SpecDown with no sub-commands and it will display the help.
 
 ```shell,script(name="with-no-args")
-specdown 2>&1
+specdown
 ```
 
 Outputs:
 
-```,verify(script_name="with-no-args", stream=output)
+```,verify(script_name="with-no-args", stream=stderr)
 specdown 
 A tool to test markdown files and drive devlopment from documentation.
 
@@ -30,12 +30,12 @@ You can also run a specific sub-command with the `--help` argument for help on t
 For example:
 
 ```shell,script(name="run-with-help")
-specdown run --help 2>&1
+specdown run --help
 ```
 
 Displays:
 
-```,verify(script_name="run-with-help", stream=output)
+```,verify(script_name="run-with-help", stream=stdout)
 specdown-run 
 Runs a given Markdown Specification.
 

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::results::test_result::TestResult;
 
 pub struct State {
-    script_results: HashMap<String, String>,
+    script_results: HashMap<String, TestResult>,
     is_success: bool,
 }
 
@@ -17,9 +17,9 @@ impl State {
 
     pub fn add_result(&mut self, test_result: &TestResult) {
         match test_result {
-            TestResult::Script { name, output, .. } => {
+            TestResult::Script { name, .. } => {
                 self.script_results
-                    .insert(name.to_string(), output.to_string());
+                    .insert(name.to_string(), (*test_result).clone());
             }
             TestResult::Verify { success, .. } => {
                 if !success {
@@ -30,8 +30,22 @@ impl State {
         }
     }
 
-    pub fn get_script_output(&self, name: &str) -> Option<&str> {
-        self.script_results.get(name).map(|s| &s[..])
+    pub fn get_script_stdout(&self, name: &str) -> Option<&str> {
+        self.script_results
+            .get(name)
+            .and_then(|result| match result {
+                TestResult::Script { stdout, .. } => Some(&stdout[..]),
+                _ => panic!("Only TestResult::Script results should be stored in the state"),
+            })
+    }
+
+    pub fn get_script_stderr(&self, name: &str) -> Option<&str> {
+        self.script_results
+            .get(name)
+            .and_then(|result| match result {
+                TestResult::Script { stderr, .. } => Some(&stderr[..]),
+                _ => panic!("Only TestResult::Script results should be stored in the state"),
+            })
     }
 
     pub fn is_success(&self) -> bool {
@@ -55,7 +69,6 @@ mod tests {
             name: "script1".to_string(),
             exit_code: 0,
             script: "script1".to_string(),
-            output: "output1".to_string(),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
             success: true,
@@ -76,13 +89,12 @@ mod tests {
     }
 
     #[test]
-    fn get_script_output_returns_the_output_when_script_output_exists() {
+    fn get_script_stdout_returns_the_output_when_script_output_exists() {
         let script_result1 = TestResult::Script {
             name: "script1".to_string(),
             exit_code: 0,
             script: "script1".to_string(),
-            output: "output1".to_string(),
-            stdout: "stderr1".to_string(),
+            stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
             success: true,
         };
@@ -90,22 +102,52 @@ mod tests {
             name: "script2".to_string(),
             exit_code: 0,
             script: "script1".to_string(),
-            output: "output2".to_string(),
-            stdout: "stderr2".to_string(),
+            stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
             success: true,
         };
         let mut state = State::new();
         state.add_result(&script_result1);
         state.add_result(&script_result2);
-        assert_eq!(state.get_script_output("script1"), Some("output1"));
-        assert_eq!(state.get_script_output("script2"), Some("output2"));
+        assert_eq!(state.get_script_stdout("script1"), Some("stdout1"));
+        assert_eq!(state.get_script_stdout("script2"), Some("stdout2"));
     }
 
     #[test]
-    fn get_script_output_returns_none_when_script_output_does_not_exists() {
+    fn get_script_stdout_returns_none_when_script_output_does_not_exists() {
         let state = State::new();
-        assert_eq!(state.get_script_output("does-not-exist"), None);
+        assert_eq!(state.get_script_stdout("does-not-exist"), None);
+    }
+
+    #[test]
+    fn get_script_stderr_returns_the_output_when_script_output_exists() {
+        let script_result1 = TestResult::Script {
+            name: "script1".to_string(),
+            exit_code: 0,
+            script: "script1".to_string(),
+            stdout: "stdout1".to_string(),
+            stderr: "stderr1".to_string(),
+            success: true,
+        };
+        let script_result2 = TestResult::Script {
+            name: "script2".to_string(),
+            exit_code: 0,
+            script: "script1".to_string(),
+            stdout: "stdout2".to_string(),
+            stderr: "stderr2".to_string(),
+            success: true,
+        };
+        let mut state = State::new();
+        state.add_result(&script_result1);
+        state.add_result(&script_result2);
+        assert_eq!(state.get_script_stderr("script1"), Some("stderr1"));
+        assert_eq!(state.get_script_stderr("script2"), Some("stderr2"));
+    }
+
+    #[test]
+    fn get_script_stderr_returns_none_when_script_output_does_not_exists() {
+        let state = State::new();
+        assert_eq!(state.get_script_stderr("does-not-exist"), None);
     }
 
     #[test]

@@ -14,14 +14,14 @@ pub fn run(name: &ScriptName, code: &ScriptCode, state: &mut State) -> Result<Te
 
     match command_result {
         Ok(output) => {
-            let output_string = String::from_utf8_lossy(&output.stdout).to_string();
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
             let result = TestResult::Script {
                 name: name_string.to_string(),
                 exit_code: 0,
                 script: code_string.to_string(),
-                output: output_string,
-                stdout: "FIXME stderr".to_string(),
-                stderr: "FIXME stderr1".to_string(),
+                stdout,
+                stderr,
                 success: true,
             };
             state.add_result(&result);

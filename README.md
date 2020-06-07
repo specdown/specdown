@@ -12,7 +12,7 @@ echo "Hello SpecDown"
 
 It will then validate that the output of the previous command matches the following codeblock.
 
-```,verify(script_name="hello-specdown", stream=output)
+```,verify(script_name="hello-specdown", stream=stdout)
 Hello SpecDown
 ```
 

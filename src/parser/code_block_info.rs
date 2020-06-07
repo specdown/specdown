@@ -58,7 +58,6 @@ fn verify_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockT
 
 fn to_stream(stream_name: &str) -> Option<Stream> {
     match stream_name {
-        "output" => Some(Stream::Output),
         "stdout" => Some(Stream::StdOut),
         "stderr" => Some(Stream::StdErr),
         _ => None,
@@ -143,18 +142,6 @@ mod tests {
 
         mod verify {
             use super::*;
-
-            #[test]
-            fn succeeds_when_function_is_verify_and_stream_is_output() {
-                let result = parse(",verify(script_name=\"example-script\", stream=output)");
-                assert_eq!(
-                    result,
-                    Ok(CodeBlockType::Verify(Source {
-                        name: ScriptName("example-script".to_string()),
-                        stream: Stream::Output
-                    }))
-                )
-            }
 
             #[test]
             fn succeeds_when_function_is_verify_and_stream_is_stdout() {

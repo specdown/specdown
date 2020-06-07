@@ -17,6 +17,6 @@ cat example.txt
 
 Will output:
 
-```text,verify(script_name="cat-file", stream=output)
+```text,verify(script_name="cat-file", stream=stdout)
 Example file content
 ```

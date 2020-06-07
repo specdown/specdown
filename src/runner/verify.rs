@@ -1,21 +1,24 @@
 use crate::results::test_result::TestResult;
 use crate::runner::state::State;
-use crate::types::{ScriptName, Source, VerifyValue};
+use crate::types::{ScriptName, Source, Stream, VerifyValue};
 
 use super::error::Error;
 
 pub fn run(source: &Source, value: &VerifyValue, state: &mut State) -> Result<TestResult, Error> {
     let Source {
         name: ScriptName(script_name),
-        stream: _stream,
+        stream,
     } = source;
     let VerifyValue(value_string) = value;
 
-    let got = state.get_script_output(script_name).expect("failed");
+    let got = match stream {
+        Stream::StdOut => state.get_script_stdout(script_name).expect("failed"),
+        Stream::StdErr => state.get_script_stderr(script_name).expect("failed"),
+    };
 
     let result = TestResult::Verify {
         script_name: script_name.to_string(),
-        stream: "FIXME output".to_string(),
+        stream: stream_to_string(stream).into(),
         expected: value_string.to_string(),
         got: got.to_string(),
         success: value_string == got,
@@ -24,4 +27,11 @@ pub fn run(source: &Source, value: &VerifyValue, state: &mut State) -> Result<Te
     state.add_result(&result);
 
     Ok(result)
+}
+
+fn stream_to_string(stream: &Stream) -> &str {
+    match stream {
+        Stream::StdOut => "stdout",
+        Stream::StdErr => "stderr",
+    }
 }

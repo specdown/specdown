@@ -1,6 +1,5 @@
 #[derive(Debug, PartialEq)]
 pub enum Stream {
-    Output,
     StdOut,
     StdErr,
 }
