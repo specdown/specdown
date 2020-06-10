@@ -4,255 +4,255 @@
         - "*"
     pull_request: null # What does this mean?
 
-  jobs:
-    security-audit:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/cache@v2
-          with:
-            path: |
-              ~/.cargo/registry
-              ~/.cargo/git
-              ~/.cargo/bin
-              target
-            key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        - uses: actions-rs/audit-check@v1
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    # version:
-    #   runs-on: ubuntu-latest
-    #   steps:
-    #     - uses: actions-rs/toolchain@v1
-    #       with:
-    #         profile: minimal
-    #         toolchain: stable
-    #         default: true
-    #     - uses: actions/checkout@v2
-    #     - uses: actions/cache@v2
-    #       with:
-    #         path: |
-    #           ~/.cargo/registry
-    #           ~/.cargo/git
-    #           ~/.cargo/bin
-    #           target
-    #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    #     - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-    #     - id: get_previous_version
-    #       run: echo ::set-output name=PREVIOUS_VERSION::$(git tag --sort=-creatordate | head -n 1)
-    #       shell: bash
-    #     - id: semvers
-    #       uses: WyriHaximus/github-action-next-semvers@master
-    #       with:
-    #         version: "${{ steps.get_previous_version.outputs.PREVIOUS_VERSION }}"
-    #     - run: mkdir -p ./version
-    #     - if: "!contains(github.event.head_commit.message, 'BC BREAK') && !contains(github.event.head_commit.message, 'Signed-off-by: dependabot-preview[bot] <support@dependabot.com>')"
-    #       run: echo "$VERSION" >./version/version
-    #       env:
-    #         VERSION: ${{ steps.semvers.outputs.v_minor }}
-    #     - if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
-    #       run: echo "$VERSION" >./version/version
-    #       env:
-    #         VERSION: ${{ steps.semvers.outputs.v_patch }}
-    #     - run: echo "$VERSION" > ./version/version
-    #       env:
-    #         VERSION: ${{ steps.semvers.outputs.v_major }}
-    #       if: "contains(github.event.head_commit.message, 'BC BREAK')"
-    #     - uses: actions/upload-artifact@v2
-    #       with:
-    #         name: version
-    #         path: ./version/version
+  # version:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions-rs/toolchain@v1
+  #       with:
+  #         profile: minimal
+  #         toolchain: stable
+  #         default: true
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           ~/.cargo/registry
+  #           ~/.cargo/git
+  #           ~/.cargo/bin
+  #           target
+  #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+  #     - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+  #     - id: get_previous_version
+  #       run: echo ::set-output name=PREVIOUS_VERSION::$(git tag --sort=-creatordate | head -n 1)
+  #       shell: bash
+  #     - id: semvers
+  #       uses: WyriHaximus/github-action-next-semvers@master
+  #       with:
+  #         version: "${{ steps.get_previous_version.outputs.PREVIOUS_VERSION }}"
+  #     - run: mkdir -p ./version
+  #     - if: "!contains(github.event.head_commit.message, 'BC BREAK') && !contains(github.event.head_commit.message, 'Signed-off-by: dependabot-preview[bot] <support@dependabot.com>')"
+  #       run: echo "$VERSION" >./version/version
+  #       env:
+  #         VERSION: ${{ steps.semvers.outputs.v_minor }}
+  #     - if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
+  #       run: echo "$VERSION" >./version/version
+  #       env:
+  #         VERSION: ${{ steps.semvers.outputs.v_patch }}
+  #     - run: echo "$VERSION" > ./version/version
+  #       env:
+  #         VERSION: ${{ steps.semvers.outputs.v_major }}
+  #       if: "contains(github.event.head_commit.message, 'BC BREAK')"
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         name: version
+  #         path: ./version/version
 
-    check:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/cache@v2
-          with:
-            path: |
-              ~/.cargo/registry
-              ~/.cargo/git
-              ~/.cargo/bin
-              target
-            key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        - uses: actions-rs/toolchain@v1
-          with:
-            profile: minimal
-            toolchain: stable
-            default: true
-        - uses: actions-rs/cargo@v1
-          with:
-            command: check
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          default: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
 
-    test:
-      runs-on: "${{ matrix.os }}"
-      strategy:
-        matrix:
-          include:
-            - os: macos-latest
-            - os: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/cache@v2
-          with:
-            path: |
-              ~/.cargo/registry
-              ~/.cargo/git
-              ~/.cargo/bin
-              target
-            key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        - uses: actions-rs/toolchain@v1
-          with:
-            profile: minimal
-            toolchain: stable
-            default: true
-        - uses: actions-rs/cargo@v1
-          with:
-            args: " --locked"
-            command: test
+  test:
+    runs-on: "${{ matrix.os }}"
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+          - os: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          default: true
+      - uses: actions-rs/cargo@v1
+        with:
+          args: " --locked"
+          command: test
 
-    # mdtest:
-    #   runs-on: "${{ matrix.os }}"
-    #   strategy:
-    #     matrix:
-    #       include:
-    #         - os: macos-latest
-    #         - os: ubuntu-latest
-    #   steps:
-    #     - uses: actions/checkout@v2
-    #     - uses: actions/cache@v2
-    #       with:
-    #         path: |
-    #           ~/.cargo/registry
-    #           ~/.cargo/git
-    #           ~/.cargo/bin
-    #           target
-    #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    #     - uses: actions-rs/toolchain@v1
-    #       with:
-    #         profile: minimal
-    #         toolchain: stable
-    #         default: true
-    #     - run: make mdtest
+  # mdtest:
+  #   runs-on: "${{ matrix.os }}"
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - os: macos-latest
+  #         - os: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           ~/.cargo/registry
+  #           ~/.cargo/git
+  #           ~/.cargo/bin
+  #           target
+  #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+  #     - uses: actions-rs/toolchain@v1
+  #       with:
+  #         profile: minimal
+  #         toolchain: stable
+  #         default: true
+  #     - run: make mdtest
 
-    lints:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/cache@v2
-          with:
-            path: |
-              ~/.cargo/registry
-              ~/.cargo/git
-              ~/.cargo/bin
-              target
-            key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        - uses: actions-rs/toolchain@v1
-          with:
-            <<:
-            profile: minimal
-            toolchain: stable
-            default: true
-            components: "rustfmt, clippy"
-        - uses: actions-rs/cargo@v1
-          with:
-            command: fmt
-            args: "--all -- --check"
-        - uses: actions-rs/cargo@v1
-          with:
-            command: clippy
-            args: "--all-targets --all-features -- -D warnings -Dclippy::style -D clippy::pedantic -D clippy::cargo"
-        - name: Prettify code
-          uses: creyD/prettier_action@v3.0
-          with:
-            # This part is also where you can pass other options, for example:
-            prettier_options: --check **/*.{yml,yaml}
+  lints:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          <<:
+          profile: minimal
+          toolchain: stable
+          default: true
+          components: "rustfmt, clippy"
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: "--all -- --check"
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: "--all-targets --all-features -- -D warnings -Dclippy::style -D clippy::pedantic -D clippy::cargo"
+      - name: Prettify code
+        uses: creyD/prettier_action@v3.0
+        with:
+          # This part is also where you can pass other options, for example:
+          prettier_options: --check **/*.{yml,yaml}
 
-    # merge-and-push:
-    #   if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]' || ( github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'Release v') )
-    #   needs:
-    #     - version
-    #     - mdtest
-    #     - test
-    #     - lints
-    #     - check
-    #     - security-audit
-    #   runs-on: ubuntu-latest
-    #   steps:
-    #     - uses: actions/checkout@v2
-    #       with:
-    #         token: "${{ secrets.COMMITTER_TOKEN }}"
-    #         fetch-depth: 0
-    #     - uses: actions/cache@v2
-    #       with:
-    #         path: |
-    #           ~/.cargo/registry
-    #           ~/.cargo/git
-    #           ~/.cargo/bin
-    #           target
-    #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    #     - uses: actions/download-artifact@v2
-    #     - id: get_current_version
-    #       run: |
-    #         echo ::set-output name=VERSION::$(cat ./version/version | cut -c2-)
-    #         echo ::set-output name=V_VERSION::$(cat ./version/version)
-    #       shell: bash
-    #     - uses: ciiiii/toml-editor@1.0.0
-    #       with:
-    #         file: "git-authors/Cargo.toml"
-    #         key: "package.version"
-    #         value: ${{ steps.get_current_version.outputs.VERSION }}
-    #     - uses: ciiiii/toml-editor@1.0.0
-    #       with:
-    #         file: "pb-commit-message-lints/Cargo.toml"
-    #         key: "package.version"
-    #         value: ${{ steps.get_current_version.outputs.VERSION }}
-    #     - uses: ciiiii/toml-editor@1.0.0
-    #       with:
-    #         file: "pb-commit-msg/Cargo.toml"
-    #         key: "package.version"
-    #         value: ${{ steps.get_current_version.outputs.VERSION }}
-    #     - uses: ciiiii/toml-editor@1.0.0
-    #       with:
-    #         file: "pb-git-hooks/Cargo.toml"
-    #         key: "package.version"
-    #         value: ${{ steps.get_current_version.outputs.VERSION }}
-    #     - uses: ciiiii/toml-editor@1.0.0
-    #       with:
-    #         file: "pb-hook-test-helper/Cargo.toml"
-    #         key: "package.version"
-    #         value: ${{ steps.get_current_version.outputs.VERSION }}
-    #     - uses: ciiiii/toml-editor@1.0.0
-    #       with:
-    #         file: "pb-pre-commit/Cargo.toml"
-    #         key: "package.version"
-    #         value: ${{ steps.get_current_version.outputs.VERSION }}
-    #     - uses: ciiiii/toml-editor@1.0.0
-    #       with:
-    #         file: "pb-prepare-commit-msg/Cargo.toml"
-    #         key: "package.version"
-    #         value: ${{ steps.get_current_version.outputs.VERSION }}
-    #     - uses: actions-rs/cargo@v1
-    #       with:
-    #         command: check
-    #     - shell: bash
-    #       run: |
-    #         git config user.name "GitHub"
-    #         git config user.email "noreply@github.com"
-    #         git fetch
-    #     - shell: bash
-    #       if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
-    #       run: |
-    #         git add . && git stash || true
-    #         git rebase origin/main
-    #         git checkout main
-    #         git merge --ff-only -
-    #         git stash pop || true
-    #     - shell: bash
-    #       run: |
-    #         git commit -am "Release $(cat ./version/version)"
-    #         git tag -a -m "Release $(cat ./version/version)" "$(cat ./version/version)"
-    #         git pull --rebase
-    #         git push
-    #         git push --tags
+  # merge-and-push:
+  #   if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]' || ( github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'Release v') )
+  #   needs:
+  #     - version
+  #     - mdtest
+  #     - test
+  #     - lints
+  #     - check
+  #     - security-audit
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         token: "${{ secrets.COMMITTER_TOKEN }}"
+  #         fetch-depth: 0
+  #     - uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           ~/.cargo/registry
+  #           ~/.cargo/git
+  #           ~/.cargo/bin
+  #           target
+  #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+  #     - uses: actions/download-artifact@v2
+  #     - id: get_current_version
+  #       run: |
+  #         echo ::set-output name=VERSION::$(cat ./version/version | cut -c2-)
+  #         echo ::set-output name=V_VERSION::$(cat ./version/version)
+  #       shell: bash
+  #     - uses: ciiiii/toml-editor@1.0.0
+  #       with:
+  #         file: "git-authors/Cargo.toml"
+  #         key: "package.version"
+  #         value: ${{ steps.get_current_version.outputs.VERSION }}
+  #     - uses: ciiiii/toml-editor@1.0.0
+  #       with:
+  #         file: "pb-commit-message-lints/Cargo.toml"
+  #         key: "package.version"
+  #         value: ${{ steps.get_current_version.outputs.VERSION }}
+  #     - uses: ciiiii/toml-editor@1.0.0
+  #       with:
+  #         file: "pb-commit-msg/Cargo.toml"
+  #         key: "package.version"
+  #         value: ${{ steps.get_current_version.outputs.VERSION }}
+  #     - uses: ciiiii/toml-editor@1.0.0
+  #       with:
+  #         file: "pb-git-hooks/Cargo.toml"
+  #         key: "package.version"
+  #         value: ${{ steps.get_current_version.outputs.VERSION }}
+  #     - uses: ciiiii/toml-editor@1.0.0
+  #       with:
+  #         file: "pb-hook-test-helper/Cargo.toml"
+  #         key: "package.version"
+  #         value: ${{ steps.get_current_version.outputs.VERSION }}
+  #     - uses: ciiiii/toml-editor@1.0.0
+  #       with:
+  #         file: "pb-pre-commit/Cargo.toml"
+  #         key: "package.version"
+  #         value: ${{ steps.get_current_version.outputs.VERSION }}
+  #     - uses: ciiiii/toml-editor@1.0.0
+  #       with:
+  #         file: "pb-prepare-commit-msg/Cargo.toml"
+  #         key: "package.version"
+  #         value: ${{ steps.get_current_version.outputs.VERSION }}
+  #     - uses: actions-rs/cargo@v1
+  #       with:
+  #         command: check
+  #     - shell: bash
+  #       run: |
+  #         git config user.name "GitHub"
+  #         git config user.email "noreply@github.com"
+  #         git fetch
+  #     - shell: bash
+  #       if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
+  #       run: |
+  #         git add . && git stash || true
+  #         git rebase origin/main
+  #         git checkout main
+  #         git merge --ff-only -
+  #         git stash pop || true
+  #     - shell: bash
+  #       run: |
+  #         git commit -am "Release $(cat ./version/version)"
+  #         git tag -a -m "Release $(cat ./version/version)" "$(cat ./version/version)"
+  #         git pull --rebase
+  #         git push
+  #         git push --tags
