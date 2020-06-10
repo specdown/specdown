@@ -60,7 +60,7 @@ fn char_vec_to_string(chars: &[u8]) -> Result<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{parse, Element};
     use indoc::indoc;
 
     #[test]

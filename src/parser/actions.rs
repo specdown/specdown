@@ -20,7 +20,7 @@ pub fn create_action(info: &str, literal: String) -> Result<Action> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{create_action, Action, FileContent, Result, ScriptCode, VerifyValue};
     use crate::types::{FilePath, ScriptName, Source, Stream};
 
     #[test]

@@ -66,7 +66,7 @@ impl fmt::Display for Error {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::Error;
 
     #[test]
     fn display_root_must_be_document() {

@@ -19,7 +19,7 @@ pub fn run(path: &FilePath, content: &FileContent) -> Result<TestResult, error::
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{run, FileContent, FilePath, TestResult};
     use std::fs;
 
     #[test]

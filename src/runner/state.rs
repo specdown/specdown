@@ -55,7 +55,7 @@ impl State {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{State, TestResult};
 
     #[test]
     fn sets_success_when_initialized() {

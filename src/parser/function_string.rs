@@ -82,10 +82,10 @@ fn token_value(input: &str) -> IResult<&str, ArgumentValue> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{argument, argument_list, argument_value, parse, ArgumentValue, Function, HashMap};
 
     mod parse {
-        use super::*;
+        use super::{parse, ArgumentValue, Function, HashMap};
 
         #[test]
         fn succeeds_when_function_has_no_args() {
@@ -174,7 +174,7 @@ mod tests {
     }
 
     mod argument_list {
-        use super::*;
+        use super::{argument_list, ArgumentValue, HashMap};
 
         #[test]
         fn succeeds_when_no_arguments_are_provided() {
@@ -226,7 +226,7 @@ mod tests {
     }
 
     mod argument {
-        use super::*;
+        use super::{argument, ArgumentValue};
 
         #[test]
         fn fails_when_name_starts_with_a_digit() {
@@ -293,7 +293,7 @@ mod tests {
     }
 
     mod argument_value {
-        use super::*;
+        use super::{argument_value, ArgumentValue};
 
         #[test]
         fn succeeds_when_there_is_a_remainder() {
@@ -310,7 +310,7 @@ mod tests {
         // }
 
         mod string_value {
-            use super::*;
+            use super::{argument_value, ArgumentValue};
 
             #[test]
             fn succeeds_when_there_is_a_remainder() {
@@ -341,7 +341,7 @@ mod tests {
         }
 
         mod token_value {
-            use super::*;
+            use super::{argument_value, ArgumentValue};
 
             #[test]
             fn succeeds_when_there_is_a_remainder() {

@@ -108,13 +108,13 @@ fn incorrect_argument_type_error(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{parse, CodeBlockType, Error, FilePath, ScriptName, Source, Stream};
 
     mod parse {
-        use super::*;
+        use super::{parse, CodeBlockType, Error, FilePath, ScriptName, Source, Stream};
 
         mod script {
-            use super::*;
+            use super::{parse, CodeBlockType, Error, ScriptName};
 
             #[test]
             fn succeeds_when_function_is_script() {
@@ -141,7 +141,7 @@ mod tests {
         }
 
         mod verify {
-            use super::*;
+            use super::{parse, CodeBlockType, Error, ScriptName, Source, Stream};
 
             #[test]
             fn succeeds_when_function_is_verify_and_stream_is_stdout() {
@@ -207,7 +207,7 @@ mod tests {
         }
 
         mod file {
-            use super::*;
+            use super::{parse, CodeBlockType, Error, FilePath};
 
             #[test]
             fn succeeds_when_function_is_file() {
