@@ -107,6 +107,7 @@ jobs:
           profile: minimal
           toolchain: stable
           default: true
+      - run: echo "::add-path::./target/debug"
       - uses: actions-rs/cargo@v1
         with:
           args: " --locked"
