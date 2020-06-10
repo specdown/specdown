@@ -114,30 +114,6 @@ jobs:
           args: " --locked"
           command: test
 
-  # mdtest:
-  #   runs-on: "${{ matrix.os }}"
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - os: macos-latest
-  #         - os: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: actions/cache@v2
-  #       with:
-  #         path: |
-  #           ~/.cargo/registry
-  #           ~/.cargo/git
-  #           ~/.cargo/bin
-  #           target
-  #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         default: true
-  #     - run: make mdtest
-
   lints:
     runs-on: ubuntu-latest
     steps:
@@ -175,7 +151,6 @@ jobs:
   #   if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]' || ( github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'Release v') )
   #   needs:
   #     - version
-  #     - mdtest
   #     - test
   #     - lints
   #     - check
@@ -203,36 +178,6 @@ jobs:
   #     - uses: ciiiii/toml-editor@1.0.0
   #       with:
   #         file: "git-authors/Cargo.toml"
-  #         key: "package.version"
-  #         value: ${{ steps.get_current_version.outputs.VERSION }}
-  #     - uses: ciiiii/toml-editor@1.0.0
-  #       with:
-  #         file: "pb-commit-message-lints/Cargo.toml"
-  #         key: "package.version"
-  #         value: ${{ steps.get_current_version.outputs.VERSION }}
-  #     - uses: ciiiii/toml-editor@1.0.0
-  #       with:
-  #         file: "pb-commit-msg/Cargo.toml"
-  #         key: "package.version"
-  #         value: ${{ steps.get_current_version.outputs.VERSION }}
-  #     - uses: ciiiii/toml-editor@1.0.0
-  #       with:
-  #         file: "pb-git-hooks/Cargo.toml"
-  #         key: "package.version"
-  #         value: ${{ steps.get_current_version.outputs.VERSION }}
-  #     - uses: ciiiii/toml-editor@1.0.0
-  #       with:
-  #         file: "pb-hook-test-helper/Cargo.toml"
-  #         key: "package.version"
-  #         value: ${{ steps.get_current_version.outputs.VERSION }}
-  #     - uses: ciiiii/toml-editor@1.0.0
-  #       with:
-  #         file: "pb-pre-commit/Cargo.toml"
-  #         key: "package.version"
-  #         value: ${{ steps.get_current_version.outputs.VERSION }}
-  #     - uses: ciiiii/toml-editor@1.0.0
-  #       with:
-  #         file: "pb-prepare-commit-msg/Cargo.toml"
   #         key: "package.version"
   #         value: ${{ steps.get_current_version.outputs.VERSION }}
   #     - uses: actions-rs/cargo@v1
