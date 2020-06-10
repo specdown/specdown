@@ -42,6 +42,7 @@ fn execute_run(spec_file: &Path, running_dir: Option<&Path>) {
     let actions = parser::parse(&contents);
 
     if let Some(dir) = running_dir {
+        fs::create_dir_all(dir).expect("Failed to create running directory");
         std::env::set_current_dir(dir).expect("Failed to set running directory");
     }
 
