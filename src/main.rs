@@ -13,6 +13,7 @@ mod types;
 fn main() {
     let app = App::new("specdown")
         .about("A tool to test markdown files and drive devlopment from documentation.")
+        .version(env!("CARGO_PKG_VERSION"))
         .subcommand(run_subcommand::create())
         .setting(AppSettings::ArgRequiredElseHelp);
 
