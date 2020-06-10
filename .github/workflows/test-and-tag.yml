@@ -10,7 +10,7 @@
       steps:
         - uses: actions/checkout@v2
         - uses: actions/cache@v2
-          with: &cache
+          with:
             path: |
               ~/.cargo/registry
               ~/.cargo/git
@@ -25,13 +25,19 @@
     #   runs-on: ubuntu-latest
     #   steps:
     #     - uses: actions-rs/toolchain@v1
-    #       with: &toolchain
+    #       with:
     #         profile: minimal
     #         toolchain: stable
     #         default: true
     #     - uses: actions/checkout@v2
     #     - uses: actions/cache@v2
-    #       with: *cache
+    #       with:
+    #         path: |
+    #           ~/.cargo/registry
+    #           ~/.cargo/git
+    #           ~/.cargo/bin
+    #           target
+    #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     #     - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     #     - id: get_previous_version
     #       run: echo ::set-output name=PREVIOUS_VERSION::$(git tag --sort=-creatordate | head -n 1)
@@ -63,16 +69,25 @@
       steps:
         - uses: actions/checkout@v2
         - uses: actions/cache@v2
-          with: *cache
+          with:
+            path: |
+              ~/.cargo/registry
+              ~/.cargo/git
+              ~/.cargo/bin
+              target
+            key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         - uses: actions-rs/toolchain@v1
-          with: *toolchain
+          with:
+            profile: minimal
+            toolchain: stable
+            default: true
         - uses: actions-rs/cargo@v1
           with:
             command: check
 
     test:
       runs-on: "${{ matrix.os }}"
-      strategy: &strategy
+      strategy:
         matrix:
           include:
             - os: macos-latest
@@ -80,34 +95,65 @@
       steps:
         - uses: actions/checkout@v2
         - uses: actions/cache@v2
-          with: *cache
+          with:
+            path: |
+              ~/.cargo/registry
+              ~/.cargo/git
+              ~/.cargo/bin
+              target
+            key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         - uses: actions-rs/toolchain@v1
-          with: *toolchain
+          with:
+            profile: minimal
+            toolchain: stable
+            default: true
         - uses: actions-rs/cargo@v1
           with:
             args: " --locked"
             command: test
 
-    mdtest:
-      runs-on: "${{ matrix.os }}"
-      strategy: *strategy
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/cache@v2
-          with: *cache
-        - uses: actions-rs/toolchain@v1
-          with: &toolchain
-        - run: make mdtest
+    # mdtest:
+    #   runs-on: "${{ matrix.os }}"
+    #   strategy:
+    #     matrix:
+    #       include:
+    #         - os: macos-latest
+    #         - os: ubuntu-latest
+    #   steps:
+    #     - uses: actions/checkout@v2
+    #     - uses: actions/cache@v2
+    #       with:
+    #         path: |
+    #           ~/.cargo/registry
+    #           ~/.cargo/git
+    #           ~/.cargo/bin
+    #           target
+    #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    #     - uses: actions-rs/toolchain@v1
+    #       with:
+    #         profile: minimal
+    #         toolchain: stable
+    #         default: true
+    #     - run: make mdtest
 
     lints:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
         - uses: actions/cache@v2
-          with: *cache
+          with:
+            path: |
+              ~/.cargo/registry
+              ~/.cargo/git
+              ~/.cargo/bin
+              target
+            key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         - uses: actions-rs/toolchain@v1
           with:
-            <<: *toolchain
+            <<:
+            profile: minimal
+            toolchain: stable
+            default: true
             components: "rustfmt, clippy"
         - uses: actions-rs/cargo@v1
           with:
@@ -139,7 +185,13 @@
     #         token: "${{ secrets.COMMITTER_TOKEN }}"
     #         fetch-depth: 0
     #     - uses: actions/cache@v2
-    #       with: *cache
+    #       with:
+    #         path: |
+    #           ~/.cargo/registry
+    #           ~/.cargo/git
+    #           ~/.cargo/bin
+    #           target
+    #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     #     - uses: actions/download-artifact@v2
     #     - id: get_current_version
     #       run: |
