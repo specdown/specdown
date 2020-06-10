@@ -88,7 +88,7 @@ Verify output from cat succeeded
 You can display all the options available by using `--help` on the `run` sub-command.
 
 ```shell,script(name="run_help")
-specdown run --help 2>&1
+specdown run --help
 ```
 
 ```text,verify(script_name="run_help", stream=stdout)

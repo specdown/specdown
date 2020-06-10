@@ -68,7 +68,8 @@ fn test_displays_error_when_required_args_are_missing() {
         .assert()
         .failure()
         .stderr(indoc!(
-            "specdown 
+            "
+            specdown 0.1.3
             A tool to test markdown files and drive devlopment from documentation.
             
             USAGE:
