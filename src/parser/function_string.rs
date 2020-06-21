@@ -10,7 +10,10 @@ use nom::{
     IResult,
 };
 
-use super::function::{Argument, ArgumentValue, Function};
+use super::argument_value::ArgumentValue;
+use super::function::Function;
+
+pub type Argument<'a> = (&'a str, ArgumentValue);
 
 pub fn parse(input: &str) -> IResult<&str, Function> {
     let p = tuple((alpha1, argument_list));
