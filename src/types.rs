@@ -26,11 +26,21 @@ pub struct FilePath(pub String);
 pub struct FileContent(pub String);
 
 #[derive(Debug, PartialEq)]
-pub struct StatusCode(pub u32);
+pub struct ExitCode(pub u32);
 
 #[derive(Debug, PartialEq)]
 pub enum Action {
-    Script(ScriptName, ScriptCode, Option<StatusCode>),
-    Verify(Source, VerifyValue),
-    CreateFile(FilePath, FileContent),
+    Script {
+        script_name: ScriptName,
+        script_code: ScriptCode,
+        expected_exit_code: Option<ExitCode>,
+    },
+    Verify {
+        source: Source,
+        expected_value: VerifyValue,
+    },
+    CreateFile {
+        file_path: FilePath,
+        file_content: FileContent,
+    },
 }

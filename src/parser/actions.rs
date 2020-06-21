@@ -6,15 +6,19 @@ pub fn create_action(info: &str, literal: String) -> Result<Action> {
     let block = code_block_info::parse(&info)?;
 
     match block {
-        code_block_info::CodeBlockType::Script(name) => {
-            Ok(Action::Script(name, ScriptCode(literal), None))
-        }
-        code_block_info::CodeBlockType::Verify(source) => {
-            Ok(Action::Verify(source, VerifyValue(literal)))
-        }
-        code_block_info::CodeBlockType::CreateFile(file_path) => {
-            Ok(Action::CreateFile(file_path, FileContent(literal)))
-        }
+        code_block_info::CodeBlockType::Script(name) => Ok(Action::Script {
+            script_name: name,
+            script_code: ScriptCode(literal),
+            expected_exit_code: None,
+        }),
+        code_block_info::CodeBlockType::Verify(source) => Ok(Action::Verify {
+            source,
+            expected_value: VerifyValue(literal),
+        }),
+        code_block_info::CodeBlockType::CreateFile(file_path) => Ok(Action::CreateFile {
+            file_path,
+            file_content: FileContent(literal),
+        }),
     }
 }
 
@@ -27,11 +31,11 @@ mod tests {
     fn create_action_for_script() {
         assert_eq!(
             create_action("shell,script(name=\"script-name\")", "code".to_string(),),
-            Ok(Action::Script(
-                ScriptName("script-name".to_string()),
-                ScriptCode("code".to_string()),
-                None
-            )) as Result<Action>
+            Ok(Action::Script {
+                script_name: ScriptName("script-name".to_string()),
+                script_code: ScriptCode("code".to_string()),
+                expected_exit_code: None
+            }) as Result<Action>
         );
     }
 
@@ -42,13 +46,13 @@ mod tests {
                 ",verify(script_name=\"script-name\", stream=stdout)",
                 "value".to_string()
             ),
-            Ok(Action::Verify(
-                Source {
+            Ok(Action::Verify {
+                source: Source {
                     name: ScriptName("script-name".to_string()),
                     stream: Stream::StdOut,
                 },
-                VerifyValue("value".to_string())
-            )) as Result<Action>
+                expected_value: VerifyValue("value".to_string())
+            }) as Result<Action>
         );
     }
 
@@ -56,10 +60,10 @@ mod tests {
     fn create_action_for_file() {
         assert_eq!(
             create_action(",file(path=\"file.txt\")", "content".to_string()),
-            Ok(Action::CreateFile(
-                FilePath("file.txt".to_string()),
-                FileContent("content".to_string())
-            )) as Result<Action>
+            Ok(Action::CreateFile {
+                file_path: FilePath("file.txt".to_string()),
+                file_content: FileContent("content".to_string())
+            }) as Result<Action>
         );
     }
 }
