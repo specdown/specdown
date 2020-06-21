@@ -5,6 +5,7 @@ use nom::{
 };
 
 use super::error::{Error, Result};
+use super::function;
 use super::function_string;
 use crate::types::{ExitCode, FilePath, ScriptName, Source, Stream};
 
@@ -25,7 +26,7 @@ pub fn parse(input: &str) -> Result<CodeBlockType> {
     }
 }
 
-fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
+fn to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     match &f.name[..] {
         "script" => script_to_code_block_type(f),
         "verify" => verify_to_code_block_type(f),
@@ -34,7 +35,7 @@ fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
     }
 }
 
-fn script_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
+fn script_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     let name = get_string_argument(&f, "name")?;
     let expected_exit_code = if f.has_argument("expected_exit_code") {
         Some(ExitCode(get_integer_argument(f, "expected_exit_code")?))
@@ -44,12 +45,12 @@ fn script_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockT
     Ok(CodeBlockType::Script(ScriptName(name), expected_exit_code))
 }
 
-fn file_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
+fn file_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     let path = get_string_argument(&f, "path")?;
     Ok(CodeBlockType::CreateFile(FilePath(path)))
 }
 
-fn verify_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
+fn verify_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     let name = ScriptName(get_string_argument(&f, "script_name")?);
     let stream_name = get_token_argument(&f, "stream")?;
     let stream = to_stream(&stream_name).ok_or_else(|| Error::InvalidArgumentValue {
@@ -69,8 +70,8 @@ fn to_stream(stream_name: &str) -> Option<Stream> {
     }
 }
 
-fn get_integer_argument(f: &function_string::Function, name: &str) -> Result<u32> {
-    use function_string::ArgumentValue;
+fn get_integer_argument(f: &function::Function, name: &str) -> Result<u32> {
+    use function::ArgumentValue;
 
     match get_required_argument(f, name)? {
         ArgumentValue::Integer(num) => Ok(*num),
@@ -79,8 +80,8 @@ fn get_integer_argument(f: &function_string::Function, name: &str) -> Result<u32
     }
 }
 
-fn get_string_argument(f: &function_string::Function, name: &str) -> Result<String> {
-    use function_string::ArgumentValue;
+fn get_string_argument(f: &function::Function, name: &str) -> Result<String> {
+    use function::ArgumentValue;
 
     match get_required_argument(f, name)? {
         ArgumentValue::String(s) => Ok(s.clone()),
@@ -89,8 +90,8 @@ fn get_string_argument(f: &function_string::Function, name: &str) -> Result<Stri
     }
 }
 
-fn get_token_argument(f: &function_string::Function, name: &str) -> Result<String> {
-    use function_string::ArgumentValue;
+fn get_token_argument(f: &function::Function, name: &str) -> Result<String> {
+    use function::ArgumentValue;
 
     match get_required_argument(f, name)? {
         ArgumentValue::Token(t) => Ok(t.clone()),
@@ -100,9 +101,9 @@ fn get_token_argument(f: &function_string::Function, name: &str) -> Result<Strin
 }
 
 fn get_required_argument<'a>(
-    f: &'a function_string::Function,
+    f: &'a function::Function,
     name: &str,
-) -> Result<&'a function_string::ArgumentValue> {
+) -> Result<&'a function::ArgumentValue> {
     f.arguments.get(name).ok_or_else(|| Error::MissingArgument {
         function: f.name.clone(),
         argument: name.to_string(),
@@ -110,7 +111,7 @@ fn get_required_argument<'a>(
 }
 
 fn incorrect_argument_type_error<T>(
-    f: &function_string::Function,
+    f: &function::Function,
     argument: &str,
     expected: &str,
     got: &str,

@@ -3,6 +3,7 @@ use crate::types::Action;
 mod actions;
 mod code_block_info;
 mod error;
+mod function;
 mod function_string;
 mod markdown;
 
