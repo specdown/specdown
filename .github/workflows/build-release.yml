@@ -19,9 +19,9 @@ jobs:
             target
       - uses: actions-rs/toolchain@v1
         with:
-          default: true
           profile: minimal
-          toolchain: nightly
+          toolchain: stable
+          default: true
       - uses: actions-rs/cargo@v1
         with:
           args: "--release --locked"
@@ -62,9 +62,9 @@ jobs:
       - uses: actions/download-artifact@v2
       - uses: actions-rs/toolchain@v1
         with:
-          default: true
           profile: minimal
-          toolchain: nightly
+          toolchain: stable
+          default: true
       - uses: actions-rs/cargo@v1
         with:
           args: toml-cli
