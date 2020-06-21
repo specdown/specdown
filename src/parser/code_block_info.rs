@@ -71,57 +71,15 @@ fn to_stream(stream_name: &str) -> Option<Stream> {
 }
 
 fn get_integer_argument(f: &function::Function, name: &str) -> Result<u32> {
-    use function::ArgumentValue;
-
-    match get_required_argument(f, name)? {
-        ArgumentValue::Integer(num) => Ok(*num),
-        ArgumentValue::String(_) => incorrect_argument_type_error(f, name, "integer", "string"),
-        ArgumentValue::Token(_) => incorrect_argument_type_error(f, name, "integer", "token"),
-    }
+    f.get_integer_argument(name)
 }
 
 fn get_string_argument(f: &function::Function, name: &str) -> Result<String> {
-    use function::ArgumentValue;
-
-    match get_required_argument(f, name)? {
-        ArgumentValue::String(s) => Ok(s.clone()),
-        ArgumentValue::Integer(_) => incorrect_argument_type_error(f, name, "string", "integer"),
-        ArgumentValue::Token(_) => incorrect_argument_type_error(f, name, "string", "token"),
-    }
+    f.get_string_argument(name)
 }
 
 fn get_token_argument(f: &function::Function, name: &str) -> Result<String> {
-    use function::ArgumentValue;
-
-    match get_required_argument(f, name)? {
-        ArgumentValue::Token(t) => Ok(t.clone()),
-        ArgumentValue::Integer(_) => incorrect_argument_type_error(f, name, "token", "integer"),
-        ArgumentValue::String(_) => incorrect_argument_type_error(f, name, "token", "string"),
-    }
-}
-
-fn get_required_argument<'a>(
-    f: &'a function::Function,
-    name: &str,
-) -> Result<&'a function::ArgumentValue> {
-    f.arguments.get(name).ok_or_else(|| Error::MissingArgument {
-        function: f.name.clone(),
-        argument: name.to_string(),
-    })
-}
-
-fn incorrect_argument_type_error<T>(
-    f: &function::Function,
-    argument: &str,
-    expected: &str,
-    got: &str,
-) -> Result<T> {
-    Err(Error::IncorrectArgumentType {
-        function: f.name.to_string(),
-        argument: argument.to_string(),
-        expected: expected.to_string(),
-        got: got.to_string(),
-    })
+    f.get_token_argument(name)
 }
 
 #[cfg(test)]
