@@ -6,11 +6,11 @@ use nom::{
 
 use super::error::{Error, Result};
 use super::function_string;
-use crate::types::{FilePath, ScriptName, Source, Stream};
+use crate::types::{ExitCode, FilePath, ScriptName, Source, Stream};
 
 #[derive(Debug, PartialEq)]
 pub enum CodeBlockType {
-    Script(ScriptName),
+    Script(ScriptName, Option<ExitCode>),
     Verify(Source),
     CreateFile(FilePath),
 }
@@ -36,7 +36,7 @@ fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
 
 fn script_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
     let name = get_string_argument(&f, "name")?;
-    Ok(CodeBlockType::Script(ScriptName(name)))
+    Ok(CodeBlockType::Script(ScriptName(name), None))
 }
 
 fn file_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
@@ -121,9 +121,10 @@ mod tests {
                 let result = parse("shell,script(name=\"example-script\")");
                 assert_eq!(
                     result,
-                    Ok(CodeBlockType::Script(ScriptName(
-                        "example-script".to_string()
-                    )))
+                    Ok(CodeBlockType::Script(
+                        ScriptName("example-script".to_string(),),
+                        None
+                    ))
                 )
             }
 

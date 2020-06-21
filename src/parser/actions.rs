@@ -6,11 +6,13 @@ pub fn create_action(info: &str, literal: String) -> Result<Action> {
     let block = code_block_info::parse(&info)?;
 
     match block {
-        code_block_info::CodeBlockType::Script(name) => Ok(Action::Script {
-            script_name: name,
-            script_code: ScriptCode(literal),
-            expected_exit_code: None,
-        }),
+        code_block_info::CodeBlockType::Script(script_name, expected_exit_code) => {
+            Ok(Action::Script {
+                script_name,
+                script_code: ScriptCode(literal),
+                expected_exit_code,
+            })
+        }
         code_block_info::CodeBlockType::Verify(source) => Ok(Action::Verify {
             source,
             expected_value: VerifyValue(literal),
