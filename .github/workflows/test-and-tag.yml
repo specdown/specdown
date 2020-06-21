@@ -197,7 +197,7 @@ jobs:
       - uses: actions/download-artifact@v2
       - id: get_current_version
         run: |
-          echo ::set-output name=PREVIOUS_VERSION::$(cat ./version/previous)
+          echo ::set-output name=PREVIOUS_VERSION::$(cat ./version/previous | cut -c2-)
           echo ::set-output name=VERSION::$(cat ./version/version | cut -c2-)
           echo ::set-output name=V_VERSION::$(cat ./version/version)
         shell: bash
