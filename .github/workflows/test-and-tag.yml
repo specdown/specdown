@@ -184,7 +184,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
           fetch-depth: 0
       - uses: actions/cache@v2
         with:
