@@ -47,7 +47,7 @@ jobs:
         with:
           version: "${{ steps.get_previous_version.outputs.PREVIOUS_VERSION }}"
       - run: mkdir -p ./version
-      - run: echo "${{ steps.get_previous_version.outputs.PREVIOUS_VERSION }}" >.version/previous
+      - run: echo "${{ steps.get_previous_version.outputs.PREVIOUS_VERSION }}" >./version/previous
       
       # Since this is a pre 1.0.0 release, minor is used for all releases.
       # As per the SemVer specification.
