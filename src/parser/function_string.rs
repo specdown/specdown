@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use nom::{
     branch::alt,
     bytes::streaming::{tag, take_until},
-    character::streaming::{alpha1, alphanumeric1, space0},
+    character::streaming::{alpha1, alphanumeric1, digit1, space0},
     combinator::map,
     multi::{many0, separated_list},
     sequence::{delimited, tuple},
@@ -20,8 +20,15 @@ type Argument<'a> = (&'a str, ArgumentValue);
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum ArgumentValue {
+    Integer(u32),
     String(String),
     Token(String),
+}
+
+impl Function {
+    pub fn has_argument(&self, name: &str) -> bool {
+        self.arguments.contains_key(name)
+    }
 }
 
 pub fn parse(input: &str) -> IResult<&str, Function> {
@@ -66,7 +73,12 @@ fn argument_name(input: &str) -> IResult<&str, &str> {
 }
 
 fn argument_value(input: &str) -> IResult<&str, ArgumentValue> {
-    alt((string_value, token_value))(input)
+    alt((integer_value, string_value, token_value))(input)
+}
+
+fn integer_value(input: &str) -> IResult<&str, ArgumentValue> {
+    let p = digit1;
+    map(p, |s: &str| ArgumentValue::Integer(s.parse().unwrap()))(input)
 }
 
 fn string_value(input: &str) -> IResult<&str, ArgumentValue> {
@@ -83,6 +95,39 @@ fn token_value(input: &str) -> IResult<&str, ArgumentValue> {
 #[cfg(test)]
 mod tests {
     use super::{argument, argument_list, argument_value, parse, ArgumentValue, Function, HashMap};
+
+    mod function {
+        use super::{ArgumentValue, Function};
+
+        mod has_argument {
+            use super::{ArgumentValue, Function};
+            use maplit::hashmap;
+
+            #[test]
+            fn returns_true_when_argument_is_present() {
+                let f = Function {
+                    name: "abc".to_string(),
+                    arguments: hashmap! {
+                        "arg1".to_string() => ArgumentValue::Integer(1),
+                        "arg2".to_string() => ArgumentValue::Integer(2),
+                    },
+                };
+                assert_eq!(true, f.has_argument("arg1"));
+                assert_eq!(true, f.has_argument("arg2"));
+            }
+
+            #[test]
+            fn returns_false_when_argument_is_present() {
+                let f = Function {
+                    name: "abc".to_string(),
+                    arguments: hashmap! {
+                        "arg".to_string() => ArgumentValue::Integer(1),
+                    },
+                };
+                assert_eq!(false, f.has_argument("not-arg"))
+            }
+        }
+    }
 
     mod parse {
         use super::{parse, ArgumentValue, Function, HashMap};
@@ -308,6 +353,18 @@ mod tests {
         //     let result = argument_value("token");
         //     assert_eq!(result, Ok(("", ArgumentValue::Token("token"))));
         // }
+
+        mod integer_value {
+            use super::{argument_value, ArgumentValue};
+
+            #[test]
+            fn succeeds_when_there_is_a_remainder() {
+                assert_eq!(
+                    argument_value("123 leftovers"),
+                    Ok((" leftovers", ArgumentValue::Integer(123)))
+                );
+            }
+        }
 
         mod string_value {
             use super::{argument_value, ArgumentValue};

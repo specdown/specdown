@@ -36,7 +36,12 @@ fn to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
 
 fn script_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
     let name = get_string_argument(&f, "name")?;
-    Ok(CodeBlockType::Script(ScriptName(name), None))
+    let expected_exit_code = if f.has_argument("expected_exit_code") {
+        Some(ExitCode(get_integer_argument(f, "expected_exit_code")?))
+    } else {
+        None
+    };
+    Ok(CodeBlockType::Script(ScriptName(name), expected_exit_code))
 }
 
 fn file_to_code_block_type(f: &function_string::Function) -> Result<CodeBlockType> {
@@ -64,21 +69,33 @@ fn to_stream(stream_name: &str) -> Option<Stream> {
     }
 }
 
-fn get_string_argument(f: &function_string::Function, name: &str) -> Result<String> {
+fn get_integer_argument(f: &function_string::Function, name: &str) -> Result<u32> {
+    use function_string::ArgumentValue;
+
     match get_required_argument(f, name)? {
-        function_string::ArgumentValue::String(s) => Ok(s.clone()),
-        function_string::ArgumentValue::Token(_) => {
-            incorrect_argument_type_error(f, name, "string", "token")
-        }
+        ArgumentValue::Integer(num) => Ok(*num),
+        ArgumentValue::String(_) => incorrect_argument_type_error(f, name, "integer", "string"),
+        ArgumentValue::Token(_) => incorrect_argument_type_error(f, name, "integer", "token"),
+    }
+}
+
+fn get_string_argument(f: &function_string::Function, name: &str) -> Result<String> {
+    use function_string::ArgumentValue;
+
+    match get_required_argument(f, name)? {
+        ArgumentValue::String(s) => Ok(s.clone()),
+        ArgumentValue::Integer(_) => incorrect_argument_type_error(f, name, "string", "integer"),
+        ArgumentValue::Token(_) => incorrect_argument_type_error(f, name, "string", "token"),
     }
 }
 
 fn get_token_argument(f: &function_string::Function, name: &str) -> Result<String> {
+    use function_string::ArgumentValue;
+
     match get_required_argument(f, name)? {
-        function_string::ArgumentValue::Token(t) => Ok(t.clone()),
-        function_string::ArgumentValue::String(_) => {
-            incorrect_argument_type_error(f, name, "token", "string")
-        }
+        ArgumentValue::Token(t) => Ok(t.clone()),
+        ArgumentValue::Integer(_) => incorrect_argument_type_error(f, name, "token", "integer"),
+        ArgumentValue::String(_) => incorrect_argument_type_error(f, name, "token", "string"),
     }
 }
 
@@ -92,12 +109,12 @@ fn get_required_argument<'a>(
     })
 }
 
-fn incorrect_argument_type_error(
+fn incorrect_argument_type_error<T>(
     f: &function_string::Function,
     argument: &str,
     expected: &str,
     got: &str,
-) -> Result<String> {
+) -> Result<T> {
     Err(Error::IncorrectArgumentType {
         function: f.name.to_string(),
         argument: argument.to_string(),
@@ -108,13 +125,13 @@ fn incorrect_argument_type_error(
 
 #[cfg(test)]
 mod tests {
-    use super::{parse, CodeBlockType, Error, FilePath, ScriptName, Source, Stream};
+    use super::{parse, CodeBlockType, Error, ExitCode, FilePath, ScriptName, Source, Stream};
 
     mod parse {
-        use super::{parse, CodeBlockType, Error, FilePath, ScriptName, Source, Stream};
+        use super::{parse, CodeBlockType, Error, ExitCode, FilePath, ScriptName, Source, Stream};
 
         mod script {
-            use super::{parse, CodeBlockType, Error, ScriptName};
+            use super::{parse, CodeBlockType, Error, ExitCode, ScriptName};
 
             #[test]
             fn succeeds_when_function_is_script() {
@@ -124,6 +141,18 @@ mod tests {
                     Ok(CodeBlockType::Script(
                         ScriptName("example-script".to_string(),),
                         None
+                    ))
+                )
+            }
+
+            #[test]
+            fn succeeds_when_function_is_script_with_expected_exit_code() {
+                let result = parse("shell,script(name=\"example-script\", expected_exit_code=2)");
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockType::Script(
+                        ScriptName("example-script".to_string(),),
+                        Some(ExitCode(2))
                     ))
                 )
             }
