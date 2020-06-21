@@ -26,8 +26,11 @@ pub struct FilePath(pub String);
 pub struct FileContent(pub String);
 
 #[derive(Debug, PartialEq)]
+pub struct StatusCode(pub u32);
+
+#[derive(Debug, PartialEq)]
 pub enum Action {
-    Script(ScriptName, ScriptCode),
+    Script(ScriptName, ScriptCode, Option<StatusCode>),
     Verify(Source, VerifyValue),
     CreateFile(FilePath, FileContent),
 }

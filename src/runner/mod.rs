@@ -27,7 +27,7 @@ pub fn run_actions(actions: &[Action], printer: &dyn Printer) {
 
 fn run_action(action: &Action, state: &mut State) -> Result<TestResult, error::Error> {
     match action {
-        Action::Script(name, code) => script::run(name, code, state),
+        Action::Script(name, code, _status_code) => script::run(name, code, state),
         Action::Verify(source, value) => verify::run(source, value, state),
         Action::CreateFile(file_path, content) => file::run(file_path, content),
     }

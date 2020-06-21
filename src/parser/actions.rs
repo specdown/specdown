@@ -7,7 +7,7 @@ pub fn create_action(info: &str, literal: String) -> Result<Action> {
 
     match block {
         code_block_info::CodeBlockType::Script(name) => {
-            Ok(Action::Script(name, ScriptCode(literal)))
+            Ok(Action::Script(name, ScriptCode(literal), None))
         }
         code_block_info::CodeBlockType::Verify(source) => {
             Ok(Action::Verify(source, VerifyValue(literal)))
@@ -29,7 +29,8 @@ mod tests {
             create_action("shell,script(name=\"script-name\")", "code".to_string(),),
             Ok(Action::Script(
                 ScriptName("script-name".to_string()),
-                ScriptCode("code".to_string())
+                ScriptCode("code".to_string()),
+                None
             )) as Result<Action>
         );
     }
