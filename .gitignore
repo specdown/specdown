@@ -2,3 +2,4 @@
 /dist
 **/*.rs.bk
 .specdown/
+*.bak

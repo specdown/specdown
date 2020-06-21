@@ -47,6 +47,7 @@ jobs:
         with:
           version: "${{ steps.get_previous_version.outputs.PREVIOUS_VERSION }}"
       - run: mkdir -p ./version
+      - run: echo "${{ steps.get_previous_version.outputs.PREVIOUS_VERSION }}" >.version/previous
       
       # Since this is a pre 1.0.0 release, minor is used for all releases.
       # As per the SemVer specification.
@@ -77,6 +78,11 @@ jobs:
       #   env:
       #     VERSION: ${{ steps.semvers.outputs.v_major }}
 
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: version
+          path: ./version/previous
 
       - uses: actions/upload-artifact@v2
         with:
@@ -191,6 +197,7 @@ jobs:
       - uses: actions/download-artifact@v2
       - id: get_current_version
         run: |
+          echo ::set-output name=PREVIOUS_VERSION::$(cat ./version/previous)
           echo ::set-output name=VERSION::$(cat ./version/version | cut -c2-)
           echo ::set-output name=V_VERSION::$(cat ./version/version)
         shell: bash
@@ -202,7 +209,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-      - run: sed -i.bak "s/specdown 0.1.3/specdown ${{ steps.get_current_version.outputs.VERSION }}/" doc/*
+      - run: sed -i.bak "s/specdown ${{ steps.get_current_version.outputs.PREVIOUS_VERSION }}/specdown ${{ steps.get_current_version.outputs.VERSION }}/" doc/* tests/*
       - run: echo "::add-path::../target/debug"
       - uses: actions-rs/cargo@v1
         with:
