@@ -5,6 +5,7 @@ pub enum ArgumentValue {
     Token(String),
 }
 
+#[derive(Debug, PartialEq)]
 pub struct IncorrectArgumentType {
     pub expected: String,
     pub got: String,
@@ -47,4 +48,105 @@ impl ArgumentValue {
 }
 
 #[cfg(test)]
-mod test {}
+mod test {
+    use super::{ArgumentValue, IncorrectArgumentType};
+
+    mod integer {
+        use super::{ArgumentValue, IncorrectArgumentType};
+
+        #[test]
+        fn returns_integer_when_value_is_an_integer() {
+            assert_eq!(Ok(4), ArgumentValue::Integer(4).integer())
+        }
+
+        #[test]
+        fn returns_error_when_value_is_a_string() {
+            assert_eq!(
+                Err(IncorrectArgumentType {
+                    expected: "integer".to_string(),
+                    got: "string".to_string(),
+                }),
+                ArgumentValue::String("hello".to_string()).integer()
+            )
+        }
+
+        #[test]
+        fn returns_error_when_value_is_a_token() {
+            assert_eq!(
+                Err(IncorrectArgumentType {
+                    expected: "integer".to_string(),
+                    got: "token".to_string(),
+                }),
+                ArgumentValue::Token("hello".to_string()).integer()
+            )
+        }
+    }
+
+    mod string {
+        use super::{ArgumentValue, IncorrectArgumentType};
+
+        #[test]
+        fn returns_string_when_value_is_a_string() {
+            assert_eq!(
+                Ok("value".to_string()),
+                ArgumentValue::String("value".to_string()).string()
+            )
+        }
+
+        #[test]
+        fn returns_error_when_value_is_a_string() {
+            assert_eq!(
+                Err(IncorrectArgumentType {
+                    expected: "string".to_string(),
+                    got: "integer".to_string(),
+                }),
+                ArgumentValue::Integer(5).string()
+            )
+        }
+
+        #[test]
+        fn returns_error_when_value_is_a_token() {
+            assert_eq!(
+                Err(IncorrectArgumentType {
+                    expected: "string".to_string(),
+                    got: "token".to_string(),
+                }),
+                ArgumentValue::Token("hello".to_string()).string()
+            )
+        }
+    }
+
+    mod token {
+        use super::{ArgumentValue, IncorrectArgumentType};
+
+        #[test]
+        fn returns_string_when_value_is_a_string() {
+            assert_eq!(
+                Ok("token".to_string()),
+                ArgumentValue::Token("token".to_string()).token()
+            )
+        }
+
+        #[test]
+        fn returns_error_when_value_is_a_string() {
+            assert_eq!(
+                Err(IncorrectArgumentType {
+                    expected: "token".to_string(),
+                    got: "integer".to_string(),
+                }),
+                ArgumentValue::Integer(7).token()
+            )
+        }
+
+        #[test]
+        fn returns_error_when_value_is_a_token() {
+            assert_eq!(
+                Err(IncorrectArgumentType {
+                    expected: "token".to_string(),
+                    got: "string".to_string(),
+                }),
+                ArgumentValue::String("hello".to_string()).token()
+            )
+        }
+    }
+}
