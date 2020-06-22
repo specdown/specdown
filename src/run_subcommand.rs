@@ -48,6 +48,9 @@ fn execute_run(spec_file: &Path, running_dir: Option<&Path>) {
 
     match actions {
         Ok(a) => run_actions(&a, &*printer),
-        Err(err) => println!("{}", err),
+        Err(err) => {
+            println!("{}", err);
+            std::process::exit(1)
+        }
     }
 }

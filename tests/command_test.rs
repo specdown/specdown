@@ -62,13 +62,25 @@ fn test_doc_creating_test_files() {
 }
 
 #[test]
-fn test_verifying_exit_codes_test_files() {
+fn test_verifying_exit_codes() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("doc/verifying_exit_codes.md")
+        .assert()
+        .success();
+}
+
+#[test]
+fn test_errors() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
+        .arg("doc/errors.md")
         .assert()
         .success();
 }

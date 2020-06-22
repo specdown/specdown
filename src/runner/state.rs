@@ -17,9 +17,12 @@ impl State {
 
     pub fn add_result(&mut self, test_result: &TestResult) {
         match test_result {
-            TestResult::Script { name, .. } => {
+            TestResult::Script { name, success, .. } => {
                 self.script_results
                     .insert(name.to_string(), (*test_result).clone());
+                if !success {
+                    self.is_success = *success;
+                }
             }
             TestResult::Verify { success, .. } => {
                 if !success {
@@ -64,7 +67,7 @@ mod tests {
     }
 
     #[test]
-    fn does_not_update_success_when_script_result_is_added() {
+    fn does_not_update_success_when_successful_script_result_is_added() {
         let script_result1 = TestResult::Script {
             name: "script1".to_string(),
             exit_code: Some(0),
@@ -77,6 +80,22 @@ mod tests {
         let mut state = State::new();
         state.add_result(&script_result1);
         assert_eq!(state.is_success(), true);
+    }
+
+    #[test]
+    fn does_not_succeed_when_script_failed() {
+        let script_result1 = TestResult::Script {
+            name: "script1".to_string(),
+            exit_code: Some(0),
+            expected_exit_code: Some(1),
+            script: "script1".to_string(),
+            stdout: "stderr1".to_string(),
+            stderr: "stderr1".to_string(),
+            success: false,
+        };
+        let mut state = State::new();
+        state.add_result(&script_result1);
+        assert_eq!(state.is_success(), false);
     }
 
     #[test]

@@ -12,8 +12,12 @@ pub fn run(source: &Source, value: &VerifyValue, state: &mut State) -> Result<Te
     let VerifyValue(value_string) = value;
 
     let got = match stream {
-        Stream::StdOut => state.get_script_stdout(script_name).expect("failed"),
-        Stream::StdErr => state.get_script_stderr(script_name).expect("failed"),
+        Stream::StdOut => state
+            .get_script_stdout(script_name)
+            .expect("failed to get script stdout"),
+        Stream::StdErr => state
+            .get_script_stderr(script_name)
+            .expect("failed to get script stderr"),
     };
 
     let result = TestResult::Verify {

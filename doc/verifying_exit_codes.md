@@ -26,7 +26,7 @@ When you run:
 specdown run exit_example.md
 ```
 
-Then you'll ss
+Then you'll see:
 
 ```text,verify(script_name="exit_example", stream=stdout)
 Script command_1 succeeded
