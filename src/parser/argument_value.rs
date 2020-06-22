@@ -1,6 +1,6 @@
 #[derive(Debug, PartialEq, Clone)]
 pub enum ArgumentValue {
-    Integer(u32),
+    Integer(i32),
     String(String),
     Token(String),
 }
@@ -12,7 +12,7 @@ pub struct IncorrectArgumentType {
 }
 
 impl ArgumentValue {
-    pub fn integer(&self) -> Result<u32, IncorrectArgumentType> {
+    pub fn integer(&self) -> Result<i32, IncorrectArgumentType> {
         match self {
             ArgumentValue::Integer(num) => Ok(*num),
             ArgumentValue::String(_) => Self::incorrect_argument_type_error("integer", "string"),

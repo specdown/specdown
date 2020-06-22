@@ -67,7 +67,8 @@ mod tests {
     fn does_not_update_success_when_script_result_is_added() {
         let script_result1 = TestResult::Script {
             name: "script1".to_string(),
-            exit_code: 0,
+            exit_code: Some(0),
+            expected_exit_code: None,
             script: "script1".to_string(),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
@@ -92,7 +93,8 @@ mod tests {
     fn get_script_stdout_returns_the_output_when_script_output_exists() {
         let script_result1 = TestResult::Script {
             name: "script1".to_string(),
-            exit_code: 0,
+            exit_code: Some(0),
+            expected_exit_code: None,
             script: "script1".to_string(),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
@@ -100,7 +102,8 @@ mod tests {
         };
         let script_result2 = TestResult::Script {
             name: "script2".to_string(),
-            exit_code: 0,
+            exit_code: Some(0),
+            expected_exit_code: None,
             script: "script1".to_string(),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
@@ -123,7 +126,8 @@ mod tests {
     fn get_script_stderr_returns_the_output_when_script_output_exists() {
         let script_result1 = TestResult::Script {
             name: "script1".to_string(),
-            exit_code: 0,
+            exit_code: Some(0),
+            expected_exit_code: None,
             script: "script1".to_string(),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
@@ -131,7 +135,8 @@ mod tests {
         };
         let script_result2 = TestResult::Script {
             name: "script2".to_string(),
-            exit_code: 0,
+            exit_code: Some(0),
+            expected_exit_code: None,
             script: "script1".to_string(),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),

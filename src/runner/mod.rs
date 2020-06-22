@@ -30,8 +30,8 @@ fn run_action(action: &Action, state: &mut State) -> Result<TestResult, error::E
         Action::Script {
             script_name,
             script_code,
-            ..
-        } => script::run(script_name, script_code, state),
+            expected_exit_code,
+        } => script::run(script_name, script_code, expected_exit_code, state),
         Action::Verify {
             source,
             expected_value,

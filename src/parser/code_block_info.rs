@@ -70,7 +70,7 @@ fn to_stream(stream_name: &str) -> Option<Stream> {
     }
 }
 
-fn get_integer_argument(f: &function::Function, name: &str) -> Result<u32> {
+fn get_integer_argument(f: &function::Function, name: &str) -> Result<i32> {
     f.get_integer_argument(name)
 }
 

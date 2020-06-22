@@ -17,11 +17,24 @@ impl Printer for BasicPrinter {
     fn print(&self, result: &TestResult) {
         let display = &self.display;
         match result {
-            TestResult::Script { name, success, .. } => display(&format!(
-                "Script {} {}",
+            TestResult::Script {
                 name,
-                if *success { "succeeded" } else { "failed" }
-            )),
+                success,
+                expected_exit_code,
+                exit_code,
+                ..
+            } => {
+                let message = if *success {
+                    "succeeded".to_string()
+                } else {
+                    let expected =
+                        expected_exit_code.map_or("None".to_string(), |code| code.to_string());
+                    let got = exit_code.map_or("None".to_string(), |code| code.to_string());
+
+                    format!("failed (expected exitcode {}, got {})", expected, got)
+                };
+                display(&format!("Script {} {}", name, message))
+            }
             TestResult::Verify {
                 script_name,
                 success,

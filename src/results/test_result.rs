@@ -2,7 +2,8 @@
 pub enum TestResult {
     Script {
         name: String,
-        exit_code: u8,
+        exit_code: Option<i32>,
+        expected_exit_code: Option<i32>,
         script: String,
         stdout: String,
         stderr: String,

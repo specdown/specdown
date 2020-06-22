@@ -25,8 +25,8 @@ pub struct FilePath(pub String);
 #[derive(Debug, PartialEq)]
 pub struct FileContent(pub String);
 
-#[derive(Debug, PartialEq)]
-pub struct ExitCode(pub u32);
+#[derive(Debug, Clone, PartialEq)]
+pub struct ExitCode(pub i32);
 
 #[derive(Debug, PartialEq)]
 pub enum Action {

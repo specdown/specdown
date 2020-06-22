@@ -15,7 +15,7 @@ impl Function {
         self.arguments.contains_key(name)
     }
 
-    pub fn get_integer_argument(&self, name: &str) -> error::Result<u32> {
+    pub fn get_integer_argument(&self, name: &str) -> error::Result<i32> {
         self.get_required_argument(name)?
             .integer()
             .map_err(|err| self.incorrect_argument_type_error(name, err))
