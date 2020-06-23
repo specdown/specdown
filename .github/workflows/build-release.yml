@@ -102,6 +102,8 @@ jobs:
           asset_content_type: application/octet-stream
 
   tag-docker-repo:
+    needs:
+      - release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
