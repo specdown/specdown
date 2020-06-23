@@ -100,3 +100,24 @@ jobs:
           asset_path: ./specdown-x86_64-apple-darwin/specdown
           asset_name: specdown-x86_64-apple-darwin
           asset_content_type: application/octet-stream
+
+  tag-docker-repo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+      - uses: actions/checkout@v2
+        with:
+          repository: specdown/specdown-docker-container
+          token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
+          path: specdown/
+      - uses: actions/checkout@v2
+        with:
+          repository: specdown/specdown-docker-container
+          token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
+      - id: get_version
+        run: "echo ::set-output name=VERSION::v$(toml get specdown/Cargo.toml package.version | tail -c +2 | head -c -2)"
+        shell: bash
+      - shell: bash
+        run: |
+          git tag -a -m "${{ steps.get_version.outputs.VERSION }}" "${{ steps.get_version.outputs.VERSION }}"
+          git push --tags
