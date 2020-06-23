@@ -14,6 +14,7 @@ pub enum CodeBlockType {
     Script(ScriptName, Option<ExitCode>),
     Verify(Source),
     CreateFile(FilePath),
+    Skip(),
 }
 
 pub fn parse(input: &str) -> Result<CodeBlockType> {
@@ -31,6 +32,7 @@ fn to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
         "script" => script_to_code_block_type(f),
         "verify" => verify_to_code_block_type(f),
         "file" => file_to_code_block_type(f),
+        "skip" => skip_to_code_block_type(f),
         _ => Err(Error::UnknownFunction(f.name.clone())),
     }
 }
@@ -48,6 +50,10 @@ fn script_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
 fn file_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     let path = get_string_argument(&f, "path")?;
     Ok(CodeBlockType::CreateFile(FilePath(path)))
+}
+
+fn skip_to_code_block_type(_f: &function::Function) -> Result<CodeBlockType> {
+    Ok(CodeBlockType::Skip())
 }
 
 fn verify_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
@@ -207,6 +213,28 @@ mod tests {
                         "example.txt".to_string()
                     )))
                 )
+            }
+
+            #[test]
+            fn fails_when_path_is_missing() {
+                let result = parse("text,file()");
+                assert_eq!(
+                    result,
+                    Err(Error::MissingArgument {
+                        function: "file".to_string(),
+                        argument: "path".to_string()
+                    })
+                )
+            }
+        }
+
+        mod skip {
+            use super::{parse, CodeBlockType, Error};
+
+            #[test]
+            fn succeeds_when_function_is_skip() {
+                let result = parse("text,skip()");
+                assert_eq!(result, Ok(CodeBlockType::Skip()))
             }
 
             #[test]

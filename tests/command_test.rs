@@ -86,6 +86,18 @@ fn test_errors() {
 }
 
 #[test]
+fn test_skipping_code_blocks() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
+        .arg("doc/skipping_code_blocks.md")
+        .assert()
+        .success();
+}
+
+#[test]
 fn test_displays_error_when_required_args_are_missing() {
     Command::cargo_bin("specdown")
         .unwrap()
