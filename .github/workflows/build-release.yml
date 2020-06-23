@@ -111,12 +111,9 @@ jobs:
         with:
           repository: specdown/specdown-docker-container
           token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
-          path: specdown/
       - uses: actions/checkout@v2
         with:
-          repository: specdown/specdown-docker-container
-          token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
-
+          path: specdown
       - run: "echo ::set-output name=VERSION::v$(toml get "$GITHUB_WORKSPACE/specdown/Cargo.toml" package.version | tail -c +2 | head -c -2)"
         id: get_version
         shell: bash
