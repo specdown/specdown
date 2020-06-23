@@ -114,9 +114,14 @@ jobs:
         with:
           repository: specdown/specdown-docker-container
           token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
+      - run: ls
       - id: get_version
-        run: "echo ::set-output name=VERSION::v$(toml get specdown/Cargo.toml package.version | tail -c +2 | head -c -2)"
+        run: "echo ::set-output name=VERSION::v$(toml get "$GITHUB_WORKSPACE/specdown/Cargo.toml" package.version | tail -c +2 | head -c -2)"
         shell: bash
+      - shell: bash
+        run: |
+          git config user.name "GitHub"
+          git config user.email "noreply@github.com"
       - shell: bash
         run: |
           git tag -a -m "${{ steps.get_version.outputs.VERSION }}" "${{ steps.get_version.outputs.VERSION }}"
