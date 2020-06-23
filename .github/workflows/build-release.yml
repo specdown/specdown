@@ -111,6 +111,7 @@ jobs:
         with:
           repository: specdown/specdown-docker-container
           token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
+          path: docker
       - uses: actions/checkout@v2
         with:
           path: specdown
@@ -124,5 +125,6 @@ jobs:
           git config user.email "noreply@github.com"
       - shell: bash
         run: |
+          cd "$GITHUB_WORKSPACE/docker"
           git tag -a -m "${{ steps.get_version.outputs.VERSION }}" "${{ steps.get_version.outputs.VERSION }}"
           git push --tags
