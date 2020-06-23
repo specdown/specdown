@@ -23,7 +23,11 @@ pub fn parse(input: &str) -> Result<CodeBlockType> {
 
     match p(input) {
         Ok((_, func)) => to_code_block_type(&func),
-        Err(nom_error) => Err(Error::ParserFailed(nom_error.to_string())),
+        Err(nom_error) => Err(Error::ParserFailed(format!(
+            "Failed parsing function from '{}' :: {}",
+            input,
+            nom_error.to_string()
+        ))),
     }
 }
 

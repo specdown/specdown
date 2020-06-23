@@ -29,8 +29,8 @@ specdown run example-spec.md
 And you will get the following output:
 
 ```text,verify(script_name="run_example", stream=stdout)
-Script command_1 succeeded
-Verify output from command_1 succeeded
+- script 'command_1' succeeded
+- verify output from 'command_1' succeeded
 ```
 
 ## Setting the Running Directory
@@ -77,10 +77,10 @@ specdown run --running-dir running_dir running_dir_example.md
 ```
 
 ```text,verify(script_name="running_dir_example", stream=stdout)
-Script ls succeeded
-Verify output from ls succeeded
-Script cat succeeded
-Verify output from cat succeeded
+- script 'ls' succeeded
+- verify output from 'ls' succeeded
+- script 'cat' succeeded
+- verify output from 'cat' succeeded
 ```
 
 ## Command Help

@@ -34,11 +34,11 @@ impl Printer for BasicPrinter {
                     let got = exit_code.map_or("None".to_string(), |code| code.to_string());
 
                     format!(
-                        "failed (expected exitcode {}, got {})\nstdout:\n{}\n\nstderr:\n{}\n\n",
+                        "failed (expected exitcode {}, got {})\n+++ stdout:\n{}\n\n+++ stderr:\n{}\n\n",
                         expected, got, stdout, stderr
                     )
                 };
-                display(&format!("Script {} {}", name, message))
+                display(&format!("- script '{}' {}", name, message))
             }
             TestResult::Verify {
                 script_name,
@@ -48,16 +48,13 @@ impl Printer for BasicPrinter {
                 ..
             } => {
                 display(&format!(
-                    "Verify output from {} {}",
+                    "- verify output from '{}' {}",
                     script_name,
                     if *success { "succeeded" } else { "failed" }
                 ));
 
                 if !*success {
-                    display(&format!(
-                        "=== Expected ===\n{}\n--- Got ---\n{}\n",
-                        expected, got
-                    ));
+                    display(&format!("+++ expected:\n{}\n+++ got:\n{}\n", expected, got));
                 }
             }
             TestResult::File { path } => display(&format!("File {} created", path)),

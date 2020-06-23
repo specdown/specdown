@@ -9,7 +9,7 @@ All documentation is written as SpecDown tests and form part of the test suite.
     - [Displaying Help](./display_help.md)
     - [Running Specs](./running_specs.md)
 - Specs
-    - _Verifying Script Output_
+    - [Verifying Script Output](./verifying_script_output.md)
     - [Verifying Exit Codes](./verifying_exit_codes.md)
     - [Skipping Code Blocks](./skipping_code_blocks.md)
     - [Creating Test Files](./creating_test_files.md)
