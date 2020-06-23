@@ -1,0 +1,21 @@
+"on":
+  push:
+    tags:
+      - "*"
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: specdown/specdown-docker-container
+          token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - id: get_previous_version
+        run: echo ::set-output name=VERSION::$(git tag --sort=-creatordate | head -n 1)
+        shell: bash
+      - shell: bash
+        run: |
+          git tag -a -m "$VERSION" "$VERSION"
+          git push --tags
