@@ -22,6 +22,8 @@ impl Printer for BasicPrinter {
                 success,
                 expected_exit_code,
                 exit_code,
+                stdout,
+                stderr,
                 ..
             } => {
                 let message = if *success {
@@ -31,7 +33,10 @@ impl Printer for BasicPrinter {
                         expected_exit_code.map_or("None".to_string(), |code| code.to_string());
                     let got = exit_code.map_or("None".to_string(), |code| code.to_string());
 
-                    format!("failed (expected exitcode {}, got {})", expected, got)
+                    format!(
+                        "failed (expected exitcode {}, got {})\nstdout:\n{}\n\nstderr:\n{}\n\n",
+                        expected, got, stdout, stderr
+                    )
                 };
                 display(&format!("Script {} {}", name, message))
             }

@@ -31,4 +31,11 @@ Then you'll see:
 ```text,verify(script_name="exit_example", stream=stdout)
 Script command_1 succeeded
 Script command_2 failed (expected exitcode 0, got 1)
+stdout:
+
+
+stderr:
+
+
+
 ```
