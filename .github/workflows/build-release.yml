@@ -114,6 +114,7 @@ jobs:
           path: docker
       - uses: actions/checkout@v2
         with:
+          repository: specdown/specdown
           path: specdown
       - run: "echo ::set-output name=VERSION::v$(toml get "$GITHUB_WORKSPACE/specdown/Cargo.toml" package.version | tail -c +2 | head -c -2)"
         id: get_version
