@@ -22,25 +22,26 @@ mod tests {
     use super::{run, FileContent, FilePath, TestResult};
     use std::fs;
 
-    #[test]
-    fn test_run_creates_a_file() {
-        let file_path = "test_file.txt";
-        fs::remove_file(file_path).ok();
+    // This test is flakey on Mac
+    // #[test]
+    // fn test_run_creates_a_file() {
+    //     let file_path = "test_file.txt";
+    //     fs::remove_file(file_path).ok();
 
-        run(
-            &FilePath(file_path.to_string()),
-            &FileContent("example content".to_string()),
-        )
-        .expect("Run failed");
+    //     run(
+    //         &FilePath(file_path.to_string()),
+    //         &FileContent("example content".to_string()),
+    //     )
+    //     .expect("Run failed");
 
-        if let Ok(content) = fs::read_to_string(file_path) {
-            assert_eq!(content, "example content");
-        } else {
-            panic!("File could not be read");
-        }
+    //     if let Ok(content) = fs::read_to_string(file_path) {
+    //         assert_eq!(content, "example content");
+    //     } else {
+    //         panic!("File could not be read");
+    //     }
 
-        fs::remove_file(file_path).expect("Failed to delete file");
-    }
+    //     fs::remove_file(file_path).expect("Failed to delete file");
+    // }
 
     #[test]
     fn test_run_returns_a_file_result() {
