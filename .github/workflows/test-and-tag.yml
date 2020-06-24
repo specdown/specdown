@@ -209,7 +209,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-      - run: sed -i.bak "s/specdown ${{ steps.get_current_version.outputs.PREVIOUS_VERSION }}/specdown ${{ steps.get_current_version.outputs.VERSION }}/" doc/* tests/*
+      - run: sed -i.bak "s/specdown ${{ steps.get_current_version.outputs.PREVIOUS_VERSION }}/specdown ${{ steps.get_current_version.outputs.VERSION }}/" docs/* tests/*
       - run: echo "::add-path::../target/debug"
       - uses: actions-rs/cargo@v1
         with:
