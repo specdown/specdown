@@ -121,11 +121,11 @@ jobs:
         run: |
           git config user.name "GitHub"
           git config user.email "noreply@github.com"
-      - run: "echo ::set-output name=VERSION::v$(toml get "specdown/Cargo.toml" package.version | tail -c +2 | head -c -2)"
+      - run: "echo ::set-output name=VERSION::v$(toml get specdown/Cargo.toml package.version | tail -c +2 | head -c -2)"
         id: get_version
         shell: bash
-  #     - shell: bash
-  #       run: |
-  #         cd docker
-  #         git tag -a -m "${{ steps.get_version.outputs.VERSION }}" "${{ steps.get_version.outputs.VERSION }}"
-  #         git push --tags
+      - shell: bash
+        run: |
+          cd docker
+          git tag -a -m "${{ steps.get_version.outputs.VERSION }}" "${{ steps.get_version.outputs.VERSION }}"
+          git push --tags
