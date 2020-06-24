@@ -100,20 +100,21 @@ jobs:
           asset_path: ./specdown-x86_64-apple-darwin/specdown
           asset_name: specdown-x86_64-apple-darwin
           asset_content_type: application/octet-stream
-  # tag-docker-repo:
-  #   needs:
-  #     - release
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         repository: specdown/specdown-docker-container
-  #         token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
-  #         path: docker
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         repository: specdown/specdown
-  #         path: specdown
+
+  tag-docker-repo:
+    needs:
+      - release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: specdown/specdown-docker-container
+          token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
+          path: docker
+      - uses: actions/checkout@v2
+        with:
+          repository: specdown/specdown
+          path: specdown
   #     - run: ls
   #     - shell: bash
   #       run: |
