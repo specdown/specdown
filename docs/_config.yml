@@ -33,7 +33,6 @@ plugins:
   - jekyll-feed
 
 markdown: kramdown
-highlighter: pygments
 
 kramdown:
   syntax_highlighter: rouge
