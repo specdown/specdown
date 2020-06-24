@@ -108,24 +108,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: specdown/specdown-docker-container
+          repository: specdown/specdown-docker-image
           token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
           path: docker
       - uses: actions/checkout@v2
         with:
           repository: specdown/specdown
           path: specdown
-      - run: ls
-        shell: bash
-      - shell: bash
-        run: |
-          git config user.name "GitHub"
-          git config user.email "noreply@github.com"
       - run: "echo ::set-output name=VERSION::v$(toml get specdown/Cargo.toml package.version | tail -c +2 | head -c -2)"
         id: get_version
         shell: bash
       - shell: bash
         run: |
           cd docker
+          git config user.name "GitHub"
+          git config user.email "noreply@github.com"
           git tag -a -m "${{ steps.get_version.outputs.VERSION }}" "${{ steps.get_version.outputs.VERSION }}"
           git push --tags
