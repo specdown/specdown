@@ -115,7 +115,8 @@ jobs:
         with:
           repository: specdown/specdown
           path: specdown
-  #     - run: ls
+      - run: ls
+        shell: bash
   #     - shell: bash
   #       run: |
   #         git config user.name "GitHub"
