@@ -1,3 +1,6 @@
+---
+layout: page
+---
 # Displaying Help
 
 You can run SpecDown with no sub-commands and it will display the help.

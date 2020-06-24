@@ -1,3 +1,6 @@
+---
+layout: page
+---
 # Creating Test Files
 
 Specifications can create files to run tests against.

@@ -1,3 +1,6 @@
+---
+layout: page
+---
 # Running Specs
 
 Markdown specs are run by executing the `specdown run <spec-file>`.
