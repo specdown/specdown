@@ -5,7 +5,6 @@ description = "A tool to test markdown files and drive development from document
 repository = "https://github.com/specdown/specdown"
 readme = "README.md"
 license = "Apache-2.0"
-license-file = "LICENSE"
 authors = [ "Tom Oram <me@tomoram.io>" ]
 edition = "2018"
 categories = [
