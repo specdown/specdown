@@ -45,11 +45,10 @@ The you will see the following output:
 - script 'stdout_and_stderr' succeeded
 - verify output from 'stdout_and_stderr' succeeded
 - verify output from 'stdout_and_stderr' failed
-+++ expected:
-Good stderr
-
-+++ got:
-Bad stderr
-
+< left / > right
+<Good stderr
+<
+>Bad stderr
+>
 
 ```
