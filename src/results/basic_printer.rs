@@ -54,7 +54,13 @@ impl Printer for BasicPrinter {
                 ));
 
                 if !*success {
-                    display(&format!("+++ expected:\n{}\n+++ got:\n{}\n", expected, got));
+                    display(&format!(
+                        "{}",
+                        colored_diff::PrettyDifference {
+                            expected,
+                            actual: got
+                        }
+                    ));
                 }
             }
             TestResult::File { path } => display(&format!("File {} created", path)),
