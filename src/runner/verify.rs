@@ -16,27 +16,30 @@ pub fn run(
     let VerifyValue(value_string) = value;
 
     let got_raw = match stream {
-        Stream::StdOut => script_output
-            .get_stdout(script_name)
-            .expect("failed to get script stdout"),
-        Stream::StdErr => script_output
-            .get_stderr(script_name)
-            .expect("failed to get script stderr"),
+        Stream::StdOut => script_output.get_stdout(script_name),
+        Stream::StdErr => script_output.get_stderr(script_name),
     };
 
-    let expected = strip_ansi_escape_chars(value_string);
-    let got = strip_ansi_escape_chars(got_raw);
-    let success = expected == got;
+    match got_raw {
+        None => Err(Error::ScriptOutputMissing {
+            missing_script_name: script_name.to_string(),
+        }),
+        Some(got_raw) => {
+            let expected = strip_ansi_escape_chars(value_string);
+            let got = strip_ansi_escape_chars(got_raw);
+            let success = expected == got;
 
-    let result = TestResult::Verify {
-        script_name: script_name.to_string(),
-        stream: stream_to_string(stream).into(),
-        expected,
-        got,
-        success,
-    };
+            let result = TestResult::Verify {
+                script_name: script_name.to_string(),
+                stream: stream_to_string(stream).into(),
+                expected,
+                got,
+                success,
+            };
 
-    Ok(result)
+            Ok(result)
+        }
+    }
 }
 
 fn stream_to_string(stream: &Stream) -> &str {
@@ -56,5 +59,181 @@ fn strip_ansi_escape_chars(string: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use super::{run, Error, ScriptOutput, TestResult};
 
+    struct MockScriptOutput {
+        script_name: String,
+        stdout: String,
+        stderr: String,
+    }
+
+    impl ScriptOutput for MockScriptOutput {
+        fn get_stdout(&self, name: &str) -> Option<&str> {
+            if name == self.script_name {
+                Some(self.stdout.as_ref())
+            } else {
+                None
+            }
+        }
+
+        fn get_stderr(&self, name: &str) -> Option<&str> {
+            if name == self.script_name {
+                Some(self.stderr.as_ref())
+            } else {
+                None
+            }
+        }
+    }
+
+    mod test {
+        use crate::types::{ScriptName, Source, Stream, VerifyValue};
+
+        use super::{run, Error, MockScriptOutput, TestResult};
+
+        #[test]
+        fn returns_result_for_successful_stdout_verification() {
+            let source = Source {
+                name: ScriptName("example_script".to_string()),
+                stream: Stream::StdOut,
+            };
+            let verify_value = VerifyValue("hello world".to_string());
+            let script_output = MockScriptOutput {
+                script_name: "example_script".to_string(),
+                stdout: "hello world".to_string(),
+                stderr: "".to_string(),
+            };
+
+            assert_eq!(
+                run(&source, &verify_value, &script_output),
+                Ok(TestResult::Verify {
+                    script_name: "example_script".to_string(),
+                    stream: "stdout".to_string(),
+                    expected: "hello world".to_string(),
+                    got: "hello world".to_string(),
+                    success: true,
+                })
+            )
+        }
+
+        #[test]
+        fn returns_result_for_successful_error_verification() {
+            let source = Source {
+                name: ScriptName("my_script".to_string()),
+                stream: Stream::StdErr,
+            };
+            let verify_value = VerifyValue("error message".to_string());
+            let script_output = MockScriptOutput {
+                script_name: "my_script".to_string(),
+                stdout: "hello world".to_string(),
+                stderr: "error message".to_string(),
+            };
+
+            assert_eq!(
+                run(&source, &verify_value, &script_output),
+                Ok(TestResult::Verify {
+                    script_name: "my_script".to_string(),
+                    stream: "stderr".to_string(),
+                    expected: "error message".to_string(),
+                    got: "error message".to_string(),
+                    success: true,
+                })
+            )
+        }
+
+        #[test]
+        fn returns_result_for_failed_stdout_verification() {
+            let source = Source {
+                name: ScriptName("test_script".to_string()),
+                stream: Stream::StdOut,
+            };
+            let verify_value = VerifyValue("hello moon".to_string());
+            let script_output = MockScriptOutput {
+                script_name: "test_script".to_string(),
+                stdout: "hello mars".to_string(),
+                stderr: "".to_string(),
+            };
+
+            assert_eq!(
+                run(&source, &verify_value, &script_output),
+                Ok(TestResult::Verify {
+                    script_name: "test_script".to_string(),
+                    stream: "stdout".to_string(),
+                    expected: "hello moon".to_string(),
+                    got: "hello mars".to_string(),
+                    success: false,
+                })
+            )
+        }
+
+        #[test]
+        fn returns_result_for_failed_error_verification() {
+            let source = Source {
+                name: ScriptName("the_script".to_string()),
+                stream: Stream::StdErr,
+            };
+            let verify_value = VerifyValue("error message".to_string());
+            let script_output = MockScriptOutput {
+                script_name: "the_script".to_string(),
+                stdout: "hello world".to_string(),
+                stderr: "not error message".to_string(),
+            };
+
+            assert_eq!(
+                run(&source, &verify_value, &script_output),
+                Ok(TestResult::Verify {
+                    script_name: "the_script".to_string(),
+                    stream: "stderr".to_string(),
+                    expected: "error message".to_string(),
+                    got: "not error message".to_string(),
+                    success: false,
+                })
+            )
+        }
+
+        #[test]
+        fn returns_error_when_script_output_does_not_exit() {
+            let source = Source {
+                name: ScriptName("missing_script".to_string()),
+                stream: Stream::StdErr,
+            };
+            let verify_value = VerifyValue("error message".to_string());
+            let script_output = MockScriptOutput {
+                script_name: "existing_script".to_string(),
+                stdout: "".to_string(),
+                stderr: "".to_string(),
+            };
+
+            assert_eq!(
+                run(&source, &verify_value, &script_output),
+                Err(Error::ScriptOutputMissing {
+                    missing_script_name: "missing_script".to_string()
+                })
+            )
+        }
+
+        #[test]
+        fn ignore_ansi_escape_characters_in_output_and_verify_value() {
+            let source = Source {
+                name: ScriptName("colour_script".to_string()),
+                stream: Stream::StdOut,
+            };
+            let verify_value = VerifyValue("\x1b[34mThis is coloured".to_string());
+            let script_output = MockScriptOutput {
+                script_name: "colour_script".to_string(),
+                stdout: "\x1b[31mThis is coloured".to_string(),
+                stderr: "".to_string(),
+            };
+
+            assert_eq!(
+                run(&source, &verify_value, &script_output),
+                Ok(TestResult::Verify {
+                    script_name: "colour_script".to_string(),
+                    stream: "stdout".to_string(),
+                    expected: "This is coloured".to_string(),
+                    got: "This is coloured".to_string(),
+                    success: true,
+                })
+            )
+        }
+    }
 }
