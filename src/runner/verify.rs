@@ -11,7 +11,7 @@ pub fn run(source: &Source, value: &VerifyValue, state: &mut State) -> Result<Te
     } = source;
     let VerifyValue(value_string) = value;
 
-    let got = match stream {
+    let got_raw = match stream {
         Stream::StdOut => state
             .get_script_stdout(script_name)
             .expect("failed to get script stdout"),
@@ -20,12 +20,16 @@ pub fn run(source: &Source, value: &VerifyValue, state: &mut State) -> Result<Te
             .expect("failed to get script stderr"),
     };
 
+    let expected = strip_ansi_escape_chars(value_string);
+    let got = strip_ansi_escape_chars(got_raw);
+    let success = expected == got;
+
     let result = TestResult::Verify {
         script_name: script_name.to_string(),
         stream: stream_to_string(stream).into(),
-        expected: value_string.to_string(),
-        got: got.to_string(),
-        success: value_string == got,
+        expected,
+        got,
+        success,
     };
 
     state.add_result(&result);
@@ -38,4 +42,12 @@ fn stream_to_string(stream: &Stream) -> &str {
         Stream::StdOut => "stdout",
         Stream::StdErr => "stderr",
     }
+}
+
+fn strip_ansi_escape_chars(string: &str) -> String {
+    strip_ansi_escapes::strip(string)
+        .expect("ANSI code to be stripped from got")
+        .iter()
+        .map(|&c| c as char)
+        .collect()
 }

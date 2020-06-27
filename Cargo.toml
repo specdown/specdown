@@ -18,6 +18,7 @@ keywords = [ "markdown", "testing", "bdd", "tdd", "documentation" ]
 clap = "2.33.0"
 comrak = "0.7"
 nom = "5"
+strip-ansi-escapes = "0.1.0"
 
 [dev-dependencies]
 assert_cmd = "1.0.1"
