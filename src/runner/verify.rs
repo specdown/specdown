@@ -7,7 +7,7 @@ use super::error::Error;
 pub fn run(
     source: &Source,
     value: &VerifyValue,
-    state: &dyn ScriptOutput,
+    script_output: &dyn ScriptOutput,
 ) -> Result<TestResult, Error> {
     let Source {
         name: ScriptName(script_name),
@@ -16,11 +16,11 @@ pub fn run(
     let VerifyValue(value_string) = value;
 
     let got_raw = match stream {
-        Stream::StdOut => state
-            .get_script_stdout(script_name)
+        Stream::StdOut => script_output
+            .get_stdout(script_name)
             .expect("failed to get script stdout"),
-        Stream::StdErr => state
-            .get_script_stderr(script_name)
+        Stream::StdErr => script_output
+            .get_stderr(script_name)
             .expect("failed to get script stderr"),
     };
 
@@ -52,4 +52,9 @@ fn strip_ansi_escape_chars(string: &str) -> String {
         .iter()
         .map(|&c| c as char)
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+
 }

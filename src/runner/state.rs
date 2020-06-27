@@ -8,8 +8,8 @@ pub struct State {
 }
 
 pub trait ScriptOutput {
-    fn get_script_stdout(&self, name: &str) -> Option<&str>;
-    fn get_script_stderr(&self, name: &str) -> Option<&str>;
+    fn get_stdout(&self, name: &str) -> Option<&str>;
+    fn get_stderr(&self, name: &str) -> Option<&str>;
 }
 
 impl State {
@@ -44,7 +44,7 @@ impl State {
 }
 
 impl ScriptOutput for State {
-    fn get_script_stdout(&self, name: &str) -> Option<&str> {
+    fn get_stdout(&self, name: &str) -> Option<&str> {
         self.script_results
             .get(name)
             .and_then(|result| match result {
@@ -53,7 +53,7 @@ impl ScriptOutput for State {
             })
     }
 
-    fn get_script_stderr(&self, name: &str) -> Option<&str> {
+    fn get_stderr(&self, name: &str) -> Option<&str> {
         self.script_results
             .get(name)
             .and_then(|result| match result {
@@ -138,14 +138,14 @@ mod tests {
         let mut state = State::new();
         state.add_result(&script_result1);
         state.add_result(&script_result2);
-        assert_eq!(state.get_script_stdout("script1"), Some("stdout1"));
-        assert_eq!(state.get_script_stdout("script2"), Some("stdout2"));
+        assert_eq!(state.get_stdout("script1"), Some("stdout1"));
+        assert_eq!(state.get_stdout("script2"), Some("stdout2"));
     }
 
     #[test]
     fn get_script_stdout_returns_none_when_script_output_does_not_exists() {
         let state = State::new();
-        assert_eq!(state.get_script_stdout("does-not-exist"), None);
+        assert_eq!(state.get_stdout("does-not-exist"), None);
     }
 
     #[test]
@@ -171,14 +171,14 @@ mod tests {
         let mut state = State::new();
         state.add_result(&script_result1);
         state.add_result(&script_result2);
-        assert_eq!(state.get_script_stderr("script1"), Some("stderr1"));
-        assert_eq!(state.get_script_stderr("script2"), Some("stderr2"));
+        assert_eq!(state.get_stderr("script1"), Some("stderr1"));
+        assert_eq!(state.get_stderr("script2"), Some("stderr2"));
     }
 
     #[test]
     fn get_script_stderr_returns_none_when_script_output_does_not_exists() {
         let state = State::new();
-        assert_eq!(state.get_script_stderr("does-not-exist"), None);
+        assert_eq!(state.get_stderr("does-not-exist"), None);
     }
 
     #[test]
