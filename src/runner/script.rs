@@ -13,7 +13,7 @@ pub fn run(
     let ScriptName(name_string) = name;
     let ScriptCode(code_string) = code;
 
-    let command_result = Command::new("sh").arg("-c").arg(code_string).output();
+    let command_result = Command::new("bash").arg("-c").arg(code_string).output();
 
     match command_result {
         Ok(output) => {
