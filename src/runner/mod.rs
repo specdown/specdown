@@ -6,15 +6,19 @@ use crate::runner::state::State;
 use crate::types::Action;
 
 mod error;
+mod executor;
 mod file;
 mod script;
 mod verify;
 
+use executor::{Bash, Executor};
+
 pub fn run_actions(actions: &[Action], printer: &dyn Printer) {
     let mut state = State::new();
+    let executor = Bash::new();
 
     for action in actions {
-        match run_action(action, &state) {
+        match run_action(action, &state, &executor) {
             Ok(result) => {
                 state.add_result(&result);
                 printer.print(&result)
@@ -28,13 +32,17 @@ pub fn run_actions(actions: &[Action], printer: &dyn Printer) {
     }
 }
 
-fn run_action(action: &Action, state: &State) -> Result<TestResult, error::Error> {
+fn run_action(
+    action: &Action,
+    state: &State,
+    executor: &dyn Executor,
+) -> Result<TestResult, error::Error> {
     match action {
         Action::Script {
             script_name,
             script_code,
             expected_exit_code,
-        } => script::run(script_name, script_code, expected_exit_code),
+        } => script::run(script_name, script_code, expected_exit_code, executor),
         Action::Verify {
             source,
             expected_value,
