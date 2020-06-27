@@ -7,6 +7,11 @@ pub struct State {
     is_success: bool,
 }
 
+pub trait ScriptOutput {
+    fn get_script_stdout(&self, name: &str) -> Option<&str>;
+    fn get_script_stderr(&self, name: &str) -> Option<&str>;
+}
+
 impl State {
     pub fn new() -> Self {
         Self {
@@ -33,7 +38,13 @@ impl State {
         }
     }
 
-    pub fn get_script_stdout(&self, name: &str) -> Option<&str> {
+    pub fn is_success(&self) -> bool {
+        self.is_success
+    }
+}
+
+impl ScriptOutput for State {
+    fn get_script_stdout(&self, name: &str) -> Option<&str> {
         self.script_results
             .get(name)
             .and_then(|result| match result {
@@ -42,7 +53,7 @@ impl State {
             })
     }
 
-    pub fn get_script_stderr(&self, name: &str) -> Option<&str> {
+    fn get_script_stderr(&self, name: &str) -> Option<&str> {
         self.script_results
             .get(name)
             .and_then(|result| match result {
@@ -50,15 +61,11 @@ impl State {
                 _ => panic!("Only TestResult::Script results should be stored in the state"),
             })
     }
-
-    pub fn is_success(&self) -> bool {
-        self.is_success
-    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{State, TestResult};
+    use super::{ScriptOutput, State, TestResult};
 
     #[test]
     fn sets_success_when_initialized() {

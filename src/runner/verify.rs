@@ -1,10 +1,14 @@
 use crate::results::test_result::TestResult;
-use crate::runner::state::State;
+use crate::runner::state::ScriptOutput;
 use crate::types::{ScriptName, Source, Stream, VerifyValue};
 
 use super::error::Error;
 
-pub fn run(source: &Source, value: &VerifyValue, state: &State) -> Result<TestResult, Error> {
+pub fn run(
+    source: &Source,
+    value: &VerifyValue,
+    state: &dyn ScriptOutput,
+) -> Result<TestResult, Error> {
     let Source {
         name: ScriptName(script_name),
         stream,
