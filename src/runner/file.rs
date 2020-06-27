@@ -22,31 +22,35 @@ mod tests {
     use super::{run, FileContent, FilePath, TestResult};
     use std::fs;
 
-    // This test is flakey on Mac
-    // #[test]
-    // fn test_run_creates_a_file() {
-    //     let file_path = "test_file.txt";
-    //     fs::remove_file(file_path).ok();
+    #[test]
+    fn test_run_creates_a_file() {
+        fs::create_dir_all(".tests").expect("Failed to create test directory");
 
-    //     run(
-    //         &FilePath(file_path.to_string()),
-    //         &FileContent("example content".to_string()),
-    //     )
-    //     .expect("Run failed");
+        let file_path = ".tests/test_file1.txt";
+        fs::remove_file(file_path).ok();
 
-    //     if let Ok(content) = fs::read_to_string(file_path) {
-    //         assert_eq!(content, "example content");
-    //     } else {
-    //         panic!("File could not be read");
-    //     }
+        run(
+            &FilePath(file_path.to_string()),
+            &FileContent("example content".to_string()),
+        )
+        .expect("Run failed");
 
-    //     fs::remove_file(file_path).expect("Failed to delete file");
-    // }
+        if let Ok(content) = fs::read_to_string(file_path) {
+            assert_eq!(content, "example content");
+        } else {
+            panic!("File could not be read");
+        }
+
+        fs::remove_file(file_path).expect("Failed to delete file");
+    }
 
     #[test]
     fn test_run_returns_a_file_result() {
-        let file_path = "test_file.txt";
+        fs::create_dir_all(".tests").expect("Failed to create test directory");
+
+        let file_path = ".tests/test_file2.txt";
         fs::remove_file(file_path).ok();
+
         let result = run(
             &FilePath(file_path.to_string()),
             &FileContent("example content".to_string()),
@@ -54,7 +58,7 @@ mod tests {
         assert_eq!(
             result,
             Ok(TestResult::File {
-                path: "test_file.txt".to_string()
+                path: ".tests/test_file2.txt".to_string()
             })
         );
     }
