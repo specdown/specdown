@@ -1,7 +1,6 @@
 use std::process::Command;
 
 use crate::results::test_result::TestResult;
-use crate::runner::state::State;
 use crate::types::{ExitCode, ScriptCode, ScriptName};
 
 use super::error::Error;
@@ -10,7 +9,6 @@ pub fn run(
     name: &ScriptName,
     code: &ScriptCode,
     expected_exit_code: &Option<ExitCode>,
-    state: &mut State,
 ) -> Result<TestResult, Error> {
     let ScriptName(name_string) = name;
     let ScriptCode(code_string) = code;
@@ -32,7 +30,6 @@ pub fn run(
                 stderr,
                 success: expected_exit == None || expected_exit == exit_code,
             };
-            state.add_result(&result);
             Ok(result)
         }
         Err(_err) => Err(Error::CommandFailed),

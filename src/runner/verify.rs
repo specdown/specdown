@@ -4,7 +4,7 @@ use crate::types::{ScriptName, Source, Stream, VerifyValue};
 
 use super::error::Error;
 
-pub fn run(source: &Source, value: &VerifyValue, state: &mut State) -> Result<TestResult, Error> {
+pub fn run(source: &Source, value: &VerifyValue, state: &State) -> Result<TestResult, Error> {
     let Source {
         name: ScriptName(script_name),
         stream,
@@ -31,8 +31,6 @@ pub fn run(source: &Source, value: &VerifyValue, state: &mut State) -> Result<Te
         got,
         success,
     };
-
-    state.add_result(&result);
 
     Ok(result)
 }

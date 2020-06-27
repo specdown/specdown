@@ -14,8 +14,11 @@ pub fn run_actions(actions: &[Action], printer: &dyn Printer) {
     let mut state = State::new();
 
     for action in actions {
-        match run_action(action, &mut state) {
-            Ok(result) => printer.print(&result),
+        match run_action(action, &state) {
+            Ok(result) => {
+                state.add_result(&result);
+                printer.print(&result)
+            }
             Err(_err) => break,
         }
     }
@@ -25,13 +28,13 @@ pub fn run_actions(actions: &[Action], printer: &dyn Printer) {
     }
 }
 
-fn run_action(action: &Action, state: &mut State) -> Result<TestResult, error::Error> {
+fn run_action(action: &Action, state: &State) -> Result<TestResult, error::Error> {
     match action {
         Action::Script {
             script_name,
             script_code,
             expected_exit_code,
-        } => script::run(script_name, script_code, expected_exit_code, state),
+        } => script::run(script_name, script_code, expected_exit_code),
         Action::Verify {
             source,
             expected_value,
