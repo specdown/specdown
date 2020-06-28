@@ -16,8 +16,8 @@ use super::function::Function;
 pub type Argument<'a> = (&'a str, ArgumentValue);
 
 pub fn parse(input: &str) -> IResult<&str, Function> {
-    let p = tuple((alpha1, argument_list));
-    map(p, |(name, arguments)| Function {
+    let p = tuple((space0, alpha1, argument_list));
+    map(p, |(_, name, arguments)| Function {
         name: name.to_string(),
         arguments,
     })(input)
@@ -87,6 +87,20 @@ mod tests {
         fn succeeds_when_function_has_no_args() {
             assert_eq!(
                 parse("func(), more"),
+                Ok((
+                    ", more",
+                    Function {
+                        name: "func".to_string(),
+                        arguments: HashMap::new()
+                    }
+                ))
+            )
+        }
+
+        #[test]
+        fn succeeds_when_function_has_leading_whitespace() {
+            assert_eq!(
+                parse(" func(), more"),
                 Ok((
                     ", more",
                     Function {
