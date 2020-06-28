@@ -17,10 +17,7 @@ pub type Argument<'a> = (&'a str, ArgumentValue);
 
 pub fn parse(input: &str) -> IResult<&str, Function> {
     let p = tuple((space0, alpha1, space0, argument_list));
-    map(p, |(_, name, _, arguments)| Function {
-        name: name.to_string(),
-        arguments,
-    })(input)
+    map(p, |(_, name, _, arguments)| Function::new(name, arguments))(input)
 }
 
 fn argument_list(input: &str) -> IResult<&str, HashMap<String, ArgumentValue>> {
@@ -82,6 +79,7 @@ mod tests {
 
     mod parse {
         use super::{parse, ArgumentValue, Function, HashMap};
+        use maplit::hashmap;
 
         #[test]
         fn succeeds_when_function_has_no_args() {
@@ -91,7 +89,7 @@ mod tests {
                     ", more",
                     Function {
                         name: "func".to_string(),
-                        arguments: HashMap::new()
+                        arguments: HashMap::new(),
                     }
                 ))
             )
@@ -105,7 +103,7 @@ mod tests {
                     ", more",
                     Function {
                         name: "func".to_string(),
-                        arguments: HashMap::new()
+                        arguments: HashMap::new(),
                     }
                 ))
             )
@@ -119,7 +117,7 @@ mod tests {
                     ", more",
                     Function {
                         name: "func".to_string(),
-                        arguments: HashMap::new()
+                        arguments: HashMap::new(),
                     }
                 ))
             )
@@ -136,7 +134,7 @@ mod tests {
                         arguments: [("arg".to_string(), ArgumentValue::String("hi".to_string()))]
                             .iter()
                             .cloned()
-                            .collect()
+                            .collect(),
                     }
                 ))
             )
@@ -166,67 +164,57 @@ mod tests {
 
         #[test]
         fn succeeds_when_multiple_arguments_are_provided() {
-            let expected_fn = Function {
-                name: "fn".to_string(),
-                arguments: [
-                    ("arg1".to_string(), ArgumentValue::Token("abc".to_string())),
-                    ("arg2".to_string(), ArgumentValue::String("def".to_string())),
-                ]
-                .iter()
-                .cloned()
-                .collect(),
-            };
+            let expected_fn = Function::new(
+                "fn",
+                hashmap! {
+                    "arg1".to_string() => ArgumentValue::Token("abc".to_string()),
+                    "arg2".to_string() => ArgumentValue::String("def".to_string()),
+                },
+            );
 
             assert_eq!(parse("fn(arg1=abc,arg2=\"def\")"), Ok(("", expected_fn)));
         }
 
         #[test]
         fn succeeds_when_multiple_arguments_are_provided_with_spaces() {
-            let expected_fn = Function {
-                name: "fn".to_string(),
-                arguments: [
-                    ("arg1".to_string(), ArgumentValue::Token("xxx".to_string())),
-                    ("arg2".to_string(), ArgumentValue::String("123".to_string())),
-                ]
-                .iter()
-                .cloned()
-                .collect(),
-            };
+            let expected_fn = Function::new(
+                "fn",
+                hashmap! {
+                        "arg1".to_string() => ArgumentValue::Token("xxx".to_string()),
+                        "arg2".to_string() => ArgumentValue::String("123".to_string()),
+                },
+            );
 
             assert_eq!(parse("fn(arg1=xxx , arg2=\"123\")"), Ok(("", expected_fn)));
         }
     }
 
     mod argument_list {
-        use super::{argument_list, ArgumentValue, HashMap};
+        use maplit::hashmap;
+
+        use super::{argument_list, ArgumentValue};
 
         #[test]
         fn succeeds_when_no_arguments_are_provided() {
-            let expected_args: HashMap<String, ArgumentValue> = [].iter().cloned().collect();
+            let expected_args = hashmap! {};
             assert_eq!(argument_list("()"), Ok(("", expected_args)));
         }
 
         #[test]
         fn succeeds_when_one_argument_is_provided() {
-            let expected_args: HashMap<String, ArgumentValue> =
-                [("arg".to_string(), ArgumentValue::String("abc".to_string()))]
-                    .iter()
-                    .cloned()
-                    .collect();
+            let expected_args = hashmap! {
+            "arg".to_string() => ArgumentValue::String("abc".to_string())
+            };
 
             assert_eq!(argument_list("(arg=\"abc\")"), Ok(("", expected_args)));
         }
 
         #[test]
         fn succeeds_when_multiple_arguments_are_provided() {
-            let expected_args: HashMap<String, ArgumentValue> = [
-                ("arg1".to_string(), ArgumentValue::Token("abc".to_string())),
-                ("arg2".to_string(), ArgumentValue::String("def".to_string())),
-            ]
-            .iter()
-            .cloned()
-            .collect();
-
+            let expected_args = hashmap! {
+                "arg1".to_string() => ArgumentValue::Token("abc".to_string()),
+                "arg2".to_string() => ArgumentValue::String("def".to_string()),
+            };
             assert_eq!(
                 argument_list("(arg1=abc,arg2=\"def\")"),
                 Ok(("", expected_args))
@@ -235,13 +223,10 @@ mod tests {
 
         #[test]
         fn succeeds_when_multiple_arguments_are_provided_with_spaces() {
-            let expected_args: HashMap<String, ArgumentValue> = [
-                ("arg1".to_string(), ArgumentValue::Token("xxx".to_string())),
-                ("arg2".to_string(), ArgumentValue::String("123".to_string())),
-            ]
-            .iter()
-            .cloned()
-            .collect();
+            let expected_args = hashmap! {
+                "arg1".to_string() => ArgumentValue::Token("xxx".to_string()),
+                "arg2".to_string() => ArgumentValue::String("123".to_string()),
+            };
             assert_eq!(
                 argument_list("(arg1=xxx , arg2=\"123\")"),
                 Ok(("", expected_args))
@@ -250,13 +235,10 @@ mod tests {
 
         #[test]
         fn succeeds_when_there_are_spaces_around_arguments() {
-            let expected_args: HashMap<String, ArgumentValue> = [
-                ("arg1".to_string(), ArgumentValue::Token("xxx".to_string())),
-                ("arg2".to_string(), ArgumentValue::String("123".to_string())),
-            ]
-            .iter()
-            .cloned()
-            .collect();
+            let expected_args = hashmap! {
+                "arg1".to_string() => ArgumentValue::Token("xxx".to_string()),
+                "arg2".to_string() => ArgumentValue::String("123".to_string()),
+            };
             assert_eq!(
                 argument_list("(  arg1=xxx,arg2=\"123\"  )"),
                 Ok(("", expected_args))

@@ -11,6 +11,13 @@ pub struct Function {
 }
 
 impl Function {
+    pub fn new(name: &str, arguments: HashMap<String, ArgumentValue>) -> Self {
+        Self {
+            name: name.to_string(),
+            arguments,
+        }
+    }
+
     pub fn has_argument(&self, name: &str) -> bool {
         self.arguments.contains_key(name)
     }
@@ -65,25 +72,25 @@ mod test {
 
         #[test]
         fn returns_true_when_argument_is_present() {
-            let f = Function {
-                name: "abc".to_string(),
-                arguments: hashmap! {
+            let f = Function::new(
+                "abc",
+                hashmap! {
                     "arg1".to_string() => ArgumentValue::Integer(1),
                     "arg2".to_string() => ArgumentValue::Integer(2),
                 },
-            };
+            );
             assert_eq!(true, f.has_argument("arg1"));
             assert_eq!(true, f.has_argument("arg2"));
         }
 
         #[test]
         fn returns_false_when_argument_is_present() {
-            let f = Function {
-                name: "abc".to_string(),
-                arguments: hashmap! {
+            let f = Function::new(
+                "abc",
+                hashmap! {
                     "arg".to_string() => ArgumentValue::Integer(1),
                 },
-            };
+            );
             assert_eq!(false, f.has_argument("not-arg"))
         }
     }
