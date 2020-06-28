@@ -1,8 +1,8 @@
 class Specdown < Formula
   desc "Tool to test markdown files and drive development from documentation"
   homepage "https://github.com/specdown/specdown"
-  url "https://github.com/specdown/specdown/archive/refs/tags/v0.18.0.tar.gz"
-  sha256 "58f9eafc5dd1786c8e9119cec249767d9c10f06b8c4baf8b7928f90921b27895"
+  url "https://github.com/specdown/specdown/archive/refs/tags/v0.24.0.tar.gz"
+  sha256 "ccc711316b42bbf2208c5d74dc505c544b62c9ce020dc13b68f4b5416c7a4579"
 
   depends_on "rust" => :build
 
