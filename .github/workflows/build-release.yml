@@ -101,27 +101,27 @@ jobs:
           asset_name: specdown-x86_64-apple-darwin
           asset_content_type: application/octet-stream
 
-  tag-docker-repo:
-    needs:
-      - release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          repository: specdown/specdown-docker-image
-          token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
-          path: docker
-      - uses: actions/checkout@v2
-        with:
-          repository: specdown/specdown
-          path: specdown
-      - run: "echo ::set-output name=VERSION::v$(toml get specdown/Cargo.toml package.version | tail -c +2 | head -c -2)"
-        id: get_version
-        shell: bash
-      - shell: bash
-        run: |
-          cd docker
-          git config user.name "GitHub"
-          git config user.email "noreply@github.com"
-          git tag -a -m "${{ steps.get_version.outputs.VERSION }}" "${{ steps.get_version.outputs.VERSION }}"
-          git push --tags
+#  tag-docker-repo:
+#    needs:
+#      - release
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          repository: specdown/specdown-docker-image
+#          token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
+#          path: docker
+#      - uses: actions/checkout@v2
+#        with:
+#          repository: specdown/specdown
+#          path: specdown
+#      - run: "echo ::set-output name=VERSION::v$(toml get specdown/Cargo.toml package.version | tail -c +2 | head -c -2)"
+#        id: get_version
+#        shell: bash
+#      - shell: bash
+#        run: |
+#          cd docker
+#          git config user.name "GitHub"
+#          git config user.email "noreply@github.com"
+#          git tag -a -m "${{ steps.get_version.outputs.VERSION }}" "${{ steps.get_version.outputs.VERSION }}"
+#          git push --tags
