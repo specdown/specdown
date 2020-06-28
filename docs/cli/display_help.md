@@ -23,8 +23,9 @@ FLAGS:
     -V, --version    Prints version information
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
-    run     Runs a given Markdown Specification.
+    help     Prints this message or the help of the given subcommand(s)
+    run      Runs a given Markdown Specification
+    strip    Outputs a version of the markdown with all specdown functions removed
 ```
 
 ## Sub-commands
@@ -40,7 +41,7 @@ Displays:
 
 ```,verify(script_name="run-with-help", stream=stdout)
 specdown-run 
-Runs a given Markdown Specification.
+Runs a given Markdown Specification
 
 USAGE:
     specdown run [OPTIONS] <spec-file>

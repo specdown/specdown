@@ -140,7 +140,7 @@ specdown run --help
 
 ```text,verify(script_name="run_help", stream=stdout)
 specdown-run 
-Runs a given Markdown Specification.
+Runs a given Markdown Specification
 
 USAGE:
     specdown run [OPTIONS] <spec-file>

@@ -62,7 +62,7 @@ fn test_doc_creating_test_files() {
 }
 
 #[test]
-fn test_verifying_script_output() {
+fn test_doc_verifying_script_output() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
@@ -74,7 +74,7 @@ fn test_verifying_script_output() {
 }
 
 #[test]
-fn test_verifying_exit_codes() {
+fn test_doc_verifying_exit_codes() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
@@ -86,7 +86,7 @@ fn test_verifying_exit_codes() {
 }
 
 #[test]
-fn test_errors() {
+fn test_doc_errors() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
@@ -98,13 +98,25 @@ fn test_errors() {
 }
 
 #[test]
-fn test_skipping_code_blocks() {
+fn test_doc_skipping_code_blocks() {
     Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/specs/skipping_code_blocks.md")
+        .assert()
+        .success();
+}
+
+#[test]
+fn test_doc_stripping_specs() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
+        .arg("docs/cli/stripping_specs.md")
         .assert()
         .success();
 }
@@ -128,8 +140,9 @@ fn test_displays_error_when_required_args_are_missing() {
                 -V, --version    Prints version information
             
             SUBCOMMANDS:
-                help    Prints this message or the help of the given subcommand(s)
-                run     Runs a given Markdown Specification.
+                help     Prints this message or the help of the given subcommand(s)
+                run      Runs a given Markdown Specification
+                strip    Outputs a version of the markdown with all specdown functions removed
             "
         ));
 }
