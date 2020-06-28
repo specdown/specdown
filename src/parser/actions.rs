@@ -5,24 +5,24 @@ use crate::types::{Action, FileContent, ScriptCode, VerifyValue};
 pub fn create_action(info: &str, literal: String) -> Result<Option<Action>> {
     let block = code_block_info::parse(&info)?;
 
-    match block {
+    Ok(match block {
         code_block_info::CodeBlockType::Script(script_name, expected_exit_code) => {
-            Ok(Some(Action::Script {
+            Some(Action::Script {
                 script_name,
                 script_code: ScriptCode(literal),
                 expected_exit_code,
-            }))
+            })
         }
-        code_block_info::CodeBlockType::Verify(source) => Ok(Some(Action::Verify {
+        code_block_info::CodeBlockType::Verify(source) => Some(Action::Verify {
             source,
             expected_value: VerifyValue(literal),
-        })),
-        code_block_info::CodeBlockType::CreateFile(file_path) => Ok(Some(Action::CreateFile {
+        }),
+        code_block_info::CodeBlockType::CreateFile(file_path) => Some(Action::CreateFile {
             file_path,
             file_content: FileContent(literal),
-        })),
-        code_block_info::CodeBlockType::Skip() => Ok(None),
-    }
+        }),
+        code_block_info::CodeBlockType::Skip() => None,
+    })
 }
 
 #[cfg(test)]
