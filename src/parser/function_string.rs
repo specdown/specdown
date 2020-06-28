@@ -25,9 +25,9 @@ pub fn parse(input: &str) -> IResult<&str, Function> {
 
 fn argument_list(input: &str) -> IResult<&str, HashMap<String, ArgumentValue>> {
     let p = delimited(
-        tag("("),
+        tuple((tag("("), space0)),
         separated_list(tuple((space0, tag(","), space0)), argument),
-        tag(")"),
+        tuple((space0, tag(")"))),
     );
 
     map(p, |args| list_of_args_to_hash_map(&args))(input)
@@ -247,6 +247,21 @@ mod tests {
                 Ok(("", expected_args))
             );
         }
+
+        #[test]
+        fn succeeds_when_there_are_spaces_around_arguments() {
+            let expected_args: HashMap<String, ArgumentValue> = [
+                ("arg1".to_string(), ArgumentValue::Token("xxx".to_string())),
+                ("arg2".to_string(), ArgumentValue::String("123".to_string())),
+            ]
+            .iter()
+            .cloned()
+            .collect();
+            assert_eq!(
+                argument_list("(  arg1=xxx,arg2=\"123\"  )"),
+                Ok(("", expected_args))
+            );
+        }
     }
 
     mod argument {
@@ -308,7 +323,7 @@ mod tests {
         }
 
         #[test]
-        fn succeds_with_spaces_around_equals() {
+        fn succeeds_with_spaces_around_equals() {
             assert_eq!(
                 argument("arg  =  token rest"),
                 Ok((" rest", ("arg", ArgumentValue::Token("token".to_string()))))
