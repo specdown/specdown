@@ -1,5 +1,6 @@
 use super::printer::Printer;
 use super::test_result::TestResult;
+use crate::runner::Error;
 
 pub struct BasicPrinter {
     display: Box<dyn Fn(&str)>,
@@ -14,7 +15,7 @@ impl BasicPrinter {
 }
 
 impl Printer for BasicPrinter {
-    fn print(&self, result: &TestResult) {
+    fn print_result(&self, result: &TestResult) {
         let display = &self.display;
         match result {
             TestResult::Script {
@@ -64,6 +65,21 @@ impl Printer for BasicPrinter {
                 }
             }
             TestResult::File { path } => display(&format!("File {} created", path)),
+        }
+    }
+
+    fn print_error(&self, error: &Error) {
+        let display = &self.display;
+        match error {
+            Error::ScriptOutputMissing {
+                missing_script_name,
+            } => {
+                display(&format!(
+                    "Failed to verify the output of '{}': No script with that name has been executed yet.",
+                    missing_script_name
+                ));
+            }
+            Error::CommandFailed => panic!("Failed to run script"),
         }
     }
 }

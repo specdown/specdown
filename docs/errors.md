@@ -104,3 +104,27 @@ With the following error message:
 ```text,verify(script_name="invalid_token_option_example", stream=stdout)
 Argument stream for function verify must be output, stdout or stderr, got unknown
 ```
+
+## Verify Unknown Script
+
+Given `verify_unknown_script_example.md`:
+
+~~~markdown,file(path="verify_unknown_script_example.md")
+# Verify Unknown Script Example
+
+```text,verify(script_name="unknown", stream=stdout)
+This doesn't matter
+```
+~~~
+
+Running the following command will fail:
+
+```shell,script(name="verify_unknown_script_example", expected_exit_code=2)
+specdown run verify_unknown_script_example.md
+```
+
+With the following error message:
+
+```text,verify(script_name="verify_unknown_script_example", stream=stdout)
+Failed to verify the output of 'unknown': No script with that name has been executed yet.
+```
