@@ -7,6 +7,8 @@ use crate::results::basic_printer::BasicPrinter;
 use crate::results::printer::Printer;
 use crate::runner::run_actions;
 
+pub const NAME: &str = "run";
+
 pub fn create() -> clap::App<'static, 'static> {
     let spec_file = Arg::with_name("spec-file")
         .index(1)
@@ -26,8 +28,8 @@ pub fn create() -> clap::App<'static, 'static> {
         .help("The shell command used to execute script blocks")
         .required(false);
 
-    SubCommand::with_name("run")
-        .about("Runs a given Markdown Specification.")
+    SubCommand::with_name(NAME)
+        .about("Runs a given Markdown Specification")
         .arg(spec_file)
         .arg(test_dir)
         .arg(shell_cmd)
