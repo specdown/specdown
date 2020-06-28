@@ -46,10 +46,11 @@ impl Printer for BasicPrinter {
                 success,
                 expected,
                 got,
-                ..
+                stream,
             } => {
                 display(&format!(
-                    "- verify output from '{}' {}",
+                    "- verify {} from '{}' {}",
+                    stream,
                     script_name,
                     if *success { "succeeded" } else { "failed" }
                 ));

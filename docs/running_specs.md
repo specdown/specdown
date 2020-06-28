@@ -33,7 +33,7 @@ And you will get the following output:
 
 ```text,verify(script_name="run_example", stream=stdout)
 - script 'command_1' succeeded
-- verify output from 'command_1' succeeded
+- verify stdout from 'command_1' succeeded
 ```
 
 ## Setting the Running Directory
@@ -81,9 +81,9 @@ specdown run --running-dir running_dir running_dir_example.md
 
 ```text,verify(script_name="running_dir_example", stream=stdout)
 - script 'ls' succeeded
-- verify output from 'ls' succeeded
+- verify stdout from 'ls' succeeded
 - script 'cat' succeeded
-- verify output from 'cat' succeeded
+- verify stdout from 'cat' succeeded
 ```
 
 ## Command Help
