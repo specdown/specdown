@@ -33,7 +33,7 @@ impl Function {
             .map_err(|err| self.incorrect_argument_type_error(name, err))
     }
 
-    fn get_required_argument<'a>(&'a self, name: &str) -> error::Result<&'a ArgumentValue> {
+    fn get_required_argument(&self, name: &str) -> error::Result<&ArgumentValue> {
         self.arguments
             .get(name)
             .ok_or_else(|| error::Error::MissingArgument {
