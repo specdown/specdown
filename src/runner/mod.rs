@@ -11,37 +11,38 @@ mod file;
 mod script;
 mod verify;
 
-use executor::{Bash, Executor};
+use executor::{Executor, Shell};
 
 pub use error::Error;
 
-pub fn run_actions(actions: &[Action], printer: &dyn Printer) {
-    let mut state = State::new();
-    let executor = Bash::new();
+pub fn run_actions(actions: &[Action], shell_command: &str, printer: &dyn Printer) {
+    let result = run_all_actions(actions, shell_command, printer);
 
-    let mut error_occurred = false;
-
-    for action in actions {
-        match run_action(action, &state, &executor) {
-            Ok(result) => {
-                state.add_result(&result);
-                printer.print_result(&result)
-            }
-            Err(err) => {
-                printer.print_error(&err);
-                error_occurred = true;
-                break;
-            }
+    match result {
+        Ok(true) => {}
+        Ok(false) => std::process::exit(1),
+        Err(err) => {
+            printer.print_error(&err);
+            std::process::exit(2);
         }
     }
+}
 
-    if error_occurred {
-        std::process::exit(2);
+fn run_all_actions(
+    actions: &[Action],
+    shell_command: &str,
+    printer: &dyn Printer,
+) -> Result<bool, Error> {
+    let mut state = State::new();
+    let executor = Shell::new(shell_command)?;
+
+    for action in actions {
+        let result = run_action(action, &state, &executor)?;
+        state.add_result(&result);
+        printer.print_result(&result);
     }
 
-    if !state.is_success() {
-        std::process::exit(1);
-    }
+    Ok(state.is_success())
 }
 
 fn run_action(

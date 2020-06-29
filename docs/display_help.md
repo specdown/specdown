@@ -50,7 +50,8 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-        --running-dir <running-dir>    The directory where commands will be executed
+        --running-dir <running-dir>        The directory where commands will be executed
+        --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
 
 ARGS:
     <spec-file>    The spec file to run

@@ -80,7 +80,14 @@ impl Printer for BasicPrinter {
                     missing_script_name
                 ));
             }
-            Error::CommandFailed => panic!("Failed to run script"),
+            Error::CommandFailed { command, message } => display(&format!(
+                "Failed to run command: {}\nError: {}",
+                command, message
+            )),
+            Error::BadShellCommand { command, message } => display(&format!(
+                "Invalid shell command provided: {}\nError: {}",
+                command, message
+            )),
         }
     }
 }

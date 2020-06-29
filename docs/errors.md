@@ -128,3 +128,71 @@ With the following error message:
 ```text,verify(script_name="verify_unknown_script_example", stream=stdout)
 Failed to verify the output of 'unknown': No script with that name has been executed yet.
 ```
+
+
+## Empty Shell Command
+
+Given `empty_shell_command_example.md`:
+
+~~~markdown,file(path="empty_shell_command_example.md")
+# Nothing to see here
+~~~
+
+Running the following command will fail:
+
+```shell,script(name="empty_shell_command_example", expected_exit_code=2)
+specdown run --shell-command '' empty_shell_command_example.md
+```
+
+With the following error message:
+
+```text,verify(script_name="empty_shell_command_example", stream=stdout)
+Invalid shell command provided: 
+Error: Command is empty
+```
+
+## Invalid Shell Command
+
+Given `invalid_shell_command_example.md`:
+
+~~~markdown,file(path="invalid_shell_command_example.md")
+# Nothing to see here
+~~~
+
+Running the following command will fail:
+
+```shell,script(name="invalid_shell_command_example", expected_exit_code=2)
+specdown run --shell-command 'invalid " command' invalid_shell_command_example.md
+```
+
+With the following error message:
+
+```text,verify(script_name="invalid_shell_command_example", stream=stdout)
+Invalid shell command provided: invalid " command
+Error: Parse error : missing closing quote
+```
+
+## Shell Which Can't Be Run
+
+Given `missing_shell_example.md`:
+
+~~~markdown,file(path="missing_shell_example.md")
+# Hello World
+
+```shell,script(name="test")
+echo "Hello world"
+```
+~~~
+
+Running the following command will fail:
+
+```shell,script(name="missing_shell_example", expected_exit_code=2)
+specdown run --shell-command 'does-not-exist' missing_shell_example.md
+```
+
+With the following error message:
+
+```text,verify(script_name="missing_shell_example", stream=stdout)
+Failed to run command: does-not-exist []
+Error: No such file or directory (os error 2)
+```

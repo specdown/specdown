@@ -86,6 +86,50 @@ specdown run --running-dir running_dir running_dir_example.md
 - verify stdout from 'cat' succeeded
 ```
 
+## Setting the Shell
+
+By default, specdown runs commands with `bash -c`. You can override this with the `--shell-command` option.
+
+To demonstrate this, let's take the following `setting_the_shell_example.md` spec:
+
+~~~markdown,file(path="setting_the_shell_example.md")
+# Setting the Shell Example
+
+```shell,script(name="get_shell_name")
+echo $0
+```
+
+```text,verify(script_name="get_shell_name", stream=stdout)
+bash
+```
+~~~
+
+This will succeed when we run the following:
+
+```shell,script(name="setting_the_shell_example_bash", expected_exit_code=0)
+specdown run setting_the_shell_example.md
+```
+
+However, if we now run the following command it will fail:
+
+```shell,script(name="setting_the_shell_example_sh", expected_exit_code=1)
+specdown run --shell-command 'sh -c' setting_the_shell_example.md
+```
+
+And it will give the following output:
+
+```text,verify(script_name="setting_the_shell_example_sh", stream=stdout)
+- script 'get_shell_name' succeeded
+- verify stdout from 'get_shell_name' failed
+< left / > right
+<bash
+<
+>sh
+>
+
+```
+
+
 ## Command Help
 
 You can display all the options available by using `--help` on the `run` sub-command.
@@ -106,7 +150,8 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-        --running-dir <running-dir>    The directory where commands will be executed
+        --running-dir <running-dir>        The directory where commands will be executed
+        --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
 
 ARGS:
     <spec-file>    The spec file to run

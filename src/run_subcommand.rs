@@ -19,10 +19,18 @@ pub fn create() -> clap::App<'static, 'static> {
         .help("The directory where commands will be executed")
         .required(false);
 
+    let shell_cmd = Arg::with_name("shell-command")
+        .long("shell-command")
+        .takes_value(true)
+        .default_value("bash -c")
+        .help("The shell command used to execute script blocks")
+        .required(false);
+
     SubCommand::with_name("run")
         .about("Runs a given Markdown Specification.")
         .arg(spec_file)
         .arg(test_dir)
+        .arg(shell_cmd)
 }
 
 pub fn execute(run_matches: &clap::ArgMatches<'_>) {
@@ -32,11 +40,12 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
         .expect("spec-file should always exist");
 
     let running_dir = run_matches.value_of("running-dir").map(Path::new);
+    let shell_cmd = run_matches.value_of("shell-command").unwrap();
 
-    execute_run(spec_file, running_dir);
+    execute_run(spec_file, shell_cmd, running_dir);
 }
 
-fn execute_run(spec_file: &Path, running_dir: Option<&Path>) {
+fn execute_run(spec_file: &Path, shell_cmd: &str, running_dir: Option<&Path>) {
     let printer: Box<dyn Printer> = Box::new(BasicPrinter::new());
     let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
     let actions = parser::parse(&contents);
@@ -47,7 +56,7 @@ fn execute_run(spec_file: &Path, running_dir: Option<&Path>) {
     }
 
     match actions {
-        Ok(a) => run_actions(&a, &*printer),
+        Ok(action_list) => run_actions(&action_list, shell_cmd, &*printer),
         Err(err) => {
             println!("{}", err);
             std::process::exit(1)
