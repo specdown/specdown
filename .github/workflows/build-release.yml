@@ -101,6 +101,41 @@ jobs:
           asset_name: specdown-x86_64-apple-darwin
           asset_content_type: application/octet-stream
 
+  publish_website:
+    needs:
+      - release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: specdown/specdown
+          path: specdown
+      - uses: actions/checkout@v2
+        with:
+          repository: specdown/specdown
+          token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
+          branch: gh-pages
+          path: gh-pages
+      - shell: bash
+        run: |
+          mkdir -p gh-pages/_pages
+          rm -rf gh-pages/*.md gh-pages/_pages/*
+          cp -a docs/* gh-pages/_pages
+          cat >gh-pages/index.md <<HEADER
+          ---
+          layout: page
+          ---
+          HEADER
+          cat README.md >>gh-pages/index.md
+      - shell: bash
+        run: |
+          cd gh-pages
+          git config user.name "GitHub"
+          git config user.email "noreply@github.com"
+          git add .
+          git commit -m "Update website"
+          git push
+
 #  tag-docker-repo:
 #    needs:
 #      - release
