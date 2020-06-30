@@ -20,7 +20,7 @@ fn test_doc_index() {
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
-        .arg("README.md")
+        .arg("docs/index.md")
         .assert()
         .success();
 }
@@ -32,7 +32,7 @@ fn test_doc_display_help() {
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
-        .arg("docs/display_help.md")
+        .arg("docs/cli/display_help.md")
         .assert()
         .success();
 }
@@ -44,7 +44,7 @@ fn test_doc_running_specs() {
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
-        .arg("docs/running_specs.md")
+        .arg("docs/cli/running_specs.md")
         .assert()
         .success();
 }
@@ -56,7 +56,7 @@ fn test_doc_creating_test_files() {
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
-        .arg("docs/creating_test_files.md")
+        .arg("docs/specs/creating_test_files.md")
         .assert()
         .success();
 }
@@ -68,7 +68,7 @@ fn test_verifying_script_output() {
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
-        .arg("docs/verifying_script_output.md")
+        .arg("docs/specs/verifying_script_output.md")
         .assert()
         .success();
 }
@@ -80,7 +80,7 @@ fn test_verifying_exit_codes() {
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
-        .arg("docs/verifying_exit_codes.md")
+        .arg("docs/specs/verifying_exit_codes.md")
         .assert()
         .success();
 }
@@ -104,7 +104,7 @@ fn test_skipping_code_blocks() {
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
-        .arg("docs/skipping_code_blocks.md")
+        .arg("docs/specs/skipping_code_blocks.md")
         .assert()
         .success();
 }
