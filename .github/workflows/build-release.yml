@@ -120,13 +120,13 @@ jobs:
         run: |
           mkdir -p gh-pages/_pages
           rm -rf gh-pages/*.md gh-pages/_pages/*
-          cp -a docs/* gh-pages/_pages
+          cp -a specdown/docs/* gh-pages/_pages
           cat >gh-pages/index.md <<HEADER
           ---
           layout: page
           ---
           HEADER
-          cat README.md >>gh-pages/index.md
+          cat specdown/README.md >>gh-pages/index.md
       - shell: bash
         run: |
           cd gh-pages
