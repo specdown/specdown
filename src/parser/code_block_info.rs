@@ -17,12 +17,14 @@ pub enum CodeBlockType {
     Skip(),
 }
 
-pub fn parse(input: &str) -> Result<CodeBlockType> {
+pub fn parse(input: &str) -> Result<(&str, CodeBlockType)> {
     let p = tuple((take_until(","), tag(","), function_string::parse));
-    let p = map(p, |(_language, _comma, func)| func);
+    let p = map(p, |(language, _comma, func)| (language, func));
 
     match p(input) {
-        Ok((_, func)) => to_code_block_type(&func),
+        Ok((_, (language, func))) => {
+            to_code_block_type(&func).map(|code_block_type| (language, code_block_type))
+        }
         Err(nom_error) => Err(Error::ParserFailed(format!(
             "Failed parsing function from '{}' :: {}",
             input,
@@ -107,9 +109,9 @@ mod tests {
                 let result = parse("shell,script(name=\"example-script\")");
                 assert_eq!(
                     result,
-                    Ok(CodeBlockType::Script(
-                        ScriptName("example-script".to_string(),),
-                        None
+                    Ok((
+                        "shell",
+                        CodeBlockType::Script(ScriptName("example-script".to_string(),), None)
                     ))
                 )
             }
@@ -119,9 +121,12 @@ mod tests {
                 let result = parse("shell,script(name=\"example-script\", expected_exit_code=2)");
                 assert_eq!(
                     result,
-                    Ok(CodeBlockType::Script(
-                        ScriptName("example-script".to_string(),),
-                        Some(ExitCode(2))
+                    Ok((
+                        "shell",
+                        CodeBlockType::Script(
+                            ScriptName("example-script".to_string(),),
+                            Some(ExitCode(2))
+                        )
                     ))
                 )
             }
@@ -147,10 +152,13 @@ mod tests {
                 let result = parse(",verify(script_name=\"example-script\", stream=stdout)");
                 assert_eq!(
                     result,
-                    Ok(CodeBlockType::Verify(Source {
-                        name: ScriptName("example-script".to_string()),
-                        stream: Stream::StdOut
-                    }))
+                    Ok((
+                        "",
+                        CodeBlockType::Verify(Source {
+                            name: ScriptName("example-script".to_string()),
+                            stream: Stream::StdOut
+                        })
+                    ))
                 )
             }
 
@@ -159,10 +167,13 @@ mod tests {
                 let result = parse(",verify(script_name=\"example-script\", stream=stderr)");
                 assert_eq!(
                     result,
-                    Ok(CodeBlockType::Verify(Source {
-                        name: ScriptName("example-script".to_string()),
-                        stream: Stream::StdErr
-                    }))
+                    Ok((
+                        "",
+                        CodeBlockType::Verify(Source {
+                            name: ScriptName("example-script".to_string()),
+                            stream: Stream::StdErr
+                        })
+                    ))
                 )
             }
 
@@ -213,9 +224,10 @@ mod tests {
                 let result = parse("text,file(path=\"example.txt\")");
                 assert_eq!(
                     result,
-                    Ok(CodeBlockType::CreateFile(FilePath(
-                        "example.txt".to_string()
-                    )))
+                    Ok((
+                        "text",
+                        CodeBlockType::CreateFile(FilePath("example.txt".to_string()))
+                    ))
                 )
             }
 
@@ -238,7 +250,7 @@ mod tests {
             #[test]
             fn succeeds_when_function_is_skip() {
                 let result = parse("text,skip()");
-                assert_eq!(result, Ok(CodeBlockType::Skip()))
+                assert_eq!(result, Ok(("text", CodeBlockType::Skip())))
             }
 
             #[test]
