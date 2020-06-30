@@ -134,7 +134,7 @@ jobs:
           git config user.email "noreply@github.com"
           git add .
           git commit -m "Update website"
-          git push
+          git push origin gh-pages
 
 #  tag-docker-repo:
 #    needs:
