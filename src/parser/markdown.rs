@@ -27,13 +27,9 @@ fn extract_elements<'a>(root: &'a AstNode<'a>) -> Result<Vec<Element>> {
 
 fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Result<Element>> {
     match node.data.borrow().value.clone() {
-        NodeValue::CodeBlock(block) => {
-            if block.fenced {
-                Some(to_fenced_code_block_element(&block))
-            } else {
-                None
-            }
-        }
+        NodeValue::CodeBlock(block) => Some(block)
+            .filter(|b| b.fenced)
+            .map(|b| to_fenced_code_block_element(&b)),
         _ => None,
     }
 }
