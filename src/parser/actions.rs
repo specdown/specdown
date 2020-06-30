@@ -3,7 +3,7 @@ use super::error::Result;
 use crate::types::{Action, FileContent, ScriptCode, VerifyValue};
 
 pub fn create_action(info: &str, literal: String) -> Result<Option<Action>> {
-    let block = code_block_info::parse(&info)?;
+    let (_, block) = code_block_info::parse(&info)?;
 
     Ok(match block {
         code_block_info::CodeBlockType::Script(script_name, expected_exit_code) => {
