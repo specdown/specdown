@@ -116,6 +116,7 @@ jobs:
           token: "${{ secrets.RELEASE_COMMIT_TOKEN }}"
           branch: gh-pages
           path: gh-pages
+          fetch-depth: 0
       - shell: bash
         run: |
           mkdir -p gh-pages/_pages
