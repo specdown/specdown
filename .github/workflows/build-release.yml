@@ -142,12 +142,12 @@ jobs:
             output=$(echo "$doc" | sed 's!^specdown/docs/!gh-pages/docs/!')
             dir=$(dirname "$output")
             mkdir -p "$dir"
-            cat >"$doc" <<HEADER
+            cat >"$output" <<HEADER
           ---
           layout: page
           ---
           HEADER
-            specdown strip "$doc" >>"$output"
+            specdown strip "$output" >>"$output"
           done
 
           cat >gh-pages/index.md <<HEADER
