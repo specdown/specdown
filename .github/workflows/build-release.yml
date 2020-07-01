@@ -142,22 +142,33 @@ jobs:
           mkdir -p gh-pages/_pages
           rm -rf gh-pages/*.md gh-pages/_pages/*
 
+          echo "preparing header"
+
           read -r -d '' page_header <<HEADER
           ---
           layout: page
           ---
           HEADER
 
+          echo "prepared header"
+
           for doc in $(find specdown/docs -name '*.md'); do
+            echo "copying $doc"
+
             output=$(echo "$doc" | sed 's!^specdown/docs/!gh-pages/_pages/!')
             dir=$(dirname "$output")
             mkdir -p "$dir"
             echo "$page_header" >"$output"
             specdown strip "$doc" >>"$output"
+
+            echo "copied $doc"
           done
 
           echo "$page_header" >gh-pages/index.md
           specdown strip specdown/README.md >>gh-pages/index.md
+
+          echo "done"
+
       - name: Commit changes to gh-pages
         shell: bash
         run: |
