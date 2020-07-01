@@ -128,7 +128,8 @@ jobs:
           git config user.email "noreply@github.com"
       - shell: bash
         run: |
-          curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu --output specdown
+          mkdir gh-pages/.bin
+          curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu --output gh-pages/.bin/specdown
           chmod +x specdown
 
           mkdir -p gh-pages/_pages
@@ -139,11 +140,11 @@ jobs:
           layout: page
           ---
           HEADER
-          ../specdown strip specdown/README.md >>gh-pages/index.md
+          ./gh-pages/.bin/specdown strip specdown/README.md >>gh-pages/index.md
       - shell: bash
         run: |
           cd gh-pages
-          git add .
+          git add index.md _pages
           git commit -m "Update website"
           git log
       - name: Push changes
