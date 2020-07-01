@@ -136,10 +136,10 @@ jobs:
         shell: bash
         run: |
           mkdir -p gh-pages/_pages
-          rm -rf gh-pages/*.md gh-pages/_pages/*
+          rm -rf gh-pages/*.md gh-pages/docs/*
 
           for doc in $(find specdown/docs -name '*.md'); do
-            output=$(echo "$doc" | sed 's!^specdown/docs/!gh-pages/_pages/!')
+            output=$(echo "$doc" | sed 's!^specdown/docs/!gh-pages/docs/!')
             dir=$(dirname "$output")
             mkdir -p "$dir"
             cat >"$doc" <<HEADER
