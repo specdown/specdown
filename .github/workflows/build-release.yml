@@ -126,7 +126,10 @@ jobs:
           cd gh-pages
           git config user.name "GitHub"
           git config user.email "noreply@github.com"
-          git pull --rebase origin gh-pages
+
+          git rebase origin/gh-pages
+          git checkout gh-pages
+          git merge --ff-only -
           ls gh-pages
       - shell: bash
         run: |
