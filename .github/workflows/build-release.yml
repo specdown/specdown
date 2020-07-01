@@ -1,109 +1,113 @@
+#"on":
+#  push:
+#    tags:
+#      - "*"
 "on":
   push:
-    tags:
-      - "*"
+    branches:
+      - "fixing-pages"
 jobs:
   build:
-    runs-on: "${{ matrix.os }}"
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          lfs: true
-      - uses: actions/cache@v2
-        with:
-          key: "${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}"
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          default: true
-      - uses: actions-rs/cargo@v1
-        with:
-          args: "--release --locked"
-          command: build
-      - id: get_repository_name
-        run: 'echo ::set-output name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / ''{print $2}'' | sed -e "s/:refs//")'
-        shell: bash
-      - uses: actions/upload-artifact@v2
-        with:
-          name: specdown-${{ matrix.target }}
-          path: ./target/release/specdown${{ matrix.suffix }}
-
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-            suffix: ""
-            target: x86_64-apple-darwin
-          - os: ubuntu-latest
-            suffix: ""
-            target: x86_64-unknown-linux-gnu
-  release:
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          lfs: true
-      - uses: actions/cache@v2
-        with:
-          key: "${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}"
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-      - uses: actions/download-artifact@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          default: true
-      - uses: actions-rs/cargo@v1
-        with:
-          args: toml-cli
-          command: install
-      - id: get_repository_name
-        run: 'echo ::set-output name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / ''{print $2}'' | sed -e "s/:refs//")'
-        shell: bash
-      - id: get_version
-        run: "echo ::set-output name=VERSION::v$(toml get Cargo.toml package.version | tail -c +2 | head -c -2)"
-        shell: bash
-      - env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        id: create_release
-        uses: actions/create-release@v1.1.0
-        with:
-          draft: false
-          prerelease: false
-          release_name: "Release ${{ steps.get_version.outputs.VERSION }}"
-          tag_name: "${{ steps.get_version.outputs.VERSION }}"
-      - uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        with:
-          upload_url: "${{ steps.create_release.outputs.upload_url }}"
-          asset_path: ./specdown-x86_64-unknown-linux-gnu/specdown
-          asset_name: specdown-x86_64-unknown-linux-gnu
-          asset_content_type: application/octet-stream
-      - uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        with:
-          upload_url: "${{ steps.create_release.outputs.upload_url }}"
-          asset_path: ./specdown-x86_64-apple-darwin/specdown
-          asset_name: specdown-x86_64-apple-darwin
-          asset_content_type: application/octet-stream
+#    runs-on: "${{ matrix.os }}"
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          lfs: true
+#      - uses: actions/cache@v2
+#        with:
+#          key: "${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}"
+#          path: |
+#            ~/.cargo/registry
+#            ~/.cargo/git
+#            ~/.cargo/bin
+#            target
+#      - uses: actions-rs/toolchain@v1
+#        with:
+#          profile: minimal
+#          toolchain: stable
+#          default: true
+#      - uses: actions-rs/cargo@v1
+#        with:
+#          args: "--release --locked"
+#          command: build
+#      - id: get_repository_name
+#        run: 'echo ::set-output name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / ''{print $2}'' | sed -e "s/:refs//")'
+#        shell: bash
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: specdown-${{ matrix.target }}
+#          path: ./target/release/specdown${{ matrix.suffix }}
+#
+#    strategy:
+#      matrix:
+#        include:
+#          - os: macos-latest
+#            suffix: ""
+#            target: x86_64-apple-darwin
+#          - os: ubuntu-latest
+#            suffix: ""
+#            target: x86_64-unknown-linux-gnu
+#  release:
+#    needs:
+#      - build
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          lfs: true
+#      - uses: actions/cache@v2
+#        with:
+#          key: "${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}"
+#          path: |
+#            ~/.cargo/registry
+#            ~/.cargo/git
+#            ~/.cargo/bin
+#            target
+#      - uses: actions/download-artifact@v2
+#      - uses: actions-rs/toolchain@v1
+#        with:
+#          profile: minimal
+#          toolchain: stable
+#          default: true
+#      - uses: actions-rs/cargo@v1
+#        with:
+#          args: toml-cli
+#          command: install
+#      - id: get_repository_name
+#        run: 'echo ::set-output name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / ''{print $2}'' | sed -e "s/:refs//")'
+#        shell: bash
+#      - id: get_version
+#        run: "echo ::set-output name=VERSION::v$(toml get Cargo.toml package.version | tail -c +2 | head -c -2)"
+#        shell: bash
+#      - env:
+#          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+#        id: create_release
+#        uses: actions/create-release@v1.1.0
+#        with:
+#          draft: false
+#          prerelease: false
+#          release_name: "Release ${{ steps.get_version.outputs.VERSION }}"
+#          tag_name: "${{ steps.get_version.outputs.VERSION }}"
+#      - uses: actions/upload-release-asset@v1.0.2
+#        env:
+#          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+#        with:
+#          upload_url: "${{ steps.create_release.outputs.upload_url }}"
+#          asset_path: ./specdown-x86_64-unknown-linux-gnu/specdown
+#          asset_name: specdown-x86_64-unknown-linux-gnu
+#          asset_content_type: application/octet-stream
+#      - uses: actions/upload-release-asset@v1.0.2
+#        env:
+#          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+#        with:
+#          upload_url: "${{ steps.create_release.outputs.upload_url }}"
+#          asset_path: ./specdown-x86_64-apple-darwin/specdown
+#          asset_name: specdown-x86_64-apple-darwin
+#          asset_content_type: application/octet-stream
 
   publish_website:
-    needs:
-      - release
+#    needs:
+#      - release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -122,6 +126,8 @@ jobs:
           cd gh-pages
           git config user.name "GitHub"
           git config user.email "noreply@github.com"
+          git pull --rebase origin gh-pages
+          ls gh-pages
       - shell: bash
         run: |
           mkdir -p gh-pages/_pages
@@ -133,10 +139,13 @@ jobs:
           ---
           HEADER
           cat specdown/README.md >>gh-pages/index.md
+          ls gh-pages
       - shell: bash
         run: |
+          git log
           cd gh-pages
           git commit -am "Update website"
+          git log
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
