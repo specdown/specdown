@@ -1,6 +1,3 @@
----
-layout: page
----
 # Skipping Code Blocks
 
 Not all codeblocks in your markdown need to be tested by specdown.

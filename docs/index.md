@@ -1,6 +1,3 @@
----
-layout: page
----
 # SpecDown Documentation
 
 Here you can find the documentation for SpecDown.

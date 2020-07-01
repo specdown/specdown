@@ -106,44 +106,70 @@ jobs:
       - release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout specdown
+        uses: actions/checkout@v2
         with:
           repository: specdown/specdown
           path: specdown
-      - uses: actions/checkout@v2
+      - name: Checkout gh-pages
+        uses: actions/checkout@v2
         with:
           repository: specdown/specdown
-          branch: gh-pages
+          ref: gh-pages
           path: gh-pages
           persist-credentials: false
           fetch-depth: 0
-      - shell: bash
+      - name: Configure git for gh-pages
+        shell: bash
         run: |
           cd gh-pages
           git config user.name "GitHub"
           git config user.email "noreply@github.com"
-      - shell: bash
+      - name: Install the latest specdown
+        shell: bash
+        run: |
+          mkdir gh-pages/.bin
+          curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu --output gh-pages/.bin/specdown
+          chmod +x gh-pages/.bin/specdown
+          echo "::add-path::$PWD/gh-pages/.bin"
+      - name: Copy docs to gh-pages
+        shell: bash
         run: |
           mkdir -p gh-pages/_pages
           rm -rf gh-pages/*.md gh-pages/_pages/*
-          cp -a specdown/docs/* gh-pages/_pages
+
+          for doc in $(find specdown/docs -name '*.md'); do
+            output=$(echo "$doc" | sed 's!^specdown/docs/!gh-pages/_pages/!')
+            dir=$(dirname "$output")
+            mkdir -p "$dir"
+            cat >"$doc" <<HEADER
+          ---
+          layout: page
+          ---
+          HEADER
+            specdown strip "$doc" >>"$output"
+          done
+
           cat >gh-pages/index.md <<HEADER
           ---
           layout: page
           ---
           HEADER
-          cat specdown/README.md >>gh-pages/index.md
-      - shell: bash
+          specdown strip specdown/README.md >>gh-pages/index.md
+
+      - name: Commit changes to gh-pages
+        shell: bash
         run: |
           cd gh-pages
-          git commit -am "Update website"
-      - name: Push changes
+          git add index.md _pages
+          git commit -m "Update website"
+          git log
+      - name: Push changes to gh-pages
         uses: ad-m/github-push-action@master
         with:
           directory: gh-pages
           branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
 
 #  tag-docker-repo:
 #    needs:

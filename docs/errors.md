@@ -1,6 +1,3 @@
----
-layout: page
----
 # Errors
 
 There are a number of errors that can occur when the if a markdown spec contains some invalid content.
