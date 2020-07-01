@@ -128,6 +128,9 @@ jobs:
           git config user.email "noreply@github.com"
       - shell: bash
         run: |
+          curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu --output specdown
+          chmod +x specdown
+
           mkdir -p gh-pages/_pages
           rm -rf gh-pages/*.md gh-pages/_pages/*
           cp -a specdown/docs/* gh-pages/_pages
@@ -136,7 +139,7 @@ jobs:
           layout: page
           ---
           HEADER
-          cat specdown/README.md >>gh-pages/index.md
+          ../specdown strip specdown/README.md >>gh-pages/index.md
       - shell: bash
         run: |
           cd gh-pages
