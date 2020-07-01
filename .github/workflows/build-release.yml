@@ -144,7 +144,7 @@ jobs:
 
           echo "preparing header"
 
-          read -r -d '' page_header <<HEADER
+          cat >$page_header <<HEADER
           ---
           layout: page
           ---
@@ -158,13 +158,21 @@ jobs:
             output=$(echo "$doc" | sed 's!^specdown/docs/!gh-pages/_pages/!')
             dir=$(dirname "$output")
             mkdir -p "$dir"
-            echo "$page_header" >"$output"
+            cat >"$doc" <<-HEADER
+            ---
+            layout: page
+            ---
+            HEADER
             specdown strip "$doc" >>"$output"
 
             echo "copied $doc"
           done
 
-          echo "$page_header" >gh-pages/index.md
+          cat >gh-pages/index.md <<HEADER
+          ---
+          layout: page
+          ---
+          HEADER
           specdown strip specdown/README.md >>gh-pages/index.md
 
           echo "done"
