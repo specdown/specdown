@@ -124,11 +124,8 @@ jobs:
       - shell: bash
         run: |
           cd gh-pages
-          ls
           git config user.name "GitHub"
           git config user.email "noreply@github.com"
-
-          ls gh-pages
       - shell: bash
         run: |
           mkdir -p gh-pages/_pages
@@ -140,10 +137,8 @@ jobs:
           ---
           HEADER
           cat specdown/README.md >>gh-pages/index.md
-          ls gh-pages
       - shell: bash
         run: |
-          git log
           cd gh-pages
           git commit -am "Update website"
           git log
