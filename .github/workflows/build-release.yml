@@ -130,7 +130,7 @@ jobs:
         run: |
           mkdir gh-pages/.bin
           curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu --output gh-pages/.bin/specdown
-          chmod +x specdown
+          chmod +x gh-pages/.bin/specdown
 
           mkdir -p gh-pages/_pages
           rm -rf gh-pages/*.md gh-pages/_pages/*
