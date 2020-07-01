@@ -9,30 +9,28 @@ A tool to test markdown files and drive development from documentation.
 
 When SpecDown is run with this document, it will execute the following shell script.
 
-```shell,script(name="hello-specdown")
+``` shell
 echo "Hello SpecDown"
 ```
 
 It will then validate that the output of the previous command matches the following codeblock.
 
-```,verify(script_name="hello-specdown", stream=stdout)
-Hello SpecDown
-```
+    Hello SpecDown
 
 ## Table Of Contents
 
-- [Motivation](#motivation)
-- [Installation](#installation)
-- [Project Status](#project-status)
-- [How does it work?](#how-does-it-work)
-- [Full Documentation](#full-documentation)
+  - [Motivation](#motivation)
+  - [Installation](#installation)
+  - [Project Status](#project-status)
+  - [How does it work?](#how-does-it-work)
+  - [Full Documentation](#full-documentation)
 
 ## Motivation
 
 The motivation for this project has from two key places, these are:
 
-1. Documentation on GitHub projects where the documented commands and output is out of date
-2. Projects which use Cucumber but no one except the developers refer to the feature files
+1.  Documentation on GitHub projects where the documented commands and output is out of date
+2.  Projects which use Cucumber but no one except the developers refer to the feature files
 
 ## Installation
 
@@ -42,14 +40,14 @@ The recommended what is to download the compiled releases, you can do this from 
 
 ### Mac OS
 
-```shell,skip()
+``` shell
 curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-apple-darwin -o /usr/local/bin/specdown
 chmod +x /usr/local/bin/specdown
 ```
 
 ### Linux
 
-```shell,skip()
+``` shell
 curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu -o /usr/local/bin/specdown
 chmod +x /usr/local/bin/specdown
 ```
@@ -64,7 +62,7 @@ It is usable but likely to change before the 1.0 release.
 The markdown for the example at the beginning of this document looks like this.
 Let's save it to a file called `example.md`:
 
-~~~markdown,file(path="example.md")
+```` markdown
 ## This document is an executable specification
 
 When SpecDown is run with this document, it will execute the following shell script.
@@ -78,17 +76,17 @@ It will then validate that the output of the previous command matches the follow
 ```,verify(script_name="hello-specdown", stream=stdout)
 Hello SpecDown
 ```
-~~~
+````
 
 You can run this markdown specification by using the following command:
 
-```shell,script(name="example")
+``` shell
 specdown run example.md
 ```
 
 This will produce the following output:
 
-```text,verify(script_name="example", stream=stdout)
+``` text
 - script 'hello-specdown' succeeded
 - verify stdout from 'hello-specdown' succeeded
 ```
@@ -96,3 +94,4 @@ This will produce the following output:
 ## Full Documentation
 
 The documentation is written as executable specifications and can be read [here](./docs/index.md).
+
