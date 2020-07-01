@@ -142,16 +142,6 @@ jobs:
           mkdir -p gh-pages/_pages
           rm -rf gh-pages/*.md gh-pages/_pages/*
 
-          echo "preparing header"
-
-          cat >$page_header <<HEADER
-          ---
-          layout: page
-          ---
-          HEADER
-
-          echo "prepared header"
-
           for doc in $(find specdown/docs -name '*.md'); do
             echo "copying $doc"
 
