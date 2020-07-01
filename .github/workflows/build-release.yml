@@ -162,8 +162,7 @@ jobs:
         run: |
           cd gh-pages
           git add index.md _pages
-          git commit -m "Update website"
-          git log
+          git commit -m "Update website" || true
       - name: Push changes to gh-pages
         uses: ad-m/github-push-action@master
         with:
