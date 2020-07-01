@@ -140,7 +140,8 @@ jobs:
       - shell: bash
         run: |
           cd gh-pages
-          git commit -am "Update website"
+          git add .
+          git commit -m "Update website"
           git log
       - name: Push changes
         uses: ad-m/github-push-action@master
