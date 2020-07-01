@@ -7,7 +7,7 @@
     branches:
       - "fixing-pages"
 jobs:
-  build:
+#  build:
 #    runs-on: "${{ matrix.os }}"
 #    steps:
 #      - uses: actions/checkout@v2
