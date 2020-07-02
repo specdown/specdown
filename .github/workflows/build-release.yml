@@ -135,7 +135,7 @@ jobs:
       - name: Copy docs to gh-pages
         shell: bash
         run: |
-          mkdir -p gh-pages/_pages
+          mkdir -p gh-pages/docs
           rm -rf gh-pages/*.md gh-pages/docs/*
 
           for doc in $(find specdown/docs -name '*.md'); do
@@ -161,7 +161,7 @@ jobs:
         shell: bash
         run: |
           cd gh-pages
-          git add index.md _pages
+          git add index.md docs
           git commit -m "Update website" || true
       - name: Push changes to gh-pages
         uses: ad-m/github-push-action@master
