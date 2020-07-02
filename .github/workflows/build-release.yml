@@ -147,7 +147,7 @@ jobs:
           layout: page
           ---
           HEADER
-            specdown strip "$output" >>"$output"
+            specdown strip "$doc" >>"$output"
           done
 
           cat >gh-pages/index.md <<HEADER
