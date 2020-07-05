@@ -65,7 +65,7 @@ impl Printer for BasicPrinter {
                     ));
                 }
             }
-            TestResult::File { path } => display(&format!("File {} created", path)),
+            TestResult::File { path } => display(&format!("- file {} created", path)),
         }
     }
 
