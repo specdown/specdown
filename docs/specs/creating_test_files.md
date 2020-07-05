@@ -33,7 +33,8 @@ specdown run writing_file_example.md
 And we'll see
 
 ```text,verify(script_name="writing_file_example", stream=stdout)
-- file example.txt created
-- script 'cat-file' succeeded
-- verify stdout from 'cat-file' succeeded
+Running tests for writing_file_example.md:
+  - file example.txt created
+  - script 'cat-file' succeeded
+  - verify stdout from 'cat-file' succeeded
 ```

@@ -49,6 +49,7 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
 
 fn execute_run(spec_file: &Path, shell_cmd: &str, running_dir: Option<&Path>) {
     let printer: Box<dyn Printer> = Box::new(BasicPrinter::new());
+    printer.print_spec_file(spec_file);
     let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
     let actions = parser::parse(&contents);
 
@@ -60,7 +61,7 @@ fn execute_run(spec_file: &Path, shell_cmd: &str, running_dir: Option<&Path>) {
     match actions {
         Ok(action_list) => run_actions(&action_list, shell_cmd, &*printer),
         Err(err) => {
-            println!("{}", err);
+            println!("  - {}", err);
             std::process::exit(1)
         }
     }

@@ -29,8 +29,9 @@ specdown run example-spec.md
 And you will get the following output:
 
 ```text,verify(script_name="run_example", stream=stdout)
-- script 'command_1' succeeded
-- verify stdout from 'command_1' succeeded
+Running tests for example-spec.md:
+  - script 'command_1' succeeded
+  - verify stdout from 'command_1' succeeded
 ```
 
 ## Setting the Running Directory
@@ -77,10 +78,11 @@ specdown run --running-dir running_dir running_dir_example.md
 ```
 
 ```text,verify(script_name="running_dir_example", stream=stdout)
-- script 'ls' succeeded
-- verify stdout from 'ls' succeeded
-- script 'cat' succeeded
-- verify stdout from 'cat' succeeded
+Running tests for running_dir_example.md:
+  - script 'ls' succeeded
+  - verify stdout from 'ls' succeeded
+  - script 'cat' succeeded
+  - verify stdout from 'cat' succeeded
 ```
 
 ## Setting the Shell
@@ -116,8 +118,9 @@ specdown run --shell-command 'sh -c' setting_the_shell_example.md
 And it will give the following output:
 
 ```text,verify(script_name="setting_the_shell_example_sh", stream=stdout)
-- script 'get_shell_name' succeeded
-- verify stdout from 'get_shell_name' failed
+Running tests for setting_the_shell_example.md:
+  - script 'get_shell_name' succeeded
+  - verify stdout from 'get_shell_name' failed
 < left / > right
 <bash
 <

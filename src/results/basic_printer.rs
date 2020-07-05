@@ -1,6 +1,7 @@
 use super::printer::Printer;
 use super::test_result::TestResult;
 use crate::runner::Error;
+use std::path::Path;
 
 pub struct BasicPrinter {
     display: Box<dyn Fn(&str)>,
@@ -15,6 +16,11 @@ impl BasicPrinter {
 }
 
 impl Printer for BasicPrinter {
+    fn print_spec_file(&self, path: &Path) {
+        let display = &self.display;
+        display(&format!("Running tests for {}:", path.display()));
+    }
+
     fn print_result(&self, result: &TestResult) {
         let display = &self.display;
         match result {
@@ -35,11 +41,11 @@ impl Printer for BasicPrinter {
                     let got = exit_code.map_or("None".to_string(), |code| code.to_string());
 
                     format!(
-                        "failed (expected exitcode {}, got {})\n+++ stdout:\n{}\n\n+++ stderr:\n{}\n\n",
+                        "failed (expected exitcode {}, got {})\n=== stdout:\n{}\n\n=== stderr:\n{}\n\n",
                         expected, got, stdout, stderr
                     )
                 };
-                display(&format!("- script '{}' {}", name, message))
+                display(&format!("  - script '{}' {}", name, message))
             }
             TestResult::Verify {
                 script_name,
@@ -49,7 +55,7 @@ impl Printer for BasicPrinter {
                 stream,
             } => {
                 display(&format!(
-                    "- verify {} from '{}' {}",
+                    "  - verify {} from '{}' {}",
                     stream,
                     script_name,
                     if *success { "succeeded" } else { "failed" }
@@ -65,7 +71,7 @@ impl Printer for BasicPrinter {
                     ));
                 }
             }
-            TestResult::File { path } => display(&format!("- file {} created", path)),
+            TestResult::File { path } => display(&format!("  - file {} created", path)),
         }
     }
 
@@ -76,16 +82,16 @@ impl Printer for BasicPrinter {
                 missing_script_name,
             } => {
                 display(&format!(
-                    "Failed to verify the output of '{}': No script with that name has been executed yet.",
+                    "  - Failed to verify the output of '{}': No script with that name has been executed yet.",
                     missing_script_name
                 ));
             }
             Error::CommandFailed { command, message } => display(&format!(
-                "Failed to run command: {}\nError: {}",
+                "  - Failed to run command: {} (Error: {})",
                 command, message
             )),
             Error::BadShellCommand { command, message } => display(&format!(
-                "Invalid shell command provided: {}\nError: {}",
+                "  - Invalid shell command provided: {} (Error: {})",
                 command, message
             )),
         }
