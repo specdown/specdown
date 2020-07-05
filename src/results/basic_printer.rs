@@ -4,25 +4,30 @@ use crate::runner::Error;
 use std::path::Path;
 
 pub struct BasicPrinter {
-    display: Box<dyn Fn(&str)>,
+    display_function: Box<dyn Fn(&str)>,
 }
 
 impl BasicPrinter {
     pub fn new() -> Self {
         Self {
-            display: Box::new(|line| println!("{}", line)),
+            display_function: Box::new(|line| println!("{}", line)),
         }
+    }
+}
+
+impl BasicPrinter {
+    fn display(&self, text: &str) {
+        let display = &self.display_function;
+        display(text)
     }
 }
 
 impl Printer for BasicPrinter {
     fn print_spec_file(&self, path: &Path) {
-        let display = &self.display;
-        display(&format!("Running tests for {}:", path.display()));
+        self.display(&format!("Running tests for {}:", path.display()));
     }
 
     fn print_result(&self, result: &TestResult) {
-        let display = &self.display;
         match result {
             TestResult::Script {
                 name,
@@ -45,7 +50,7 @@ impl Printer for BasicPrinter {
                         expected, got, stdout, stderr
                     )
                 };
-                display(&format!("  - script '{}' {}", name, message))
+                self.display(&format!("  - script '{}' {}", name, message))
             }
             TestResult::Verify {
                 script_name,
@@ -54,7 +59,7 @@ impl Printer for BasicPrinter {
                 got,
                 stream,
             } => {
-                display(&format!(
+                self.display(&format!(
                     "  - verify {} from '{}' {}",
                     stream,
                     script_name,
@@ -62,7 +67,7 @@ impl Printer for BasicPrinter {
                 ));
 
                 if !*success {
-                    display(&format!(
+                    self.display(&format!(
                         "{}",
                         colored_diff::PrettyDifference {
                             expected,
@@ -71,26 +76,25 @@ impl Printer for BasicPrinter {
                     ));
                 }
             }
-            TestResult::File { path } => display(&format!("  - file {} created", path)),
+            TestResult::File { path } => self.display(&format!("  - file {} created", path)),
         }
     }
 
     fn print_error(&self, error: &Error) {
-        let display = &self.display;
         match error {
             Error::ScriptOutputMissing {
                 missing_script_name,
             } => {
-                display(&format!(
+                self.display(&format!(
                     "  - Failed to verify the output of '{}': No script with that name has been executed yet.",
                     missing_script_name
                 ));
             }
-            Error::CommandFailed { command, message } => display(&format!(
+            Error::CommandFailed { command, message } => self.display(&format!(
                 "  - Failed to run command: {} (Error: {})",
                 command, message
             )),
-            Error::BadShellCommand { command, message } => display(&format!(
+            Error::BadShellCommand { command, message } => self.display(&format!(
                 "  - Invalid shell command provided: {} (Error: {})",
                 command, message
             )),
