@@ -87,8 +87,9 @@ specdown run example.md
 This will produce the following output:
 
 ``` text
-- script 'hello-specdown' succeeded
-- verify stdout from 'hello-specdown' succeeded
+Running tests for example.md:
+  - script 'hello-specdown' succeeded
+  - verify stdout from 'hello-specdown' succeeded
 ```
 
 ## Full Documentation

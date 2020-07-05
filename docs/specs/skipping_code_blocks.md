@@ -25,5 +25,6 @@ specdown run skip_example.md
 Then you should see the following:
 
 ``` text
+Running tests for skip_example.md:
 ```
 

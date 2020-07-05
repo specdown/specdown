@@ -42,14 +42,17 @@ specdown run verify_example.md
 The you will see the following output:
 
 ``` text
-- script 'stdout_and_stderr' succeeded
-- verify stdout from 'stdout_and_stderr' succeeded
-- verify stderr from 'stdout_and_stderr' failed
+Running tests for verify_example.md:
+  - script 'stdout_and_stderr' succeeded
+  - verify stdout from 'stdout_and_stderr' succeeded
+  - verify stderr from 'stdout_and_stderr' failed
+===
 < left / > right
 <Good stderr
 <
 >Bad stderr
 >
 
+===
 ```
 

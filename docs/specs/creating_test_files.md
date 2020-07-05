@@ -6,21 +6,39 @@ layout: page
 Specifications can create files to run tests against.
 These files exist temporarily while the tests run.
 
-You create a file using the `file` function:
+You create a file using the `file` function.
+Let's look at this by creating a `writing_file_example.md` spec:
 
-``` text
+```` markdown
+```text,file(path="example.txt")
 Example file content
 ```
 
 The file path is then set in an environment variable which is available in future scripts.
 
-``` shell
+```shell,script(name="cat-file")
 cat example.txt
 ```
 
 Will output:
 
-``` text
+```text,verify(script_name="cat-file", stream=stdout)
 Example file content
+```
+````
+
+We can now run this with:
+
+``` shell
+specdown run writing_file_example.md
+```
+
+And we'll see
+
+``` text
+Running tests for writing_file_example.md:
+  - file example.txt created
+  - script 'cat-file' succeeded
+  - verify stdout from 'cat-file' succeeded
 ```
 
