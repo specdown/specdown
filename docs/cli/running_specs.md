@@ -30,8 +30,11 @@ And you will get the following output:
 
 ```text,verify(script_name="run_example", stream=stdout)
 Running tests for example-spec.md:
+
   - script 'command_1' succeeded
   - verify stdout from 'command_1' succeeded
+
+  2 functions run (2 succeeded / 0 failed)
 ```
 
 ## Setting the Running Directory
@@ -79,10 +82,13 @@ specdown run --running-dir running_dir running_dir_example.md
 
 ```text,verify(script_name="running_dir_example", stream=stdout)
 Running tests for running_dir_example.md:
+
   - script 'ls' succeeded
   - verify stdout from 'ls' succeeded
   - script 'cat' succeeded
   - verify stdout from 'cat' succeeded
+
+  4 functions run (4 succeeded / 0 failed)
 ```
 
 ## Setting the Shell
@@ -119,6 +125,7 @@ And it will give the following output:
 
 ```text,verify(script_name="setting_the_shell_example_sh", stream=stdout)
 Running tests for setting_the_shell_example.md:
+
   - script 'get_shell_name' succeeded
   - verify stdout from 'get_shell_name' failed
 ===
@@ -129,6 +136,8 @@ Running tests for setting_the_shell_example.md:
 >
 
 ===
+
+  2 functions run (1 succeeded / 1 failed)
 ```
 
 

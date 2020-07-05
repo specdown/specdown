@@ -40,6 +40,7 @@ The you will see the following output:
 
 ```text,verify(script_name="verify_example", stream=stdout)
 Running tests for verify_example.md:
+
   - script 'stdout_and_stderr' succeeded
   - verify stdout from 'stdout_and_stderr' succeeded
   - verify stderr from 'stdout_and_stderr' failed
@@ -51,4 +52,6 @@ Running tests for verify_example.md:
 >
 
 ===
+
+  3 functions run (2 succeeded / 1 failed)
 ```

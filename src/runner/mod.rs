@@ -14,6 +14,7 @@ mod verify;
 use executor::{Executor, Shell};
 
 pub use error::Error;
+pub use state::Summary;
 
 pub fn run_actions(actions: &[Action], shell_command: &str, printer: &dyn Printer) {
     let result = run_all_actions(actions, shell_command, printer);
@@ -41,6 +42,8 @@ fn run_all_actions(
         state.add_result(&result);
         printer.print_result(&result);
     }
+
+    printer.print_summary(&state.summary());
 
     Ok(state.is_success())
 }

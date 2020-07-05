@@ -5,6 +5,14 @@ use crate::results::test_result::TestResult;
 pub struct State {
     script_results: HashMap<String, TestResult>,
     is_success: bool,
+    number_succeed: u32,
+    number_failed: u32,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Summary {
+    pub number_succeeded: u32,
+    pub number_failed: u32,
 }
 
 pub trait ScriptOutput {
@@ -17,6 +25,8 @@ impl State {
         Self {
             script_results: HashMap::new(),
             is_success: true,
+            number_succeed: 0,
+            number_failed: 0,
         }
     }
 
@@ -25,21 +35,34 @@ impl State {
             TestResult::Script { name, success, .. } => {
                 self.script_results
                     .insert(name.to_string(), (*test_result).clone());
-                if !success {
+                if *success {
+                    self.number_succeed += 1
+                } else {
                     self.is_success = *success;
+                    self.number_failed += 1;
                 }
             }
             TestResult::Verify { success, .. } => {
-                if !success {
+                if *success {
+                    self.number_succeed += 1
+                } else {
                     self.is_success = *success;
+                    self.number_failed += 1
                 }
             }
-            TestResult::File { .. } => {}
+            TestResult::File { .. } => self.number_succeed += 1,
         }
     }
 
     pub fn is_success(&self) -> bool {
         self.is_success
+    }
+
+    pub fn summary(&self) -> Summary {
+        Summary {
+            number_succeeded: self.number_succeed,
+            number_failed: self.number_failed,
+        }
     }
 }
 
@@ -66,11 +89,24 @@ impl ScriptOutput for State {
 #[cfg(test)]
 mod tests {
     use super::{ScriptOutput, State, TestResult};
+    use crate::runner::state::Summary;
 
     #[test]
     fn sets_success_when_initialized() {
         let state = State::new();
         assert_eq!(state.is_success(), true);
+    }
+
+    #[test]
+    fn sets_summary_to_zero_when_initialized() {
+        let state = State::new();
+        assert_eq!(
+            state.summary(),
+            Summary {
+                number_succeeded: 0,
+                number_failed: 0
+            }
+        );
     }
 
     #[test]
@@ -90,6 +126,28 @@ mod tests {
     }
 
     #[test]
+    fn updates_success_count_when_successful_script_result_is_added() {
+        let script_result1 = TestResult::Script {
+            name: "script1".to_string(),
+            exit_code: Some(0),
+            expected_exit_code: None,
+            script: "script1".to_string(),
+            stdout: "stderr1".to_string(),
+            stderr: "stderr1".to_string(),
+            success: true,
+        };
+        let mut state = State::new();
+        state.add_result(&script_result1);
+        assert_eq!(
+            state.summary(),
+            Summary {
+                number_succeeded: 1,
+                number_failed: 0
+            }
+        );
+    }
+
+    #[test]
     fn does_not_succeed_when_script_failed() {
         let script_result1 = TestResult::Script {
             name: "script1".to_string(),
@@ -106,6 +164,28 @@ mod tests {
     }
 
     #[test]
+    fn updates_failed_count_when_successful_script_result_is_added() {
+        let script_result1 = TestResult::Script {
+            name: "script1".to_string(),
+            exit_code: Some(0),
+            expected_exit_code: None,
+            script: "script1".to_string(),
+            stdout: "stderr1".to_string(),
+            stderr: "stderr1".to_string(),
+            success: false,
+        };
+        let mut state = State::new();
+        state.add_result(&script_result1);
+        assert_eq!(
+            state.summary(),
+            Summary {
+                number_succeeded: 0,
+                number_failed: 1
+            }
+        );
+    }
+
+    #[test]
     fn does_not_update_success_when_file_result_is_added() {
         let file_result = TestResult::File {
             path: "example.txt".to_string(),
@@ -113,6 +193,22 @@ mod tests {
         let mut state = State::new();
         state.add_result(&file_result);
         assert_eq!(state.is_success(), true);
+    }
+
+    #[test]
+    fn updates_success_count_when_file_result_is_added() {
+        let file_result = TestResult::File {
+            path: "example.txt".to_string(),
+        };
+        let mut state = State::new();
+        state.add_result(&file_result);
+        assert_eq!(
+            state.summary(),
+            Summary {
+                number_succeeded: 1,
+                number_failed: 0
+            }
+        );
     }
 
     #[test]
@@ -196,6 +292,26 @@ mod tests {
     }
 
     #[test]
+    fn updates_success_count_when_verify_was_successful() {
+        let verify_result = TestResult::Verify {
+            script_name: "script2".to_string(),
+            stream: "output".to_string(),
+            expected: "abc".to_string(),
+            got: "abc".to_string(),
+            success: true,
+        };
+        let mut state = State::new();
+        state.add_result(&verify_result);
+        assert_eq!(
+            state.summary(),
+            Summary {
+                number_succeeded: 1,
+                number_failed: 0
+            }
+        );
+    }
+
+    #[test]
     fn does_not_succeed_when_verify_was_successful_after_failure() {
         let verify_result_failure = TestResult::Verify {
             script_name: "script1".to_string(),
@@ -229,5 +345,25 @@ mod tests {
         let mut state = State::new();
         state.add_result(&verify_result);
         assert_eq!(state.is_success(), false);
+    }
+
+    #[test]
+    fn updates_fail_count_when_verify_was_not_successful() {
+        let verify_result = TestResult::Verify {
+            script_name: "script2".to_string(),
+            stream: "output".to_string(),
+            expected: "abc".to_string(),
+            got: "abc".to_string(),
+            success: false,
+        };
+        let mut state = State::new();
+        state.add_result(&verify_result);
+        assert_eq!(
+            state.summary(),
+            Summary {
+                number_succeeded: 0,
+                number_failed: 1
+            }
+        );
     }
 }

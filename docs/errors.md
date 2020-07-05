@@ -24,6 +24,7 @@ With the following error message:
 
 ```text,verify(script_name="unknown_function_example", stream=stdout)
 Running tests for unknown_function_example.md:
+
   - Unknown function: function
 ```
 
@@ -49,6 +50,7 @@ With the following error message:
 
 ```text,verify(script_name="missing_function_argument_example", stream=stdout)
 Running tests for missing_function_argument_example.md:
+
   - Function script requires argument name
 ```
 
@@ -74,6 +76,7 @@ With the following error message:
 
 ```text,verify(script_name="invalid_argument_value_example", stream=stdout)
 Running tests for invalid_argument_value_example.md:
+
   - Function script requires argument name to be a string, got integer
 ```
 
@@ -103,6 +106,7 @@ With the following error message:
 
 ```text,verify(script_name="invalid_token_option_example", stream=stdout)
 Running tests for invalid_token_option_example.md:
+
   - Argument stream for function verify must be output, stdout or stderr, got unknown
 ```
 
@@ -128,6 +132,7 @@ With the following error message:
 
 ```text,verify(script_name="verify_unknown_script_example", stream=stdout)
 Running tests for verify_unknown_script_example.md:
+
   - Failed to verify the output of 'unknown': No script with that name has been executed yet.
 ```
 
@@ -150,6 +155,7 @@ With the following error message:
 
 ```text,verify(script_name="empty_shell_command_example", stream=stdout)
 Running tests for empty_shell_command_example.md:
+
   - Invalid shell command provided:  (Error: Command is empty)
 ```
 
@@ -171,6 +177,7 @@ With the following error message:
 
 ```text,verify(script_name="invalid_shell_command_example", stream=stdout)
 Running tests for invalid_shell_command_example.md:
+
   - Invalid shell command provided: invalid " command (Error: Parse error : missing closing quote)
 ```
 
@@ -196,5 +203,6 @@ With the following error message:
 
 ```text,verify(script_name="missing_shell_example", stream=stdout)
 Running tests for missing_shell_example.md:
+
   - Failed to run command: does-not-exist [] (Error: No such file or directory (os error 2))
 ```

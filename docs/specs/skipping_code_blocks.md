@@ -23,4 +23,7 @@ Then you should see the following:
 
 ```text,verify(script_name="skip_example", stream=stdout)
 Running tests for skip_example.md:
+
+
+  0 functions run (0 succeeded / 0 failed)
 ```

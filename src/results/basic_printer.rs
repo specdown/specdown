@@ -4,7 +4,7 @@ use colored::Colorize;
 
 use super::printer::Printer;
 use super::test_result::TestResult;
-use crate::runner::Error;
+use crate::runner::{Error, Summary};
 
 pub struct BasicPrinter {
     display_function: Box<dyn Fn(&str)>,
@@ -36,7 +36,7 @@ impl BasicPrinter {
 impl Printer for BasicPrinter {
     fn print_spec_file(&self, path: &Path) {
         self.display(&format!(
-            "Running tests for {}:",
+            "Running tests for {}:\n",
             path.display().to_string().bold().blue()
         ));
     }
@@ -125,6 +125,15 @@ impl Printer for BasicPrinter {
             )),
             Error::RunFailed { message } => self.display_error(&format!("  - {}", message)),
         }
+    }
+
+    fn print_summary(&self, summary: &Summary) {
+        self.display(&format!(
+            "\n  {} functions run ({} succeeded / {} failed)",
+            summary.number_failed + summary.number_succeeded,
+            summary.number_succeeded,
+            summary.number_failed
+        ))
     }
 }
 
