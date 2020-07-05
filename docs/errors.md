@@ -27,6 +27,7 @@ With the following error message:
 
 ``` text
 Running tests for unknown_function_example.md:
+
   - Unknown function: function
 ```
 
@@ -52,6 +53,7 @@ With the following error message:
 
 ``` text
 Running tests for missing_function_argument_example.md:
+
   - Function script requires argument name
 ```
 
@@ -77,6 +79,7 @@ With the following error message:
 
 ``` text
 Running tests for invalid_argument_value_example.md:
+
   - Function script requires argument name to be a string, got integer
 ```
 
@@ -106,6 +109,7 @@ With the following error message:
 
 ``` text
 Running tests for invalid_token_option_example.md:
+
   - Argument stream for function verify must be output, stdout or stderr, got unknown
 ```
 
@@ -131,6 +135,7 @@ With the following error message:
 
 ``` text
 Running tests for verify_unknown_script_example.md:
+
   - Failed to verify the output of 'unknown': No script with that name has been executed yet.
 ```
 
@@ -152,6 +157,7 @@ With the following error message:
 
 ``` text
 Running tests for empty_shell_command_example.md:
+
   - Invalid shell command provided:  (Error: Command is empty)
 ```
 
@@ -173,6 +179,7 @@ With the following error message:
 
 ``` text
 Running tests for invalid_shell_command_example.md:
+
   - Invalid shell command provided: invalid " command (Error: Parse error : missing closing quote)
 ```
 
@@ -198,6 +205,7 @@ With the following error message:
 
 ``` text
 Running tests for missing_shell_example.md:
+
   - Failed to run command: does-not-exist [] (Error: No such file or directory (os error 2))
 ```
 

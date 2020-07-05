@@ -33,6 +33,7 @@ Then you'll see:
 
 ``` text
 Running tests for exit_example.md:
+
   - script 'command_1' succeeded
   - script 'command_2' failed (expected exitcode 0, got 1)
 === stdout:
@@ -42,5 +43,7 @@ Running tests for exit_example.md:
 
 
 
+
+  2 functions run (1 succeeded / 1 failed)
 ```
 
