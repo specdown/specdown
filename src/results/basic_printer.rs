@@ -1,7 +1,10 @@
+use std::path::Path;
+
+use colored::Colorize;
+
 use super::printer::Printer;
 use super::test_result::TestResult;
 use crate::runner::Error;
-use std::path::Path;
 
 pub struct BasicPrinter {
     display_function: Box<dyn Fn(&str)>,
@@ -10,7 +13,7 @@ pub struct BasicPrinter {
 impl BasicPrinter {
     pub fn new() -> Self {
         Self {
-            display_function: Box::new(|line| println!("{}", line)),
+            display_function: Box::new(|line: &str| println!("{}", line)),
         }
     }
 }
@@ -20,11 +23,22 @@ impl BasicPrinter {
         let display = &self.display_function;
         display(text)
     }
+
+    fn display_success(&self, text: &str) {
+        self.display(&format!("{}", text.green()))
+    }
+
+    fn display_error(&self, text: &str) {
+        self.display(&format!("{}", text.red()))
+    }
 }
 
 impl Printer for BasicPrinter {
     fn print_spec_file(&self, path: &Path) {
-        self.display(&format!("Running tests for {}:", path.display()));
+        self.display(&format!(
+            "Running tests for {}:",
+            path.display().to_string().bold().blue()
+        ));
     }
 
     fn print_result(&self, result: &TestResult) {
@@ -50,7 +64,13 @@ impl Printer for BasicPrinter {
                         expected, got, stdout, stderr
                     )
                 };
-                self.display(&format!("  - script '{}' {}", name, message))
+
+                let full_message = &format!("  - script '{}' {}", name, message);
+                if *success {
+                    self.display_success(full_message);
+                } else {
+                    self.display_error(full_message);
+                }
             }
             TestResult::Verify {
                 script_name,
@@ -59,16 +79,19 @@ impl Printer for BasicPrinter {
                 got,
                 stream,
             } => {
-                self.display(&format!(
+                let message = &format!(
                     "  - verify {} from '{}' {}",
                     stream,
                     script_name,
                     if *success { "succeeded" } else { "failed" }
-                ));
+                );
 
-                if !*success {
+                if *success {
+                    self.display_success(message);
+                } else {
+                    self.display_error(message);
                     self.display(&format!(
-                        "{}",
+                        "===\n{}\n===",
                         colored_diff::PrettyDifference {
                             expected,
                             actual: got
@@ -76,7 +99,9 @@ impl Printer for BasicPrinter {
                     ));
                 }
             }
-            TestResult::File { path } => self.display(&format!("  - file {} created", path)),
+            TestResult::File { path } => {
+                self.display_success(&format!("  - file {} created", path))
+            }
         }
     }
 
@@ -85,19 +110,20 @@ impl Printer for BasicPrinter {
             Error::ScriptOutputMissing {
                 missing_script_name,
             } => {
-                self.display(&format!(
+                self.display_error(&format!(
                     "  - Failed to verify the output of '{}': No script with that name has been executed yet.",
                     missing_script_name
                 ));
             }
-            Error::CommandFailed { command, message } => self.display(&format!(
+            Error::CommandFailed { command, message } => self.display_error(&format!(
                 "  - Failed to run command: {} (Error: {})",
                 command, message
             )),
-            Error::BadShellCommand { command, message } => self.display(&format!(
+            Error::BadShellCommand { command, message } => self.display_error(&format!(
                 "  - Invalid shell command provided: {} (Error: {})",
                 command, message
             )),
+            Error::RunFailed { message } => self.display_error(&format!("  - {}", message)),
         }
     }
 }

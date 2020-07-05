@@ -121,12 +121,14 @@ And it will give the following output:
 Running tests for setting_the_shell_example.md:
   - script 'get_shell_name' succeeded
   - verify stdout from 'get_shell_name' failed
+===
 < left / > right
 <bash
 <
 >sh
 >
 
+===
 ```
 
 

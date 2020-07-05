@@ -5,7 +5,7 @@ use std::path::Path;
 use crate::parser;
 use crate::results::basic_printer::BasicPrinter;
 use crate::results::printer::Printer;
-use crate::runner::run_actions;
+use crate::runner::{run_actions, Error};
 
 pub const NAME: &str = "run";
 
@@ -61,7 +61,9 @@ fn execute_run(spec_file: &Path, shell_cmd: &str, running_dir: Option<&Path>) {
     match actions {
         Ok(action_list) => run_actions(&action_list, shell_cmd, &*printer),
         Err(err) => {
-            println!("  - {}", err);
+            (*printer).print_error(&Error::RunFailed {
+                message: err.to_string(),
+            });
             std::process::exit(1)
         }
     }
