@@ -133,10 +133,15 @@ jobs:
           profile: minimal
           toolchain: stable
           default: true
-      - run: echo "::add-path::../target/debug"
-      - run: echo $PATH
-      - if: runner.os == 'Windows'
-        uses: Vampire/setup-wsl@v1
+      - name: Rename wsl bash
+        if: runner.os == 'Windows'
+        run: |
+          takeown /F C:\Windows\System32\bash.exe
+          icacls C:\Windows\System32\bash.exe /grant administrators:F
+          ren C:\Windows\System32\bash.exe wsl-bash.exe
+      - run: cargo build
+      - run: echo "$PWD/target/debug" >> $GITHUB_PATH
+        shell: bash
       - run: cargo test --locked
         shell: bash
 
@@ -210,7 +215,7 @@ jobs:
         with:
           command: check
       - run: sed -i.bak "s/specdown ${{ steps.get_current_version.outputs.PREVIOUS_VERSION }}/specdown ${{ steps.get_current_version.outputs.VERSION }}/" docs/cli/display_help.md tests/command_test.rs
-      - run: echo "::add-path::../target/debug"
+      - run: echo "$PWD/target/debug" >> $GITHUB_PATH
       - uses: actions-rs/cargo@v1
         with:
           args: " --locked"
