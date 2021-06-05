@@ -117,6 +117,7 @@ jobs:
         include:
           - os: macos-latest
           - os: ubuntu-latest
+          - os: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -134,10 +135,10 @@ jobs:
           default: true
       - run: echo "::add-path::../target/debug"
       - run: echo $PATH
-      - uses: actions-rs/cargo@v1
-        with:
-          args: " --locked"
-          command: test
+      - if: runner.os == 'Windows'
+        uses: Vampire/setup-wsl@v1
+      - run: cargo test --locked
+        shell: bash
 
   lints:
     runs-on: ubuntu-latest
