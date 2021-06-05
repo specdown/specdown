@@ -79,8 +79,8 @@ mod test {
                     "arg2".to_string() => ArgumentValue::Integer(2),
                 },
             );
-            assert_eq!(true, f.has_argument("arg1"));
-            assert_eq!(true, f.has_argument("arg2"));
+            assert!(f.has_argument("arg1"));
+            assert!(f.has_argument("arg2"));
         }
 
         #[test]
@@ -91,7 +91,7 @@ mod test {
                     "arg".to_string() => ArgumentValue::Integer(1),
                 },
             );
-            assert_eq!(false, f.has_argument("not-arg"))
+            assert!(!f.has_argument("not-arg"));
         }
     }
 }

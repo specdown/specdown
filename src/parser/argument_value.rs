@@ -56,7 +56,7 @@ mod test {
 
         #[test]
         fn returns_integer_when_value_is_an_integer() {
-            assert_eq!(Ok(4), ArgumentValue::Integer(4).integer())
+            assert_eq!(Ok(4), ArgumentValue::Integer(4).integer());
         }
 
         #[test]
@@ -67,7 +67,7 @@ mod test {
                     got: "string".to_string(),
                 }),
                 ArgumentValue::String("hello".to_string()).integer()
-            )
+            );
         }
 
         #[test]
@@ -78,7 +78,7 @@ mod test {
                     got: "token".to_string(),
                 }),
                 ArgumentValue::Token("hello".to_string()).integer()
-            )
+            );
         }
     }
 
@@ -90,7 +90,7 @@ mod test {
             assert_eq!(
                 Ok("value".to_string()),
                 ArgumentValue::String("value".to_string()).string()
-            )
+            );
         }
 
         #[test]
@@ -101,7 +101,7 @@ mod test {
                     got: "integer".to_string(),
                 }),
                 ArgumentValue::Integer(5).string()
-            )
+            );
         }
 
         #[test]
@@ -112,7 +112,7 @@ mod test {
                     got: "token".to_string(),
                 }),
                 ArgumentValue::Token("hello".to_string()).string()
-            )
+            );
         }
     }
 
@@ -124,7 +124,7 @@ mod test {
             assert_eq!(
                 Ok("token".to_string()),
                 ArgumentValue::Token("token".to_string()).token()
-            )
+            );
         }
 
         #[test]
@@ -135,7 +135,7 @@ mod test {
                     got: "integer".to_string(),
                 }),
                 ArgumentValue::Integer(7).token()
-            )
+            );
         }
 
         #[test]
@@ -146,7 +146,7 @@ mod test {
                     got: "string".to_string(),
                 }),
                 ArgumentValue::String("hello".to_string()).token()
-            )
+            );
         }
     }
 }

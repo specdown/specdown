@@ -21,15 +21,15 @@ impl BasicPrinter {
 impl BasicPrinter {
     fn display(&self, text: &str) {
         let display = &self.display_function;
-        display(text)
+        display(text);
     }
 
     fn display_success(&self, text: &str) {
-        self.display(&format!("{}", text.green()))
+        self.display(&format!("{}", text.green()));
     }
 
     fn display_error(&self, text: &str) {
-        self.display(&format!("{}", text.red()))
+        self.display(&format!("{}", text.red()));
     }
 }
 
@@ -100,7 +100,7 @@ impl Printer for BasicPrinter {
                 }
             }
             TestResult::File { path } => {
-                self.display_success(&format!("  - file {} created", path))
+                self.display_success(&format!("  - file {} created", path));
             }
         }
     }
@@ -133,7 +133,7 @@ impl Printer for BasicPrinter {
             summary.number_failed + summary.number_succeeded,
             summary.number_succeeded,
             summary.number_failed
-        ))
+        ));
     }
 }
 

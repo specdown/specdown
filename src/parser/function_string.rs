@@ -92,7 +92,7 @@ mod tests {
                         arguments: HashMap::new(),
                     }
                 ))
-            )
+            );
         }
 
         #[test]
@@ -106,7 +106,7 @@ mod tests {
                         arguments: HashMap::new(),
                     }
                 ))
-            )
+            );
         }
 
         #[test]
@@ -120,7 +120,7 @@ mod tests {
                         arguments: HashMap::new(),
                     }
                 ))
-            )
+            );
         }
 
         #[test]
@@ -137,7 +137,7 @@ mod tests {
                             .collect(),
                     }
                 ))
-            )
+            );
         }
 
         #[test]

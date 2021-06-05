@@ -18,13 +18,13 @@ pub fn parse(markdown: &str) -> Result<Vec<Action>> {
         .iter()
         .map(to_action)
         .collect::<Result<Vec<Option<Action>>>>()
-        .map(|actions| actions.into_iter().filter_map(|x| x).collect())
+        .map(|actions| actions.into_iter().flatten().collect())
 }
 
 fn to_action(element: &markdown::Element) -> Result<Option<Action>> {
     match element {
         markdown::Element::FencedCodeBlock { info, literal } => {
-            actions::create_action(&info, literal.clone())
+            actions::create_action(info, literal.clone())
         }
     }
 }
