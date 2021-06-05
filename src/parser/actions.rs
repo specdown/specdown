@@ -3,7 +3,7 @@ use super::error::Result;
 use crate::types::{Action, FileContent, ScriptCode, VerifyValue};
 
 pub fn create_action(info: &str, literal: String) -> Result<Option<Action>> {
-    let (_, block) = code_block_info::parse(&info)?;
+    let (_, block) = code_block_info::parse(info)?;
 
     Ok(match block {
         code_block_info::CodeBlockType::Script(script_name, expected_exit_code) => {
@@ -39,7 +39,7 @@ mod tests {
                 script_code: ScriptCode("code".to_string()),
                 expected_exit_code: None
             }))
-        )
+        );
     }
 
     #[test]
@@ -56,7 +56,7 @@ mod tests {
                 },
                 expected_value: VerifyValue("value".to_string())
             }))
-        )
+        );
     }
 
     #[test]
@@ -67,11 +67,11 @@ mod tests {
                 file_path: FilePath("file.txt".to_string()),
                 file_content: FileContent("content".to_string())
             }))
-        )
+        );
     }
 
     #[test]
     fn create_action_for_skip() {
-        assert_eq!(create_action(",skip()", "content".to_string()), Ok(None))
+        assert_eq!(create_action(",skip()", "content".to_string()), Ok(None));
     }
 }

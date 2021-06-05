@@ -36,7 +36,7 @@ impl State {
                 self.script_results
                     .insert(name.to_string(), (*test_result).clone());
                 if *success {
-                    self.number_succeed += 1
+                    self.number_succeed += 1;
                 } else {
                     self.is_success = *success;
                     self.number_failed += 1;
@@ -44,10 +44,10 @@ impl State {
             }
             TestResult::Verify { success, .. } => {
                 if *success {
-                    self.number_succeed += 1
+                    self.number_succeed += 1;
                 } else {
                     self.is_success = *success;
-                    self.number_failed += 1
+                    self.number_failed += 1;
                 }
             }
             TestResult::File { .. } => self.number_succeed += 1,
@@ -94,7 +94,7 @@ mod tests {
     #[test]
     fn sets_success_when_initialized() {
         let state = State::new();
-        assert_eq!(state.is_success(), true);
+        assert!(state.is_success());
     }
 
     #[test]
@@ -122,7 +122,7 @@ mod tests {
         };
         let mut state = State::new();
         state.add_result(&script_result1);
-        assert_eq!(state.is_success(), true);
+        assert!(state.is_success());
     }
 
     #[test]
@@ -160,7 +160,7 @@ mod tests {
         };
         let mut state = State::new();
         state.add_result(&script_result1);
-        assert_eq!(state.is_success(), false);
+        assert!(!state.is_success());
     }
 
     #[test]
@@ -192,7 +192,7 @@ mod tests {
         };
         let mut state = State::new();
         state.add_result(&file_result);
-        assert_eq!(state.is_success(), true);
+        assert!(state.is_success());
     }
 
     #[test]
@@ -288,7 +288,7 @@ mod tests {
         };
         let mut state = State::new();
         state.add_result(&verify_result);
-        assert_eq!(state.is_success(), true);
+        assert!(state.is_success());
     }
 
     #[test]
@@ -330,7 +330,7 @@ mod tests {
         let mut state = State::new();
         state.add_result(&verify_result_failure);
         state.add_result(&verify_result_success);
-        assert_eq!(state.is_success(), false);
+        assert!(!state.is_success());
     }
 
     #[test]
@@ -344,7 +344,7 @@ mod tests {
         };
         let mut state = State::new();
         state.add_result(&verify_result);
-        assert_eq!(state.is_success(), false);
+        assert!(!state.is_success());
     }
 
     #[test]

@@ -112,7 +112,7 @@ mod tests {
                     got: "hello world".to_string(),
                     success: true,
                 })
-            )
+            );
         }
 
         #[test]
@@ -137,7 +137,7 @@ mod tests {
                     got: "error message".to_string(),
                     success: true,
                 })
-            )
+            );
         }
 
         #[test]
@@ -162,7 +162,7 @@ mod tests {
                     got: "hello mars".to_string(),
                     success: false,
                 })
-            )
+            );
         }
 
         #[test]
@@ -187,7 +187,7 @@ mod tests {
                     got: "not error message".to_string(),
                     success: false,
                 })
-            )
+            );
         }
 
         #[test]
@@ -208,7 +208,7 @@ mod tests {
                 Err(Error::ScriptOutputMissing {
                     missing_script_name: "missing_script".to_string()
                 })
-            )
+            );
         }
 
         #[test]
@@ -233,7 +233,7 @@ mod tests {
                     got: "This is coloured".to_string(),
                     success: true,
                 })
-            )
+            );
         }
     }
 }

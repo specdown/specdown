@@ -27,6 +27,6 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
 
 fn execute_strip(spec_file: &Path) {
     let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
-    let stripped = parser::strip(&contents).expect("stripping to work");
-    println!("{}", stripped)
+    let stripped = parser::strip(&contents);
+    println!("{}", stripped);
 }

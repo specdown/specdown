@@ -73,7 +73,7 @@ mod tests {
         assert_eq!(
             format!("{}", Error::RootMustBeDocument),
             "RootMustBeDocument :: This error should never occur"
-        )
+        );
     }
 
     #[test]
@@ -81,7 +81,7 @@ mod tests {
         assert_eq!(
             format!("{}", Error::StringEncodingFailed("message".to_string())),
             "Failed to encode string. Got error: message"
-        )
+        );
     }
 
     #[test]
@@ -89,7 +89,7 @@ mod tests {
         assert_eq!(
             format!("{}", Error::ParserFailed("reason".to_string())),
             "The parser failed: reason"
-        )
+        );
     }
 
     #[test]
@@ -97,7 +97,7 @@ mod tests {
         assert_eq!(
             format!("{}", Error::UnknownFunction("funcy".to_string())),
             "Unknown function: funcy"
-        )
+        );
     }
 
     #[test]
@@ -111,7 +111,7 @@ mod tests {
                 }
             ),
             "Function funcy requires argument argy"
-        )
+        );
     }
 
     #[test]
@@ -127,7 +127,7 @@ mod tests {
                 }
             ),
             "Function test_func requires argument test_arg to be a token, got string"
-        )
+        );
     }
 
     #[test]
@@ -143,6 +143,6 @@ mod tests {
                 }
             ),
             "Argument arg for function func must be true or false, got maybe"
-        )
+        );
     }
 }

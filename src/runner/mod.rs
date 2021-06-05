@@ -66,6 +66,6 @@ fn run_action(
         Action::CreateFile {
             file_path,
             file_content,
-        } => file::run(file_path, file_content),
+        } => Ok(file::run(file_path, file_content)),
     }
 }

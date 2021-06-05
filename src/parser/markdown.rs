@@ -10,7 +10,7 @@ pub enum Element {
 
 pub fn parse(markdown: &str) -> Result<Vec<Element>> {
     let arena = Arena::new();
-    let root = parse_document(&arena, &markdown, &ComrakOptions::default());
+    let root = parse_document(&arena, markdown, &ComrakOptions::default());
     extract_elements(root)
 }
 
@@ -35,7 +35,7 @@ fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Result<Element>> {
 }
 
 fn to_fenced_code_block_element(block: &NodeCodeBlock) -> Result<Element> {
-    let (info, literal) = node_block_to_components(&block)?;
+    let (info, literal) = node_block_to_components(block)?;
     let element = Element::FencedCodeBlock { info, literal };
     Ok(element)
 }

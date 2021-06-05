@@ -38,13 +38,13 @@ fn to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
         "script" => script_to_code_block_type(f),
         "verify" => verify_to_code_block_type(f),
         "file" => file_to_code_block_type(f),
-        "skip" => skip_to_code_block_type(f),
+        "skip" => Ok(skip_to_code_block_type(f)),
         _ => Err(Error::UnknownFunction(f.name.clone())),
     }
 }
 
 fn script_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
-    let name = get_string_argument(&f, "name")?;
+    let name = get_string_argument(f, "name")?;
     let expected_exit_code = if f.has_argument("expected_exit_code") {
         Some(ExitCode(get_integer_argument(f, "expected_exit_code")?))
     } else {
@@ -54,17 +54,17 @@ fn script_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
 }
 
 fn file_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
-    let path = get_string_argument(&f, "path")?;
+    let path = get_string_argument(f, "path")?;
     Ok(CodeBlockType::CreateFile(FilePath(path)))
 }
 
-fn skip_to_code_block_type(_f: &function::Function) -> Result<CodeBlockType> {
-    Ok(CodeBlockType::Skip())
+fn skip_to_code_block_type(_f: &function::Function) -> CodeBlockType {
+    CodeBlockType::Skip()
 }
 
 fn verify_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
-    let name = ScriptName(get_string_argument(&f, "script_name")?);
-    let stream_name = get_token_argument(&f, "stream")?;
+    let name = ScriptName(get_string_argument(f, "script_name")?);
+    let stream_name = get_token_argument(f, "stream")?;
     let stream = to_stream(&stream_name).ok_or_else(|| Error::InvalidArgumentValue {
         function: f.name.to_string(),
         argument: "stream".to_string(),
@@ -113,7 +113,7 @@ mod tests {
                         "shell",
                         CodeBlockType::Script(ScriptName("example-script".to_string(),), None)
                     ))
-                )
+                );
             }
 
             #[test]
@@ -128,7 +128,7 @@ mod tests {
                             Some(ExitCode(2))
                         )
                     ))
-                )
+                );
             }
 
             #[test]
@@ -140,7 +140,7 @@ mod tests {
                         function: "script".to_string(),
                         argument: "name".to_string()
                     })
-                )
+                );
             }
         }
 
@@ -159,7 +159,7 @@ mod tests {
                             stream: Stream::StdOut
                         })
                     ))
-                )
+                );
             }
 
             #[test]
@@ -174,7 +174,7 @@ mod tests {
                             stream: Stream::StdErr
                         })
                     ))
-                )
+                );
             }
 
             #[test]
@@ -188,7 +188,7 @@ mod tests {
                         expected: "output, stdout or stderr".to_string(),
                         got: "unknown".to_string(),
                     })
-                )
+                );
             }
 
             #[test]
@@ -200,7 +200,7 @@ mod tests {
                         function: "verify".to_string(),
                         argument: "script_name".to_string()
                     })
-                )
+                );
             }
 
             #[test]
@@ -212,7 +212,7 @@ mod tests {
                         function: "verify".to_string(),
                         argument: "stream".to_string()
                     })
-                )
+                );
             }
         }
 
@@ -228,7 +228,7 @@ mod tests {
                         "text",
                         CodeBlockType::CreateFile(FilePath("example.txt".to_string()))
                     ))
-                )
+                );
             }
 
             #[test]
@@ -240,7 +240,7 @@ mod tests {
                         function: "file".to_string(),
                         argument: "path".to_string()
                     })
-                )
+                );
             }
         }
 
@@ -250,7 +250,7 @@ mod tests {
             #[test]
             fn succeeds_when_function_is_skip() {
                 let result = parse("text,skip()");
-                assert_eq!(result, Ok(("text", CodeBlockType::Skip())))
+                assert_eq!(result, Ok(("text", CodeBlockType::Skip())));
             }
 
             #[test]
@@ -262,7 +262,7 @@ mod tests {
                         function: "file".to_string(),
                         argument: "path".to_string()
                     })
-                )
+                );
             }
         }
     }
