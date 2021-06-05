@@ -95,6 +95,7 @@ mod tests {
 
         use super::{Executor, Shell};
 
+        #[cfg(not(windows))]
         #[test]
         fn new_with_command_with_arguments() {
             let shell = Shell::new("bash -c").expect("shell to be created");
@@ -102,6 +103,16 @@ mod tests {
                 .execute(&ScriptCode("echo $0".to_string()))
                 .expect("success");
             assert_eq!(output.stdout, "bash\n");
+        }
+
+        #[cfg(windows)]
+        #[test]
+        fn new_with_command_with_arguments() {
+            let shell = Shell::new("cmd.exe /c").expect("shell to be created");
+            let output = shell
+                .execute(&ScriptCode("echo cmd.exe".to_string()))
+                .expect("success");
+            assert_eq!(output.stdout, "cmd.exe\r\n");
         }
 
         #[test]

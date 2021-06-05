@@ -1,5 +1,5 @@
 use assert_cmd::Command;
-use indoc::indoc;
+use indoc::formatdoc;
 
 #[test]
 fn test_readme() {
@@ -123,26 +123,32 @@ fn test_doc_stripping_specs() {
 
 #[test]
 fn test_displays_error_when_required_args_are_missing() {
+    #[cfg(windows)]
+    const BINARY_NAME: &str = "specdown.exe";
+    #[cfg(not(windows))]
+    const BINARY_NAME: &str = "specdown";
+
     Command::cargo_bin("specdown")
         .unwrap()
         .assert()
         .failure()
-        .stderr(indoc!(
+        .stderr(formatdoc!(
             "
             specdown 0.43.0
             A tool to test markdown files and drive devlopment from documentation.
-            
+
             USAGE:
-                specdown [SUBCOMMAND]
-            
+                {} [SUBCOMMAND]
+
             FLAGS:
                 -h, --help       Prints help information
                 -V, --version    Prints version information
-            
+
             SUBCOMMANDS:
                 help     Prints this message or the help of the given subcommand(s)
                 run      Runs a given Markdown Specification
                 strip    Outputs a version of the markdown with all specdown functions removed
-            "
+            ",
+            BINARY_NAME
         ));
 }
