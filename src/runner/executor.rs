@@ -110,7 +110,8 @@ mod tests {
             let output = shell
                 .execute(&ScriptCode("hello".to_string()))
                 .expect("success");
-            assert_eq!(output.stdout, "hello\n");
+            let expected = "hello\n";
+            assert_eq!(output.stdout, expected);
         }
 
         #[test]
