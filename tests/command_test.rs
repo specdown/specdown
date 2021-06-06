@@ -25,6 +25,7 @@ fn test_doc_index() {
         .success();
 }
 
+#[cfg(not(windows))]
 #[test]
 fn test_doc_display_help() {
     Command::cargo_bin("specdown")
@@ -37,6 +38,20 @@ fn test_doc_display_help() {
         .success();
 }
 
+#[cfg(windows)]
+#[test]
+fn test_doc_display_help() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
+        .arg("docs/cli/display_help_windows.md")
+        .assert()
+        .success();
+}
+
+#[cfg(not(windows))]
 #[test]
 fn test_doc_running_specs() {
     Command::cargo_bin("specdown")
@@ -45,6 +60,19 @@ fn test_doc_running_specs() {
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/cli/running_specs.md")
+        .assert()
+        .success();
+}
+
+#[cfg(windows)]
+#[test]
+fn test_doc_running_specs() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
+        .arg("docs/cli/running_specs_windows.md")
         .assert()
         .success();
 }
@@ -85,6 +113,7 @@ fn test_doc_verifying_exit_codes() {
         .success();
 }
 
+#[cfg(not(windows))]
 #[test]
 fn test_doc_errors() {
     Command::cargo_bin("specdown")
@@ -93,6 +122,19 @@ fn test_doc_errors() {
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/errors.md")
+        .assert()
+        .success();
+}
+
+#[cfg(windows)]
+#[test]
+fn test_doc_errors() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
+        .arg("docs/errors_windows.md")
         .assert()
         .success();
 }
@@ -109,6 +151,7 @@ fn test_doc_skipping_code_blocks() {
         .success();
 }
 
+#[cfg(not(windows))]
 #[test]
 fn test_doc_stripping_specs() {
     Command::cargo_bin("specdown")
@@ -117,6 +160,19 @@ fn test_doc_stripping_specs() {
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/cli/stripping_specs.md")
+        .assert()
+        .success();
+}
+
+#[cfg(windows)]
+#[test]
+fn test_doc_stripping_specs() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
+        .arg("docs/cli/stripping_specs_windows.md")
         .assert()
         .success();
 }
