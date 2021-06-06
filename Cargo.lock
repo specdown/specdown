@@ -135,9 +135,9 @@ dependencies = [
 
 [[package]]
 name = "comrak"
-version = "0.7.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e17058cc536cf290563e88787d7b9e6030ce4742943017cc2ffb71f88034021c"
+checksum = "b423acba50d5016684beaf643f9991e622633a4c858be6885653071c2da2b0c6"
 dependencies = [
  "clap",
  "entities",
@@ -145,9 +145,11 @@ dependencies = [
  "pest",
  "pest_derive",
  "regex",
+ "shell-words",
  "twoway",
  "typed-arena",
  "unicode_categories",
+ "xdg",
 ]
 
 [[package]]
@@ -740,3 +742,9 @@ name = "winapi-x86_64-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
+
+[[package]]
+name = "xdg"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d089681aa106a86fade1b0128fb5daf07d5867a509ab036d99988dec80429a57"
