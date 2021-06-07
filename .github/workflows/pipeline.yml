@@ -132,7 +132,7 @@ jobs:
             -D clippy::cargo -A clippy::multiple-crate-versions
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.12
   release:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     needs:
       - versio-plan
       - cargo-test
