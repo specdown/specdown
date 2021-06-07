@@ -1,0 +1,371 @@
+name: Pipeline
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+jobs:
+  cargo-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+        name: Checkout the repository
+      - uses: actions/cache@v2.1.6
+        name: Cache cargo
+        with:
+          path: |
+            .cache
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/audit-check@v1.2.0
+        name: Audit check cargo packages
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  versio-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - uses: chaaz/versio-actions/install@v1.1
+        name: Install versio
+      - name: Check projects
+        run: versio check
+        env:
+          RUST_LOG: versio=trace
+          RUST_BACKTRACE: 1
+      - name: Print changes
+        run: versio plan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: ${{ github.actor }}
+          RUST_LOG: versio=trace
+          RUST_BACKTRACE: 1
+
+  cargo-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: actions/cache@v2.1.6
+        with:
+          path: |
+            .cache
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1.0.7
+        with:
+          profile: minimal
+          toolchain: stable
+          default: true
+      - uses: actions-rs/cargo@v1.0.3
+        with:
+          command: check
+  cargo-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+          - os: ubuntu-latest
+          - os: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          default: true
+      - name: Rename wsl bash
+        if: runner.os == 'Windows'
+        run: |
+          takeown /F C:\Windows\System32\bash.exe
+          icacls C:\Windows\System32\bash.exe /grant administrators:F
+          ren C:\Windows\System32\bash.exe wsl-bash.exe
+      - run: cargo build
+      - run: echo "$PWD/target/debug" >> $GITHUB_PATH
+        shell: bash
+      - run: cargo test --locked
+        shell: bash
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: actions/cache@v2.1.6
+        with:
+          path: |
+            .cache
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1.0.7
+        with:
+          profile: minimal
+          toolchain: stable
+          default: true
+          components: rustfmt, clippy
+      - uses: actions-rs/cargo@v1.0.3
+        with:
+          command: fmt
+          args: --all -- --check
+      - uses: actions-rs/cargo@v1.0.3
+        with:
+          command: clippy
+          args: --all-targets --all-features -- -D warnings -Dclippy::all -D clippy::pedantic
+            -D clippy::cargo -A clippy::multiple-crate-versions
+      - uses: gaurav-nelson/github-action-markdown-link-check@1.0.12
+  release:
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - versio-plan
+      - cargo-test
+      - lint
+      - cargo-audit
+      - cargo-check
+    outputs:
+      version_bump: ${{ steps.version_bump.outputs.version_bump }}
+      current_version: ${{ steps.current_version.outputs.current_version }}
+      previous_version: ${{ steps.previous_version.outputs.previous_version }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          token: ${{ secrets.COMMITTER_TOKEN }}
+          fetch-depth: 0
+      - uses: chaaz/versio-actions/install@v1.1
+        name: Install versio
+      - id: previous_version
+        run: echo ::set-output "name=previous_version::$( versio get --id 1 -v )"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: ${{ github.actor }}
+      - run: echo ::set-output "name=BUMP::$( versio release --dry-run )"
+        id: get_versio_plan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: ${{ github.actor }}
+
+      - name: Generate release
+        if: ${{ contains(steps.get_versio_plan.outputs.BUMP, ' -> ') }}
+        run: |
+          versio release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: ${{ github.actor }}
+          RUST_LOG: versio=trace
+          RUST_BACKTRACE: 1
+      - run: echo ::set-output "name=current_version::$( versio get --id 1 -v )"
+        id: current_version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: ${{ github.actor }}
+      - run: echo ::set-output "name=version_bump::true"
+        if: steps.current_version.outputs.current_version != steps.previous_version.outputs.previous_version
+        id: version_bump
+
+  build-release:
+    if: needs.release.outputs.version_bump
+    runs-on: ${{ matrix.os }}
+    needs:
+      - release
+    steps:
+      - run: ${{ matrix.install }}
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        name: Install additional dependencies
+      - uses: actions/checkout@v2.3.4
+        name: Checkout the repository
+        with:
+          ref: v${{ needs.release.outputs.current_version }}
+      - uses: actions/cache@v2.1.6
+        name: Cache cargo dependencies
+        with:
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            .cache
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+      - uses: actions-rs/toolchain@v1.0.7
+        name: Install rust toolchain
+        with:
+          default: true
+          profile: minimal
+          toolchain: stable
+      - uses: actions-rs/cargo@v1.0.3
+        name: Build release version
+        with:
+          args: --release --locked
+          command: build
+      - id: get_repository_name
+        name: Calculate repository name
+        run: echo ::set-output name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk
+          -F / '{print $2}' | sed -e "s/:refs//")
+        shell: bash
+      - name: Move binary to upload location
+        env:
+          TARGET: ${{ matrix.target }}
+          EXTENSION: ${{ matrix.suffix }}
+          REPOSITORY_NAME: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}
+        run: mv ./target/release/$REPOSITORY_NAME$EXTENSION ./$REPOSITORY_NAME-$TARGET$EXTENSION
+        shell: bash
+      - uses: actions/upload-artifact@v2
+        name: Store built binary version
+        with:
+          name: bins
+          path: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-${{ matrix.target
+            }}${{ matrix.suffix }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            suffix: ''
+            target: x86_64-apple-darwin
+            install: ''
+          - os: ubuntu-latest
+            suffix: ''
+            target: x86_64-unknown-linux-gnu
+            install: ''
+          - os: windows-latest
+            suffix: .exe
+            target: x86_64-pc-windows-msvc
+            install: ''
+
+  upload-release:
+    needs:
+      - build-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+        name: Checkout the repository
+        with:
+          lfs: true
+          fetch-depth: 0
+          ref: v${{ needs.release.outputs.current_version }}
+      - uses: actions/cache@v2.1.6
+        name: Cache cargo dependencies
+        with:
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            .cache
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+      - uses: actions/download-artifact@v2
+        name: Retrieve assets
+      - uses: actions-rs/toolchain@v1.0.7
+        name: Install rust toolchain
+        with:
+          default: true
+          profile: minimal
+          toolchain: stable
+      - id: get_repository_name
+        name: Calculate repository name
+        run: echo ::set-output name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk
+          -F / '{print $2}' | sed -e "s/:refs//")
+        shell: bash
+      - uses: dlavrenuek/conventional-changelog-action@v1.1.2
+        id: changelog
+        with:
+          from: v${{ needs.release.outputs.previous_version }}
+          to: v${{ needs.release.outputs.current_version }}
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: create_release
+        uses: ncipollo/release-action@v1.8.6
+        with:
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: ${{ steps.changelog.outputs.body }}
+          name: Release v${{ needs.release.outputs.current_version }}
+          tag: v${{ needs.release.outputs.current_version }}
+          artifacts: ./bins/*
+
+
+  publish_website:
+    needs:
+      - upload-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout specdown
+        uses: actions/checkout@v2
+        with:
+          repository: specdown/specdown
+          path: specdown
+      - name: Checkout gh-pages
+        uses: actions/checkout@v2
+        with:
+          repository: specdown/specdown
+          ref: gh-pages
+          path: gh-pages
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Configure git for gh-pages
+        shell: bash
+        run: |
+          cd gh-pages
+          git config user.name "GitHub"
+          git config user.email "noreply@github.com"
+      - name: Install the latest specdown
+        shell: bash
+        run: |
+          mkdir gh-pages/.bin
+          curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu --output gh-pages/.bin/specdown
+          chmod +x gh-pages/.bin/specdown
+          echo "$PWD/gh-pages/.bin" >> $GITHUB_PATH
+      - name: Copy docs to gh-pages
+        shell: bash
+        run: |
+          mkdir -p gh-pages/docs
+          rm -rf gh-pages/*.md gh-pages/docs/*
+
+          for doc in $(find specdown/docs -name '*.md'); do
+            output=$(echo "$doc" | sed 's!^specdown/docs/!gh-pages/docs/!')
+            dir=$(dirname "$output")
+            mkdir -p "$dir"
+            cat >"$output" <<HEADER
+          ---
+          layout: page
+          ---
+          HEADER
+            specdown strip "$doc" >>"$output"
+          done
+
+          cat >gh-pages/index.md <<HEADER
+          ---
+          layout: page
+          ---
+          HEADER
+          specdown strip specdown/README.md >>gh-pages/index.md
+
+      - name: Commit changes to gh-pages
+        shell: bash
+        run: |
+          cd gh-pages
+          git add index.md docs
+          git commit -m "Update website" || true
+      - name: Push changes to gh-pages
+        uses: ad-m/github-push-action@master
+        with:
+          directory: gh-pages
+          branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
