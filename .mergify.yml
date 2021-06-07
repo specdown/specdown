@@ -1,0 +1,28 @@
+queue_rules:
+  - name: default
+    conditions:
+      - status-success=lints
+      - status-success=version
+      - status-success=test (ubuntu-latest)
+      - status-success=test (macos-latest)
+      - status-success=test (windows-latest)
+      - status-success=security-audit
+      - status-success=check
+
+pull_request_rules:
+  - name: automatic rebase for dependencies
+    conditions:
+      - status-success=lints
+      - status-success=version
+      - status-success=test (ubuntu-latest)
+      - status-success=test (macos-latest)
+      - status-success=test (windows-latest)
+      - status-success=security-audit
+      - status-success=check
+      - base=master
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      queue:
+        method: rebase
+        rebase_fallback: merge
+        name: default
