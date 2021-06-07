@@ -176,6 +176,8 @@ jobs:
         with:
           # This part is also where you can pass other options, for example:
           prettier_options: --check **/*.{yml,yaml}
+      - name: All markdown links work
+        uses: gaurav-nelson/github-action-markdown-link-check@1.0.12
 
   merge-and-push:
     if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]' || ( github.ref == 'refs/heads/master' && !contains(github.event.head_commit.message, 'Release v') )
