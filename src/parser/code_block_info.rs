@@ -19,7 +19,7 @@ pub enum CodeBlockType {
 
 pub fn parse(input: &str) -> Result<(&str, CodeBlockType)> {
     let p = tuple((take_until(","), tag(","), function_string::parse));
-    let p = map(p, |(language, _comma, func)| (language, func));
+    let mut p = map(p, |(language, _comma, func)| (language, func));
 
     match p(input) {
         Ok((_, (language, func))) => {
