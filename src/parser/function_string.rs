@@ -5,7 +5,7 @@ use nom::{
     bytes::streaming::{tag, take_until},
     character::streaming::{alpha1, alphanumeric1, digit1, space0},
     combinator::map,
-    multi::{many0, separated_list},
+    multi::{many0, separated_list0},
     sequence::{delimited, tuple},
     IResult,
 };
@@ -23,7 +23,7 @@ pub fn parse(input: &str) -> IResult<&str, Function> {
 fn argument_list(input: &str) -> IResult<&str, HashMap<String, ArgumentValue>> {
     let p = delimited(
         tuple((tag("("), space0)),
-        separated_list(tuple((space0, tag(","), space0)), argument),
+        separated_list0(tuple((space0, tag(","), space0)), argument),
         tuple((space0, tag(")"))),
     );
 
@@ -47,7 +47,7 @@ fn argument(input: &str) -> IResult<&str, Argument> {
 }
 
 fn argument_name(input: &str) -> IResult<&str, &str> {
-    let p = tuple((alpha1, many0(alt((alphanumeric1, tag("_"))))));
+    let mut p = tuple((alpha1, many0(alt((alphanumeric1, tag("_"))))));
     let (remainder, (start, parts)) = p(input)?;
     let length = start.len() + parts.join("").len();
     Ok((remainder, &input[0..length]))
@@ -344,6 +344,7 @@ mod tests {
 
         mod string_value {
             use super::{argument_value, ArgumentValue};
+            use nom::Needed::Unknown;
 
             #[test]
             fn succeeds_when_there_is_a_remainder() {
@@ -368,7 +369,7 @@ mod tests {
             fn fails_when_there_is_no_closing_quote() {
                 assert_eq!(
                     argument_value("\"arg_value2"),
-                    Err(nom::Err::Incomplete(nom::Needed::Size(1)))
+                    Err(nom::Err::Incomplete(Unknown))
                 );
             }
         }
