@@ -147,7 +147,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.4
         with:
-          token: ${{ secrets.COMMITTER_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
       - uses: chaaz/versio-actions/install@v1.1
         name: Install versio
