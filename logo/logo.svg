@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c4e8f9e, 2021-05-24)"
+   sodipodi:docname="sometihng.svg"
+   inkscape:export-filename="/Users/billie/Documents/Code/PurpleBooth/specdown.png"
+   inkscape:export-xdpi="470"
+   inkscape:export-ydpi="470"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:snap-to-guides="false"
+     inkscape:zoom="0.36621767"
+     inkscape:cx="-588.44785"
+     inkscape:cy="593.90909"
+     inkscape:window-width="1792"
+     inkscape:window-height="1067"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect4634"
+       is_visible="true"
+       lpeversion="1"
+       satellites_param="C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7 @ C,1,0,1,0,0.03,0,7"
+       unit="px"
+       method="auto"
+       mode="F"
+       radius="3"
+       chamfer_steps="7"
+       flexible="true"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+  </defs>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#f0ebeb;fill-opacity:1;stroke:#000000;stroke-width:5.78243;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke"
+       id="rect31"
+       width="173.28101"
+       height="57.40176"
+       x="8.6713219"
+       y="9.6756172"
+       rx="0.30000046"
+       ry="0.30000046" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:50.8px;line-height:1.25;font-family:'Apple Color Emoji';-inkscape-font-specification:'Apple Color Emoji, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="13.733025"
+       y="56.918495"
+       id="text1994"><tspan
+         sodipodi:role="line"
+         id="tspan1992"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:50.8px;font-family:'JetBrains Mono';-inkscape-font-specification:'JetBrains Mono, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="13.733025"
+         y="56.918495">SPEC</tspan></text>
+    <path
+       id="rect3498"
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.1413;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 145.26434,19.326716 -0.0627,0.02979 -0.0518,0.07763 -0.0413,0.115391 -0.0313,0.143073 -0.0218,0.160677 -0.0127,0.168202 -0.004,0.165647 0,21.660128 -0.008,0.07443 -0.0247,0.0707 -0.0399,0.06342 -0.053,0.05296 -0.0634,0.03985 -0.0707,0.02474 -0.0744,0.0084 h -10.81076 l -9.5e-4,1.1e-4 -8.7e-4,3.12e-4 -7.7e-4,4.91e-4 -6.4e-4,6.43e-4 -4.8e-4,7.71e-4 -2.9e-4,8.75e-4 -9e-5,9.52e-4 0.0203,0.04338 0.0549,0.06119 0.0837,0.07608 0.10661,0.08803 0.12363,0.09707 0.13478,0.103173 0.14003,0.106354 19.21244,14.605923 0.002,0.0016 0.002,0.0018 0.003,0.0019 0.003,0.002 0.003,0.0019 0.002,0.0018 0.002,0.0016 0.0807,0.02006 0.1097,-0.0223 0.13152,-0.05635 0.1461,-0.08208 0.1535,-0.09949 0.15366,-0.108583 0.14663,-0.109355 19.21662,-14.609127 0.001,-8.09e-4 0.001,-9.05e-4 0.001,-9.63e-4 0.001,-9.85e-4 0.001,-9.69e-4 0.001,-9.18e-4 0.001,-8.28e-4 0.0139,-0.02215 -0.008,-0.02369 -0.0277,-0.02343 -0.0442,-0.02137 -0.0577,-0.0175 -0.0684,-0.01182 -0.0762,-0.0043 H 163.5254 l -0.15137,-0.01705 -0.14378,-0.05031 -0.12898,-0.08104 -0.10771,-0.107711 -0.081,-0.128979 -0.0503,-0.143779 -0.0171,-0.151369 V 19.515829 l 0,-0.0023 0,-0.0026 -1e-5,-0.0027 -3e-5,-0.0028 -5e-5,-0.0027 -8e-5,-0.0026 -1.1e-4,-0.0023 -0.0301,-0.06026 -0.0742,-0.04423 -0.10749,-0.03067 -0.12988,-0.01957 -0.1414,-0.01093 -0.14204,-0.0048 -0.13181,-0.001 -16.80006,0 -0.003,-1e-6 -0.003,2e-6 -0.004,9e-6 -0.004,2.1e-5 -0.004,3.7e-5 -0.003,6e-5 z"
+       inkscape:path-effect="#path-effect4634"
+       inkscape:original-d="m 145.27611,19.326501 c -0.13157,0 -0.23768,0.08036 -0.23768,0.180375 v 22.674856 h -11.14939 c 0,0.04616 0.023,0.09215 0.0696,0.127507 l 19.81528,15.064218 c 0.093,0.07072 0.24282,0.07072 0.33586,0 l 19.81524,-15.064218 c 0.0465,-0.03539 0.07,-0.08136 0.07,-0.127507 H 162.84515 V 19.506876 c 0,-0.100021 -0.1057,-0.180375 -0.23726,-0.180375 z" />
+  </g>
+</svg>
