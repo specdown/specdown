@@ -1,6 +1,9 @@
-# SpecDown
+<p align="center">
+    <img alt="specdown" src="./logo/logo.png">
+</p>
 
-A tool to test markdown files and drive development from documentation.
+
+<p align="center">A tool to test markdown files and drive development from documentation.</p>
 
 ## This document is an executable specification
 
