@@ -10,12 +10,10 @@ projects:
           file: Cargo.toml
           toml: package.version
       also:
-          - file: README.md
-            pattern: specdown (\d+\.\d+\.\d+)
           - file: docs/cli/display_help.md
             pattern: specdown (\d+\.\d+\.\d+)
           - file: docs/cli/display_help_windows.md
-            pattern: specdown.exe (\d+\.\d+\.\d+)
+            pattern: specdown (\d+\.\d+\.\d+)
       hooks:
           post_write: cargo fetch
 
