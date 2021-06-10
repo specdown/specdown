@@ -44,8 +44,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_USER: ${{ github.actor }}
-          RUST_LOG: versio=trace
-          RUST_BACKTRACE: 1
+      - name: version bump details
+        run: versio release --dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: ${{ github.actor }}
 
   cargo-check:
     runs-on: ubuntu-latest
