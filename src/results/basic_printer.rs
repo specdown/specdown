@@ -1,7 +1,6 @@
 use std::path::Path;
 
-use crossterm::style::Colorize;
-use crossterm::style::Styler;
+use crossterm::style::Stylize;
 
 use super::printer::Printer;
 use super::test_result::TestResult;
