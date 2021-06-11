@@ -15,7 +15,7 @@ Outputs:
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:
-        specdown [SUBCOMMAND]
+        specdown.exe [SUBCOMMAND]
     
     FLAGS:
         -h, --help       Prints help information
@@ -37,11 +37,11 @@ specdown run --help
 
 Displays:
 
-    specdown-run 
+    specdown.exe-run 
     Runs a given Markdown Specification
     
     USAGE:
-        specdown run [OPTIONS] <spec-file>
+        specdown.exe run [OPTIONS] <spec-file>
     
     FLAGS:
         -h, --help       Prints help information

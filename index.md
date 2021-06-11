@@ -1,9 +1,11 @@
 ---
 layout: page
 ---
-# SpecDown
+<p align="center">
+    <img alt="specdown" src="./logo/logo.png">
+</p>
 
-A tool to test markdown files and drive development from documentation.
+<p align="center">A tool to test markdown files and drive development from documentation.</p>
 
 ## This document is an executable specification
 
@@ -19,11 +21,11 @@ It will then validate that the output of the previous command matches the follow
 
 ## Table Of Contents
 
-  - [Motivation](#motivation)
-  - [Installation](#installation)
-  - [Project Status](#project-status)
-  - [How does it work?](#how-does-it-work)
-  - [Full Documentation](#full-documentation)
+- [Motivation](#motivation)
+- [Installation](#installation)
+- [Project Status](#project-status)
+- [How does it work?](#how-does-it-work)
+- [Full Documentation](#full-documentation)
 
 ## Motivation
 
