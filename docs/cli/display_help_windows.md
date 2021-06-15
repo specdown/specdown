@@ -11,7 +11,7 @@ specdown
 
 Outputs:
 
-    specdown 0.43.3
+    specdown 0.43.4
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:

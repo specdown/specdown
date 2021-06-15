@@ -42,16 +42,40 @@ The recommended what is to download the compiled releases, you can do this from 
 
 ### Mac OS
 
+You can download the binary and add it to your path
+
 ``` shell
 curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-apple-darwin -o /usr/local/bin/specdown
 chmod +x /usr/local/bin/specdown
 ```
 
+Alternatively you can also use [brew](https://brew.sh/)
+
+``` shell
+brew install specdown/repo/specdown
+```
+
 ### Linux
+
+You can download the binary and add it to your path
 
 ``` shell
 curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu -o /usr/local/bin/specdown
 chmod +x /usr/local/bin/specdown
+```
+
+You can also use [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) to install the application
+
+``` shell
+brew install specdown/repo/specdown
+```
+
+### Windows
+
+You can download the binary and add it to your path
+
+``` powershell
+Invoke-WebRequest -Uri "https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-pc-windows-msvc.exe" -OutFile "specdown.exe"
 ```
 
 ## Project Status
