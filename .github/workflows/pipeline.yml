@@ -68,6 +68,7 @@ jobs:
       - uses: actions-rs/cargo@v1.0.3
         with:
           command: check
+
   cargo-test:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -102,6 +103,7 @@ jobs:
         shell: bash
       - run: cargo test --locked
         shell: bash
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -131,6 +133,7 @@ jobs:
           args: --all-targets --all-features -- -D warnings -Dclippy::all -D clippy::pedantic
             -D clippy::cargo -A clippy::multiple-crate-versions
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.12
+
   release:
     if: github.ref == 'refs/heads/master'
     needs:
@@ -301,7 +304,6 @@ jobs:
           tag: v${{ needs.release.outputs.current_version }}
           artifacts: ./bins/*
 
-
   publish_website:
     needs:
       - upload-release
@@ -429,6 +431,8 @@ jobs:
         name: Open a PR on the custom tap repository
         run: |
           VERSION="$(echo $GIT_TAG | sed 's/^refs\/tags\///')"
+          git config --global user.email "noreply@specdown.io"
+          git config --global user.name "Specdown"
           git -C homebrew-repo switch -c "$REPOSITORY_NAME-$VERSION"
           cp formula.rb "homebrew-repo/Formula/$REPOSITORY_NAME.rb"
           git -C homebrew-repo add "Formula/$REPOSITORY_NAME.rb"
