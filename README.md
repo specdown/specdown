@@ -1,5 +1,5 @@
 <p align="center">
-    <img alt="specdown" src="./logo/logo.png">
+  <img alt="specdown" src="./logo/logo.png">
 </p>
 
 <p align="center">A tool to test markdown files and drive development from documentation.</p>
