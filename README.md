@@ -115,6 +115,7 @@ Running tests for example.md:
   - verify stdout from 'hello-specdown' succeeded
 
   2 functions run (2 succeeded / 0 failed)
+
 ```
 
 ## Full Documentation

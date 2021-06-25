@@ -10,9 +10,10 @@ use crate::runner::{run_actions, Error};
 pub const NAME: &str = "run";
 
 pub fn create() -> clap::App<'static, 'static> {
-    let spec_file = Arg::with_name("spec-file")
+    let spec_file = Arg::with_name("spec-files")
         .index(1)
-        .help("The spec file to run")
+        .min_values(1)
+        .help("The spec files to run")
         .required(true);
 
     let test_dir = Arg::with_name("running-dir")
@@ -36,35 +37,43 @@ pub fn create() -> clap::App<'static, 'static> {
 }
 
 pub fn execute(run_matches: &clap::ArgMatches<'_>) {
-    let spec_file = run_matches
-        .value_of("spec-file")
+    let spec_files: Vec<&Path> = run_matches
+        .values_of("spec-files")
+        .expect("spec-files should always exist")
         .map(Path::new)
-        .expect("spec-file should always exist");
+        .collect();
 
     let running_dir = run_matches.value_of("running-dir").map(Path::new);
     let shell_cmd = run_matches.value_of("shell-command").unwrap();
 
-    execute_run(spec_file, shell_cmd, running_dir);
+    execute_run(&spec_files, shell_cmd, running_dir);
 }
 
-fn execute_run(spec_file: &Path, shell_cmd: &str, running_dir: Option<&Path>) {
+fn execute_run(spec_files: &[&Path], shell_cmd: &str, running_dir: Option<&Path>) {
     let printer: Box<dyn Printer> = Box::new(BasicPrinter::new());
-    printer.print_spec_file(spec_file);
-    let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
-    let actions = parser::parse(&contents);
+    let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
 
-    if let Some(dir) = running_dir {
-        fs::create_dir_all(dir).expect("Failed to create running directory");
-        std::env::set_current_dir(dir).expect("Failed to set running directory");
-    }
+    for spec_file in spec_files {
+        printer.print_spec_file(spec_file);
+        let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
+        let actions = parser::parse(&contents);
 
-    match actions {
-        Ok(action_list) => run_actions(&action_list, shell_cmd, &*printer),
-        Err(err) => {
-            (*printer).print_error(&Error::RunFailed {
-                message: err.to_string(),
-            });
-            std::process::exit(1)
+        if let Some(dir) = running_dir {
+            fs::create_dir_all(dir).expect("Failed to create running directory");
+            std::env::set_current_dir(dir).expect("Failed to set running directory");
         }
+
+        match actions {
+            Ok(action_list) => run_actions(&action_list, shell_cmd, &*printer),
+            Err(err) => {
+                (*printer).print_error(&Error::RunFailed {
+                    message: err.to_string(),
+                });
+                std::process::exit(1)
+            }
+        }
+
+        std::env::set_current_dir(spec_dir.as_path())
+            .expect("Failed to return to the spec directory");
     }
 }

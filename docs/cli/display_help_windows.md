@@ -41,7 +41,7 @@ specdown.exe-run
 Runs a given Markdown Specification
 
 USAGE:
-    specdown.exe run [OPTIONS] <spec-file>
+    specdown.exe run [OPTIONS] <spec-files>...
 
 FLAGS:
     -h, --help       Prints help information
@@ -52,5 +52,5 @@ OPTIONS:
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
 
 ARGS:
-    <spec-file>    The spec file to run
+    <spec-files>...    The spec files to run
 ```
