@@ -129,7 +129,7 @@ impl Printer for BasicPrinter {
 
     fn print_summary(&self, summary: &Summary) {
         self.display(&format!(
-            "\n  {} functions run ({} succeeded / {} failed)",
+            "\n  {} functions run ({} succeeded / {} failed)\n",
             summary.number_failed + summary.number_succeeded,
             summary.number_succeeded,
             summary.number_failed
