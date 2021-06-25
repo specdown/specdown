@@ -78,11 +78,6 @@ You can download the binary and add it to your path
 Invoke-WebRequest -Uri "https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-pc-windows-msvc.exe" -OutFile "specdown.exe"
 ```
 
-## Project Status
-
-This project is currently **pre-1.0** release.
-It is usable but likely to change before the 1.0 release.
-
 ## How does it work?
 
 The markdown for the example at the beginning of this document looks like this.
