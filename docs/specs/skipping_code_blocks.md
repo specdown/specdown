@@ -21,7 +21,7 @@ specdown run skip_example.md
 
 Then you should see the following:
 
-```text,verify(script_name="skip_example", stream=stdout)
+```text,verify(script_name="skip_example")
 Running tests for skip_example.md:
 
 

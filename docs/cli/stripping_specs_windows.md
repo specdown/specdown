@@ -23,7 +23,7 @@ specdown strip strip_example.md
 
 And you'll get get following output:
 
-~~~markdown, verify(script_name="strip_example", stream=stdout)
+~~~markdown, verify(script_name="strip_example")
 # Strip Example
 
 ``` shell
@@ -40,7 +40,7 @@ You can display all the options available by using `--help` on the `strip` sub-c
 specdown strip --help
 ```
 
-```text,verify(script_name="run_help", stream=stdout)
+```text,verify(script_name="run_help")
 specdown.exe-strip 
 Outputs a version of the markdown with all specdown functions removed
 

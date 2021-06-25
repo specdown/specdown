@@ -1,7 +1,8 @@
 # Verifying Script Output
 
 You can verify that a script returns a specific output by using the `verify()` function.
-When verifying you have to specify a stream; this can either be `stdout` or `stderr`.
+When verifying you can specify a stream; this can either be `stdout` or `stderr`.
+If no `stream` argument is provided then `stdout` is used.
 
 ## Example
 
@@ -38,7 +39,7 @@ specdown run verify_example.md
 
 The you will see the following output:
 
-```text,verify(script_name="verify_example", stream=stdout)
+```text,verify(script_name="verify_example")
 Running tests for verify_example.md:
 
   - script 'stdout_and_stderr' succeeded

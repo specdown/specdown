@@ -36,7 +36,7 @@ specdown run --help
 
 Displays:
 
-```,verify(script_name="run-with-help", stream=stdout)
+```,verify(script_name="run-with-help")
 specdown-run 
 Runs a given Markdown Specification
 

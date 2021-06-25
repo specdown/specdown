@@ -19,7 +19,7 @@ cat example.txt
 
 Will output:
 
-```text,verify(script_name="cat-file", stream=stdout)
+```text,verify(script_name="cat-file")
 Example file content
 ```
 ~~~
@@ -32,7 +32,7 @@ specdown run writing_file_example.md
 
 And we'll see
 
-```text,verify(script_name="writing_file_example", stream=stdout)
+```text,verify(script_name="writing_file_example")
 Running tests for writing_file_example.md:
 
   - file example.txt created

@@ -18,10 +18,10 @@ pub enum CodeBlockType {
 }
 
 pub fn parse(input: &str) -> Result<(&str, CodeBlockType)> {
-    let p = tuple((take_until(","), tag(","), function_string::parse));
-    let mut p = map(p, |(language, _comma, func)| (language, func));
+    let split_on_comma = tuple((take_until(","), tag(","), function_string::parse));
+    let mut parse_codeblock_info = map(split_on_comma, |(language, _comma, func)| (language, func));
 
-    match p(input) {
+    match parse_codeblock_info(input) {
         Ok((_, (language, func))) => {
             to_code_block_type(&func).map(|code_block_type| (language, code_block_type))
         }
@@ -64,7 +64,7 @@ fn skip_to_code_block_type(_f: &function::Function) -> CodeBlockType {
 
 fn verify_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     let name = ScriptName(get_string_argument(f, "script_name")?);
-    let stream_name = get_token_argument(f, "stream")?;
+    let stream_name = get_token_argument(f, "stream").or_else(|_| Ok("stdout".to_string()))?;
     let stream = to_stream(&stream_name).ok_or_else(|| Error::InvalidArgumentValue {
         function: f.name.to_string(),
         argument: "stream".to_string(),
@@ -178,6 +178,21 @@ mod tests {
             }
 
             #[test]
+            fn succeeds_and_defaults_to_stdout_when_the_stream_is_missing() {
+                let result = parse(",verify(script_name=\"the-script\")");
+                assert_eq!(
+                    result,
+                    Ok((
+                        "",
+                        CodeBlockType::Verify(Source {
+                            name: ScriptName("the-script".to_string()),
+                            stream: Stream::StdOut
+                        })
+                    ))
+                );
+            }
+
+            #[test]
             fn fails_when_function_is_verify_and_stream_is_unknown() {
                 let result = parse(",verify(script_name=\"example-script\", stream=unknown)");
                 assert_eq!(
@@ -199,18 +214,6 @@ mod tests {
                     Err(Error::MissingArgument {
                         function: "verify".to_string(),
                         argument: "script_name".to_string()
-                    })
-                );
-            }
-
-            #[test]
-            fn fails_when_stream_is_missing() {
-                let result = parse("shell,verify(script_name=\"the-script\")");
-                assert_eq!(
-                    result,
-                    Err(Error::MissingArgument {
-                        function: "verify".to_string(),
-                        argument: "stream".to_string()
                     })
                 );
             }

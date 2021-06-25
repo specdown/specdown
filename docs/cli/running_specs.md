@@ -15,7 +15,7 @@ echo "Hello world"
 
 Outputs:
 
-```text,verify(script_name="command_1", stream=stdout)
+```text,verify(script_name="command_1")
 Hello world
 ```
 ~~~
@@ -28,7 +28,7 @@ specdown run example-spec.md
 
 And you will get the following output:
 
-```text,verify(script_name="run_example", stream=stdout)
+```text,verify(script_name="run_example")
 Running tests for example-spec.md:
 
   - script 'command_1' succeeded
@@ -41,7 +41,7 @@ Running tests for example-spec.md:
 
 You can set the directory for the commands to be executed in using the `--running-dir` argument.
 
-To demontstrate this, we can make a new directory with a file in it:
+To demonstrate this, we can make a new directory with a file in it:
 
 ```shell,script(name="running_dir_file_setup")
 mkdir running_dir
@@ -59,7 +59,7 @@ And we can create a spec called `running_dir_example.md`:
 ls
 ```
 
-```text,verify(script_name="ls", stream=stdout)
+```text,verify(script_name="ls")
 test_file.txt
 ```
 
@@ -69,7 +69,7 @@ test_file.txt
 cat test_file.txt
 ```
 
-```text,verify(script_name="cat", stream=stdout)
+```text,verify(script_name="cat")
 file in working dir
 ```
 ~~~
@@ -80,7 +80,7 @@ Now we can run specdown using the following command:
 specdown run --running-dir running_dir running_dir_example.md
 ```
 
-```text,verify(script_name="running_dir_example", stream=stdout)
+```text,verify(script_name="running_dir_example")
 Running tests for running_dir_example.md:
 
   - script 'ls' succeeded
@@ -104,7 +104,7 @@ To demonstrate this, let's take the following `setting_the_shell_example.md` spe
 echo $0
 ```
 
-```text,verify(script_name="get_shell_name", stream=stdout)
+```text,verify(script_name="get_shell_name")
 bash
 ```
 ~~~
@@ -123,7 +123,7 @@ specdown run --shell-command 'sh -c' setting_the_shell_example.md
 
 And it will give the following output:
 
-```text,verify(script_name="setting_the_shell_example_sh", stream=stdout)
+```text,verify(script_name="setting_the_shell_example_sh")
 Running tests for setting_the_shell_example.md:
 
   - script 'get_shell_name' succeeded
@@ -149,7 +149,7 @@ You can display all the options available by using `--help` on the `run` sub-com
 specdown run --help
 ```
 
-```text,verify(script_name="run_help", stream=stdout)
+```text,verify(script_name="run_help")
 specdown-run 
 Runs a given Markdown Specification
 
