@@ -1,5 +1,9 @@
 .DEFAULT_GOAL := build
 
+GH_PAGES_LOCATION?=gh-pages
+DOC_FILES = $(shell find docs -type f)
+GH_PAGES_FILES = $(patsubst %, $(GH_PAGES_LOCATION)/%, $(DOC_FILES))
+
 .PHONY=build
 build: dist/specdown
 
@@ -7,6 +11,7 @@ build: dist/specdown
 clean:
 	rm -rf target
 	rm -rf dist
+	rm -rf gh-pages
 
 .PHONY=check
 check:
@@ -30,3 +35,18 @@ dist/specdown: dist test
 	cargo build --release
 	cp target/release/specdown dist
 
+$(GH_PAGES_LOCATION): $(GH_PAGES_LOCATION)/index.md $(GH_PAGES_LOCATION)/logo/logo.png $(GH_PAGES_FILES)
+
+$(GH_PAGES_LOCATION)/index.md:
+	mkdir -p "$(GH_PAGES_LOCATION)"
+	echo "---\nlayout: page\n---\n" >"$(GH_PAGES_LOCATION)/index.md"
+	specdown strip README.md >>"$(GH_PAGES_LOCATION)/index.md"
+
+$(GH_PAGES_LOCATION)/logo/logo.png:
+	mkdir -p "$(GH_PAGES_LOCATION)/logo"
+	cp "$(subst $(GH_PAGES_LOCATION)/,,$@)" "$@"
+
+$(GH_PAGES_LOCATION)/docs/%.md:
+	mkdir -p "$(@D)"
+	echo "---\nlayout: page\n---\n" >"$@"
+	specdown strip "$(subst $(GH_PAGES_LOCATION)/,,$@)" >>"$@"

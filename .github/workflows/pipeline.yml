@@ -340,31 +340,13 @@ jobs:
         run: |
           mkdir -p gh-pages/docs
           rm -rf gh-pages/*.md gh-pages/docs/*
-
-          for doc in $(find specdown/docs -name '*.md'); do
-            output=$(echo "$doc" | sed 's!^specdown/docs/!gh-pages/docs/!')
-            dir=$(dirname "$output")
-            mkdir -p "$dir"
-            cat >"$output" <<HEADER
-          ---
-          layout: page
-          ---
-          HEADER
-            specdown strip "$doc" >>"$output"
-          done
-
-          cat >gh-pages/index.md <<HEADER
-          ---
-          layout: page
-          ---
-          HEADER
-          specdown strip specdown/README.md >>gh-pages/index.md
-
+          cd specdown
+          make ../gh-pages GH_PAGES_LOCATION=../gh-pages --always-make
       - name: Commit changes to gh-pages
         shell: bash
         run: |
           cd gh-pages
-          git add index.md docs
+          git add index.md docs logo
           git commit -m "Update website" || true
       - name: Push changes to gh-pages
         uses: ad-m/github-push-action@master
