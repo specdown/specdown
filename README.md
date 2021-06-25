@@ -25,6 +25,7 @@ Hello SpecDown
 - [Project Status](#project-status)
 - [How does it work?](#how-does-it-work)
 - [Full Documentation](#full-documentation)
+- [Projects Using Specdown](#projects-using-specdown)
 
 ## Motivation
 
@@ -119,3 +120,23 @@ Running tests for example.md:
 ## Full Documentation
 
 The documentation is written as executable specifications and can be read [here](./docs/index.md).
+
+## Projects Using Specdown
+
+_If your project is using specdown then feel free to add it to the list._
+
+- [ed-system-search](https://github.com/PurpleBooth/ed-system-search)
+  <br>
+  A tool to find interesting systems in Elite: Dangerous.
+- [ellipsis](https://github.com/PurpleBooth/ellipsis)
+  <br>
+  A dotfile manager.
+- [git-mit](https://github.com/PurpleBooth/git-mit)
+  <br>
+  A suite of git hooks. It's aimed to make pair programming, adding issue numbers to your commits, and following good commit message practices something that happens without thinking about it.
+- [specdown](https://github.com/specdown/specdown)
+  <br>
+  Specdown tests itself.
+- [whatismyip](https://github.com/PurpleBooth/whatismyip)
+  <br>
+  Work out what your external ip is.
