@@ -305,6 +305,8 @@ jobs:
           artifacts: ./bins/*
 
   publish_website:
+    needs:
+      - upload-release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout specdown
