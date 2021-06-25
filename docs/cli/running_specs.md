@@ -18,7 +18,7 @@ echo "Hello world"
 
 Outputs:
 
-```text,verify(script_name="command_1", stream=stdout)
+```text,verify(script_name="command_1")
 Hello world
 ```
 ````
@@ -44,7 +44,7 @@ Running tests for example-spec.md:
 
 You can set the directory for the commands to be executed in using the `--running-dir` argument.
 
-To demontstrate this, we can make a new directory with a file in it:
+To demonstrate this, we can make a new directory with a file in it:
 
 ``` shell
 mkdir running_dir
@@ -62,7 +62,7 @@ And we can create a spec called `running_dir_example.md`:
 ls
 ```
 
-```text,verify(script_name="ls", stream=stdout)
+```text,verify(script_name="ls")
 test_file.txt
 ```
 
@@ -72,7 +72,7 @@ test_file.txt
 cat test_file.txt
 ```
 
-```text,verify(script_name="cat", stream=stdout)
+```text,verify(script_name="cat")
 file in working dir
 ```
 ````
@@ -107,7 +107,7 @@ To demonstrate this, let's take the following `setting_the_shell_example.md` spe
 echo $0
 ```
 
-```text,verify(script_name="get_shell_name", stream=stdout)
+```text,verify(script_name="get_shell_name")
 bash
 ```
 ````

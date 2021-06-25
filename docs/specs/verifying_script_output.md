@@ -4,7 +4,8 @@ layout: page
 # Verifying Script Output
 
 You can verify that a script returns a specific output by using the `verify()` function.
-When verifying you have to specify a stream; this can either be `stdout` or `stderr`.
+When verifying you can specify a stream; this can either be `stdout` or `stderr`.
+If no `stream` argument is provided then `stdout` is used.
 
 ## Example
 

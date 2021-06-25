@@ -22,7 +22,7 @@ cat example.txt
 
 Will output:
 
-```text,verify(script_name="cat-file", stream=stdout)
+```text,verify(script_name="cat-file")
 Example file content
 ```
 ````

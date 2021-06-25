@@ -26,6 +26,7 @@ It will then validate that the output of the previous command matches the follow
 - [Project Status](#project-status)
 - [How does it work?](#how-does-it-work)
 - [Full Documentation](#full-documentation)
+- [Projects Using Specdown](#projects-using-specdown)
 
 ## Motivation
 
@@ -78,11 +79,6 @@ You can download the binary and add it to your path
 Invoke-WebRequest -Uri "https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-pc-windows-msvc.exe" -OutFile "specdown.exe"
 ```
 
-## Project Status
-
-This project is currently **pre-1.0** release.
-It is usable but likely to change before the 1.0 release.
-
 ## How does it work?
 
 The markdown for the example at the beginning of this document looks like this.
@@ -124,4 +120,24 @@ Running tests for example.md:
 ## Full Documentation
 
 The documentation is written as executable specifications and can be read [here](./docs/index.md).
+
+## Projects Using Specdown
+
+*If your project is using specdown then feel free to add it to the list.*
+
+- [ed-system-search](https://github.com/PurpleBooth/ed-system-search)
+  <br>
+  A tool to find interesting systems in Elite: Dangerous.
+- [ellipsis](https://github.com/PurpleBooth/ellipsis)
+  <br>
+  A dotfile manager.
+- [git-mit](https://github.com/PurpleBooth/git-mit)
+  <br>
+  A suite of git hooks. It's aimed to make pair programming, adding issue numbers to your commits, and following good commit message practices something that happens without thinking about it.
+- [specdown](https://github.com/specdown/specdown)
+  <br>
+  Specdown tests itself.
+- [whatismyip](https://github.com/PurpleBooth/whatismyip)
+  <br>
+  Work out what your external ip is.
 

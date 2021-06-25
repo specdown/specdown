@@ -120,7 +120,7 @@ Given `verify_unknown_script_example.md`:
 ```` markdown
 # Verify Unknown Script Example
 
-```text,verify(script_name="unknown", stream=stdout)
+```text,verify(script_name="unknown")
 This doesn't matter
 ```
 ````
