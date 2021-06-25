@@ -1,6 +1,7 @@
 ---
 layout: page
 ---
+
 # Verifying Exit Codes
 
 You can add an `expected_exit_code` option to a `script()` function if you want to assert it exists with a particular value.

@@ -1,6 +1,7 @@
 ---
 layout: page
 ---
+
 # Verifying Script Output
 
 You can verify that a script returns a specific output by using the `verify()` function.

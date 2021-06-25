@@ -1,6 +1,7 @@
 ---
 layout: page
 ---
+
 # Displaying Help
 
 You can run SpecDown with no sub-commands and it will display the help.
@@ -11,7 +12,7 @@ specdown
 
 Outputs:
 
-    specdown 0.43.7
+    specdown 0.44.0
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:

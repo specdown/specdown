@@ -1,6 +1,7 @@
 ---
 layout: page
 ---
+
 # Stripping Specs
 
 When writing specdown documents, you have to add the addition specdown functions to your markdown.
