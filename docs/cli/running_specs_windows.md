@@ -4,7 +4,7 @@ layout: page
 
 # Running Specs
 
-Markdown specs are run by executing the `specdown run <spec-file>`.
+Markdown specs are run by executing the `specdown run <spec-files>`.
 
 ## Example
 
@@ -39,6 +39,52 @@ Running tests for example-spec.md:
   - verify stdout from 'command_1' succeeded
 
   2 functions run (2 succeeded / 0 failed)
+
+```
+
+## Multiple Files
+
+Given a file `example-file1.md`
+
+```` markdown
+# This is a spec
+
+```shell,script(name="command_1")
+echo "Spec 1"
+```
+````
+
+Given a file `example-file2.md`
+
+```` markdown
+# This is another spec
+
+```shell,script(name="command_2")
+echo "Spec 2"
+```
+````
+
+You can run:
+
+``` shell
+specdown run example-file1.md example-file2.md
+```
+
+And you will get the following output:
+
+``` text
+Running tests for example-file1.md:
+
+  - script 'command_1' succeeded
+
+  1 functions run (1 succeeded / 0 failed)
+
+Running tests for example-file2.md:
+
+  - script 'command_2' succeeded
+
+  1 functions run (1 succeeded / 0 failed)
+
 ```
 
 ## Setting the Running Directory
@@ -93,6 +139,7 @@ Running tests for running_dir_example.md:
   - verify stdout from 'cat' succeeded
 
   4 functions run (4 succeeded / 0 failed)
+
 ```
 
 ## Setting the Shell
@@ -142,6 +189,7 @@ Running tests for setting_the_shell_example.md:
 ===
 
   2 functions run (1 succeeded / 1 failed)
+
 ```
 
 ## Command Help
@@ -157,7 +205,7 @@ specdown.exe-run
 Runs a given Markdown Specification
 
 USAGE:
-    specdown.exe run [OPTIONS] <spec-file>
+    specdown.exe run [OPTIONS] <spec-files>...
 
 FLAGS:
     -h, --help       Prints help information
@@ -168,6 +216,6 @@ OPTIONS:
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
 
 ARGS:
-    <spec-file>    The spec file to run
+    <spec-files>...    The spec files to run
 ```
 

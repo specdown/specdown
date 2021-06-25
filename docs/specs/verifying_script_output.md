@@ -59,5 +59,6 @@ Running tests for verify_example.md:
 ===
 
   3 functions run (2 succeeded / 1 failed)
+
 ```
 

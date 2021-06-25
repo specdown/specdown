@@ -44,5 +44,6 @@ Running tests for writing_file_example.md:
   - verify stdout from 'cat-file' succeeded
 
   3 functions run (3 succeeded / 0 failed)
+
 ```
 

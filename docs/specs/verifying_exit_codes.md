@@ -46,5 +46,6 @@ Running tests for exit_example.md:
 
 
   2 functions run (1 succeeded / 1 failed)
+
 ```
 
