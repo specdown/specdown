@@ -7,6 +7,7 @@ use crate::parser;
 use crate::results::basic_printer::BasicPrinter;
 use crate::results::printer::{PrintItem, Printer};
 use crate::runner::{run_actions, Error};
+use crate::types::Action;
 
 pub const NAME: &str = "run";
 
@@ -77,9 +78,7 @@ impl RunCommand {
 
         for spec_file in &self.spec_files {
             let (exit_code, print_items) = self.run_spec_file(&spec_file);
-            for print_item in print_items {
-                self.printer.print(&print_item);
-            }
+            self.print_items(print_items);
             if exit_code != ExitCode::Success {
                 std::process::exit(exit_code as i32)
             }
@@ -94,30 +93,42 @@ impl RunCommand {
         let actions = parser::parse(&contents);
 
         let exit_code = match actions {
-            Ok(action_list) => match run_actions(&action_list, &self.shell_cmd) {
-                Ok((is_success, summary, test_results)) => {
-                    for test_result in test_results {
-                        print_items.push(PrintItem::TestResult(test_result));
-                    }
-                    print_items.push(PrintItem::SpecFileSummary(summary));
-
-                    if is_success {
-                        ExitCode::Success
-                    } else {
-                        ExitCode::TestFailed
-                    }
-                }
-                Err(err) => {
-                    print_items.push(PrintItem::RunError(err));
-                    ExitCode::ErrorOccurred
-                }
-            },
+            Ok(action_list) => {
+                let (exit_code, mut action_print_items) = self.run_actions(&action_list);
+                print_items.append(&mut action_print_items);
+                exit_code
+            }
             Err(err) => {
                 let error = Error::RunFailed {
                     message: err.to_string(),
                 };
                 print_items.push(PrintItem::RunError(error));
                 ExitCode::TestFailed // Incorrect exit code, change would make BC break
+            }
+        };
+
+        (exit_code, print_items)
+    }
+
+    fn run_actions(&self, action_list: &[Action]) -> (ExitCode, Vec<PrintItem>) {
+        let mut print_items = Vec::new();
+
+        let exit_code = match run_actions(&action_list, &self.shell_cmd) {
+            Ok((is_success, summary, test_results)) => {
+                for test_result in test_results {
+                    print_items.push(PrintItem::TestResult(test_result));
+                }
+                print_items.push(PrintItem::SpecFileSummary(summary));
+
+                if is_success {
+                    ExitCode::Success
+                } else {
+                    ExitCode::TestFailed
+                }
+            }
+            Err(err) => {
+                print_items.push(PrintItem::RunError(err));
+                ExitCode::ErrorOccurred
             }
         };
 
@@ -136,6 +147,12 @@ impl RunCommand {
             path.to_path_buf()
         } else {
             self.spec_dir.join(path)
+        }
+    }
+
+    fn print_items(&self, items: Vec<PrintItem>) {
+        for item in items {
+            self.printer.print(&item);
         }
     }
 }
