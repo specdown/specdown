@@ -37,93 +37,125 @@ pub fn create() -> clap::App<'static, 'static> {
 }
 
 pub fn execute(run_matches: &clap::ArgMatches<'_>) {
-    let spec_files: Vec<&Path> = run_matches
+    let spec_files = run_matches
         .values_of("spec-files")
         .expect("spec-files should always exist")
         .map(Path::new)
+        .map(std::path::Path::to_path_buf)
         .collect();
-
-    let running_dir = run_matches.value_of("running-dir").map(Path::new);
+    let running_dir = run_matches
+        .value_of("running-dir")
+        .map(Path::new)
+        .map(std::path::Path::to_path_buf);
     let shell_cmd = run_matches.value_of("shell-command").unwrap();
-
-    run_spec_files(&spec_files, shell_cmd, running_dir);
-}
-
-fn run_spec_files(spec_files: &[&Path], shell_cmd: &str, running_dir: Option<&Path>) {
-    let printer: Box<dyn Printer> = Box::new(BasicPrinter::new());
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
+    let printer = Box::new(BasicPrinter::new());
 
-    change_to_running_directory(running_dir);
+    let command = RunCommand {
+        spec_files,
+        spec_dir,
+        shell_cmd: shell_cmd.to_string(),
+        running_dir,
+        printer,
+    };
 
-    for spec_file in spec_files {
-        run_spec_file(shell_cmd, &*printer, &spec_dir, spec_file)
-    }
+    command.execute();
 }
 
-fn run_spec_file(shell_cmd: &str, printer: &dyn Printer, spec_dir: &Path, spec_file: &Path) {
-    printer.print_spec_file(spec_file);
-    let contents =
-        fs::read_to_string(to_absolute(spec_file, &spec_dir)).expect("failed to read spec file");
-    let actions = parser::parse(&contents);
+struct RunCommand {
+    spec_files: Vec<PathBuf>,
+    spec_dir: PathBuf,
+    shell_cmd: String,
+    running_dir: Option<PathBuf>,
+    printer: Box<dyn Printer>,
+}
 
-    match actions {
-        Ok(action_list) => run_actions(&action_list, shell_cmd, printer),
-        Err(err) => {
-            printer.print_error(&Error::RunFailed {
-                message: err.to_string(),
-            });
-            std::process::exit(1)
+impl RunCommand {
+    pub fn execute(&self) {
+        self.change_to_running_directory();
+
+        for spec_file in &self.spec_files {
+            self.run_spec_file(&spec_file);
         }
     }
-}
 
-fn change_to_running_directory(running_dir: Option<&Path>) {
-    if let Some(dir) = running_dir {
-        fs::create_dir_all(dir).expect("Failed to create running directory");
-        std::env::set_current_dir(dir).expect("Failed to set running directory");
+    fn run_spec_file(&self, spec_file: &Path) {
+        self.printer.print_spec_file(spec_file);
+
+        let contents =
+            fs::read_to_string(self.to_absolute(spec_file)).expect("failed to read spec file");
+        let actions = parser::parse(&contents);
+
+        match actions {
+            Ok(action_list) => run_actions(&action_list, &self.shell_cmd, &*self.printer),
+            Err(err) => {
+                self.printer.print_error(&Error::RunFailed {
+                    message: err.to_string(),
+                });
+                std::process::exit(1)
+            }
+        }
     }
-}
 
-fn to_absolute(path: &Path, working_dir: &Path) -> PathBuf {
-    if path.has_root() {
-        path.to_path_buf()
-    } else {
-        working_dir.join(path)
+    fn change_to_running_directory(&self) {
+        if let Some(dir) = &self.running_dir {
+            fs::create_dir_all(dir).expect("Failed to create running directory");
+            std::env::set_current_dir(dir).expect("Failed to set running directory");
+        }
+    }
+
+    pub fn to_absolute(&self, path: &Path) -> PathBuf {
+        if path.has_root() {
+            path.to_path_buf()
+        } else {
+            self.spec_dir.join(path)
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::to_absolute;
+    use super::RunCommand;
 
     mod to_absolute {
-        use super::to_absolute;
+        use super::RunCommand;
+        use crate::results::basic_printer::BasicPrinter;
         use std::path::Path;
+
+        fn command() -> RunCommand {
+            RunCommand {
+                spec_files: vec![],
+                spec_dir: Path::new("/usr/local/specdown").to_path_buf(),
+                shell_cmd: "".to_string(),
+                running_dir: None,
+                printer: Box::new(BasicPrinter::new()),
+            }
+        }
 
         #[cfg(not(windows))]
         #[test]
         fn test_returns_the_path_when_it_is_absolute() {
             let path = Path::new("/home/user/file");
-            let working_dir = Path::new("/var");
-            assert_eq!(path, to_absolute(path, working_dir));
+            assert_eq!(path, command().to_absolute(path));
         }
 
         #[cfg(not(windows))]
         #[test]
         fn test_returns_the_working_dir_prepended_when_path_is_relative() {
             let path = Path::new("./file");
-            let working_dir = Path::new("/var");
-            assert_eq!(Path::new("/var/file"), to_absolute(path, working_dir));
+            assert_eq!(
+                Path::new("/usr/local/specdown/file"),
+                command().to_absolute(path)
+            );
         }
 
         #[cfg(not(windows))]
         #[test]
         fn test_returns_the_working_dir_prepended_when_path_contains_parent() {
             let path = Path::new("../file");
-            let working_dir = Path::new("/var/lib");
             assert_eq!(
-                Path::new("/var/lib/../file"),
-                to_absolute(path, working_dir)
+                Path::new("/usr/local/specdown/../file"),
+                command().to_absolute(path)
             );
         }
     }
