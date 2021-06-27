@@ -1,6 +1,6 @@
 mod state;
 
-use crate::results::printer::{PrintItem, Printer};
+use crate::results::printer::PrintItem;
 use crate::results::test_result::TestResult;
 use crate::runner::state::State;
 use crate::types::Action;
@@ -17,36 +17,29 @@ use crate::exit_codes::ExitCode;
 pub use error::Error;
 pub use state::Summary;
 
-pub fn run_actions(actions: &[Action], shell_command: &str, printer: &dyn Printer) {
-    let result = run_all_actions(actions, shell_command, printer);
-
-    match result {
-        Ok(true) => {}
-        Ok(false) => std::process::exit(ExitCode::TestFailed as i32),
-        Err(err) => {
-            printer.print(&PrintItem::RunError(err));
-            std::process::exit(ExitCode::ErrorOccurred as i32);
-        }
-    }
-}
-
-fn run_all_actions(
+pub fn run_actions(
     actions: &[Action],
     shell_command: &str,
-    printer: &dyn Printer,
-) -> Result<bool, Error> {
+) -> Result<(ExitCode, Vec<PrintItem>), Error> {
     let mut state = State::new();
     let executor = Shell::new(shell_command)?;
+    let mut print_items = Vec::new();
 
     for action in actions {
         let result = run_action(action, &state, &executor)?;
         state.add_result(&result);
-        printer.print(&PrintItem::TestResult(result));
+        print_items.push(PrintItem::TestResult(result));
     }
 
-    printer.print(&PrintItem::SpecFileSummary(state.summary()));
+    print_items.push(PrintItem::SpecFileSummary(state.summary()));
 
-    Ok(state.is_success())
+    let exit_code = if state.is_success() {
+        ExitCode::Success
+    } else {
+        ExitCode::TestFailed
+    };
+
+    Ok((exit_code, print_items))
 }
 
 fn run_action(

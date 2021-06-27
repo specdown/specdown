@@ -2,6 +2,7 @@ use clap::{Arg, SubCommand};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::exit_codes::ExitCode;
 use crate::parser;
 use crate::results::basic_printer::BasicPrinter;
 use crate::results::printer::{PrintItem, Printer};
@@ -75,28 +76,44 @@ impl RunCommand {
         self.change_to_running_directory();
 
         for spec_file in &self.spec_files {
-            self.run_spec_file(&spec_file);
+            let (exit_code, print_items) = self.run_spec_file(&spec_file);
+            for print_item in print_items {
+                self.printer.print(&print_item);
+            }
+            if exit_code != ExitCode::Success {
+                std::process::exit(exit_code as i32)
+            }
         }
     }
 
-    fn run_spec_file(&self, spec_file: &Path) {
-        self.printer
-            .print(&PrintItem::SpecFileName(spec_file.to_path_buf()));
+    fn run_spec_file(&self, spec_file: &Path) -> (ExitCode, Vec<PrintItem>) {
+        let mut print_items = vec![PrintItem::SpecFileName(spec_file.to_path_buf())];
 
         let contents =
             fs::read_to_string(self.to_absolute(spec_file)).expect("failed to read spec file");
         let actions = parser::parse(&contents);
 
-        match actions {
-            Ok(action_list) => run_actions(&action_list, &self.shell_cmd, &*self.printer),
+        let exit_code = match actions {
+            Ok(action_list) => match run_actions(&action_list, &self.shell_cmd) {
+                Ok((exit_code, mut result_items)) => {
+                    print_items.append(&mut result_items);
+                    exit_code
+                }
+                Err(err) => {
+                    print_items.push(PrintItem::RunError(err));
+                    ExitCode::ErrorOccurred
+                }
+            },
             Err(err) => {
                 let error = Error::RunFailed {
                     message: err.to_string(),
                 };
-                self.printer.print(&PrintItem::RunError(error));
-                std::process::exit(1)
+                print_items.push(PrintItem::RunError(error));
+                ExitCode::TestFailed // Incorrect exit code, change would make BC break
             }
-        }
+        };
+
+        (exit_code, print_items)
     }
 
     fn change_to_running_directory(&self) {
