@@ -46,33 +46,41 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
     let running_dir = run_matches.value_of("running-dir").map(Path::new);
     let shell_cmd = run_matches.value_of("shell-command").unwrap();
 
-    execute_run(&spec_files, shell_cmd, running_dir);
+    run_spec_files(&spec_files, shell_cmd, running_dir);
 }
 
-fn execute_run(spec_files: &[&Path], shell_cmd: &str, running_dir: Option<&Path>) {
+fn run_spec_files(spec_files: &[&Path], shell_cmd: &str, running_dir: Option<&Path>) {
     let printer: Box<dyn Printer> = Box::new(BasicPrinter::new());
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
 
+    change_to_running_directory(running_dir);
+
+    for spec_file in spec_files {
+        run_spec_file(shell_cmd, &*printer, &spec_dir, spec_file)
+    }
+}
+
+fn run_spec_file(shell_cmd: &str, printer: &dyn Printer, spec_dir: &Path, spec_file: &Path) {
+    printer.print_spec_file(spec_file);
+    let contents =
+        fs::read_to_string(to_absolute(spec_file, &spec_dir)).expect("failed to read spec file");
+    let actions = parser::parse(&contents);
+
+    match actions {
+        Ok(action_list) => run_actions(&action_list, shell_cmd, printer),
+        Err(err) => {
+            printer.print_error(&Error::RunFailed {
+                message: err.to_string(),
+            });
+            std::process::exit(1)
+        }
+    }
+}
+
+fn change_to_running_directory(running_dir: Option<&Path>) {
     if let Some(dir) = running_dir {
         fs::create_dir_all(dir).expect("Failed to create running directory");
         std::env::set_current_dir(dir).expect("Failed to set running directory");
-    }
-
-    for spec_file in spec_files {
-        printer.print_spec_file(spec_file);
-        let contents = fs::read_to_string(to_absolute(spec_file, &spec_dir))
-            .expect("failed to read spec file");
-        let actions = parser::parse(&contents);
-
-        match actions {
-            Ok(action_list) => run_actions(&action_list, shell_cmd, &*printer),
-            Err(err) => {
-                (*printer).print_error(&Error::RunFailed {
-                    message: err.to_string(),
-                });
-                std::process::exit(1)
-            }
-        }
     }
 }
 
