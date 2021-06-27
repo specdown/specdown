@@ -13,6 +13,7 @@ mod verify;
 
 use executor::{Executor, Shell};
 
+use crate::exit_codes::ExitCode;
 pub use error::Error;
 pub use state::Summary;
 
@@ -21,10 +22,10 @@ pub fn run_actions(actions: &[Action], shell_command: &str, printer: &dyn Printe
 
     match result {
         Ok(true) => {}
-        Ok(false) => std::process::exit(1),
+        Ok(false) => std::process::exit(ExitCode::TestFailed as i32),
         Err(err) => {
             printer.print(&PrintItem::RunError(err));
-            std::process::exit(2);
+            std::process::exit(ExitCode::ErrorOccurred as i32);
         }
     }
 }
