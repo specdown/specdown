@@ -1,11 +1,15 @@
-use std::path::Path;
+use std::path::PathBuf;
 
 use super::test_result::TestResult;
 use crate::runner::{Error, Summary};
 
+pub enum PrintItem {
+    SpecFileName(PathBuf),
+    TestResult(TestResult),
+    SpecFileSummary(Summary),
+    RunError(Error),
+}
+
 pub trait Printer {
-    fn print_spec_file(&self, path: &Path);
-    fn print_result(&self, result: &TestResult);
-    fn print_error(&self, error: &Error);
-    fn print_summary(&self, summary: &Summary);
+    fn print(&self, item: &PrintItem);
 }

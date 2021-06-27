@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 use crate::parser;
 use crate::results::basic_printer::BasicPrinter;
-use crate::results::printer::Printer;
+use crate::results::printer::{PrintItem, Printer};
 use crate::runner::{run_actions, Error};
 
 pub const NAME: &str = "run";
@@ -80,7 +80,8 @@ impl RunCommand {
     }
 
     fn run_spec_file(&self, spec_file: &Path) {
-        self.printer.print_spec_file(spec_file);
+        self.printer
+            .print(&PrintItem::SpecFileName(spec_file.to_path_buf()));
 
         let contents =
             fs::read_to_string(self.to_absolute(spec_file)).expect("failed to read spec file");
@@ -89,9 +90,10 @@ impl RunCommand {
         match actions {
             Ok(action_list) => run_actions(&action_list, &self.shell_cmd, &*self.printer),
             Err(err) => {
-                self.printer.print_error(&Error::RunFailed {
+                let error = Error::RunFailed {
                     message: err.to_string(),
-                });
+                };
+                self.printer.print(&PrintItem::RunError(error));
                 std::process::exit(1)
             }
         }

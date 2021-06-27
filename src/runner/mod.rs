@@ -1,6 +1,6 @@
 mod state;
 
-use crate::results::printer::Printer;
+use crate::results::printer::{PrintItem, Printer};
 use crate::results::test_result::TestResult;
 use crate::runner::state::State;
 use crate::types::Action;
@@ -23,7 +23,7 @@ pub fn run_actions(actions: &[Action], shell_command: &str, printer: &dyn Printe
         Ok(true) => {}
         Ok(false) => std::process::exit(1),
         Err(err) => {
-            printer.print_error(&err);
+            printer.print(&PrintItem::RunError(err));
             std::process::exit(2);
         }
     }
@@ -40,10 +40,10 @@ fn run_all_actions(
     for action in actions {
         let result = run_action(action, &state, &executor)?;
         state.add_result(&result);
-        printer.print_result(&result);
+        printer.print(&PrintItem::TestResult(result));
     }
 
-    printer.print_summary(&state.summary());
+    printer.print(&PrintItem::SpecFileSummary(state.summary()));
 
     Ok(state.is_success())
 }

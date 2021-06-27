@@ -4,6 +4,7 @@ use crossterm::style::Stylize;
 
 use super::printer::Printer;
 use super::test_result::TestResult;
+use crate::results::printer::PrintItem;
 use crate::runner::{Error, Summary};
 
 pub struct BasicPrinter {
@@ -18,22 +19,18 @@ impl BasicPrinter {
     }
 }
 
-impl BasicPrinter {
-    fn display(&self, text: &str) {
-        let display = &self.display_function;
-        display(text);
-    }
-
-    fn display_success(&self, text: &str) {
-        self.display(&format!("{}", text.green()));
-    }
-
-    fn display_error(&self, text: &str) {
-        self.display(&format!("{}", text.red()));
+impl Printer for BasicPrinter {
+    fn print(&self, item: &PrintItem) {
+        match item {
+            PrintItem::SpecFileName(path) => self.print_spec_file(path),
+            PrintItem::TestResult(result) => self.print_result(result),
+            PrintItem::SpecFileSummary(summary) => self.print_summary(summary),
+            PrintItem::RunError(error) => self.print_error(error),
+        }
     }
 }
 
-impl Printer for BasicPrinter {
+impl BasicPrinter {
     fn print_spec_file(&self, path: &Path) {
         self.display(&format!(
             "Running tests for {}:\n",
@@ -134,6 +131,19 @@ impl Printer for BasicPrinter {
             summary.number_succeeded,
             summary.number_failed
         ));
+    }
+
+    fn display(&self, text: &str) {
+        let display = &self.display_function;
+        display(text);
+    }
+
+    fn display_success(&self, text: &str) {
+        self.display(&format!("{}", text.green()));
+    }
+
+    fn display_error(&self, text: &str) {
+        self.display(&format!("{}", text.red()));
     }
 }
 
