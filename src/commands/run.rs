@@ -95,9 +95,17 @@ impl RunCommand {
 
         let exit_code = match actions {
             Ok(action_list) => match run_actions(&action_list, &self.shell_cmd) {
-                Ok((exit_code, mut result_items)) => {
-                    print_items.append(&mut result_items);
-                    exit_code
+                Ok((is_success, summary, test_results)) => {
+                    for test_result in test_results {
+                        print_items.push(PrintItem::TestResult(test_result));
+                    }
+                    print_items.push(PrintItem::SpecFileSummary(summary));
+
+                    if is_success {
+                        ExitCode::Success
+                    } else {
+                        ExitCode::TestFailed
+                    }
                 }
                 Err(err) => {
                     print_items.push(PrintItem::RunError(err));

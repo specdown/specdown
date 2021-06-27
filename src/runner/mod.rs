@@ -1,6 +1,5 @@
 mod state;
 
-use crate::results::printer::PrintItem;
 use crate::results::test_result::TestResult;
 use crate::runner::state::State;
 use crate::types::Action;
@@ -13,33 +12,24 @@ mod verify;
 
 use executor::{Executor, Shell};
 
-use crate::exit_codes::ExitCode;
 pub use error::Error;
 pub use state::Summary;
 
 pub fn run_actions(
     actions: &[Action],
     shell_command: &str,
-) -> Result<(ExitCode, Vec<PrintItem>), Error> {
+) -> Result<(bool, Summary, Vec<TestResult>), Error> {
     let mut state = State::new();
     let executor = Shell::new(shell_command)?;
-    let mut print_items = Vec::new();
+    let mut test_results = Vec::new();
 
     for action in actions {
         let result = run_action(action, &state, &executor)?;
         state.add_result(&result);
-        print_items.push(PrintItem::TestResult(result));
+        test_results.push(result);
     }
 
-    print_items.push(PrintItem::SpecFileSummary(state.summary()));
-
-    let exit_code = if state.is_success() {
-        ExitCode::Success
-    } else {
-        ExitCode::TestFailed
-    };
-
-    Ok((exit_code, print_items))
+    Ok((state.is_success(), state.summary(), test_results))
 }
 
 fn run_action(
