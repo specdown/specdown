@@ -1,4 +1,3 @@
-use crate::runner::Summary;
 use std::path::PathBuf;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -29,6 +28,5 @@ pub struct SpecResult {
     // TODO: Fix access and move
     pub(crate) file_name: PathBuf,
     pub(crate) results: Vec<TestResult>,
-    pub(crate) summary: Summary,
     pub(crate) success: bool,
 }

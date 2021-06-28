@@ -1,6 +1,6 @@
 mod state;
 
-use crate::results::test_result::{SpecResult, TestResult};
+use crate::results::test_result::TestResult;
 use crate::runner::state::State;
 use crate::types::Action;
 
@@ -13,30 +13,34 @@ mod verify;
 use executor::{Executor, Shell};
 
 pub use error::Error;
-pub use state::Summary;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+pub enum RunEvent {
+    SpecFileStarted(PathBuf),
+    TestCompleted(TestResult),
+    SpecFileCompleted { success: bool },
+}
 
 pub fn run_actions(
     spec_file: &Path,
     actions: &[Action],
     shell_command: &str,
-) -> Result<SpecResult, Error> {
+) -> Result<Vec<RunEvent>, Error> {
+    let mut events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
     let mut state = State::new();
     let executor = Shell::new(shell_command)?;
-    let mut test_results = Vec::new();
 
     for action in actions {
         let result = run_action(action, &state, &executor)?;
         state.add_result(&result);
-        test_results.push(result);
+        events.push(RunEvent::TestCompleted(result))
     }
 
-    Ok(SpecResult {
-        file_name: spec_file.to_path_buf(),
-        results: test_results,
-        summary: state.summary(),
+    events.push(RunEvent::SpecFileCompleted {
         success: state.is_success(),
-    })
+    });
+
+    Ok(events)
 }
 
 fn run_action(

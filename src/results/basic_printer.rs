@@ -5,40 +5,54 @@ use crossterm::style::Stylize;
 use super::printer::Printer;
 use super::test_result::TestResult;
 use crate::results::printer::PrintItem;
-use crate::runner::{Error, Summary};
+use crate::runner::Error;
+
+struct Summary {
+    pub number_succeeded: u32,
+    pub number_failed: u32,
+}
 
 pub struct BasicPrinter {
     display_function: Box<dyn Fn(&str)>,
+    summary: Summary,
 }
 
 impl BasicPrinter {
     pub fn new() -> Self {
         Self {
             display_function: Box::new(|line: &str| println!("{}", line)),
+            summary: Summary {
+                number_succeeded: 0,
+                number_failed: 0,
+            },
         }
     }
 }
 
 impl Printer for BasicPrinter {
-    fn print(&self, item: &PrintItem) {
+    fn print(&mut self, item: &PrintItem) {
         match item {
             PrintItem::SpecFileName(path) => self.print_spec_file(path),
             PrintItem::TestResult(result) => self.print_result(result),
-            PrintItem::SpecFileSummary(summary) => self.print_summary(summary),
+            PrintItem::SpecFileSummary() => self.print_summary(),
             PrintItem::RunError(error) => self.print_error(error),
         }
     }
 }
 
 impl BasicPrinter {
-    fn print_spec_file(&self, path: &Path) {
+    fn print_spec_file(&mut self, path: &Path) {
+        self.summary = Summary {
+            number_succeeded: 0,
+            number_failed: 0,
+        };
         self.display(&format!(
             "Running tests for {}:\n",
             path.display().to_string().bold().blue()
         ));
     }
 
-    fn print_result(&self, result: &TestResult) {
+    fn print_result(&mut self, result: &TestResult) {
         match result {
             TestResult::Script {
                 name,
@@ -62,6 +76,12 @@ impl BasicPrinter {
                     )
                 };
 
+                if *success {
+                    self.summary.number_succeeded += 1;
+                } else {
+                    self.summary.number_failed += 1;
+                }
+
                 let full_message = &format!("  - script '{}' {}", name, message);
                 if *success {
                     self.display_success(full_message);
@@ -84,6 +104,12 @@ impl BasicPrinter {
                 );
 
                 if *success {
+                    self.summary.number_succeeded += 1;
+                } else {
+                    self.summary.number_failed += 1;
+                }
+
+                if *success {
                     self.display_success(message);
                 } else {
                     self.display_error(message);
@@ -97,6 +123,7 @@ impl BasicPrinter {
                 }
             }
             TestResult::File { path } => {
+                self.summary.number_succeeded += 1;
                 self.display_success(&format!("  - file {} created", path));
             }
         }
@@ -124,12 +151,12 @@ impl BasicPrinter {
         }
     }
 
-    fn print_summary(&self, summary: &Summary) {
+    fn print_summary(&self) {
         self.display(&format!(
             "\n  {} functions run ({} succeeded / {} failed)\n",
-            summary.number_failed + summary.number_succeeded,
-            summary.number_succeeded,
-            summary.number_failed
+            self.summary.number_failed + self.summary.number_succeeded,
+            self.summary.number_succeeded,
+            self.summary.number_failed
         ));
     }
 
