@@ -2,8 +2,8 @@ use std::path::Path;
 
 use crossterm::style::Stylize;
 
+use super::action_result::ActionResult;
 use super::printer::Printer;
-use super::test_result::TestResult;
 use crate::runner::{Error, RunEvent};
 
 struct Summary {
@@ -51,9 +51,9 @@ impl BasicPrinter {
         ));
     }
 
-    fn print_result(&mut self, result: &TestResult) {
+    fn print_result(&mut self, result: &ActionResult) {
         match result {
-            TestResult::Script {
+            ActionResult::Script {
                 name,
                 success,
                 expected_exit_code,
@@ -89,7 +89,7 @@ impl BasicPrinter {
                     ))
                 }
             }
-            TestResult::Verify {
+            ActionResult::Verify {
                 script_name,
                 success,
                 expected,
@@ -122,7 +122,7 @@ impl BasicPrinter {
                     ));
                 }
             }
-            TestResult::File { path } => {
+            ActionResult::File { path } => {
                 self.summary.number_succeeded += 1;
                 self.display_success(&format!("  - file {} created", path));
             }

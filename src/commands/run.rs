@@ -94,6 +94,7 @@ impl RunCommand {
         (all_events, ExitCode::Success)
     }
 
+    // TODO: Don't return the exit code
     fn run_spec_file(&self, spec_file: &Path) -> (ExitCode, Vec<RunEvent>) {
         let contents = self.read_file(spec_file);
         let events = parser::parse(&contents)

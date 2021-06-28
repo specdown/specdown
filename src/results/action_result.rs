@@ -1,5 +1,5 @@
 #[derive(Clone, Debug, PartialEq)]
-pub enum TestResult {
+pub enum ActionResult {
     Script {
         name: String,
         exit_code: Option<i32>,

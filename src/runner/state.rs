@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use crate::results::test_result::TestResult;
+use crate::results::action_result::ActionResult;
 
 pub struct State {
-    script_results: HashMap<String, TestResult>,
+    script_results: HashMap<String, ActionResult>,
     is_success: bool,
 }
 
@@ -20,21 +20,21 @@ impl State {
         }
     }
 
-    pub fn add_result(&mut self, test_result: &TestResult) {
-        match test_result {
-            TestResult::Script { name, success, .. } => {
+    pub fn add_result(&mut self, action_result: &ActionResult) {
+        match action_result {
+            ActionResult::Script { name, success, .. } => {
                 self.script_results
-                    .insert(name.to_string(), (*test_result).clone());
+                    .insert(name.to_string(), (*action_result).clone());
                 if !(*success) {
                     self.is_success = *success;
                 }
             }
-            TestResult::Verify { success, .. } => {
+            ActionResult::Verify { success, .. } => {
                 if !(*success) {
                     self.is_success = *success;
                 }
             }
-            TestResult::File { .. } => {}
+            ActionResult::File { .. } => {}
         }
     }
 
@@ -48,7 +48,7 @@ impl ScriptOutput for State {
         self.script_results
             .get(name)
             .and_then(|result| match result {
-                TestResult::Script { stdout, .. } => Some(&stdout[..]),
+                ActionResult::Script { stdout, .. } => Some(&stdout[..]),
                 _ => panic!("Only TestResult::Script results should be stored in the state"),
             })
     }
@@ -57,7 +57,7 @@ impl ScriptOutput for State {
         self.script_results
             .get(name)
             .and_then(|result| match result {
-                TestResult::Script { stderr, .. } => Some(&stderr[..]),
+                ActionResult::Script { stderr, .. } => Some(&stderr[..]),
                 _ => panic!("Only TestResult::Script results should be stored in the state"),
             })
     }
@@ -65,7 +65,7 @@ impl ScriptOutput for State {
 
 #[cfg(test)]
 mod tests {
-    use super::{ScriptOutput, State, TestResult};
+    use super::{ActionResult, ScriptOutput, State};
 
     #[test]
     fn sets_success_when_initialized() {
@@ -75,7 +75,7 @@ mod tests {
 
     #[test]
     fn does_not_update_success_when_successful_script_result_is_added() {
-        let script_result1 = TestResult::Script {
+        let script_result1 = ActionResult::Script {
             name: "script1".to_string(),
             exit_code: Some(0),
             expected_exit_code: None,
@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn does_not_succeed_when_script_failed() {
-        let script_result1 = TestResult::Script {
+        let script_result1 = ActionResult::Script {
             name: "script1".to_string(),
             exit_code: Some(0),
             expected_exit_code: Some(1),
@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn does_not_update_success_when_file_result_is_added() {
-        let file_result = TestResult::File {
+        let file_result = ActionResult::File {
             path: "example.txt".to_string(),
         };
         let mut state = State::new();
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn get_script_stdout_returns_the_output_when_script_output_exists() {
-        let script_result1 = TestResult::Script {
+        let script_result1 = ActionResult::Script {
             name: "script1".to_string(),
             exit_code: Some(0),
             expected_exit_code: None,
@@ -126,7 +126,7 @@ mod tests {
             stderr: "stderr1".to_string(),
             success: true,
         };
-        let script_result2 = TestResult::Script {
+        let script_result2 = ActionResult::Script {
             name: "script2".to_string(),
             exit_code: Some(0),
             expected_exit_code: None,
@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn get_script_stderr_returns_the_output_when_script_output_exists() {
-        let script_result1 = TestResult::Script {
+        let script_result1 = ActionResult::Script {
             name: "script1".to_string(),
             exit_code: Some(0),
             expected_exit_code: None,
@@ -159,7 +159,7 @@ mod tests {
             stderr: "stderr1".to_string(),
             success: true,
         };
-        let script_result2 = TestResult::Script {
+        let script_result2 = ActionResult::Script {
             name: "script2".to_string(),
             exit_code: Some(0),
             expected_exit_code: None,
@@ -183,7 +183,7 @@ mod tests {
 
     #[test]
     fn does_not_fail_when_verify_was_successful() {
-        let verify_result = TestResult::Verify {
+        let verify_result = ActionResult::Verify {
             script_name: "script2".to_string(),
             stream: "output".to_string(),
             expected: "abc".to_string(),
@@ -197,14 +197,14 @@ mod tests {
 
     #[test]
     fn does_not_succeed_when_verify_was_successful_after_failure() {
-        let verify_result_failure = TestResult::Verify {
+        let verify_result_failure = ActionResult::Verify {
             script_name: "script1".to_string(),
             stream: "output".to_string(),
             expected: "abc".to_string(),
             got: "abc".to_string(),
             success: false,
         };
-        let verify_result_success = TestResult::Verify {
+        let verify_result_success = ActionResult::Verify {
             script_name: "script2".to_string(),
             stream: "output".to_string(),
             expected: "abc".to_string(),
@@ -219,7 +219,7 @@ mod tests {
 
     #[test]
     fn it_fails_when_verify_was_not_successful() {
-        let verify_result = TestResult::Verify {
+        let verify_result = ActionResult::Verify {
             script_name: "script2".to_string(),
             stream: "output".to_string(),
             expected: "abc".to_string(),

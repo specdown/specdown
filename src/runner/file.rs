@@ -1,24 +1,24 @@
 use std::fs::File;
 use std::io::Write;
 
-use crate::results::test_result::TestResult;
+use crate::results::action_result::ActionResult;
 use crate::types::{FileContent, FilePath};
 
-pub fn run(path: &FilePath, content: &FileContent) -> TestResult {
+pub fn run(path: &FilePath, content: &FileContent) -> ActionResult {
     let FilePath(path_string) = path;
     let FileContent(content_string) = content;
 
     // TODO: Nice error handling
     let mut file = File::create(path_string).expect("Failed to create file");
     write!(file, "{}", content_string).expect("Failed to write to file");
-    TestResult::File {
+    ActionResult::File {
         path: path_string.clone(),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{run, FileContent, FilePath, TestResult};
+    use super::{run, ActionResult, FileContent, FilePath};
     use std::fs;
 
     #[test]
@@ -55,7 +55,7 @@ mod tests {
         );
         assert_eq!(
             result,
-            TestResult::File {
+            ActionResult::File {
                 path: ".tests/test_file2.txt".to_string()
             }
         );

@@ -1,6 +1,6 @@
 mod state;
 
-use crate::results::test_result::TestResult;
+use crate::results::action_result::ActionResult;
 use crate::runner::state::State;
 use crate::types::Action;
 
@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 #[derive(Clone)]
 pub enum RunEvent {
     SpecFileStarted(PathBuf),
-    TestCompleted(TestResult),
+    TestCompleted(ActionResult),
     SpecFileCompleted { success: bool },
     ErrorOccurred(Error),
 }

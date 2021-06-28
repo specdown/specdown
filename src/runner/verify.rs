@@ -1,4 +1,4 @@
-use crate::results::test_result::TestResult;
+use crate::results::action_result::ActionResult;
 use crate::runner::state::ScriptOutput;
 use crate::types::{ScriptName, Source, Stream, VerifyValue};
 
@@ -8,7 +8,7 @@ pub fn run(
     source: &Source,
     value: &VerifyValue,
     script_output: &dyn ScriptOutput,
-) -> Result<TestResult, Error> {
+) -> Result<ActionResult, Error> {
     let Source {
         name: ScriptName(script_name),
         stream,
@@ -29,7 +29,7 @@ pub fn run(
             let got = strip_ansi_escape_chars(got_raw);
             let success = expected == got;
 
-            let result = TestResult::Verify {
+            let result = ActionResult::Verify {
                 script_name: script_name.to_string(),
                 stream: stream_to_string(stream).into(),
                 expected,
@@ -59,7 +59,7 @@ fn strip_ansi_escape_chars(string: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{run, Error, ScriptOutput, TestResult};
+    use super::{run, ActionResult, Error, ScriptOutput};
 
     struct MockScriptOutput {
         script_name: String,
@@ -88,7 +88,7 @@ mod tests {
     mod test {
         use crate::types::{ScriptName, Source, Stream, VerifyValue};
 
-        use super::{run, Error, MockScriptOutput, TestResult};
+        use super::{run, ActionResult, Error, MockScriptOutput};
 
         #[test]
         fn returns_result_for_successful_stdout_verification() {
@@ -105,7 +105,7 @@ mod tests {
 
             assert_eq!(
                 run(&source, &verify_value, &script_output),
-                Ok(TestResult::Verify {
+                Ok(ActionResult::Verify {
                     script_name: "example_script".to_string(),
                     stream: "stdout".to_string(),
                     expected: "hello world".to_string(),
@@ -130,7 +130,7 @@ mod tests {
 
             assert_eq!(
                 run(&source, &verify_value, &script_output),
-                Ok(TestResult::Verify {
+                Ok(ActionResult::Verify {
                     script_name: "my_script".to_string(),
                     stream: "stderr".to_string(),
                     expected: "error message".to_string(),
@@ -155,7 +155,7 @@ mod tests {
 
             assert_eq!(
                 run(&source, &verify_value, &script_output),
-                Ok(TestResult::Verify {
+                Ok(ActionResult::Verify {
                     script_name: "test_script".to_string(),
                     stream: "stdout".to_string(),
                     expected: "hello moon".to_string(),
@@ -180,7 +180,7 @@ mod tests {
 
             assert_eq!(
                 run(&source, &verify_value, &script_output),
-                Ok(TestResult::Verify {
+                Ok(ActionResult::Verify {
                     script_name: "the_script".to_string(),
                     stream: "stderr".to_string(),
                     expected: "error message".to_string(),
@@ -226,7 +226,7 @@ mod tests {
 
             assert_eq!(
                 run(&source, &verify_value, &script_output),
-                Ok(TestResult::Verify {
+                Ok(ActionResult::Verify {
                     script_name: "colour_script".to_string(),
                     stream: "stdout".to_string(),
                     expected: "This is coloured".to_string(),
