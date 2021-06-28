@@ -134,6 +134,9 @@ With the following error message:
 Running tests for verify_unknown_script_example.md:
 
   - Failed to verify the output of 'unknown': No script with that name has been executed yet.
+
+  0 functions run (0 succeeded / 0 failed)
+
 ```
 
 
@@ -157,6 +160,9 @@ With the following error message:
 Running tests for empty_shell_command_example.md:
 
   - Invalid shell command provided:  (Error: Command is empty)
+
+  0 functions run (0 succeeded / 0 failed)
+
 ```
 
 ## Invalid Shell Command
@@ -179,6 +185,9 @@ With the following error message:
 Running tests for invalid_shell_command_example.md:
 
   - Invalid shell command provided: invalid " command (Error: Parse error : missing closing quote)
+
+  0 functions run (0 succeeded / 0 failed)
+
 ```
 
 ## Shell Which Can't Be Run
@@ -205,4 +214,7 @@ With the following error message:
 Running tests for missing_shell_example.md:
 
   - Failed to run command: does-not-exist [] (Error: No such file or directory (os error 2))
+
+  0 functions run (0 succeeded / 0 failed)
+
 ```

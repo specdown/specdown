@@ -89,40 +89,46 @@ impl RunCommand {
     fn run_spec_file(&self, spec_file: &Path) -> (ExitCode, Vec<PrintItem>) {
         let contents = self.read_file(spec_file);
         let events = parser::parse(&contents)
-            .map_err(|err| {
-                let error = Error::RunFailed {
-                    message: err.to_string(),
-                };
-                (
-                    ExitCode::TestFailed, // TODO: Fix exit code, change would make BC break
-                    error,
-                )
+            .map_err(|err| Error::RunFailed {
+                message: err.to_string(),
             })
-            .and_then(|action_list| {
-                run_actions(spec_file, &action_list, &self.shell_cmd)
-                    .map_err(|err| (ExitCode::ErrorOccurred, err))
+            .map(|action_list| run_actions(spec_file, &action_list, &self.shell_cmd))
+            .or_else(|err| {
+                Ok(vec![
+                    RunEvent::SpecFileStarted(spec_file.to_path_buf()),
+                    RunEvent::ErrorOccurred(err),
+                ])
             });
 
         let result = events
             .clone()
-            .map(|events| RunCommand::events_to_success(&events));
+            .map(|events| RunCommand::events_to_exitcode(&events))
+            .unwrap();
 
-        (
-            RunCommand::exit_code(&result),
-            RunCommand::create_print_items(spec_file, &events),
-        )
+        (result, RunCommand::create_print_items(spec_file, &events))
     }
 
-    fn events_to_success(events: &[RunEvent]) -> bool {
-        let mut the_success: Option<bool> = None;
+    fn events_to_exitcode(events: &[RunEvent]) -> ExitCode {
+        let mut exit_code = ExitCode::Success;
 
         for event in events {
-            if let RunEvent::SpecFileCompleted { success } = event {
-                the_success = Some(*success);
+            match event {
+                RunEvent::SpecFileCompleted { success: false } => {
+                    if exit_code == ExitCode::Success {
+                        exit_code = ExitCode::TestFailed;
+                    }
+                }
+                RunEvent::ErrorOccurred(error) => {
+                    return match error {
+                        Error::RunFailed { .. } => ExitCode::TestFailed,
+                        _ => ExitCode::ErrorOccurred,
+                    }
+                }
+                _ => {}
             }
         }
 
-        the_success.expect("expected: the_success")
+        exit_code
     }
 
     fn create_print_items(
@@ -138,19 +144,6 @@ impl RunCommand {
                 PrintItem::RunEvent(RunEvent::SpecFileStarted(spec_file.to_path_buf())),
                 PrintItem::RunError(err.clone()),
             ],
-        }
-    }
-
-    fn exit_code(result: &Result<bool, (ExitCode, Error)>) -> ExitCode {
-        match &result {
-            Ok(success) => {
-                if *success {
-                    ExitCode::Success
-                } else {
-                    ExitCode::TestFailed
-                }
-            }
-            Err((exit_code, _)) => exit_code.clone(),
         }
     }
 

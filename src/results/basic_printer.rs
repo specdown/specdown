@@ -44,6 +44,7 @@ impl BasicPrinter {
             RunEvent::SpecFileStarted(path) => self.print_spec_file(path),
             RunEvent::TestCompleted(result) => self.print_result(result),
             RunEvent::SpecFileCompleted { .. } => self.print_summary(),
+            RunEvent::ErrorOccurred(error) => self.print_error(error),
         }
     }
 
@@ -76,10 +77,7 @@ impl BasicPrinter {
                         expected_exit_code.map_or("None".to_string(), |code| code.to_string());
                     let got = exit_code.map_or("None".to_string(), |code| code.to_string());
 
-                    format!(
-                        "failed (expected exitcode {}, got {})\n=== stdout:\n{}\n\n=== stderr:\n{}\n\n",
-                        expected, got, stdout, stderr
-                    )
+                    format!("failed (expected exitcode {}, got {})", expected, got)
                 };
 
                 if *success {
@@ -93,6 +91,10 @@ impl BasicPrinter {
                     self.display_success(full_message);
                 } else {
                     self.display_error(full_message);
+                    self.display(&format!(
+                        "\n=== stdout:\n{}\n\n=== stderr:\n{}\n\n",
+                        stdout, stderr
+                    ))
                 }
             }
             TestResult::Verify {

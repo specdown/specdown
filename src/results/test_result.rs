@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 #[derive(Clone, Debug, PartialEq)]
 pub enum TestResult {
     Script {
@@ -21,12 +19,4 @@ pub enum TestResult {
     File {
         path: String,
     },
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct SpecResult {
-    // TODO: Fix access and move
-    pub(crate) file_name: PathBuf,
-    pub(crate) results: Vec<TestResult>,
-    pub(crate) success: bool,
 }
