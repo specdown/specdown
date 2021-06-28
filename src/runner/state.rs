@@ -9,7 +9,7 @@ pub struct State {
     number_failed: u32,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Summary {
     pub number_succeeded: u32,
     pub number_failed: u32,

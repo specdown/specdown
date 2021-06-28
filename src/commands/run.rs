@@ -6,6 +6,7 @@ use crate::exit_codes::ExitCode;
 use crate::parser;
 use crate::results::basic_printer::BasicPrinter;
 use crate::results::printer::{PrintItem, Printer};
+use crate::results::test_result::SpecResult;
 use crate::runner::{run_actions, Error};
 use crate::types::Action;
 
@@ -49,14 +50,14 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
         .value_of("running-dir")
         .map(Path::new)
         .map(std::path::Path::to_path_buf);
-    let shell_cmd = run_matches.value_of("shell-command").unwrap();
+    let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
     let printer = Box::new(BasicPrinter::new());
 
     let command = RunCommand {
         spec_files,
         spec_dir,
-        shell_cmd: shell_cmd.to_string(),
+        shell_cmd,
         running_dir,
         printer,
     };
@@ -86,15 +87,14 @@ impl RunCommand {
     }
 
     fn run_spec_file(&self, spec_file: &Path) -> (ExitCode, Vec<PrintItem>) {
-        let mut print_items = vec![PrintItem::SpecFileName(spec_file.to_path_buf())];
-
-        let contents =
-            fs::read_to_string(self.to_absolute(spec_file)).expect("failed to read spec file");
+        let contents = self.read_file(spec_file);
         let actions = parser::parse(&contents);
+
+        let mut print_items = vec![PrintItem::SpecFileName(spec_file.to_path_buf())];
 
         let exit_code = match actions {
             Ok(action_list) => {
-                let (exit_code, mut action_print_items) = self.run_actions(&action_list);
+                let (exit_code, mut action_print_items) = self.run_actions(spec_file, &action_list);
                 print_items.append(&mut action_print_items);
                 exit_code
             }
@@ -103,24 +103,33 @@ impl RunCommand {
                     message: err.to_string(),
                 };
                 print_items.push(PrintItem::RunError(error));
-                ExitCode::TestFailed // Incorrect exit code, change would make BC break
+                ExitCode::TestFailed // TODO: Fix exit code, change would make BC break
             }
         };
 
         (exit_code, print_items)
     }
 
-    fn run_actions(&self, action_list: &[Action]) -> (ExitCode, Vec<PrintItem>) {
+    fn read_file(&self, spec_file: &Path) -> String {
+        fs::read_to_string(self.to_absolute(spec_file)).expect("failed to read spec file")
+    }
+
+    fn run_actions(&self, spec_file: &Path, action_list: &[Action]) -> (ExitCode, Vec<PrintItem>) {
         let mut print_items = Vec::new();
 
-        let exit_code = match run_actions(&action_list, &self.shell_cmd) {
-            Ok((is_success, summary, test_results)) => {
-                for test_result in test_results {
-                    print_items.push(PrintItem::TestResult(test_result));
+        let exit_code = match run_actions(spec_file, &action_list, &self.shell_cmd) {
+            Ok(SpecResult {
+                success,
+                summary,
+                results,
+                ..
+            }) => {
+                for result in results {
+                    print_items.push(PrintItem::TestResult(result));
                 }
                 print_items.push(PrintItem::SpecFileSummary(summary));
 
-                if is_success {
+                if success {
                     ExitCode::Success
                 } else {
                     ExitCode::TestFailed

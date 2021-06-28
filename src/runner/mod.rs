@@ -1,6 +1,6 @@
 mod state;
 
-use crate::results::test_result::TestResult;
+use crate::results::test_result::{SpecResult, TestResult};
 use crate::runner::state::State;
 use crate::types::Action;
 
@@ -14,11 +14,13 @@ use executor::{Executor, Shell};
 
 pub use error::Error;
 pub use state::Summary;
+use std::path::Path;
 
 pub fn run_actions(
+    spec_file: &Path,
     actions: &[Action],
     shell_command: &str,
-) -> Result<(bool, Summary, Vec<TestResult>), Error> {
+) -> Result<SpecResult, Error> {
     let mut state = State::new();
     let executor = Shell::new(shell_command)?;
     let mut test_results = Vec::new();
@@ -29,7 +31,12 @@ pub fn run_actions(
         test_results.push(result);
     }
 
-    Ok((state.is_success(), state.summary(), test_results))
+    Ok(SpecResult {
+        file_name: spec_file.to_path_buf(),
+        results: test_results,
+        summary: state.summary(),
+        success: state.is_success(),
+    })
 }
 
 fn run_action(
