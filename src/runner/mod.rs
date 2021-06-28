@@ -7,10 +7,11 @@ use crate::types::Action;
 mod error;
 mod executor;
 mod file;
+mod runnable_action;
 mod script;
 mod verify;
 
-use executor::{Executor, Shell};
+use executor::Shell;
 
 pub use error::Error;
 use std::path::{Path, PathBuf};
@@ -56,30 +57,10 @@ fn run_single_action(
     executor: &Shell,
     action: &Action,
 ) -> Result<RunEvent, Error> {
-    run_action(action, &state, executor).map(|result| {
-        state.add_result(&result);
-        RunEvent::TestCompleted(result)
-    })
-}
-
-fn run_action(
-    action: &Action,
-    state: &State,
-    executor: &dyn Executor,
-) -> Result<TestResult, error::Error> {
-    match action {
-        Action::Script {
-            script_name,
-            script_code,
-            expected_exit_code,
-        } => script::run(script_name, script_code, expected_exit_code, executor),
-        Action::Verify {
-            source,
-            expected_value,
-        } => verify::run(source, expected_value, state),
-        Action::CreateFile {
-            file_path,
-            file_content,
-        } => Ok(file::run(file_path, file_content)),
-    }
+    runnable_action::from_action(action)
+        .run(&state, executor)
+        .map(|result| {
+            state.add_result(&result);
+            RunEvent::TestCompleted(result)
+        })
 }

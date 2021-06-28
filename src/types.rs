@@ -29,18 +29,27 @@ pub struct FileContent(pub String);
 pub struct ExitCode(pub i32);
 
 #[derive(Debug, PartialEq)]
+pub struct ScriptAction {
+    pub script_name: ScriptName,
+    pub script_code: ScriptCode,
+    pub expected_exit_code: Option<ExitCode>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct VerifyAction {
+    pub source: Source,
+    pub expected_value: VerifyValue,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct CreateFileAction {
+    pub file_path: FilePath,
+    pub file_content: FileContent,
+}
+
+#[derive(Debug, PartialEq)]
 pub enum Action {
-    Script {
-        script_name: ScriptName,
-        script_code: ScriptCode,
-        expected_exit_code: Option<ExitCode>,
-    },
-    Verify {
-        source: Source,
-        expected_value: VerifyValue,
-    },
-    CreateFile {
-        file_path: FilePath,
-        file_content: FileContent,
-    },
+    Script(ScriptAction),
+    Verify(VerifyAction),
+    CreateFile(CreateFileAction),
 }

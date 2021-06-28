@@ -102,13 +102,13 @@ impl RunCommand {
 
         let result = events
             .clone()
-            .map(|events| RunCommand::events_to_exitcode(&events))
+            .map(|events| RunCommand::events_to_success(&events))
             .unwrap();
 
         (result, RunCommand::create_print_items(spec_file, &events))
     }
 
-    fn events_to_exitcode(events: &[RunEvent]) -> ExitCode {
+    fn events_to_success(events: &[RunEvent]) -> ExitCode {
         let mut exit_code = ExitCode::Success;
 
         for event in events {
