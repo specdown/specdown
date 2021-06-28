@@ -5,7 +5,7 @@ use crossterm::style::Stylize;
 use super::printer::Printer;
 use super::test_result::TestResult;
 use crate::results::printer::PrintItem;
-use crate::runner::Error;
+use crate::runner::{Error, RunEvent};
 
 struct Summary {
     pub number_succeeded: u32,
@@ -32,15 +32,21 @@ impl BasicPrinter {
 impl Printer for BasicPrinter {
     fn print(&mut self, item: &PrintItem) {
         match item {
-            PrintItem::SpecFileName(path) => self.print_spec_file(path),
-            PrintItem::TestResult(result) => self.print_result(result),
-            PrintItem::SpecFileSummary() => self.print_summary(),
             PrintItem::RunError(error) => self.print_error(error),
+            PrintItem::RunEvent(event) => self.print_run_event(event),
         }
     }
 }
 
 impl BasicPrinter {
+    fn print_run_event(&mut self, event: &RunEvent) {
+        match event {
+            RunEvent::SpecFileStarted(path) => self.print_spec_file(path),
+            RunEvent::TestCompleted(result) => self.print_result(result),
+            RunEvent::SpecFileCompleted { .. } => self.print_summary(),
+        }
+    }
+
     fn print_spec_file(&mut self, path: &Path) {
         self.summary = Summary {
             number_succeeded: 0,

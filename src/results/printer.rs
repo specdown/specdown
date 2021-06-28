@@ -1,13 +1,8 @@
-use std::path::PathBuf;
-
-use super::test_result::TestResult;
-use crate::runner::Error;
+use crate::runner::{Error, RunEvent};
 
 pub enum PrintItem {
-    SpecFileName(PathBuf),
-    TestResult(TestResult),
-    SpecFileSummary(),
     RunError(Error),
+    RunEvent(RunEvent),
 }
 
 pub trait Printer {

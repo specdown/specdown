@@ -15,6 +15,7 @@ use executor::{Executor, Shell};
 pub use error::Error;
 use std::path::{Path, PathBuf};
 
+#[derive(Clone)]
 pub enum RunEvent {
     SpecFileStarted(PathBuf),
     TestCompleted(TestResult),
