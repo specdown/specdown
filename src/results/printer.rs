@@ -1,10 +1,5 @@
-use crate::runner::{Error, RunEvent};
-
-pub enum PrintItem {
-    RunError(Error),
-    RunEvent(RunEvent),
-}
+use crate::runner::RunEvent;
 
 pub trait Printer {
-    fn print(&mut self, item: &PrintItem);
+    fn print(&mut self, event: &RunEvent);
 }

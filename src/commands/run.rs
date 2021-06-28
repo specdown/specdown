@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use crate::exit_codes::ExitCode;
 use crate::parser;
 use crate::results::basic_printer::BasicPrinter;
-use crate::results::printer::{PrintItem, Printer};
+use crate::results::printer::Printer;
 use crate::runner::{run_actions, Error, RunEvent};
 
 pub const NAME: &str = "run";
@@ -79,36 +79,34 @@ impl RunCommand {
 
         for spec_file in spec_files {
             let (exit_code, print_items) = self.run_spec_file(&spec_file);
-            self.print_items(print_items);
+            self.print_events(print_items);
             if exit_code != ExitCode::Success {
                 std::process::exit(exit_code as i32)
             }
         }
     }
 
-    fn run_spec_file(&self, spec_file: &Path) -> (ExitCode, Vec<PrintItem>) {
+    fn run_spec_file(&self, spec_file: &Path) -> (ExitCode, Vec<RunEvent>) {
         let contents = self.read_file(spec_file);
         let events = parser::parse(&contents)
             .map_err(|err| Error::RunFailed {
                 message: err.to_string(),
             })
             .map(|action_list| run_actions(spec_file, &action_list, &self.shell_cmd))
-            .or_else(|err| {
+            .or_else::<Error, _>(|err| {
                 Ok(vec![
                     RunEvent::SpecFileStarted(spec_file.to_path_buf()),
                     RunEvent::ErrorOccurred(err),
                 ])
-            });
-
-        let result = events
-            .clone()
-            .map(|events| RunCommand::events_to_success(&events))
+            })
             .unwrap();
 
-        (result, RunCommand::create_print_items(spec_file, &events))
+        let result = RunCommand::events_to_exit_code(&events);
+
+        (result, events)
     }
 
-    fn events_to_success(events: &[RunEvent]) -> ExitCode {
+    fn events_to_exit_code(events: &[RunEvent]) -> ExitCode {
         let mut exit_code = ExitCode::Success;
 
         for event in events {
@@ -131,22 +129,6 @@ impl RunCommand {
         exit_code
     }
 
-    fn create_print_items(
-        spec_file: &Path,
-        events: &Result<Vec<RunEvent>, (ExitCode, Error)>,
-    ) -> Vec<PrintItem> {
-        match &events {
-            Ok(run_events) => run_events
-                .iter()
-                .map(|event| PrintItem::RunEvent(event.clone()))
-                .collect::<Vec<PrintItem>>(),
-            Err((_, err)) => vec![
-                PrintItem::RunEvent(RunEvent::SpecFileStarted(spec_file.to_path_buf())),
-                PrintItem::RunError(err.clone()),
-            ],
-        }
-    }
-
     fn read_file(&self, spec_file: &Path) -> String {
         fs::read_to_string(self.to_absolute(spec_file)).expect("failed to read spec file")
     }
@@ -166,8 +148,8 @@ impl RunCommand {
         }
     }
 
-    fn print_items(&mut self, items: Vec<PrintItem>) {
-        for item in items {
+    fn print_events(&mut self, events: Vec<RunEvent>) {
+        for item in events {
             self.printer.print(&item);
         }
     }
