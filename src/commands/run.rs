@@ -50,17 +50,22 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
         .map(std::path::Path::to_path_buf);
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
-    let printer = Box::new(BasicPrinter::new());
+    let mut printer = Box::new(BasicPrinter::new());
 
     let mut command = RunCommand {
         spec_files,
         spec_dir,
         shell_cmd,
         running_dir,
-        printer,
     };
 
-    command.execute();
+    let (events, exit_code) = command.execute();
+
+    for event in events {
+        printer.print(&event);
+    }
+
+    std::process::exit(exit_code as i32)
 }
 
 struct RunCommand {
@@ -68,22 +73,25 @@ struct RunCommand {
     spec_dir: PathBuf,
     shell_cmd: String,
     running_dir: Option<PathBuf>,
-    printer: Box<dyn Printer>,
 }
 
 impl RunCommand {
-    pub fn execute(&mut self) {
+    pub fn execute(&mut self) -> (Vec<RunEvent>, ExitCode) {
         self.change_to_running_directory();
 
         let spec_files = self.spec_files.clone();
 
+        let mut all_events = Vec::new();
+
         for spec_file in spec_files {
-            let (exit_code, print_items) = self.run_spec_file(&spec_file);
-            self.print_events(print_items);
+            let (exit_code, mut events) = self.run_spec_file(&spec_file);
+            all_events.append(&mut events);
             if exit_code != ExitCode::Success {
-                std::process::exit(exit_code as i32)
+                return (all_events, exit_code);
             }
         }
+
+        (all_events, ExitCode::Success)
     }
 
     fn run_spec_file(&self, spec_file: &Path) -> (ExitCode, Vec<RunEvent>) {
@@ -147,12 +155,6 @@ impl RunCommand {
             self.spec_dir.join(path)
         }
     }
-
-    fn print_events(&mut self, events: Vec<RunEvent>) {
-        for item in events {
-            self.printer.print(&item);
-        }
-    }
 }
 
 #[cfg(test)]
@@ -161,7 +163,6 @@ mod tests {
 
     mod to_absolute {
         use super::RunCommand;
-        use crate::results::basic_printer::BasicPrinter;
         use std::path::Path;
 
         fn command() -> RunCommand {
@@ -170,7 +171,6 @@ mod tests {
                 spec_dir: Path::new("/usr/local/specdown").to_path_buf(),
                 shell_cmd: "".to_string(),
                 running_dir: None,
-                printer: Box::new(BasicPrinter::new()),
             }
         }
 
