@@ -50,13 +50,14 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
         .map(std::path::Path::to_path_buf);
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
+    let file_reader = FileReader { dir: spec_dir };
     let mut printer = Box::new(BasicPrinter::new());
 
     let mut command = RunCommand {
         spec_files,
-        spec_dir,
         shell_cmd,
         running_dir,
+        file_reader,
     };
 
     let events = command.execute();
@@ -93,11 +94,29 @@ fn events_to_exit_code(events: &[RunEvent]) -> ExitCode {
     exit_code
 }
 
+struct FileReader {
+    dir: PathBuf,
+}
+
+impl FileReader {
+    fn read_file(&self, spec_file: &Path) -> String {
+        fs::read_to_string(self.to_absolute(spec_file)).expect("failed to read spec file")
+    }
+
+    pub fn to_absolute(&self, path: &Path) -> PathBuf {
+        if path.has_root() {
+            path.to_path_buf()
+        } else {
+            self.dir.join(path)
+        }
+    }
+}
+
 struct RunCommand {
     spec_files: Vec<PathBuf>,
-    spec_dir: PathBuf,
     shell_cmd: String,
     running_dir: Option<PathBuf>,
+    file_reader: FileReader,
 }
 
 impl RunCommand {
@@ -111,7 +130,7 @@ impl RunCommand {
     }
 
     fn run_spec_file(&self, spec_file: &Path) -> Vec<RunEvent> {
-        let contents = self.read_file(spec_file);
+        let contents = self.file_reader.read_file(spec_file);
         parser::parse(&contents)
             .map_err(|err| Error::RunFailed {
                 message: err.to_string(),
@@ -126,40 +145,25 @@ impl RunCommand {
             .unwrap()
     }
 
-    fn read_file(&self, spec_file: &Path) -> String {
-        fs::read_to_string(self.to_absolute(spec_file)).expect("failed to read spec file")
-    }
-
     fn change_to_running_directory(&self) {
         if let Some(dir) = &self.running_dir {
             fs::create_dir_all(dir).expect("Failed to create running directory");
             std::env::set_current_dir(dir).expect("Failed to set running directory");
         }
     }
-
-    pub fn to_absolute(&self, path: &Path) -> PathBuf {
-        if path.has_root() {
-            path.to_path_buf()
-        } else {
-            self.spec_dir.join(path)
-        }
-    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::RunCommand;
+    use super::FileReader;
 
     mod to_absolute {
-        use super::RunCommand;
+        use super::FileReader;
         use std::path::Path;
 
-        fn command() -> RunCommand {
-            RunCommand {
-                spec_files: vec![],
-                spec_dir: Path::new("/usr/local/specdown").to_path_buf(),
-                shell_cmd: "".to_string(),
-                running_dir: None,
+        fn reader() -> FileReader {
+            FileReader {
+                dir: Path::new("/usr/local/specdown").to_path_buf(),
             }
         }
 
@@ -167,7 +171,7 @@ mod tests {
         #[test]
         fn test_returns_the_path_when_it_is_absolute() {
             let path = Path::new("/home/user/file");
-            assert_eq!(path, command().to_absolute(path));
+            assert_eq!(path, reader().to_absolute(path));
         }
 
         #[cfg(not(windows))]
@@ -176,7 +180,7 @@ mod tests {
             let path = Path::new("./file");
             assert_eq!(
                 Path::new("/usr/local/specdown/file"),
-                command().to_absolute(path)
+                reader().to_absolute(path)
             );
         }
 
@@ -186,7 +190,7 @@ mod tests {
             let path = Path::new("../file");
             assert_eq!(
                 Path::new("/usr/local/specdown/../file"),
-                command().to_absolute(path)
+                reader().to_absolute(path)
             );
         }
     }
