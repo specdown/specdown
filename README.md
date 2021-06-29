@@ -6,13 +6,13 @@
 
 ## This document is an executable specification
 
-When SpecDown is run with this document, it will execute the following shell script.
+When SpecDown is run with **this** document, it will execute the following shell command:
 
 ```shell,script(name="hello-specdown")
 echo "Hello SpecDown"
 ```
 
-It will then validate that the output of the previous command matches the following codeblock.
+It will then validate that the output from the above command matches the following codeblock:
 
 ```,verify(script_name="hello-specdown", stream=stdout)
 Hello SpecDown
