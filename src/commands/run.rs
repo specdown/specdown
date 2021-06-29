@@ -104,16 +104,10 @@ impl RunCommand {
     pub fn execute(&mut self) -> Vec<RunEvent> {
         self.change_to_running_directory();
 
-        let spec_files = self.spec_files.clone();
-
-        let mut all_events = Vec::new();
-
-        for spec_file in spec_files {
-            let mut events = self.run_spec_file(&spec_file);
-            all_events.append(&mut events);
-        }
-
-        all_events
+        self.spec_files
+            .iter()
+            .flat_map(|spec_file| self.run_spec_file(&spec_file))
+            .collect()
     }
 
     fn run_spec_file(&self, spec_file: &Path) -> Vec<RunEvent> {
