@@ -59,13 +59,38 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
         running_dir,
     };
 
-    let (events, exit_code) = command.execute();
+    let events = command.execute();
 
-    for event in events {
-        printer.print(&event);
+    for event in &events {
+        printer.print(event);
     }
 
+    let exit_code = events_to_exit_code(&events);
+
     std::process::exit(exit_code as i32)
+}
+
+fn events_to_exit_code(events: &[RunEvent]) -> ExitCode {
+    let mut exit_code = ExitCode::Success;
+
+    for event in events {
+        match event {
+            RunEvent::SpecFileCompleted { success: false } => {
+                if exit_code == ExitCode::Success {
+                    exit_code = ExitCode::TestFailed;
+                }
+            }
+            RunEvent::ErrorOccurred(error) => {
+                return match error {
+                    Error::RunFailed { .. } => ExitCode::TestFailed,
+                    _ => ExitCode::ErrorOccurred,
+                }
+            }
+            _ => {}
+        }
+    }
+
+    exit_code
 }
 
 struct RunCommand {
@@ -76,7 +101,7 @@ struct RunCommand {
 }
 
 impl RunCommand {
-    pub fn execute(&mut self) -> (Vec<RunEvent>, ExitCode) {
+    pub fn execute(&mut self) -> Vec<RunEvent> {
         self.change_to_running_directory();
 
         let spec_files = self.spec_files.clone();
@@ -84,20 +109,16 @@ impl RunCommand {
         let mut all_events = Vec::new();
 
         for spec_file in spec_files {
-            let (exit_code, mut events) = self.run_spec_file(&spec_file);
+            let mut events = self.run_spec_file(&spec_file);
             all_events.append(&mut events);
-            if exit_code != ExitCode::Success {
-                return (all_events, exit_code);
-            }
         }
 
-        (all_events, ExitCode::Success)
+        all_events
     }
 
-    // TODO: Don't return the exit code
-    fn run_spec_file(&self, spec_file: &Path) -> (ExitCode, Vec<RunEvent>) {
+    fn run_spec_file(&self, spec_file: &Path) -> Vec<RunEvent> {
         let contents = self.read_file(spec_file);
-        let events = parser::parse(&contents)
+        parser::parse(&contents)
             .map_err(|err| Error::RunFailed {
                 message: err.to_string(),
             })
@@ -108,34 +129,7 @@ impl RunCommand {
                     RunEvent::ErrorOccurred(err),
                 ])
             })
-            .unwrap();
-
-        let result = RunCommand::events_to_exit_code(&events);
-
-        (result, events)
-    }
-
-    fn events_to_exit_code(events: &[RunEvent]) -> ExitCode {
-        let mut exit_code = ExitCode::Success;
-
-        for event in events {
-            match event {
-                RunEvent::SpecFileCompleted { success: false } => {
-                    if exit_code == ExitCode::Success {
-                        exit_code = ExitCode::TestFailed;
-                    }
-                }
-                RunEvent::ErrorOccurred(error) => {
-                    return match error {
-                        Error::RunFailed { .. } => ExitCode::TestFailed,
-                        _ => ExitCode::ErrorOccurred,
-                    }
-                }
-                _ => {}
-            }
-        }
-
-        exit_code
+            .unwrap()
     }
 
     fn read_file(&self, spec_file: &Path) -> String {
