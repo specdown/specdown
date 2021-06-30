@@ -7,7 +7,7 @@ use crate::parser;
 use crate::results::basic_printer::BasicPrinter;
 use crate::results::printer::Printer;
 use crate::runner::error::Error;
-use crate::runner::executor::Shell;
+use crate::runner::executor::{Executor, Shell};
 use crate::runner::state::State;
 use crate::runner::{runnable_action, RunEvent};
 use crate::types::Action;
@@ -135,19 +135,30 @@ impl RunCommand {
 
     fn run_spec_file(&self, spec_file: &Path) -> Vec<RunEvent> {
         let mut state = State::new();
-        let contents = self.file_reader.read_file(spec_file);
-        parser::parse(&contents)
-            .map_err(|err| Error::RunFailed {
-                message: err.to_string(),
-            })
-            .map(|action_list| do_run_actions(spec_file, &mut state, &action_list, &self.shell_cmd))
-            .or_else::<Error, _>(|err| {
-                Ok(vec![
-                    RunEvent::SpecFileStarted(spec_file.to_path_buf()),
-                    RunEvent::ErrorOccurred(err),
-                ])
-            })
-            .unwrap()
+        match Shell::new(&self.shell_cmd) {
+            Ok(executor) => {
+                let contents = self.file_reader.read_file(spec_file);
+                parser::parse(&contents)
+                    .map_err(|err| Error::RunFailed {
+                        message: err.to_string(),
+                    })
+                    .map(|action_list| {
+                        do_run_actions(spec_file, &mut state, &executor, &action_list)
+                    })
+                    .or_else::<Error, _>(|err| {
+                        Ok(vec![
+                            RunEvent::SpecFileStarted(spec_file.to_path_buf()),
+                            RunEvent::ErrorOccurred(err),
+                        ])
+                    })
+                    .unwrap()
+            }
+            Err(err) => vec![
+                RunEvent::SpecFileStarted(spec_file.to_path_buf()),
+                RunEvent::ErrorOccurred(err),
+                RunEvent::SpecFileCompleted { success: false },
+            ],
+        }
     }
 
     fn change_to_running_directory(&self) {
@@ -161,13 +172,12 @@ impl RunCommand {
 pub fn do_run_actions(
     spec_file: &Path,
     mut state: &mut State,
+    executor: &impl Executor,
     actions: &[Action],
-    shell_command: &str,
 ) -> Vec<RunEvent> {
     let mut events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
-    let run_events: Result<Vec<RunEvent>, Error> =
-        run_all_actions(actions, shell_command, &mut state)
-            .or_else(|error| Ok(vec![RunEvent::ErrorOccurred(error)]));
+    let run_events: Result<Vec<RunEvent>, Error> = run_all_actions(actions, executor, &mut state)
+        .or_else(|error| Ok(vec![RunEvent::ErrorOccurred(error)]));
 
     events.append(&mut run_events.unwrap());
 
@@ -180,19 +190,18 @@ pub fn do_run_actions(
 
 fn run_all_actions(
     actions: &[Action],
-    shell_command: &str,
+    executor: &impl Executor,
     mut state: &mut State,
 ) -> Result<Vec<RunEvent>, Error> {
-    let executor = Shell::new(shell_command)?;
     actions
         .iter()
-        .map(|action| run_single_action(&mut state, &executor, action))
+        .map(|action| run_single_action(&mut state, executor, action))
         .collect()
 }
 
 fn run_single_action(
     state: &mut State,
-    executor: &Shell,
+    executor: &impl Executor,
     action: &Action,
 ) -> Result<RunEvent, Error> {
     runnable_action::from_action(action)
