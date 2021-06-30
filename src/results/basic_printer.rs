@@ -4,7 +4,8 @@ use crossterm::style::Stylize;
 
 use super::action_result::ActionResult;
 use super::printer::Printer;
-use crate::runner::{Error, RunEvent};
+use crate::runner::error::Error;
+use crate::runner::RunEvent;
 
 struct Summary {
     pub number_succeeded: u32,

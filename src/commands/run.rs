@@ -6,7 +6,11 @@ use crate::exit_codes::ExitCode;
 use crate::parser;
 use crate::results::basic_printer::BasicPrinter;
 use crate::results::printer::Printer;
-use crate::runner::{run_actions, Error, RunEvent};
+use crate::runner::error::Error;
+use crate::runner::executor::Shell;
+use crate::runner::state::State;
+use crate::runner::{runnable_action, RunEvent};
+use crate::types::Action;
 
 pub const NAME: &str = "run";
 
@@ -135,7 +139,7 @@ impl RunCommand {
             .map_err(|err| Error::RunFailed {
                 message: err.to_string(),
             })
-            .map(|action_list| run_actions(spec_file, &action_list, &self.shell_cmd))
+            .map(|action_list| do_run_actions(spec_file, &action_list, &self.shell_cmd))
             .or_else::<Error, _>(|err| {
                 Ok(vec![
                     RunEvent::SpecFileStarted(spec_file.to_path_buf()),
@@ -151,6 +155,47 @@ impl RunCommand {
             std::env::set_current_dir(dir).expect("Failed to set running directory");
         }
     }
+}
+
+pub fn do_run_actions(spec_file: &Path, actions: &[Action], shell_command: &str) -> Vec<RunEvent> {
+    let mut events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
+    let mut state = State::new();
+    let run_events: Result<Vec<RunEvent>, Error> =
+        run_all_actions(actions, shell_command, &mut state)
+            .or_else(|error| Ok(vec![RunEvent::ErrorOccurred(error)]));
+
+    events.append(&mut run_events.unwrap());
+
+    events.push(RunEvent::SpecFileCompleted {
+        success: state.is_success(),
+    });
+
+    events
+}
+
+fn run_all_actions(
+    actions: &[Action],
+    shell_command: &str,
+    mut state: &mut State,
+) -> Result<Vec<RunEvent>, Error> {
+    let executor = Shell::new(shell_command)?;
+    actions
+        .iter()
+        .map(|action| run_single_action(&mut state, &executor, action))
+        .collect()
+}
+
+fn run_single_action(
+    state: &mut State,
+    executor: &Shell,
+    action: &Action,
+) -> Result<RunEvent, Error> {
+    runnable_action::from_action(action)
+        .run(&state, executor)
+        .map(|result| {
+            state.add_result(&result);
+            RunEvent::TestCompleted(result)
+        })
 }
 
 #[cfg(test)]

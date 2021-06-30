@@ -1,7 +1,8 @@
 use crate::results::action_result::ActionResult;
+use crate::runner::error::Error;
 use crate::runner::executor::Executor;
 use crate::runner::state::State;
-use crate::runner::{error, file, script, verify, Error};
+use crate::runner::{error, file, script, verify};
 use crate::types::{Action, CreateFileAction, ScriptAction, VerifyAction};
 
 pub fn from_action(action: &Action) -> &dyn RunnableAction {
