@@ -135,30 +135,32 @@ impl RunCommand {
 
     fn run_spec_file(&self, spec_file: &Path) -> Vec<RunEvent> {
         let mut state = State::new();
-        match Shell::new(&self.shell_cmd) {
+
+        let start_events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
+
+        let run_events = match Shell::new(&self.shell_cmd) {
             Ok(executor) => {
                 let contents = self.file_reader.read_file(spec_file);
                 parser::parse(&contents)
                     .map_err(|err| Error::RunFailed {
                         message: err.to_string(),
                     })
-                    .map(|action_list| {
-                        do_run_actions(spec_file, &mut state, &executor, &action_list)
-                    })
-                    .or_else::<Error, _>(|err| {
-                        Ok(vec![
-                            RunEvent::SpecFileStarted(spec_file.to_path_buf()),
-                            RunEvent::ErrorOccurred(err),
-                        ])
-                    })
+                    .map(|action_list| do_run_actions(&mut state, &executor, &action_list))
+                    .or_else::<Error, _>(|err| Ok(vec![RunEvent::ErrorOccurred(err)]))
                     .unwrap()
             }
-            Err(err) => vec![
-                RunEvent::SpecFileStarted(spec_file.to_path_buf()),
-                RunEvent::ErrorOccurred(err),
-                RunEvent::SpecFileCompleted { success: false },
-            ],
-        }
+            Err(err) => vec![RunEvent::ErrorOccurred(err)],
+        };
+
+        let end_events = vec![RunEvent::SpecFileCompleted {
+            success: state.is_success(),
+        }];
+
+        start_events
+            .into_iter()
+            .chain(run_events.into_iter())
+            .chain(end_events.into_iter())
+            .collect()
     }
 
     fn change_to_running_directory(&self) {
@@ -170,22 +172,13 @@ impl RunCommand {
 }
 
 pub fn do_run_actions(
-    spec_file: &Path,
     mut state: &mut State,
     executor: &impl Executor,
     actions: &[Action],
 ) -> Vec<RunEvent> {
-    let mut events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
-    let run_events: Result<Vec<RunEvent>, Error> = run_all_actions(actions, executor, &mut state)
-        .or_else(|error| Ok(vec![RunEvent::ErrorOccurred(error)]));
-
-    events.append(&mut run_events.unwrap());
-
-    events.push(RunEvent::SpecFileCompleted {
-        success: state.is_success(),
-    });
-
-    events
+    run_all_actions(actions, executor, &mut state)
+        .or_else::<Error, _>(|error| Ok(vec![RunEvent::ErrorOccurred(error)]))
+        .unwrap()
 }
 
 fn run_all_actions(

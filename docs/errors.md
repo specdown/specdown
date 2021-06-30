@@ -26,6 +26,9 @@ With the following error message:
 Running tests for unknown_function_example.md:
 
   - Unknown function: function
+
+  0 functions run (0 succeeded / 0 failed)
+
 ```
 
 ## Missing Function Arguments
@@ -52,6 +55,9 @@ With the following error message:
 Running tests for missing_function_argument_example.md:
 
   - Function script requires argument name
+
+  0 functions run (0 succeeded / 0 failed)
+
 ```
 
 ## Invalid Argument Value
@@ -78,6 +84,9 @@ With the following error message:
 Running tests for invalid_argument_value_example.md:
 
   - Function script requires argument name to be a string, got integer
+
+  0 functions run (0 succeeded / 0 failed)
+
 ```
 
 ## Invalid Argument Option
@@ -108,6 +117,9 @@ With the following error message:
 Running tests for invalid_token_option_example.md:
 
   - Argument stream for function verify must be output, stdout or stderr, got unknown
+
+  0 functions run (0 succeeded / 0 failed)
+
 ```
 
 ## Verify Unknown Script
