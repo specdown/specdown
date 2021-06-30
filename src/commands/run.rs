@@ -134,12 +134,13 @@ impl RunCommand {
     }
 
     fn run_spec_file(&self, spec_file: &Path) -> Vec<RunEvent> {
+        let mut state = State::new();
         let contents = self.file_reader.read_file(spec_file);
         parser::parse(&contents)
             .map_err(|err| Error::RunFailed {
                 message: err.to_string(),
             })
-            .map(|action_list| do_run_actions(spec_file, &action_list, &self.shell_cmd))
+            .map(|action_list| do_run_actions(spec_file, &mut state, &action_list, &self.shell_cmd))
             .or_else::<Error, _>(|err| {
                 Ok(vec![
                     RunEvent::SpecFileStarted(spec_file.to_path_buf()),
@@ -157,9 +158,13 @@ impl RunCommand {
     }
 }
 
-pub fn do_run_actions(spec_file: &Path, actions: &[Action], shell_command: &str) -> Vec<RunEvent> {
+pub fn do_run_actions(
+    spec_file: &Path,
+    mut state: &mut State,
+    actions: &[Action],
+    shell_command: &str,
+) -> Vec<RunEvent> {
     let mut events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
-    let mut state = State::new();
     let run_events: Result<Vec<RunEvent>, Error> =
         run_all_actions(actions, shell_command, &mut state)
             .or_else(|error| Ok(vec![RunEvent::ErrorOccurred(error)]));
