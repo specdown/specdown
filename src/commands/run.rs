@@ -176,33 +176,21 @@ pub fn do_run_actions(
     executor: &impl Executor,
     actions: &[Action],
 ) -> Vec<RunEvent> {
-    run_all_actions(actions, executor, &mut state)
-        .or_else::<Error, _>(|error| Ok(vec![RunEvent::ErrorOccurred(error)]))
-        .unwrap()
-}
-
-fn run_all_actions(
-    actions: &[Action],
-    executor: &impl Executor,
-    mut state: &mut State,
-) -> Result<Vec<RunEvent>, Error> {
     actions
         .iter()
         .map(|action| run_single_action(&mut state, executor, action))
         .collect()
 }
 
-fn run_single_action(
-    state: &mut State,
-    executor: &impl Executor,
-    action: &Action,
-) -> Result<RunEvent, Error> {
+fn run_single_action(state: &mut State, executor: &impl Executor, action: &Action) -> RunEvent {
     runnable_action::from_action(action)
         .run(&state, executor)
         .map(|result| {
             state.add_result(&result);
             RunEvent::TestCompleted(result)
         })
+        .or_else::<Error, _>(|error| Ok(RunEvent::ErrorOccurred(error)))
+        .unwrap()
 }
 
 #[cfg(test)]
