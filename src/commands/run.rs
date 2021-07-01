@@ -57,7 +57,7 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
     let file_reader = FileReader { dir: spec_dir };
     let mut printer = Box::new(BasicPrinter::new());
 
-    let mut command = RunCommand {
+    let command = RunCommand {
         spec_files,
         shell_cmd,
         running_dir,
@@ -124,7 +124,7 @@ struct RunCommand {
 }
 
 impl RunCommand {
-    pub fn execute(&mut self) -> Vec<RunEvent> {
+    pub fn execute(&self) -> Vec<RunEvent> {
         self.change_to_running_directory();
 
         self.spec_files
@@ -145,7 +145,7 @@ impl RunCommand {
                     .map_err(|err| Error::RunFailed {
                         message: err.to_string(),
                     })
-                    .map(|action_list| do_run_actions(&mut state, &executor, &action_list))
+                    .map(|action_list| Self::run_actions(&mut state, &executor, &action_list))
                     .or_else::<Error, _>(|err| Ok(vec![RunEvent::ErrorOccurred(err)]))
                     .unwrap()
             }
@@ -163,34 +163,34 @@ impl RunCommand {
             .collect()
     }
 
+    fn run_actions(
+        mut state: &mut State,
+        executor: &impl Executor,
+        actions: &[Action],
+    ) -> Vec<RunEvent> {
+        actions
+            .iter()
+            .map(|action| Self::run_single_action(&mut state, executor, action))
+            .collect()
+    }
+
+    fn run_single_action(state: &mut State, executor: &impl Executor, action: &Action) -> RunEvent {
+        runnable_action::from_action(action)
+            .run(&state, executor)
+            .map(|result| {
+                state.add_result(&result);
+                RunEvent::TestCompleted(result)
+            })
+            .or_else::<Error, _>(|error| Ok(RunEvent::ErrorOccurred(error)))
+            .unwrap()
+    }
+
     fn change_to_running_directory(&self) {
         if let Some(dir) = &self.running_dir {
             fs::create_dir_all(dir).expect("Failed to create running directory");
             std::env::set_current_dir(dir).expect("Failed to set running directory");
         }
     }
-}
-
-pub fn do_run_actions(
-    mut state: &mut State,
-    executor: &impl Executor,
-    actions: &[Action],
-) -> Vec<RunEvent> {
-    actions
-        .iter()
-        .map(|action| run_single_action(&mut state, executor, action))
-        .collect()
-}
-
-fn run_single_action(state: &mut State, executor: &impl Executor, action: &Action) -> RunEvent {
-    runnable_action::from_action(action)
-        .run(&state, executor)
-        .map(|result| {
-            state.add_result(&result);
-            RunEvent::TestCompleted(result)
-        })
-        .or_else::<Error, _>(|error| Ok(RunEvent::ErrorOccurred(error)))
-        .unwrap()
 }
 
 #[cfg(test)]
