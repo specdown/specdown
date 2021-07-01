@@ -169,12 +169,7 @@ specdown run --shell-command '' empty_shell_command_example.md
 With the following error message:
 
 ```text,verify(script_name="empty_shell_command_example")
-Running tests for empty_shell_command_example.md:
-
   - Invalid shell command provided:  (Error: Command is empty)
-
-  0 functions run (0 succeeded / 0 failed)
-
 ```
 
 ## Invalid Shell Command
@@ -194,12 +189,7 @@ specdown run --shell-command 'invalid " command' invalid_shell_command_example.m
 With the following error message:
 
 ```text,verify(script_name="invalid_shell_command_example")
-Running tests for invalid_shell_command_example.md:
-
   - Invalid shell command provided: invalid " command (Error: Parse error : missing closing quote)
-
-  0 functions run (0 succeeded / 0 failed)
-
 ```
 
 ## Shell Which Can't Be Run

@@ -57,14 +57,16 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
     let file_reader = FileReader { dir: spec_dir };
     let mut printer = Box::new(BasicPrinter::new());
 
-    let command = RunCommand {
-        spec_files,
-        shell_cmd,
-        running_dir,
-        file_reader,
+    let events = match Shell::new(&shell_cmd) {
+        Ok(executor) => RunCommand {
+            spec_files,
+            executor: Box::new(executor),
+            running_dir,
+            file_reader,
+        }
+        .execute(),
+        Err(err) => vec![RunEvent::ErrorOccurred(err)],
     };
-
-    let events = command.execute();
 
     for event in &events {
         printer.print(event);
@@ -118,7 +120,7 @@ impl FileReader {
 
 struct RunCommand {
     spec_files: Vec<PathBuf>,
-    shell_cmd: String,
+    executor: Box<dyn Executor>,
     running_dir: Option<PathBuf>,
     file_reader: FileReader,
 }
@@ -137,21 +139,14 @@ impl RunCommand {
         let mut state = State::new();
 
         let start_events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
-
-        let run_events = match Shell::new(&self.shell_cmd) {
-            Ok(executor) => {
-                let contents = self.file_reader.read_file(spec_file);
-                parser::parse(&contents)
-                    .map_err(|err| Error::RunFailed {
-                        message: err.to_string(),
-                    })
-                    .map(|action_list| Self::run_actions(&mut state, &executor, &action_list))
-                    .or_else::<Error, _>(|err| Ok(vec![RunEvent::ErrorOccurred(err)]))
-                    .unwrap()
-            }
-            Err(err) => vec![RunEvent::ErrorOccurred(err)],
-        };
-
+        let contents = self.file_reader.read_file(spec_file);
+        let run_events = parser::parse(&contents)
+            .map_err(|err| Error::RunFailed {
+                message: err.to_string(),
+            })
+            .map(|action_list| self.run_actions(&mut state, &action_list))
+            .or_else::<Error, _>(|err| Ok(vec![RunEvent::ErrorOccurred(err)]))
+            .unwrap();
         let end_events = vec![RunEvent::SpecFileCompleted {
             success: state.is_success(),
         }];
@@ -163,20 +158,16 @@ impl RunCommand {
             .collect()
     }
 
-    fn run_actions(
-        mut state: &mut State,
-        executor: &impl Executor,
-        actions: &[Action],
-    ) -> Vec<RunEvent> {
+    fn run_actions(&self, mut state: &mut State, actions: &[Action]) -> Vec<RunEvent> {
         actions
             .iter()
-            .map(|action| Self::run_single_action(&mut state, executor, action))
+            .map(|action| self.run_single_action(&mut state, action))
             .collect()
     }
 
-    fn run_single_action(state: &mut State, executor: &impl Executor, action: &Action) -> RunEvent {
+    fn run_single_action(&self, state: &mut State, action: &Action) -> RunEvent {
         runnable_action::from_action(action)
-            .run(&state, executor)
+            .run(&state, &*self.executor)
             .map(|result| {
                 state.add_result(&result);
                 RunEvent::TestCompleted(result)
