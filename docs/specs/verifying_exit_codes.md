@@ -37,6 +37,7 @@ Running tests for exit_example.md:
 
   - script 'command_1' succeeded
   - script 'command_2' failed (expected exitcode 0, got 1)
+
 === stdout:
 
 
