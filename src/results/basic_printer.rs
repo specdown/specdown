@@ -87,7 +87,7 @@ impl BasicPrinter {
                     self.display(&format!(
                         "\n=== stdout:\n{}\n\n=== stderr:\n{}\n\n",
                         stdout, stderr
-                    ))
+                    ));
                 }
             }
             ActionResult::Verify {
