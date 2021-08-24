@@ -1,0 +1,6 @@
+[mit.lint]
+"duplicated-trailers" = true
+"subject-not-separated-from-body" = true
+"subject-longer-than-72-characters" = true
+"body-wider-than-72-characters" = true
+"not-conventional-commit" = true
