@@ -131,7 +131,7 @@ impl RunCommand {
 
         self.spec_files
             .iter()
-            .flat_map(|spec_file| self.run_spec_file(&spec_file))
+            .flat_map(|spec_file| self.run_spec_file(spec_file))
             .collect()
     }
 
@@ -167,7 +167,7 @@ impl RunCommand {
 
     fn run_single_action(&self, state: &mut State, action: &Action) -> RunEvent {
         runnable_action::from_action(action)
-            .run(&state, &*self.executor)
+            .run(state, &*self.executor)
             .map(|result| {
                 state.add_result(&result);
                 RunEvent::TestCompleted(result)
