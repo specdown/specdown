@@ -295,7 +295,7 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: create_release
-        uses: ncipollo/release-action@v1.8.6
+        uses: ncipollo/release-action@v1.8.8
         with:
           allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
