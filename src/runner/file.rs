@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 
-use crate::results::action_result::ActionResult;
+use crate::results::action_result::{ActionResult, CreateFileResult};
 use crate::types::{CreateFileAction, FileContent, FilePath};
 
 pub fn run(action: &CreateFileAction) -> ActionResult {
@@ -13,14 +13,15 @@ pub fn run(action: &CreateFileAction) -> ActionResult {
     // TODO: Nice error handling
     let mut file = File::create(path_string).expect("Failed to create file");
     write!(file, "{}", content_string).expect("Failed to write to file");
-    ActionResult::CreateFile {
+    ActionResult::CreateFile(CreateFileResult {
         action: action.clone(),
-    }
+    })
 }
 
 #[cfg(test)]
 mod tests {
     use super::{run, ActionResult, FileContent, FilePath};
+    use crate::results::action_result::CreateFileResult;
     use crate::types::CreateFileAction;
     use std::fs;
 
@@ -60,6 +61,9 @@ mod tests {
         };
         let result = run(&action);
 
-        assert_eq!(result, ActionResult::CreateFile { action });
+        assert_eq!(
+            result,
+            ActionResult::CreateFile(CreateFileResult { action })
+        );
     }
 }

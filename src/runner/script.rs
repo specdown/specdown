@@ -1,4 +1,4 @@
-use crate::results::action_result::ActionResult;
+use crate::results::action_result::{ActionResult, ScriptResult};
 use crate::types::ScriptAction;
 
 use super::error::Error;
@@ -13,12 +13,12 @@ pub fn run(action: &ScriptAction, executor: &dyn Executor) -> Result<ActionResul
              stderr,
              exit_code,
          }| {
-            ActionResult::Script {
+            ActionResult::Script(ScriptResult {
                 action: action.clone(),
                 exit_code,
                 stdout,
                 stderr,
-            }
+            })
         },
     )
 }

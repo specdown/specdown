@@ -1,4 +1,4 @@
-use crate::results::action_result::ActionResult;
+use crate::results::action_result::{ActionResult, VerifyResult};
 use crate::runner::state::ScriptOutput;
 use crate::types::{Source, Stream, VerifyAction};
 
@@ -19,10 +19,10 @@ pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<Ac
         Some(got_raw) => {
             let got = strip_ansi_escape_chars(got_raw);
 
-            let result = ActionResult::Verify {
+            let result = ActionResult::Verify(VerifyResult {
                 action: (*action).clone(),
                 got,
-            };
+            });
 
             Ok(result)
         }
@@ -69,6 +69,7 @@ mod tests {
         use crate::types::{ScriptName, Source, Stream, VerifyAction, VerifyValue};
 
         use super::{run, ActionResult, Error, MockScriptOutput};
+        use crate::results::action_result::VerifyResult;
 
         #[test]
         fn returns_result_for_stdout_verification() {
@@ -90,10 +91,10 @@ mod tests {
 
             assert_eq!(
                 run(&action, &script_output),
-                Ok(ActionResult::Verify {
+                Ok(ActionResult::Verify(VerifyResult {
                     action,
                     got: "hello world".to_string(),
-                })
+                }))
             );
         }
 
@@ -116,10 +117,10 @@ mod tests {
 
             assert_eq!(
                 run(&action, &script_output),
-                Ok(ActionResult::Verify {
+                Ok(ActionResult::Verify(VerifyResult {
                     action,
                     got: "error message".to_string(),
-                })
+                }))
             );
         }
 
@@ -167,10 +168,10 @@ mod tests {
 
             assert_eq!(
                 run(&action, &script_output),
-                Ok(ActionResult::Verify {
+                Ok(ActionResult::Verify(VerifyResult {
                     action,
                     got: "This is coloured".to_string(),
-                })
+                }))
             );
         }
     }

@@ -4,7 +4,7 @@ use crossterm::style::Stylize;
 
 use super::action_result::ActionResult;
 use super::printer::Printer;
-use crate::results::action_result::ActionError;
+use crate::results::action_result::{ActionError, CreateFileResult, ScriptResult, VerifyResult};
 use crate::runner::error::Error;
 use crate::runner::RunEvent;
 use crate::types::{Stream, VerifyAction};
@@ -104,18 +104,18 @@ impl BasicPrinter {
 
     fn action_title(result: &ActionResult) -> String {
         match result {
-            ActionResult::Script { action, .. } => {
+            ActionResult::Script(ScriptResult { action, .. }) => {
                 format!(
                     "running script '{}'",
                     String::from(action.script_name.clone())
                 )
             }
-            ActionResult::Verify { action, .. } => format!(
+            ActionResult::Verify(VerifyResult { action, .. }) => format!(
                 "verifying {} from '{}'",
                 stream_to_string(&action.source.stream),
                 String::from(action.source.name.clone()),
             ),
-            ActionResult::CreateFile { action, .. } => {
+            ActionResult::CreateFile(CreateFileResult { action, .. }) => {
                 format!("creating file {}", String::from(action.file_path.clone()))
             }
         }
@@ -151,7 +151,7 @@ impl BasicPrinter {
 
     fn dsiplay_action_error(&mut self, result: &ActionResult) {
         match result {
-            ActionResult::Script { stdout, stderr, .. } => {
+            ActionResult::Script(ScriptResult { stdout, stderr, .. }) => {
                 if !result.success() {
                     self.display(&format!(
                         "\n=== stdout:\n{}\n\n=== stderr:\n{}\n\n",
@@ -159,7 +159,7 @@ impl BasicPrinter {
                     ));
                 }
             }
-            ActionResult::Verify { action, got, .. } => {
+            ActionResult::Verify(VerifyResult { action, got, .. }) => {
                 let VerifyAction {
                     expected_value: expected,
                     ..
@@ -175,7 +175,7 @@ impl BasicPrinter {
                     ));
                 }
             }
-            ActionResult::CreateFile { .. } => {}
+            ActionResult::CreateFile(_) => {}
         }
     }
 

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::results::action_result::ActionResult;
+use crate::results::action_result::{ActionResult, ScriptResult};
 use crate::types::{ScriptAction, ScriptName};
 
 pub struct State {
@@ -26,14 +26,14 @@ impl State {
             self.is_success = false;
         }
 
-        if let ActionResult::Script {
+        if let ActionResult::Script(ScriptResult {
             action:
                 ScriptAction {
                     script_name: ScriptName(name),
                     ..
                 },
             ..
-        } = action_result
+        }) = action_result
         {
             self.script_results
                 .insert(name.to_string(), (*action_result).clone());
@@ -50,7 +50,7 @@ impl ScriptOutput for State {
         self.script_results
             .get(name)
             .and_then(|result| match result {
-                ActionResult::Script { stdout, .. } => Some(&stdout[..]),
+                ActionResult::Script(ScriptResult { stdout, .. }) => Some(&stdout[..]),
                 _ => panic!("Only TestResult::Script results should be stored in the state"),
             })
     }
@@ -59,7 +59,7 @@ impl ScriptOutput for State {
         self.script_results
             .get(name)
             .and_then(|result| match result {
-                ActionResult::Script { stderr, .. } => Some(&stderr[..]),
+                ActionResult::Script(ScriptResult { stderr, .. }) => Some(&stderr[..]),
                 _ => panic!("Only TestResult::Script results should be stored in the state"),
             })
     }
@@ -68,6 +68,7 @@ impl ScriptOutput for State {
 #[cfg(test)]
 mod tests {
     use super::{ActionResult, ScriptOutput, State};
+    use crate::results::action_result::{CreateFileResult, ScriptResult, VerifyResult};
     use crate::types::{
         CreateFileAction, ExitCode, FileContent, FilePath, ScriptAction, ScriptCode, ScriptName,
         Source, Stream, VerifyAction, VerifyValue,
@@ -86,12 +87,12 @@ mod tests {
             script_code: ScriptCode("script1".to_string()),
             expected_exit_code: None,
         };
-        let script_result1 = ActionResult::Script {
+        let script_result1 = ActionResult::Script(ScriptResult {
             action,
             exit_code: Some(0),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
-        };
+        });
         let mut state = State::new();
         state.add_result(&script_result1);
         assert!(state.is_success());
@@ -104,12 +105,12 @@ mod tests {
             script_code: ScriptCode("script1".to_string()),
             expected_exit_code: Some(ExitCode(1)),
         };
-        let script_result1 = ActionResult::Script {
+        let script_result1 = ActionResult::Script(ScriptResult {
             action,
             exit_code: Some(2),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
-        };
+        });
         let mut state = State::new();
         state.add_result(&script_result1);
         assert!(!state.is_success());
@@ -121,7 +122,7 @@ mod tests {
             file_path: FilePath("example.txt".to_string()),
             file_content: FileContent("".to_string()),
         };
-        let file_result = ActionResult::CreateFile { action };
+        let file_result = ActionResult::CreateFile(CreateFileResult { action });
         let mut state = State::new();
         state.add_result(&file_result);
         assert!(state.is_success());
@@ -129,7 +130,7 @@ mod tests {
 
     #[test]
     fn get_script_stdout_returns_the_output_when_script_output_exists() {
-        let script_result1 = ActionResult::Script {
+        let script_result1 = ActionResult::Script(ScriptResult {
             action: ScriptAction {
                 script_name: ScriptName("script1".to_string()),
                 script_code: ScriptCode("script1".to_string()),
@@ -138,8 +139,8 @@ mod tests {
             exit_code: Some(0),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
-        };
-        let script_result2 = ActionResult::Script {
+        });
+        let script_result2 = ActionResult::Script(ScriptResult {
             action: ScriptAction {
                 script_name: ScriptName("script2".to_string()),
                 script_code: ScriptCode("script2".to_string()),
@@ -148,7 +149,7 @@ mod tests {
             exit_code: Some(0),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
-        };
+        });
         let mut state = State::new();
         state.add_result(&script_result1);
         state.add_result(&script_result2);
@@ -164,7 +165,7 @@ mod tests {
 
     #[test]
     fn get_script_stderr_returns_the_output_when_script_output_exists() {
-        let script_result1 = ActionResult::Script {
+        let script_result1 = ActionResult::Script(ScriptResult {
             action: ScriptAction {
                 script_name: ScriptName("script1".to_string()),
                 script_code: ScriptCode("script1".to_string()),
@@ -173,8 +174,8 @@ mod tests {
             exit_code: Some(0),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
-        };
-        let script_result2 = ActionResult::Script {
+        });
+        let script_result2 = ActionResult::Script(ScriptResult {
             action: ScriptAction {
                 script_name: ScriptName("script2".to_string()),
                 script_code: ScriptCode("script1".to_string()),
@@ -183,7 +184,7 @@ mod tests {
             exit_code: Some(0),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
-        };
+        });
         let mut state = State::new();
         state.add_result(&script_result1);
         state.add_result(&script_result2);
@@ -199,7 +200,7 @@ mod tests {
 
     #[test]
     fn does_not_fail_when_verify_was_successful() {
-        let verify_result = ActionResult::Verify {
+        let verify_result = ActionResult::Verify(VerifyResult {
             action: VerifyAction {
                 source: Source {
                     name: ScriptName("script2".to_string()),
@@ -208,7 +209,7 @@ mod tests {
                 expected_value: VerifyValue("expected".to_string()),
             },
             got: "expected".to_string(),
-        };
+        });
         let mut state = State::new();
         state.add_result(&verify_result);
         assert!(state.is_success());
@@ -216,7 +217,7 @@ mod tests {
 
     #[test]
     fn does_not_succeed_when_verify_was_successful_after_failure() {
-        let verify_result_failure = ActionResult::Verify {
+        let verify_result_failure = ActionResult::Verify(VerifyResult {
             action: VerifyAction {
                 source: Source {
                     name: ScriptName("script2".to_string()),
@@ -225,8 +226,8 @@ mod tests {
                 expected_value: VerifyValue("expected".to_string()),
             },
             got: "different".to_string(),
-        };
-        let verify_result_success = ActionResult::Verify {
+        });
+        let verify_result_success = ActionResult::Verify(VerifyResult {
             action: VerifyAction {
                 source: Source {
                     name: ScriptName("script2".to_string()),
@@ -235,7 +236,7 @@ mod tests {
                 expected_value: VerifyValue("expected".to_string()),
             },
             got: "expected".to_string(),
-        };
+        });
         let mut state = State::new();
         state.add_result(&verify_result_failure);
         state.add_result(&verify_result_success);
@@ -244,7 +245,7 @@ mod tests {
 
     #[test]
     fn it_fails_when_verify_was_not_successful() {
-        let failed_verify_result = ActionResult::Verify {
+        let failed_verify_result = ActionResult::Verify(VerifyResult {
             action: VerifyAction {
                 source: Source {
                     name: ScriptName("script2".to_string()),
@@ -253,7 +254,7 @@ mod tests {
                 expected_value: VerifyValue("expected".to_string()),
             },
             got: "not expected".to_string(),
-        };
+        });
         let mut state = State::new();
         state.add_result(&failed_verify_result);
         assert!(!state.is_success());
