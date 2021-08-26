@@ -1,4 +1,13 @@
-use crate::types::{CreateFileAction, ScriptAction, VerifyAction, VerifyValue};
+use crate::types::{CreateFileAction, ExitCode, ScriptAction, VerifyAction, VerifyValue};
+
+#[derive(Debug, PartialEq)]
+pub enum ActionError {
+    ExitCodeIsIncorrect {
+        expected_exit_code: ExitCode,
+        actual_exit_code: ExitCode,
+    },
+    OutputDoesNotMatch,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ActionResult {
@@ -38,21 +47,55 @@ impl ActionResult {
             ActionResult::CreateFile { .. } => true,
         }
     }
+
+    pub fn error(&self) -> Option<ActionError> {
+        match self {
+            ActionResult::Script {
+                action: ScriptAction {
+                    expected_exit_code, ..
+                },
+                exit_code,
+                ..
+            } => {
+                let i32_exit_code = expected_exit_code.map(i32::from);
+                if i32_exit_code != None && i32_exit_code != *exit_code {
+                    Some(ActionError::ExitCodeIsIncorrect {
+                        expected_exit_code: expected_exit_code.unwrap(),
+                        actual_exit_code: ExitCode(exit_code.unwrap()),
+                    })
+                } else {
+                    None
+                }
+            }
+            ActionResult::Verify {
+                action: VerifyAction { expected_value, .. },
+                got,
+                ..
+            } => {
+                if *expected_value == VerifyValue(got.clone()) {
+                    None
+                } else {
+                    Some(ActionError::OutputDoesNotMatch)
+                }
+            }
+            ActionResult::CreateFile { .. } => None,
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::ActionResult;
+    use super::{ActionError, ActionResult};
 
     mod success {
-        use super::ActionResult;
+        use super::{ActionError, ActionResult};
 
-        mod script {
-            use super::ActionResult;
+        mod error {
+            use super::{ActionError, ActionResult};
             use crate::types::{ExitCode, ScriptAction, ScriptCode, ScriptName};
 
             #[test]
-            fn returns_true_when_successful_script() {
+            fn returns_none_when_successful_script() {
                 let result = ActionResult::Script {
                     action: ScriptAction {
                         script_name: ScriptName("example_script".to_string()),
@@ -63,11 +106,12 @@ mod tests {
                     stdout: "".to_string(),
                     stderr: "".to_string(),
                 };
+                assert_eq!(result.error(), None);
                 assert!(result.success());
             }
 
             #[test]
-            fn returns_true_when_exit_code_is_expected() {
+            fn returns_none_when_exit_code_is_expected() {
                 let result = ActionResult::Script {
                     action: ScriptAction {
                         script_name: ScriptName("example_script".to_string()),
@@ -78,11 +122,12 @@ mod tests {
                     stdout: "".to_string(),
                     stderr: "".to_string(),
                 };
+                assert_eq!(result.error(), None);
                 assert!(result.success());
             }
 
             #[test]
-            fn returns_false_when_exit_code_is_incorrect() {
+            fn returns_exit_code_is_incorrect_when_exit_code_is_incorrect() {
                 let result = ActionResult::Script {
                     action: ScriptAction {
                         script_name: ScriptName("example_script".to_string()),
@@ -93,12 +138,19 @@ mod tests {
                     stdout: "".to_string(),
                     stderr: "".to_string(),
                 };
+                assert_eq!(
+                    result.error(),
+                    Some(ActionError::ExitCodeIsIncorrect {
+                        expected_exit_code: ExitCode(1),
+                        actual_exit_code: ExitCode(2)
+                    })
+                );
                 assert!(!result.success());
             }
         }
 
         mod verify {
-            use super::ActionResult;
+            use super::{ActionError, ActionResult};
             use crate::types::{ScriptName, Source, Stream, VerifyAction, VerifyValue};
 
             #[test]
@@ -113,6 +165,7 @@ mod tests {
                     },
                     got: "the output".to_string(),
                 };
+                assert_eq!(result.error(), None);
                 assert!(result.success());
             }
 
@@ -128,6 +181,7 @@ mod tests {
                     },
                     got: "different output".to_string(),
                 };
+                assert_eq!(result.error(), Some(ActionError::OutputDoesNotMatch));
                 assert!(!result.success());
             }
         }

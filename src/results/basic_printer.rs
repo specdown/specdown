@@ -4,6 +4,7 @@ use crossterm::style::Stylize;
 
 use super::action_result::ActionResult;
 use super::printer::Printer;
+use crate::results::action_result::ActionError;
 use crate::runner::error::Error;
 use crate::runner::RunEvent;
 use crate::types::{Stream, VerifyAction};
@@ -129,23 +130,22 @@ impl BasicPrinter {
     }
 
     fn action_result_message(result: &ActionResult) -> String {
-        if result.success() {
-            "succeeded".to_string()
-        } else {
-            match result {
-                ActionResult::Script {
-                    action, exit_code, ..
+        if let Some(error) = result.error() {
+            match error {
+                ActionError::ExitCodeIsIncorrect {
+                    expected_exit_code,
+                    actual_exit_code,
                 } => {
-                    let expected = action
-                        .expected_exit_code
-                        .map_or("None".to_string(), |code| code.into());
-                    let got = exit_code.map_or("None".to_string(), |code| code.to_string());
-
-                    format!("failed (expected exitcode {}, got {})", expected, got)
+                    format!(
+                        "failed (expected exitcode {}, got {})",
+                        String::from(expected_exit_code),
+                        String::from(actual_exit_code)
+                    )
                 }
-                ActionResult::Verify { .. } => "failed".to_string(),
-                ActionResult::CreateFile { .. } => "succeeded".to_string(),
+                ActionError::OutputDoesNotMatch => "failed".to_string(),
             }
+        } else {
+            "succeeded".to_string()
         }
     }
 
