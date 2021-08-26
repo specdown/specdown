@@ -35,9 +35,9 @@ And we'll see
 ```text,verify(script_name="writing_file_example")
 Running tests for writing_file_example.md:
 
-  - file example.txt created
-  - script 'cat-file' succeeded
-  - verify stdout from 'cat-file' succeeded
+  - creating file example.txt succeeded
+  - running script 'cat-file' succeeded
+  - verifying stdout from 'cat-file' succeeded
 
   3 functions run (3 succeeded / 0 failed)
 

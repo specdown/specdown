@@ -6,7 +6,7 @@ use super::action_result::ActionResult;
 use super::printer::Printer;
 use crate::runner::error::Error;
 use crate::runner::RunEvent;
-use crate::types::{ScriptAction, Stream, VerifyAction};
+use crate::types::{Stream, VerifyAction};
 
 struct Summary {
     pub number_succeeded: u32,
@@ -104,15 +104,18 @@ impl BasicPrinter {
     fn action_title(result: &ActionResult) -> String {
         match result {
             ActionResult::Script { action, .. } => {
-                format!("script '{}'", String::from(action.script_name.clone()))
+                format!(
+                    "running script '{}'",
+                    String::from(action.script_name.clone())
+                )
             }
             ActionResult::Verify { action, .. } => format!(
-                "verify {} from '{}'",
+                "verifying {} from '{}'",
                 stream_to_string(&action.source.stream),
                 String::from(action.source.name.clone()),
             ),
             ActionResult::CreateFile { action, .. } => {
-                format!("file {}", String::from(action.file_path.clone()))
+                format!("creating file {}", String::from(action.file_path.clone()))
             }
         }
     }
@@ -126,32 +129,23 @@ impl BasicPrinter {
     }
 
     fn action_result_message(result: &ActionResult) -> String {
-        match result {
-            ActionResult::Script {
-                action: ScriptAction {
-                    expected_exit_code, ..
-                },
-                exit_code,
-                ..
-            } => {
-                if result.success() {
-                    "succeeded".to_string()
-                } else {
-                    let expected =
-                        expected_exit_code.map_or("None".to_string(), |code| code.into());
+        if result.success() {
+            "succeeded".to_string()
+        } else {
+            match result {
+                ActionResult::Script {
+                    action, exit_code, ..
+                } => {
+                    let expected = action
+                        .expected_exit_code
+                        .map_or("None".to_string(), |code| code.into());
                     let got = exit_code.map_or("None".to_string(), |code| code.to_string());
 
                     format!("failed (expected exitcode {}, got {})", expected, got)
                 }
+                ActionResult::Verify { .. } => "failed".to_string(),
+                ActionResult::CreateFile { .. } => "succeeded".to_string(),
             }
-            ActionResult::Verify { .. } => {
-                if result.success() {
-                    "succeeded".to_string()
-                } else {
-                    "failed".to_string()
-                }
-            }
-            ActionResult::CreateFile { .. } => "created".to_string(),
         }
     }
 
