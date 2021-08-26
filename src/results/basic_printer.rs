@@ -6,6 +6,7 @@ use super::action_result::ActionResult;
 use super::printer::Printer;
 use crate::runner::error::Error;
 use crate::runner::RunEvent;
+use crate::types::{ScriptAction, ScriptName};
 
 struct Summary {
     pub number_succeeded: u32,
@@ -55,9 +56,13 @@ impl BasicPrinter {
     fn print_result(&mut self, result: &ActionResult) {
         match result {
             ActionResult::Script {
-                name,
+                action:
+                    ScriptAction {
+                        script_name: ScriptName(name),
+                        expected_exit_code,
+                        ..
+                    },
                 success,
-                expected_exit_code,
                 exit_code,
                 stdout,
                 stderr,
@@ -67,7 +72,7 @@ impl BasicPrinter {
                     "succeeded".to_string()
                 } else {
                     let expected =
-                        expected_exit_code.map_or("None".to_string(), |code| code.to_string());
+                        expected_exit_code.map_or("None".to_string(), |code| code.into());
                     let got = exit_code.map_or("None".to_string(), |code| code.to_string());
 
                     format!("failed (expected exitcode {}, got {})", expected, got)

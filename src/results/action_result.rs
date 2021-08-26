@@ -1,10 +1,10 @@
+use crate::types::ScriptAction;
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum ActionResult {
     Script {
-        name: String,
+        action: ScriptAction,
         exit_code: Option<i32>,
-        expected_exit_code: Option<i32>,
-        script: String,
         stdout: String,
         stderr: String,
         success: bool,
