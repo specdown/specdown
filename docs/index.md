@@ -21,6 +21,7 @@ All documentation is written as SpecDown tests and form part of the test suite.
 - Specs
   - [Verifying Script Output](specs/verifying_script_output.md)
   - [Verifying Exit Codes](specs/verifying_exit_codes.md)
+  - [Output Expectations](specs/output_expectations.md)
   - [Skipping Code Blocks](specs/skipping_code_blocks.md)
   - [Creating Test Files](specs/creating_test_files.md)
 - [Errors](errors.md)

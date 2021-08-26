@@ -35,8 +35,8 @@ And you will get the following output:
 ``` text
 Running tests for example-spec.md:
 
-  - script 'command_1' succeeded
-  - verify stdout from 'command_1' succeeded
+  - running script 'command_1' succeeded
+  - verifying stdout from 'command_1' succeeded
 
   2 functions run (2 succeeded / 0 failed)
 
@@ -75,13 +75,13 @@ And you will get the following output:
 ``` text
 Running tests for example-file1.md:
 
-  - script 'command_1' succeeded
+  - running script 'command_1' succeeded
 
   1 functions run (1 succeeded / 0 failed)
 
 Running tests for example-file2.md:
 
-  - script 'command_2' succeeded
+  - running script 'command_2' succeeded
 
   1 functions run (1 succeeded / 0 failed)
 
@@ -133,10 +133,10 @@ specdown run --running-dir running_dir running_dir_example.md
 ``` text
 Running tests for running_dir_example.md:
 
-  - script 'ls' succeeded
-  - verify stdout from 'ls' succeeded
-  - script 'cat' succeeded
-  - verify stdout from 'cat' succeeded
+  - running script 'ls' succeeded
+  - verifying stdout from 'ls' succeeded
+  - running script 'cat' succeeded
+  - verifying stdout from 'cat' succeeded
 
   4 functions run (4 succeeded / 0 failed)
 
@@ -177,8 +177,8 @@ And it will give the following output:
 ``` text
 Running tests for setting_the_shell_example.md:
 
-  - script 'get_shell_name' succeeded
-  - verify stdout from 'get_shell_name' failed
+  - running script 'get_shell_name' succeeded
+  - verifying stdout from 'get_shell_name' failed
 ===
 < left / > right
 <bash
