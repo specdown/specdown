@@ -37,24 +37,7 @@ pub enum ActionResult {
 
 impl ActionResult {
     pub fn success(&self) -> bool {
-        match self {
-            ActionResult::Script(ScriptResult {
-                action: ScriptAction {
-                    expected_exit_code, ..
-                },
-                exit_code,
-                ..
-            }) => {
-                let i32_exit_code = expected_exit_code.map(i32::from);
-                i32_exit_code == None || i32_exit_code == *exit_code
-            }
-            ActionResult::Verify(VerifyResult {
-                action: VerifyAction { expected_value, .. },
-                got,
-                ..
-            }) => *expected_value == VerifyValue(got.clone()),
-            ActionResult::CreateFile(_) => true,
-        }
+        self.error() == None
     }
 
     pub fn error(&self) -> Option<ActionError> {
