@@ -7,7 +7,7 @@ use super::printer::Printer;
 use crate::results::action_result::{ActionError, CreateFileResult, ScriptResult, VerifyResult};
 use crate::runner::error::Error;
 use crate::runner::RunEvent;
-use crate::types::{Stream, VerifyAction};
+use crate::types::{OutputExpectation, Stream, VerifyAction};
 
 struct Summary {
     pub number_succeeded: u32,
@@ -146,6 +146,17 @@ impl BasicPrinter {
                             .map(|code| code.to_string())
                             .or_else(|| Some("None".to_string()))
                             .unwrap()
+                    )
+                }
+                ActionError::UnexpectedOutputIsPresent(result) => {
+                    format!(
+                        "failed (unexpected {})",
+                        match result.action.expected_output {
+                            OutputExpectation::Any => panic!("Should not be possible"),
+                            OutputExpectation::StdOut => "stderr",
+                            OutputExpectation::StdErr => "stdout",
+                            OutputExpectation::None => "output",
+                        }
                     )
                 }
                 ActionError::OutputDoesNotMatch(_) => "failed".to_string(),

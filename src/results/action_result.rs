@@ -1,8 +1,9 @@
-use crate::types::{CreateFileAction, ScriptAction, VerifyAction, VerifyValue};
+use crate::types::{CreateFileAction, OutputExpectation, ScriptAction, VerifyAction, VerifyValue};
 
 #[derive(Debug, PartialEq)]
 pub enum ActionError {
     ExitCodeIsIncorrect(ScriptResult),
+    UnexpectedOutputIsPresent(ScriptResult),
     OutputDoesNotMatch(VerifyResult),
 }
 
@@ -22,10 +23,26 @@ impl ActionErrorProvider for ScriptResult {
     fn error(&self) -> Option<ActionError> {
         let i32_exit_code = self.action.expected_exit_code.map(i32::from);
         if i32_exit_code != None && i32_exit_code != self.exit_code {
-            Some(ActionError::ExitCodeIsIncorrect(self.clone()))
-        } else {
-            None
+            return Some(ActionError::ExitCodeIsIncorrect(self.clone()));
         }
+
+        if self.action.expected_output == OutputExpectation::StdOut && !self.stderr.is_empty() {
+            return Some(ActionError::UnexpectedOutputIsPresent(self.clone()));
+        }
+
+        if self.action.expected_output == OutputExpectation::StdErr && !self.stdout.is_empty() {
+            return Some(ActionError::UnexpectedOutputIsPresent(self.clone()));
+        }
+
+        if self.action.expected_output == OutputExpectation::None && !self.stdout.is_empty() {
+            return Some(ActionError::UnexpectedOutputIsPresent(self.clone()));
+        }
+
+        if self.action.expected_output == OutputExpectation::None && !self.stderr.is_empty() {
+            return Some(ActionError::UnexpectedOutputIsPresent(self.clone()));
+        }
+
+        None
     }
 }
 
@@ -83,15 +100,14 @@ impl ActionResult {
 
 #[cfg(test)]
 mod tests {
-    use super::{ActionError, ActionResult};
+    use super::{ActionError, ActionResult, ScriptResult};
 
     mod success {
-        use super::{ActionError, ActionResult};
+        use super::{ActionError, ActionResult, ScriptResult};
 
         mod error {
-            use super::{ActionError, ActionResult};
-            use crate::results::action_result::ScriptResult;
-            use crate::types::{ExitCode, ScriptAction, ScriptCode, ScriptName};
+            use super::{ActionError, ActionResult, ScriptResult};
+            use crate::types::{ExitCode, OutputExpectation, ScriptAction, ScriptCode, ScriptName};
 
             #[test]
             fn returns_none_when_successful_script() {
@@ -100,6 +116,7 @@ mod tests {
                         script_name: ScriptName("example_script".to_string()),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: None,
+                        expected_output: OutputExpectation::Any,
                     },
                     exit_code: None,
                     stdout: "".to_string(),
@@ -116,6 +133,7 @@ mod tests {
                         script_name: ScriptName("example_script".to_string()),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: Some(ExitCode(1)),
+                        expected_output: OutputExpectation::Any,
                     },
                     exit_code: Some(1),
                     stdout: "".to_string(),
@@ -132,6 +150,7 @@ mod tests {
                         script_name: ScriptName("example_script".to_string()),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: Some(ExitCode(1)),
+                        expected_output: OutputExpectation::Any,
                     },
                     exit_code: Some(2),
                     stdout: "".to_string(),
@@ -141,6 +160,94 @@ mod tests {
                 assert_eq!(
                     result.error(),
                     Some(ActionError::ExitCodeIsIncorrect(script_result))
+                );
+                assert!(!result.success());
+            }
+
+            #[test]
+            fn returns_unexpected_output_is_present_when_stderr_is_present_but_only_stdout_is_expected(
+            ) {
+                let script_result = ScriptResult {
+                    action: ScriptAction {
+                        script_name: ScriptName("example_script".to_string()),
+                        script_code: ScriptCode("example code".to_string()),
+                        expected_exit_code: None,
+                        expected_output: OutputExpectation::StdOut,
+                    },
+                    exit_code: None,
+                    stdout: "".to_string(),
+                    stderr: "unexpected output".to_string(),
+                };
+                let result = ActionResult::Script(script_result.clone());
+                assert_eq!(
+                    result.error(),
+                    Some(ActionError::UnexpectedOutputIsPresent(script_result))
+                );
+                assert!(!result.success());
+            }
+
+            #[test]
+            fn returns_unexpected_output_is_present_when_stdout_is_present_but_only_stderr_is_expected(
+            ) {
+                let script_result = ScriptResult {
+                    action: ScriptAction {
+                        script_name: ScriptName("example_script".to_string()),
+                        script_code: ScriptCode("example code".to_string()),
+                        expected_exit_code: None,
+                        expected_output: OutputExpectation::StdErr,
+                    },
+                    exit_code: None,
+                    stdout: "unexpected output".to_string(),
+                    stderr: "".to_string(),
+                };
+                let result = ActionResult::Script(script_result.clone());
+                assert_eq!(
+                    result.error(),
+                    Some(ActionError::UnexpectedOutputIsPresent(script_result))
+                );
+                assert!(!result.success());
+            }
+
+            #[test]
+            fn returns_unexpected_output_is_present_when_stdout_is_present_but_no_output_is_expected(
+            ) {
+                let script_result = ScriptResult {
+                    action: ScriptAction {
+                        script_name: ScriptName("example_script".to_string()),
+                        script_code: ScriptCode("example code".to_string()),
+                        expected_exit_code: None,
+                        expected_output: OutputExpectation::None,
+                    },
+                    exit_code: None,
+                    stdout: "unexpected output".to_string(),
+                    stderr: "".to_string(),
+                };
+                let result = ActionResult::Script(script_result.clone());
+                assert_eq!(
+                    result.error(),
+                    Some(ActionError::UnexpectedOutputIsPresent(script_result))
+                );
+                assert!(!result.success());
+            }
+
+            #[test]
+            fn returns_unexpected_output_is_present_when_stderr_is_present_but_no_output_is_expected(
+            ) {
+                let script_result = ScriptResult {
+                    action: ScriptAction {
+                        script_name: ScriptName("example_script".to_string()),
+                        script_code: ScriptCode("example code".to_string()),
+                        expected_exit_code: None,
+                        expected_output: OutputExpectation::None,
+                    },
+                    exit_code: None,
+                    stdout: "".to_string(),
+                    stderr: "unexpected output".to_string(),
+                };
+                let result = ActionResult::Script(script_result.clone());
+                assert_eq!(
+                    result.error(),
+                    Some(ActionError::UnexpectedOutputIsPresent(script_result))
                 );
                 assert!(!result.success());
             }

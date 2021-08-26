@@ -8,13 +8,16 @@ pub fn create_action(info: &str, literal: String) -> Result<Option<Action>> {
     let (_, block) = code_block_info::parse(info)?;
 
     Ok(match block {
-        code_block_info::CodeBlockType::Script(script_name, expected_exit_code) => {
-            Some(Action::Script(ScriptAction {
-                script_name,
-                script_code: ScriptCode(literal),
-                expected_exit_code,
-            }))
-        }
+        code_block_info::CodeBlockType::Script(
+            script_name,
+            expected_exit_code,
+            expected_output,
+        ) => Some(Action::Script(ScriptAction {
+            script_name,
+            script_code: ScriptCode(literal),
+            expected_exit_code,
+            expected_output,
+        })),
         code_block_info::CodeBlockType::Verify(source) => Some(Action::Verify(VerifyAction {
             source,
             expected_value: VerifyValue(literal),
@@ -33,7 +36,8 @@ pub fn create_action(info: &str, literal: String) -> Result<Option<Action>> {
 mod tests {
     use super::{create_action, Action, FileContent, ScriptCode, VerifyValue};
     use crate::types::{
-        CreateFileAction, FilePath, ScriptAction, ScriptName, Source, Stream, VerifyAction,
+        CreateFileAction, FilePath, OutputExpectation, ScriptAction, ScriptName, Source, Stream,
+        VerifyAction,
     };
 
     #[test]
@@ -43,7 +47,8 @@ mod tests {
             Ok(Some(Action::Script(ScriptAction {
                 script_name: ScriptName("script-name".to_string()),
                 script_code: ScriptCode("code".to_string()),
-                expected_exit_code: None
+                expected_exit_code: None,
+                expected_output: OutputExpectation::Any,
             })))
         );
     }

@@ -113,6 +113,18 @@ fn test_doc_verifying_exit_codes() {
         .success();
 }
 
+#[test]
+fn test_doc_output_expectations() {
+    Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--running-dir")
+        .arg(".specdown")
+        .arg("docs/specs/output_expectations.md")
+        .assert()
+        .success();
+}
+
 #[cfg(not(windows))]
 #[test]
 fn test_doc_errors() {

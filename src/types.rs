@@ -64,10 +64,19 @@ impl From<ExitCode> for i32 {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+pub enum OutputExpectation {
+    Any,
+    StdOut,
+    StdErr,
+    None,
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct ScriptAction {
     pub script_name: ScriptName,
     pub script_code: ScriptCode,
     pub expected_exit_code: Option<ExitCode>,
+    pub expected_output: OutputExpectation,
 }
 
 #[derive(Clone, Debug, PartialEq)]

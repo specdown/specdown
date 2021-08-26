@@ -7,11 +7,11 @@ use nom::{
 use super::error::{Error, Result};
 use super::function;
 use super::function_string;
-use crate::types::{ExitCode, FilePath, ScriptName, Source, Stream};
+use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream};
 
 #[derive(Debug, PartialEq)]
 pub enum CodeBlockType {
-    Script(ScriptName, Option<ExitCode>),
+    Script(ScriptName, Option<ExitCode>, OutputExpectation),
     Verify(Source),
     CreateFile(FilePath),
     Skip(),
@@ -50,7 +50,29 @@ fn script_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     } else {
         None
     };
-    Ok(CodeBlockType::Script(ScriptName(name), expected_exit_code))
+    let expected_output = get_token_argument(f, "expected_output")
+        .or_else(|_| Ok("any".to_string()))
+        .and_then(|s| to_expected_output(&s))?;
+    Ok(CodeBlockType::Script(
+        ScriptName(name),
+        expected_exit_code,
+        expected_output,
+    ))
+}
+
+fn to_expected_output(s: &str) -> Result<OutputExpectation> {
+    match s {
+        "any" => Ok(OutputExpectation::Any),
+        "stdout" => Ok(OutputExpectation::StdOut),
+        "stderr" => Ok(OutputExpectation::StdErr),
+        "none" => Ok(OutputExpectation::None),
+        _ => Err(Error::InvalidArgumentValue {
+            function: "script".to_string(),
+            argument: "expected_output".to_string(),
+            expected: "any, stdout, stderr or none".to_string(),
+            got: s.to_string(),
+        }),
+    }
 }
 
 fn file_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
@@ -96,13 +118,19 @@ fn get_token_argument(f: &function::Function, name: &str) -> Result<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{parse, CodeBlockType, Error, ExitCode, FilePath, ScriptName, Source, Stream};
+    use super::{
+        parse, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation, ScriptName, Source,
+        Stream,
+    };
 
     mod parse {
-        use super::{parse, CodeBlockType, Error, ExitCode, FilePath, ScriptName, Source, Stream};
+        use super::{
+            parse, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation, ScriptName, Source,
+            Stream,
+        };
 
         mod script {
-            use super::{parse, CodeBlockType, Error, ExitCode, ScriptName};
+            use super::{parse, CodeBlockType, Error, ExitCode, OutputExpectation, ScriptName};
 
             #[test]
             fn succeeds_when_function_is_script() {
@@ -111,7 +139,11 @@ mod tests {
                     result,
                     Ok((
                         "shell",
-                        CodeBlockType::Script(ScriptName("example-script".to_string(),), None)
+                        CodeBlockType::Script(
+                            ScriptName("example-script".to_string(),),
+                            None,
+                            OutputExpectation::Any
+                        )
                     ))
                 );
             }
@@ -125,7 +157,40 @@ mod tests {
                         "shell",
                         CodeBlockType::Script(
                             ScriptName("example-script".to_string(),),
-                            Some(ExitCode(2))
+                            Some(ExitCode(2)),
+                            OutputExpectation::Any,
+                        )
+                    ))
+                );
+            }
+
+            #[test]
+            fn succeeds_when_function_is_script_with_expected_output_set_to_any() {
+                let result = parse("shell,script(name=\"example-script\", expected_output=any)");
+                assert_eq!(
+                    result,
+                    Ok((
+                        "shell",
+                        CodeBlockType::Script(
+                            ScriptName("example-script".to_string(),),
+                            None,
+                            OutputExpectation::Any,
+                        )
+                    ))
+                );
+            }
+
+            #[test]
+            fn succeeds_when_function_is_script_with_expected_output_set_to_stdout() {
+                let result = parse("shell,script(name=\"example-script\", expected_output=stdout)");
+                assert_eq!(
+                    result,
+                    Ok((
+                        "shell",
+                        CodeBlockType::Script(
+                            ScriptName("example-script".to_string(),),
+                            None,
+                            OutputExpectation::StdOut,
                         )
                     ))
                 );

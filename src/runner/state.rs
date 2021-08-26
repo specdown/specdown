@@ -70,8 +70,8 @@ mod tests {
     use super::{ActionResult, ScriptOutput, State};
     use crate::results::action_result::{CreateFileResult, ScriptResult, VerifyResult};
     use crate::types::{
-        CreateFileAction, ExitCode, FileContent, FilePath, ScriptAction, ScriptCode, ScriptName,
-        Source, Stream, VerifyAction, VerifyValue,
+        CreateFileAction, ExitCode, FileContent, FilePath, OutputExpectation, ScriptAction,
+        ScriptCode, ScriptName, Source, Stream, VerifyAction, VerifyValue,
     };
 
     #[test]
@@ -86,6 +86,7 @@ mod tests {
             script_name: ScriptName("script1".to_string()),
             script_code: ScriptCode("script1".to_string()),
             expected_exit_code: None,
+            expected_output: OutputExpectation::Any,
         };
         let script_result1 = ActionResult::Script(ScriptResult {
             action,
@@ -104,6 +105,7 @@ mod tests {
             script_name: ScriptName("script1".to_string()),
             script_code: ScriptCode("script1".to_string()),
             expected_exit_code: Some(ExitCode(1)),
+            expected_output: OutputExpectation::Any,
         };
         let script_result1 = ActionResult::Script(ScriptResult {
             action,
@@ -135,6 +137,7 @@ mod tests {
                 script_name: ScriptName("script1".to_string()),
                 script_code: ScriptCode("script1".to_string()),
                 expected_exit_code: None,
+                expected_output: OutputExpectation::Any,
             },
             exit_code: Some(0),
             stdout: "stdout1".to_string(),
@@ -145,6 +148,7 @@ mod tests {
                 script_name: ScriptName("script2".to_string()),
                 script_code: ScriptCode("script2".to_string()),
                 expected_exit_code: None,
+                expected_output: OutputExpectation::Any,
             },
             exit_code: Some(0),
             stdout: "stdout2".to_string(),
@@ -170,6 +174,7 @@ mod tests {
                 script_name: ScriptName("script1".to_string()),
                 script_code: ScriptCode("script1".to_string()),
                 expected_exit_code: None,
+                expected_output: OutputExpectation::Any,
             },
             exit_code: Some(0),
             stdout: "stdout1".to_string(),
@@ -180,6 +185,7 @@ mod tests {
                 script_name: ScriptName("script2".to_string()),
                 script_code: ScriptCode("script1".to_string()),
                 expected_exit_code: None,
+                expected_output: OutputExpectation::Any,
             },
             exit_code: Some(0),
             stdout: "stdout2".to_string(),
