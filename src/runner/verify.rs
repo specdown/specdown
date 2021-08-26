@@ -1,12 +1,11 @@
 use crate::results::action_result::ActionResult;
 use crate::runner::state::ScriptOutput;
-use crate::types::{Source, Stream, VerifyAction, VerifyValue};
+use crate::types::{Source, Stream, VerifyAction};
 
 use super::error::Error;
 
 pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<ActionResult, Error> {
     let Source { name, stream } = action.source.clone();
-    let VerifyValue(value_string) = action.expected_value.clone();
 
     let got_raw = match stream {
         Stream::StdOut => script_output.get_stdout(&String::from(name.clone())),
@@ -18,14 +17,11 @@ pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<Ac
             missing_script_name: String::from(name),
         }),
         Some(got_raw) => {
-            let expected = strip_ansi_escape_chars(&value_string);
             let got = strip_ansi_escape_chars(got_raw);
-            let success = expected == got;
 
             let result = ActionResult::Verify {
                 action: (*action).clone(),
                 got,
-                success,
             };
 
             Ok(result)
@@ -75,7 +71,7 @@ mod tests {
         use super::{run, ActionResult, Error, MockScriptOutput};
 
         #[test]
-        fn returns_result_for_successful_stdout_verification() {
+        fn returns_result_for_stdout_verification() {
             let source = Source {
                 name: ScriptName("example_script".to_string()),
                 stream: Stream::StdOut,
@@ -97,13 +93,12 @@ mod tests {
                 Ok(ActionResult::Verify {
                     action,
                     got: "hello world".to_string(),
-                    success: true,
                 })
             );
         }
 
         #[test]
-        fn returns_result_for_successful_error_verification() {
+        fn returns_result_for_stderr_verification() {
             let source = Source {
                 name: ScriptName("my_script".to_string()),
                 stream: Stream::StdErr,
@@ -124,61 +119,6 @@ mod tests {
                 Ok(ActionResult::Verify {
                     action,
                     got: "error message".to_string(),
-                    success: true,
-                })
-            );
-        }
-
-        #[test]
-        fn returns_result_for_failed_stdout_verification() {
-            let source = Source {
-                name: ScriptName("test_script".to_string()),
-                stream: Stream::StdOut,
-            };
-            let verify_value = VerifyValue("hello moon".to_string());
-            let script_output = MockScriptOutput {
-                script_name: "test_script".to_string(),
-                stdout: "hello mars".to_string(),
-                stderr: "".to_string(),
-            };
-            let action = VerifyAction {
-                source,
-                expected_value: verify_value,
-            };
-
-            assert_eq!(
-                run(&action, &script_output),
-                Ok(ActionResult::Verify {
-                    action,
-                    got: "hello mars".to_string(),
-                    success: false,
-                })
-            );
-        }
-
-        #[test]
-        fn returns_result_for_failed_error_verification() {
-            let source = Source {
-                name: ScriptName("the_script".to_string()),
-                stream: Stream::StdErr,
-            };
-            let verify_value = VerifyValue("error message".to_string());
-            let script_output = MockScriptOutput {
-                script_name: "the_script".to_string(),
-                stdout: "hello world".to_string(),
-                stderr: "not error message".to_string(),
-            };
-            let action = VerifyAction {
-                source,
-                expected_value: verify_value,
-            };
-
-            assert_eq!(
-                run(&action, &script_output),
-                Ok(ActionResult::Verify {
-                    action,
-                    got: "not error message".to_string(),
-                    success: false,
                 })
             );
         }
@@ -230,7 +170,6 @@ mod tests {
                 Ok(ActionResult::Verify {
                     action,
                     got: "This is coloured".to_string(),
-                    success: true,
                 })
             );
         }

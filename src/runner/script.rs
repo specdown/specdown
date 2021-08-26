@@ -13,14 +13,11 @@ pub fn run(action: &ScriptAction, executor: &dyn Executor) -> Result<ActionResul
              stderr,
              exit_code,
          }| {
-            let expected_exit = action.expected_exit_code.map(|code| code.into());
-
             ActionResult::Script {
                 action: action.clone(),
                 exit_code,
                 stdout,
                 stderr,
-                success: expected_exit == None || expected_exit == exit_code,
             }
         },
     )
