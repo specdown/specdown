@@ -33,10 +33,17 @@ impl From<VerifyValue> for String {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FilePath(pub String);
 
-#[derive(Debug, PartialEq)]
+impl From<FilePath> for String {
+    fn from(file_path: FilePath) -> Self {
+        let FilePath(value) = file_path;
+        value
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct FileContent(pub String);
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -69,7 +76,7 @@ pub struct VerifyAction {
     pub expected_value: VerifyValue,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct CreateFileAction {
     pub file_path: FilePath,
     pub file_content: FileContent,
@@ -84,7 +91,7 @@ pub enum Action {
 
 #[cfg(test)]
 mod tests {
-    use super::{ExitCode, ScriptName, VerifyValue};
+    use super::{ExitCode, FilePath, ScriptName, VerifyValue};
 
     mod script_name {
         use super::ScriptName;
@@ -94,6 +101,30 @@ mod tests {
             assert_eq!(
                 String::from(ScriptName("name".to_string())),
                 String::from("name")
+            );
+        }
+    }
+
+    mod verify_value {
+        use super::VerifyValue;
+
+        #[test]
+        fn converts_from_verify_value_into_string() {
+            assert_eq!(
+                String::from(VerifyValue("contents".to_string())),
+                String::from("contents")
+            );
+        }
+    }
+
+    mod file_path {
+        use super::FilePath;
+
+        #[test]
+        fn converts_from_file_path_into_string() {
+            assert_eq!(
+                String::from(FilePath("abc.txt".to_string())),
+                String::from("abc.txt")
             );
         }
     }
@@ -109,18 +140,6 @@ mod tests {
         #[test]
         fn converts_from_exit_code_into_string() {
             assert_eq!(String::from(ExitCode(10)), String::from("10"));
-        }
-    }
-
-    mod verify_value {
-        use super::VerifyValue;
-
-        #[test]
-        fn converts_from_verify_value_into_string() {
-            assert_eq!(
-                String::from(VerifyValue("contents".to_string())),
-                String::from("contents")
-            );
         }
     }
 }

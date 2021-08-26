@@ -1,4 +1,4 @@
-use crate::types::{ScriptAction, VerifyAction};
+use crate::types::{CreateFileAction, ScriptAction, VerifyAction};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ActionResult {
@@ -15,6 +15,6 @@ pub enum ActionResult {
         success: bool,
     },
     File {
-        path: String,
+        action: CreateFileAction,
     },
 }

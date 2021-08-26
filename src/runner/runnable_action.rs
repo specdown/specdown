@@ -31,6 +31,6 @@ impl RunnableAction for VerifyAction {
 
 impl RunnableAction for CreateFileAction {
     fn run(&self, _state: &State, _executor: &dyn Executor) -> Result<ActionResult, Error> {
-        Ok(file::run(&self.file_path, &self.file_content))
+        Ok(file::run(self))
     }
 }

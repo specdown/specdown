@@ -134,9 +134,12 @@ impl BasicPrinter {
                     ));
                 }
             }
-            ActionResult::File { path } => {
+            ActionResult::File { action, .. } => {
                 self.summary.number_succeeded += 1;
-                self.display_success(&format!("  - file {} created", path));
+                self.display_success(&format!(
+                    "  - file {} created",
+                    String::from(action.clone().file_path)
+                ));
             }
         }
     }
