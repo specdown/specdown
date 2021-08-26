@@ -9,6 +9,10 @@ pub enum ActionError {
     OutputDoesNotMatch,
 }
 
+trait ActionErrorProvider {
+    fn error(&self) -> Option<ActionError>;
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ScriptResult {
     pub action: ScriptAction,
@@ -17,15 +21,45 @@ pub struct ScriptResult {
     pub stderr: String,
 }
 
+impl ActionErrorProvider for ScriptResult {
+    fn error(&self) -> Option<ActionError> {
+        let i32_exit_code = self.action.expected_exit_code.map(i32::from);
+        if i32_exit_code != None && i32_exit_code != self.exit_code {
+            Some(ActionError::ExitCodeIsIncorrect {
+                expected_exit_code: self.action.expected_exit_code.unwrap(),
+                actual_exit_code: ExitCode(self.exit_code.unwrap()),
+            })
+        } else {
+            None
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct VerifyResult {
     pub action: VerifyAction,
     pub got: String,
 }
 
+impl ActionErrorProvider for VerifyResult {
+    fn error(&self) -> Option<ActionError> {
+        if self.action.expected_value == VerifyValue(self.got.clone()) {
+            None
+        } else {
+            Some(ActionError::OutputDoesNotMatch)
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct CreateFileResult {
     pub action: CreateFileAction,
+}
+
+impl ActionErrorProvider for CreateFileResult {
+    fn error(&self) -> Option<ActionError> {
+        None
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -41,36 +75,14 @@ impl ActionResult {
     }
 
     pub fn error(&self) -> Option<ActionError> {
+        self.as_error_provider().error()
+    }
+
+    fn as_error_provider(&self) -> &dyn ActionErrorProvider {
         match self {
-            ActionResult::Script(ScriptResult {
-                action: ScriptAction {
-                    expected_exit_code, ..
-                },
-                exit_code,
-                ..
-            }) => {
-                let i32_exit_code = expected_exit_code.map(i32::from);
-                if i32_exit_code != None && i32_exit_code != *exit_code {
-                    Some(ActionError::ExitCodeIsIncorrect {
-                        expected_exit_code: expected_exit_code.unwrap(),
-                        actual_exit_code: ExitCode(exit_code.unwrap()),
-                    })
-                } else {
-                    None
-                }
-            }
-            ActionResult::Verify(VerifyResult {
-                action: VerifyAction { expected_value, .. },
-                got,
-                ..
-            }) => {
-                if *expected_value == VerifyValue(got.clone()) {
-                    None
-                } else {
-                    Some(ActionError::OutputDoesNotMatch)
-                }
-            }
-            ActionResult::CreateFile(_) => None,
+            ActionResult::Script(result) => result,
+            ActionResult::Verify(result) => result,
+            ActionResult::CreateFile(result) => result,
         }
     }
 }
