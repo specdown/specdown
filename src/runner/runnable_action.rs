@@ -25,7 +25,7 @@ impl RunnableAction for ScriptAction {
 
 impl RunnableAction for VerifyAction {
     fn run(&self, state: &State, _executor: &dyn Executor) -> Result<ActionResult, Error> {
-        verify::run(&self.source, &self.expected_value, state)
+        verify::run(self, state)
     }
 }
 

@@ -75,7 +75,9 @@ impl ScriptOutput for State {
 #[cfg(test)]
 mod tests {
     use super::{ActionResult, ScriptOutput, State};
-    use crate::types::{ExitCode, ScriptAction, ScriptCode, ScriptName};
+    use crate::types::{
+        ExitCode, ScriptAction, ScriptCode, ScriptName, Source, Stream, VerifyAction, VerifyValue,
+    };
 
     #[test]
     fn sets_success_when_initialized() {
@@ -208,9 +210,13 @@ mod tests {
     #[test]
     fn does_not_fail_when_verify_was_successful() {
         let verify_result = ActionResult::Verify {
-            script_name: "script2".to_string(),
-            stream: "output".to_string(),
-            expected: "abc".to_string(),
+            action: VerifyAction {
+                source: Source {
+                    name: ScriptName("script2".to_string()),
+                    stream: Stream::StdOut,
+                },
+                expected_value: VerifyValue("abc".to_string()),
+            },
             got: "abc".to_string(),
             success: true,
         };
@@ -222,16 +228,24 @@ mod tests {
     #[test]
     fn does_not_succeed_when_verify_was_successful_after_failure() {
         let verify_result_failure = ActionResult::Verify {
-            script_name: "script1".to_string(),
-            stream: "output".to_string(),
-            expected: "abc".to_string(),
+            action: VerifyAction {
+                source: Source {
+                    name: ScriptName("script2".to_string()),
+                    stream: Stream::StdOut,
+                },
+                expected_value: VerifyValue("abc".to_string()),
+            },
             got: "abc".to_string(),
             success: false,
         };
         let verify_result_success = ActionResult::Verify {
-            script_name: "script2".to_string(),
-            stream: "output".to_string(),
-            expected: "abc".to_string(),
+            action: VerifyAction {
+                source: Source {
+                    name: ScriptName("script2".to_string()),
+                    stream: Stream::StdOut,
+                },
+                expected_value: VerifyValue("abc".to_string()),
+            },
             got: "abc".to_string(),
             success: true,
         };
@@ -244,9 +258,13 @@ mod tests {
     #[test]
     fn it_fails_when_verify_was_not_successful() {
         let verify_result = ActionResult::Verify {
-            script_name: "script2".to_string(),
-            stream: "output".to_string(),
-            expected: "abc".to_string(),
+            action: VerifyAction {
+                source: Source {
+                    name: ScriptName("script2".to_string()),
+                    stream: Stream::StdOut,
+                },
+                expected_value: VerifyValue("abc".to_string()),
+            },
             got: "abc".to_string(),
             success: false,
         };

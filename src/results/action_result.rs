@@ -1,4 +1,4 @@
-use crate::types::ScriptAction;
+use crate::types::{ScriptAction, VerifyAction};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ActionResult {
@@ -10,9 +10,7 @@ pub enum ActionResult {
         success: bool,
     },
     Verify {
-        script_name: String,
-        stream: String,
-        expected: String,
+        action: VerifyAction,
         got: String,
         success: bool,
     },

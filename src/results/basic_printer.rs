@@ -6,7 +6,7 @@ use super::action_result::ActionResult;
 use super::printer::Printer;
 use crate::runner::error::Error;
 use crate::runner::RunEvent;
-use crate::types::{ScriptAction, ScriptName};
+use crate::types::{ScriptAction, ScriptName, Source, Stream, VerifyAction};
 
 struct Summary {
     pub number_succeeded: u32,
@@ -96,16 +96,22 @@ impl BasicPrinter {
                 }
             }
             ActionResult::Verify {
-                script_name,
+                action,
                 success,
-                expected,
                 got,
-                stream,
             } => {
+                let VerifyAction {
+                    source:
+                        Source {
+                            name: script_name,
+                            stream,
+                        },
+                    expected_value: expected,
+                } = action;
                 let message = &format!(
                     "  - verify {} from '{}' {}",
-                    stream,
-                    script_name,
+                    stream_to_string(stream),
+                    String::from(script_name.clone()),
                     if *success { "succeeded" } else { "failed" }
                 );
 
@@ -122,8 +128,8 @@ impl BasicPrinter {
                     self.display(&format!(
                         "===\n{}\n===",
                         colored_diff::PrettyDifference {
-                            expected,
-                            actual: got
+                            expected: &String::from(expected.clone()),
+                            actual: got,
                         }
                     ));
                 }
@@ -177,6 +183,13 @@ impl BasicPrinter {
 
     fn display_error(&self, text: &str) {
         self.display(&format!("{}", text.red()));
+    }
+}
+
+fn stream_to_string(stream: &Stream) -> &str {
+    match stream {
+        Stream::StdOut => "stdout",
+        Stream::StdErr => "stderr",
     }
 }
 
