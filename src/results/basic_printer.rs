@@ -132,17 +132,23 @@ impl BasicPrinter {
     fn action_result_message(result: &ActionResult) -> String {
         if let Some(error) = result.error() {
             match error {
-                ActionError::ExitCodeIsIncorrect {
-                    expected_exit_code,
-                    actual_exit_code,
-                } => {
+                ActionError::ExitCodeIsIncorrect(result) => {
                     format!(
                         "failed (expected exitcode {}, got {})",
-                        String::from(expected_exit_code),
-                        String::from(actual_exit_code)
+                        result
+                            .action
+                            .expected_exit_code
+                            .map(String::from)
+                            .or_else(|| Some("None".to_string()))
+                            .unwrap(),
+                        result
+                            .exit_code
+                            .map(|code| code.to_string())
+                            .or_else(|| Some("None".to_string()))
+                            .unwrap()
                     )
                 }
-                ActionError::OutputDoesNotMatch => "failed".to_string(),
+                ActionError::OutputDoesNotMatch(_) => "failed".to_string(),
             }
         } else {
             "succeeded".to_string()

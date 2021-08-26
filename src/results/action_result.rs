@@ -1,12 +1,9 @@
-use crate::types::{CreateFileAction, ExitCode, ScriptAction, VerifyAction, VerifyValue};
+use crate::types::{CreateFileAction, ScriptAction, VerifyAction, VerifyValue};
 
 #[derive(Debug, PartialEq)]
 pub enum ActionError {
-    ExitCodeIsIncorrect {
-        expected_exit_code: ExitCode,
-        actual_exit_code: ExitCode,
-    },
-    OutputDoesNotMatch,
+    ExitCodeIsIncorrect(ScriptResult),
+    OutputDoesNotMatch(VerifyResult),
 }
 
 trait ActionErrorProvider {
@@ -25,10 +22,7 @@ impl ActionErrorProvider for ScriptResult {
     fn error(&self) -> Option<ActionError> {
         let i32_exit_code = self.action.expected_exit_code.map(i32::from);
         if i32_exit_code != None && i32_exit_code != self.exit_code {
-            Some(ActionError::ExitCodeIsIncorrect {
-                expected_exit_code: self.action.expected_exit_code.unwrap(),
-                actual_exit_code: ExitCode(self.exit_code.unwrap()),
-            })
+            Some(ActionError::ExitCodeIsIncorrect(self.clone()))
         } else {
             None
         }
@@ -46,7 +40,7 @@ impl ActionErrorProvider for VerifyResult {
         if self.action.expected_value == VerifyValue(self.got.clone()) {
             None
         } else {
-            Some(ActionError::OutputDoesNotMatch)
+            Some(ActionError::OutputDoesNotMatch(self.clone()))
         }
     }
 }
@@ -133,7 +127,7 @@ mod tests {
 
             #[test]
             fn returns_exit_code_is_incorrect_when_exit_code_is_incorrect() {
-                let result = ActionResult::Script(ScriptResult {
+                let script_result = ScriptResult {
                     action: ScriptAction {
                         script_name: ScriptName("example_script".to_string()),
                         script_code: ScriptCode("example code".to_string()),
@@ -142,13 +136,11 @@ mod tests {
                     exit_code: Some(2),
                     stdout: "".to_string(),
                     stderr: "".to_string(),
-                });
+                };
+                let result = ActionResult::Script(script_result.clone());
                 assert_eq!(
                     result.error(),
-                    Some(ActionError::ExitCodeIsIncorrect {
-                        expected_exit_code: ExitCode(1),
-                        actual_exit_code: ExitCode(2)
-                    })
+                    Some(ActionError::ExitCodeIsIncorrect(script_result))
                 );
                 assert!(!result.success());
             }
@@ -177,7 +169,7 @@ mod tests {
 
             #[test]
             fn returns_false_when_expected_output_is_not_the_same_as_got_output() {
-                let result = ActionResult::Verify(VerifyResult {
+                let verify_result = VerifyResult {
                     action: VerifyAction {
                         source: Source {
                             name: ScriptName("example_script".to_string()),
@@ -186,8 +178,12 @@ mod tests {
                         expected_value: VerifyValue("expected output".to_string()),
                     },
                     got: "different output".to_string(),
-                });
-                assert_eq!(result.error(), Some(ActionError::OutputDoesNotMatch));
+                };
+                let result = ActionResult::Verify(verify_result.clone());
+                assert_eq!(
+                    result.error(),
+                    Some(ActionError::OutputDoesNotMatch(verify_result))
+                );
                 assert!(!result.success());
             }
         }
