@@ -19,12 +19,7 @@ pub trait RunnableAction {
 
 impl RunnableAction for ScriptAction {
     fn run(&self, _state: &State, executor: &dyn Executor) -> Result<ActionResult, Error> {
-        script::run(
-            &self.script_name,
-            &self.script_code,
-            &self.expected_exit_code,
-            executor,
-        )
+        script::run(self, executor)
     }
 }
 

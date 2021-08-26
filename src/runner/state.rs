@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::results::action_result::ActionResult;
+use crate::types::{ScriptAction, ScriptName};
 
 pub struct State {
     script_results: HashMap<String, ActionResult>,
@@ -22,7 +23,15 @@ impl State {
 
     pub fn add_result(&mut self, action_result: &ActionResult) {
         match action_result {
-            ActionResult::Script { name, success, .. } => {
+            ActionResult::Script {
+                action:
+                    ScriptAction {
+                        script_name: ScriptName(name),
+                        ..
+                    },
+                success,
+                ..
+            } => {
                 self.script_results
                     .insert(name.to_string(), (*action_result).clone());
                 if !(*success) {
@@ -66,6 +75,7 @@ impl ScriptOutput for State {
 #[cfg(test)]
 mod tests {
     use super::{ActionResult, ScriptOutput, State};
+    use crate::types::{ExitCode, ScriptAction, ScriptCode, ScriptName};
 
     #[test]
     fn sets_success_when_initialized() {
@@ -75,11 +85,14 @@ mod tests {
 
     #[test]
     fn does_not_update_success_when_successful_script_result_is_added() {
-        let script_result1 = ActionResult::Script {
-            name: "script1".to_string(),
-            exit_code: Some(0),
+        let action = ScriptAction {
+            script_name: ScriptName("script1".to_string()),
+            script_code: ScriptCode("script1".to_string()),
             expected_exit_code: None,
-            script: "script1".to_string(),
+        };
+        let script_result1 = ActionResult::Script {
+            action,
+            exit_code: Some(0),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
             success: true,
@@ -91,11 +104,14 @@ mod tests {
 
     #[test]
     fn does_not_succeed_when_script_failed() {
+        let action = ScriptAction {
+            script_name: ScriptName("script1".to_string()),
+            script_code: ScriptCode("script1".to_string()),
+            expected_exit_code: Some(ExitCode(1)),
+        };
         let script_result1 = ActionResult::Script {
-            name: "script1".to_string(),
+            action,
             exit_code: Some(0),
-            expected_exit_code: Some(1),
-            script: "script1".to_string(),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
             success: false,
@@ -118,19 +134,23 @@ mod tests {
     #[test]
     fn get_script_stdout_returns_the_output_when_script_output_exists() {
         let script_result1 = ActionResult::Script {
-            name: "script1".to_string(),
+            action: ScriptAction {
+                script_name: ScriptName("script1".to_string()),
+                script_code: ScriptCode("script1".to_string()),
+                expected_exit_code: None,
+            },
             exit_code: Some(0),
-            expected_exit_code: None,
-            script: "script1".to_string(),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
             success: true,
         };
         let script_result2 = ActionResult::Script {
-            name: "script2".to_string(),
+            action: ScriptAction {
+                script_name: ScriptName("script2".to_string()),
+                script_code: ScriptCode("script2".to_string()),
+                expected_exit_code: None,
+            },
             exit_code: Some(0),
-            expected_exit_code: None,
-            script: "script1".to_string(),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
             success: true,
@@ -151,19 +171,23 @@ mod tests {
     #[test]
     fn get_script_stderr_returns_the_output_when_script_output_exists() {
         let script_result1 = ActionResult::Script {
-            name: "script1".to_string(),
+            action: ScriptAction {
+                script_name: ScriptName("script1".to_string()),
+                script_code: ScriptCode("script1".to_string()),
+                expected_exit_code: None,
+            },
             exit_code: Some(0),
-            expected_exit_code: None,
-            script: "script1".to_string(),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
             success: true,
         };
         let script_result2 = ActionResult::Script {
-            name: "script2".to_string(),
+            action: ScriptAction {
+                script_name: ScriptName("script2".to_string()),
+                script_code: ScriptCode("script1".to_string()),
+                expected_exit_code: None,
+            },
             exit_code: Some(0),
-            expected_exit_code: None,
-            script: "script1".to_string(),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
             success: true,

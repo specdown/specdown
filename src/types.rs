@@ -4,7 +4,7 @@ pub enum Stream {
     StdErr,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ScriptName(pub String);
 
 #[derive(Debug, PartialEq)]
@@ -13,7 +13,7 @@ pub struct Source {
     pub stream: Stream,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ScriptCode(pub String);
 
 #[derive(Debug, PartialEq)]
@@ -25,10 +25,24 @@ pub struct FilePath(pub String);
 #[derive(Debug, PartialEq)]
 pub struct FileContent(pub String);
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ExitCode(pub i32);
 
-#[derive(Debug, PartialEq)]
+impl From<ExitCode> for String {
+    fn from(exit_code: ExitCode) -> Self {
+        let ExitCode(value) = exit_code;
+        value.to_string()
+    }
+}
+
+impl From<ExitCode> for i32 {
+    fn from(exit_code: ExitCode) -> Self {
+        let ExitCode(value) = exit_code;
+        value
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct ScriptAction {
     pub script_name: ScriptName,
     pub script_code: ScriptCode,
@@ -52,4 +66,25 @@ pub enum Action {
     Script(ScriptAction),
     Verify(VerifyAction),
     CreateFile(CreateFileAction),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ExitCode;
+
+    mod exit_code {
+        use super::ExitCode;
+
+        #[test]
+        fn converts_from_exit_code_into_i32() {
+            let value: i32 = ExitCode(10).into();
+            assert_eq!(value, 10);
+        }
+
+        #[test]
+        fn converts_from_exit_code_into_string() {
+            let value: String = ExitCode(10).into();
+            assert_eq!(value, String::from("10"));
+        }
+    }
 }
