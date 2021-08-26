@@ -76,7 +76,8 @@ impl ScriptOutput for State {
 mod tests {
     use super::{ActionResult, ScriptOutput, State};
     use crate::types::{
-        ExitCode, ScriptAction, ScriptCode, ScriptName, Source, Stream, VerifyAction, VerifyValue,
+        CreateFileAction, ExitCode, FileContent, FilePath, ScriptAction, ScriptCode, ScriptName,
+        Source, Stream, VerifyAction, VerifyValue,
     };
 
     #[test]
@@ -125,9 +126,11 @@ mod tests {
 
     #[test]
     fn does_not_update_success_when_file_result_is_added() {
-        let file_result = ActionResult::File {
-            path: "example.txt".to_string(),
+        let action = CreateFileAction {
+            file_path: FilePath("example.txt".to_string()),
+            file_content: FileContent("".to_string()),
         };
+        let file_result = ActionResult::File { action };
         let mut state = State::new();
         state.add_result(&file_result);
         assert!(state.is_success());

@@ -2,23 +2,26 @@ use std::fs::File;
 use std::io::Write;
 
 use crate::results::action_result::ActionResult;
-use crate::types::{FileContent, FilePath};
+use crate::types::{CreateFileAction, FileContent, FilePath};
 
-pub fn run(path: &FilePath, content: &FileContent) -> ActionResult {
-    let FilePath(path_string) = path;
-    let FileContent(content_string) = content;
+pub fn run(action: &CreateFileAction) -> ActionResult {
+    let CreateFileAction {
+        file_path: FilePath(path_string),
+        file_content: FileContent(content_string),
+    } = action;
 
     // TODO: Nice error handling
     let mut file = File::create(path_string).expect("Failed to create file");
     write!(file, "{}", content_string).expect("Failed to write to file");
     ActionResult::File {
-        path: path_string.clone(),
+        action: action.clone(),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{run, ActionResult, FileContent, FilePath};
+    use crate::types::CreateFileAction;
     use std::fs;
 
     #[test]
@@ -28,10 +31,12 @@ mod tests {
         let file_path = ".tests/test_file1.txt";
         fs::remove_file(file_path).ok();
 
-        run(
-            &FilePath(file_path.to_string()),
-            &FileContent("example content".to_string()),
-        );
+        let action = CreateFileAction {
+            file_path: FilePath(file_path.to_string()),
+            file_content: FileContent("example content".to_string()),
+        };
+
+        run(&action);
 
         if let Ok(content) = fs::read_to_string(file_path) {
             assert_eq!(content, "example content");
@@ -49,15 +54,12 @@ mod tests {
         let file_path = ".tests/test_file2.txt";
         fs::remove_file(file_path).ok();
 
-        let result = run(
-            &FilePath(file_path.to_string()),
-            &FileContent("example content".to_string()),
-        );
-        assert_eq!(
-            result,
-            ActionResult::File {
-                path: ".tests/test_file2.txt".to_string()
-            }
-        );
+        let action = CreateFileAction {
+            file_path: FilePath(file_path.to_string()),
+            file_content: FileContent("example content".to_string()),
+        };
+        let result = run(&action);
+
+        assert_eq!(result, ActionResult::File { action });
     }
 }
