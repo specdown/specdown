@@ -22,28 +22,21 @@ impl State {
     }
 
     pub fn add_result(&mut self, action_result: &ActionResult) {
-        match action_result {
-            ActionResult::Script {
-                action:
-                    ScriptAction {
-                        script_name: ScriptName(name),
-                        ..
-                    },
-                success,
-                ..
-            } => {
-                self.script_results
-                    .insert(name.to_string(), (*action_result).clone());
-                if !(*success) {
-                    self.is_success = *success;
-                }
-            }
-            ActionResult::Verify { success, .. } => {
-                if !(*success) {
-                    self.is_success = *success;
-                }
-            }
-            ActionResult::CreateFile { .. } => {}
+        if !(action_result.success()) {
+            self.is_success = false;
+        }
+
+        if let ActionResult::Script {
+            action:
+                ScriptAction {
+                    script_name: ScriptName(name),
+                    ..
+                },
+            ..
+        } = action_result
+        {
+            self.script_results
+                .insert(name.to_string(), (*action_result).clone());
         }
     }
 
@@ -98,7 +91,6 @@ mod tests {
             exit_code: Some(0),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
-            success: true,
         };
         let mut state = State::new();
         state.add_result(&script_result1);
@@ -114,10 +106,9 @@ mod tests {
         };
         let script_result1 = ActionResult::Script {
             action,
-            exit_code: Some(0),
+            exit_code: Some(2),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
-            success: false,
         };
         let mut state = State::new();
         state.add_result(&script_result1);
@@ -147,7 +138,6 @@ mod tests {
             exit_code: Some(0),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
-            success: true,
         };
         let script_result2 = ActionResult::Script {
             action: ScriptAction {
@@ -158,7 +148,6 @@ mod tests {
             exit_code: Some(0),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
-            success: true,
         };
         let mut state = State::new();
         state.add_result(&script_result1);
@@ -184,7 +173,6 @@ mod tests {
             exit_code: Some(0),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
-            success: true,
         };
         let script_result2 = ActionResult::Script {
             action: ScriptAction {
@@ -195,7 +183,6 @@ mod tests {
             exit_code: Some(0),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
-            success: true,
         };
         let mut state = State::new();
         state.add_result(&script_result1);
@@ -218,10 +205,9 @@ mod tests {
                     name: ScriptName("script2".to_string()),
                     stream: Stream::StdOut,
                 },
-                expected_value: VerifyValue("abc".to_string()),
+                expected_value: VerifyValue("expected".to_string()),
             },
-            got: "abc".to_string(),
-            success: true,
+            got: "expected".to_string(),
         };
         let mut state = State::new();
         state.add_result(&verify_result);
@@ -236,10 +222,9 @@ mod tests {
                     name: ScriptName("script2".to_string()),
                     stream: Stream::StdOut,
                 },
-                expected_value: VerifyValue("abc".to_string()),
+                expected_value: VerifyValue("expected".to_string()),
             },
-            got: "abc".to_string(),
-            success: false,
+            got: "different".to_string(),
         };
         let verify_result_success = ActionResult::Verify {
             action: VerifyAction {
@@ -247,10 +232,9 @@ mod tests {
                     name: ScriptName("script2".to_string()),
                     stream: Stream::StdOut,
                 },
-                expected_value: VerifyValue("abc".to_string()),
+                expected_value: VerifyValue("expected".to_string()),
             },
-            got: "abc".to_string(),
-            success: true,
+            got: "expected".to_string(),
         };
         let mut state = State::new();
         state.add_result(&verify_result_failure);
@@ -260,19 +244,18 @@ mod tests {
 
     #[test]
     fn it_fails_when_verify_was_not_successful() {
-        let verify_result = ActionResult::Verify {
+        let failed_verify_result = ActionResult::Verify {
             action: VerifyAction {
                 source: Source {
                     name: ScriptName("script2".to_string()),
                     stream: Stream::StdOut,
                 },
-                expected_value: VerifyValue("abc".to_string()),
+                expected_value: VerifyValue("expected".to_string()),
             },
-            got: "abc".to_string(),
-            success: false,
+            got: "not expected".to_string(),
         };
         let mut state = State::new();
-        state.add_result(&verify_result);
+        state.add_result(&failed_verify_result);
         assert!(!state.is_success());
     }
 }

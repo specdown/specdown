@@ -62,13 +62,12 @@ impl BasicPrinter {
                         expected_exit_code,
                         ..
                     },
-                success,
                 exit_code,
                 stdout,
                 stderr,
                 ..
             } => {
-                let message = if *success {
+                let message = if result.success() {
                     "succeeded".to_string()
                 } else {
                     let expected =
@@ -78,14 +77,14 @@ impl BasicPrinter {
                     format!("failed (expected exitcode {}, got {})", expected, got)
                 };
 
-                if *success {
+                if result.success() {
                     self.summary.number_succeeded += 1;
                 } else {
                     self.summary.number_failed += 1;
                 }
 
                 let full_message = &format!("  - script '{}' {}", name, message);
-                if *success {
+                if result.success() {
                     self.display_success(full_message);
                 } else {
                     self.display_error(full_message);
@@ -95,11 +94,7 @@ impl BasicPrinter {
                     ));
                 }
             }
-            ActionResult::Verify {
-                action,
-                success,
-                got,
-            } => {
+            ActionResult::Verify { action, got, .. } => {
                 let VerifyAction {
                     source:
                         Source {
@@ -112,16 +107,20 @@ impl BasicPrinter {
                     "  - verify {} from '{}' {}",
                     stream_to_string(stream),
                     String::from(script_name.clone()),
-                    if *success { "succeeded" } else { "failed" }
+                    if result.success() {
+                        "succeeded"
+                    } else {
+                        "failed"
+                    }
                 );
 
-                if *success {
+                if result.success() {
                     self.summary.number_succeeded += 1;
                 } else {
                     self.summary.number_failed += 1;
                 }
 
-                if *success {
+                if result.success() {
                     self.display_success(message);
                 } else {
                     self.display_error(message);
