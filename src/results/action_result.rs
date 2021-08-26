@@ -14,7 +14,7 @@ pub enum ActionResult {
         got: String,
         success: bool,
     },
-    File {
+    CreateFile {
         action: CreateFileAction,
     },
 }
