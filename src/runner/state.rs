@@ -43,7 +43,7 @@ impl State {
                     self.is_success = *success;
                 }
             }
-            ActionResult::File { .. } => {}
+            ActionResult::CreateFile { .. } => {}
         }
     }
 
@@ -130,7 +130,7 @@ mod tests {
             file_path: FilePath("example.txt".to_string()),
             file_content: FileContent("".to_string()),
         };
-        let file_result = ActionResult::File { action };
+        let file_result = ActionResult::CreateFile { action };
         let mut state = State::new();
         state.add_result(&file_result);
         assert!(state.is_success());

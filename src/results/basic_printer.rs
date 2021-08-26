@@ -134,7 +134,7 @@ impl BasicPrinter {
                     ));
                 }
             }
-            ActionResult::File { action, .. } => {
+            ActionResult::CreateFile { action, .. } => {
                 self.summary.number_succeeded += 1;
                 self.display_success(&format!(
                     "  - file {} created",

@@ -13,7 +13,7 @@ pub fn run(action: &CreateFileAction) -> ActionResult {
     // TODO: Nice error handling
     let mut file = File::create(path_string).expect("Failed to create file");
     write!(file, "{}", content_string).expect("Failed to write to file");
-    ActionResult::File {
+    ActionResult::CreateFile {
         action: action.clone(),
     }
 }
@@ -60,6 +60,6 @@ mod tests {
         };
         let result = run(&action);
 
-        assert_eq!(result, ActionResult::File { action });
+        assert_eq!(result, ActionResult::CreateFile { action });
     }
 }
