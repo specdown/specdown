@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Stream {
     StdOut,
     StdErr,
@@ -7,7 +7,14 @@ pub enum Stream {
 #[derive(Clone, Debug, PartialEq)]
 pub struct ScriptName(pub String);
 
-#[derive(Debug, PartialEq)]
+impl From<ScriptName> for String {
+    fn from(script_name: ScriptName) -> Self {
+        let ScriptName(value) = script_name;
+        value
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct Source {
     pub name: ScriptName,
     pub stream: Stream,
@@ -16,8 +23,15 @@ pub struct Source {
 #[derive(Clone, Debug, PartialEq)]
 pub struct ScriptCode(pub String);
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct VerifyValue(pub String);
+
+impl From<VerifyValue> for String {
+    fn from(verify_value: VerifyValue) -> Self {
+        let VerifyValue(value) = verify_value;
+        value
+    }
+}
 
 #[derive(Debug, PartialEq)]
 pub struct FilePath(pub String);
@@ -49,7 +63,7 @@ pub struct ScriptAction {
     pub expected_exit_code: Option<ExitCode>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct VerifyAction {
     pub source: Source,
     pub expected_value: VerifyValue,
@@ -70,21 +84,43 @@ pub enum Action {
 
 #[cfg(test)]
 mod tests {
-    use super::ExitCode;
+    use super::{ExitCode, ScriptName, VerifyValue};
+
+    mod script_name {
+        use super::ScriptName;
+
+        #[test]
+        fn converts_to_string_from_script_name() {
+            assert_eq!(
+                String::from(ScriptName("name".to_string())),
+                String::from("name")
+            );
+        }
+    }
 
     mod exit_code {
         use super::ExitCode;
 
         #[test]
         fn converts_from_exit_code_into_i32() {
-            let value: i32 = ExitCode(10).into();
-            assert_eq!(value, 10);
+            assert_eq!(i32::from(ExitCode(10)), 10);
         }
 
         #[test]
         fn converts_from_exit_code_into_string() {
-            let value: String = ExitCode(10).into();
-            assert_eq!(value, String::from("10"));
+            assert_eq!(String::from(ExitCode(10)), String::from("10"));
+        }
+    }
+
+    mod verify_value {
+        use super::VerifyValue;
+
+        #[test]
+        fn converts_from_verify_value_into_string() {
+            assert_eq!(
+                String::from(VerifyValue("contents".to_string())),
+                String::from("contents")
+            );
         }
     }
 }

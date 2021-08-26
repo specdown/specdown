@@ -1,51 +1,35 @@
 use crate::results::action_result::ActionResult;
 use crate::runner::state::ScriptOutput;
-use crate::types::{ScriptName, Source, Stream, VerifyValue};
+use crate::types::{Source, Stream, VerifyAction, VerifyValue};
 
 use super::error::Error;
 
-pub fn run(
-    source: &Source,
-    value: &VerifyValue,
-    script_output: &dyn ScriptOutput,
-) -> Result<ActionResult, Error> {
-    let Source {
-        name: ScriptName(script_name),
-        stream,
-    } = source;
-    let VerifyValue(value_string) = value;
+pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<ActionResult, Error> {
+    let Source { name, stream } = action.source.clone();
+    let VerifyValue(value_string) = action.expected_value.clone();
 
     let got_raw = match stream {
-        Stream::StdOut => script_output.get_stdout(script_name),
-        Stream::StdErr => script_output.get_stderr(script_name),
+        Stream::StdOut => script_output.get_stdout(&String::from(name.clone())),
+        Stream::StdErr => script_output.get_stderr(&String::from(name.clone())),
     };
 
     match got_raw {
         None => Err(Error::ScriptOutputMissing {
-            missing_script_name: script_name.to_string(),
+            missing_script_name: String::from(name),
         }),
         Some(got_raw) => {
-            let expected = strip_ansi_escape_chars(value_string);
+            let expected = strip_ansi_escape_chars(&value_string);
             let got = strip_ansi_escape_chars(got_raw);
             let success = expected == got;
 
             let result = ActionResult::Verify {
-                script_name: script_name.to_string(),
-                stream: stream_to_string(stream).into(),
-                expected,
+                action: (*action).clone(),
                 got,
                 success,
             };
 
             Ok(result)
         }
-    }
-}
-
-fn stream_to_string(stream: &Stream) -> &str {
-    match stream {
-        Stream::StdOut => "stdout",
-        Stream::StdErr => "stderr",
     }
 }
 
@@ -86,7 +70,7 @@ mod tests {
     }
 
     mod test {
-        use crate::types::{ScriptName, Source, Stream, VerifyValue};
+        use crate::types::{ScriptName, Source, Stream, VerifyAction, VerifyValue};
 
         use super::{run, ActionResult, Error, MockScriptOutput};
 
@@ -103,12 +87,15 @@ mod tests {
                 stderr: "".to_string(),
             };
 
+            let action = VerifyAction {
+                source,
+                expected_value: verify_value,
+            };
+
             assert_eq!(
-                run(&source, &verify_value, &script_output),
+                run(&action, &script_output),
                 Ok(ActionResult::Verify {
-                    script_name: "example_script".to_string(),
-                    stream: "stdout".to_string(),
-                    expected: "hello world".to_string(),
+                    action,
                     got: "hello world".to_string(),
                     success: true,
                 })
@@ -127,13 +114,15 @@ mod tests {
                 stdout: "hello world".to_string(),
                 stderr: "error message".to_string(),
             };
+            let action = VerifyAction {
+                source,
+                expected_value: verify_value,
+            };
 
             assert_eq!(
-                run(&source, &verify_value, &script_output),
+                run(&action, &script_output),
                 Ok(ActionResult::Verify {
-                    script_name: "my_script".to_string(),
-                    stream: "stderr".to_string(),
-                    expected: "error message".to_string(),
+                    action,
                     got: "error message".to_string(),
                     success: true,
                 })
@@ -152,13 +141,15 @@ mod tests {
                 stdout: "hello mars".to_string(),
                 stderr: "".to_string(),
             };
+            let action = VerifyAction {
+                source,
+                expected_value: verify_value,
+            };
 
             assert_eq!(
-                run(&source, &verify_value, &script_output),
+                run(&action, &script_output),
                 Ok(ActionResult::Verify {
-                    script_name: "test_script".to_string(),
-                    stream: "stdout".to_string(),
-                    expected: "hello moon".to_string(),
+                    action,
                     got: "hello mars".to_string(),
                     success: false,
                 })
@@ -177,13 +168,15 @@ mod tests {
                 stdout: "hello world".to_string(),
                 stderr: "not error message".to_string(),
             };
+            let action = VerifyAction {
+                source,
+                expected_value: verify_value,
+            };
 
             assert_eq!(
-                run(&source, &verify_value, &script_output),
+                run(&action, &script_output),
                 Ok(ActionResult::Verify {
-                    script_name: "the_script".to_string(),
-                    stream: "stderr".to_string(),
-                    expected: "error message".to_string(),
+                    action,
                     got: "not error message".to_string(),
                     success: false,
                 })
@@ -202,9 +195,13 @@ mod tests {
                 stdout: "".to_string(),
                 stderr: "".to_string(),
             };
+            let action = VerifyAction {
+                source,
+                expected_value: verify_value,
+            };
 
             assert_eq!(
-                run(&source, &verify_value, &script_output),
+                run(&action, &script_output),
                 Err(Error::ScriptOutputMissing {
                     missing_script_name: "missing_script".to_string()
                 })
@@ -223,13 +220,15 @@ mod tests {
                 stdout: "\x1b[31mThis is coloured".to_string(),
                 stderr: "".to_string(),
             };
+            let action = VerifyAction {
+                source,
+                expected_value: verify_value,
+            };
 
             assert_eq!(
-                run(&source, &verify_value, &script_output),
+                run(&action, &script_output),
                 Ok(ActionResult::Verify {
-                    script_name: "colour_script".to_string(),
-                    stream: "stdout".to_string(),
-                    expected: "This is coloured".to_string(),
+                    action,
                     got: "This is coloured".to_string(),
                     success: true,
                 })
