@@ -17,16 +17,18 @@ struct Summary {
 pub struct BasicPrinter {
     display_function: Box<dyn Fn(&str)>,
     summary: Summary,
+    colour: bool,
 }
 
 impl BasicPrinter {
-    pub fn new() -> Self {
+    pub fn new(colour: bool) -> Self {
         Self {
             display_function: Box::new(|line: &str| println!("{}", line)),
             summary: Summary {
                 number_succeeded: 0,
                 number_failed: 0,
             },
+            colour,
         }
     }
 }
@@ -198,7 +200,12 @@ impl BasicPrinter {
 
     fn display(&self, text: &str) {
         let display = &self.display_function;
-        display(text);
+        let prepared_text = if self.colour {
+            text.to_string()
+        } else {
+            strip_ansi_escape_chars(text)
+        };
+        display(&prepared_text);
     }
 
     fn display_success_item(&self, text: &str) {
@@ -216,6 +223,14 @@ impl BasicPrinter {
     fn display_error(&self, text: &str) {
         self.display(&format!("{}", text.red()));
     }
+}
+
+fn strip_ansi_escape_chars(string: &str) -> String {
+    strip_ansi_escapes::strip(string)
+        .expect("ANSI code to be stripped from got")
+        .iter()
+        .map(|&c| c as char)
+        .collect()
 }
 
 fn stream_to_string(stream: &Stream) -> &str {

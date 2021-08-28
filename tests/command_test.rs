@@ -5,6 +5,7 @@ use indoc::formatdoc;
 fn test_readme() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -17,6 +18,7 @@ fn test_readme() {
 fn test_doc_index() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -30,6 +32,7 @@ fn test_doc_index() {
 fn test_doc_display_help() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -43,6 +46,7 @@ fn test_doc_display_help() {
 fn test_doc_display_help() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -56,6 +60,7 @@ fn test_doc_display_help() {
 fn test_doc_running_specs() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -69,6 +74,7 @@ fn test_doc_running_specs() {
 fn test_doc_running_specs() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -81,6 +87,7 @@ fn test_doc_running_specs() {
 fn test_doc_creating_test_files() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -93,6 +100,7 @@ fn test_doc_creating_test_files() {
 fn test_doc_verifying_script_output() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -105,6 +113,7 @@ fn test_doc_verifying_script_output() {
 fn test_doc_verifying_exit_codes() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -117,6 +126,7 @@ fn test_doc_verifying_exit_codes() {
 fn test_doc_output_expectations() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -130,6 +140,7 @@ fn test_doc_output_expectations() {
 fn test_doc_errors() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -143,6 +154,7 @@ fn test_doc_errors() {
 fn test_doc_errors() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -155,6 +167,7 @@ fn test_doc_errors() {
 fn test_doc_skipping_code_blocks() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -168,6 +181,7 @@ fn test_doc_skipping_code_blocks() {
 fn test_doc_stripping_specs() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -181,6 +195,7 @@ fn test_doc_stripping_specs() {
 fn test_doc_stripping_specs() {
     Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
@@ -206,11 +221,12 @@ fn test_displays_error_when_required_args_are_missing() {
             A tool to test markdown files and drive devlopment from documentation.
 
             USAGE:
-                {} [SUBCOMMAND]
+                {} [FLAGS] [SUBCOMMAND]
 
             FLAGS:
-                -h, --help       Prints help information
-                -V, --version    Prints version information
+                -h, --help         Prints help information
+                    --no-colour    Disables coloured output
+                -V, --version      Prints version information
 
             SUBCOMMANDS:
                 help     Prints this message or the help of the given subcommand(s)
