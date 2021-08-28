@@ -12,15 +12,16 @@ specdown
 
 Outputs:
 
-    specdown 0.45.3
+    specdown 0.46.0
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:
-        specdown [SUBCOMMAND]
+        specdown [FLAGS] [SUBCOMMAND]
     
     FLAGS:
-        -h, --help       Prints help information
-        -V, --version    Prints version information
+        -h, --help         Prints help information
+            --no-colour    Disables coloured output
+        -V, --version      Prints version information
     
     SUBCOMMANDS:
         help     Prints this message or the help of the given subcommand(s)
