@@ -134,30 +134,27 @@ impl BasicPrinter {
     }
 
     fn action_result_message(result: &ActionResult) -> String {
-        if let Some(error) = result.error() {
-            match error {
-                ActionError::ExitCodeIsIncorrect(result) => {
-                    format!(
-                        "failed (expected exitcode {}, got {})",
-                        BasicPrinter::exit_code_to_string(result.action.expected_exit_code),
-                        BasicPrinter::exit_code_to_string(result.exit_code),
-                    )
-                }
-                ActionError::UnexpectedOutputIsPresent(result) => {
-                    format!(
-                        "failed (unexpected {})",
-                        match result.action.expected_output {
-                            OutputExpectation::Any => panic!("Should not be possible"),
-                            OutputExpectation::StdOut => "stderr",
-                            OutputExpectation::StdErr => "stdout",
-                            OutputExpectation::None => "output",
-                        }
-                    )
-                }
-                ActionError::OutputDoesNotMatch(_) => "failed".to_string(),
+        match result.error() {
+            Some(ActionError::ExitCodeIsIncorrect(result)) => {
+                format!(
+                    "failed (expected exitcode {}, got {})",
+                    BasicPrinter::exit_code_to_string(result.action.expected_exit_code),
+                    BasicPrinter::exit_code_to_string(result.exit_code),
+                )
             }
-        } else {
-            "succeeded".to_string()
+            Some(ActionError::UnexpectedOutputIsPresent(result)) => {
+                format!(
+                    "failed (unexpected {})",
+                    match result.action.expected_output {
+                        OutputExpectation::Any => panic!("Should not be possible"),
+                        OutputExpectation::StdOut => "stderr",
+                        OutputExpectation::StdErr => "stdout",
+                        OutputExpectation::None => "output",
+                    }
+                )
+            }
+            Some(ActionError::OutputDoesNotMatch(_)) => "failed".to_string(),
+            None => "succeeded".to_string(),
         }
     }
 
