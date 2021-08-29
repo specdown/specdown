@@ -59,7 +59,9 @@ impl BasicPrinter {
     fn print_result(&mut self, result: &ActionResult) {
         self.count_action(result);
         self.display_action(result);
-        self.dsiplay_action_error(result);
+        if let Some(error) = result.error() {
+            self.dsiplay_action_error(&error);
+        }
     }
 
     fn print_error(&self, error: &Error) {
@@ -168,34 +170,33 @@ impl BasicPrinter {
         }
     }
 
-    fn dsiplay_action_error(&mut self, result: &ActionResult) {
-        match result {
-            ActionResult::Script(ScriptResult { stdout, stderr, .. }) => {
-                if !result.success() {
-                    self.display(&format!(
-                        "\n=== stdout:\n{}\n\n=== stderr:\n{}\n\n",
-                        stdout, stderr
-                    ));
-                }
+    fn dsiplay_action_error(&mut self, error: &ActionError) {
+        match error {
+            ActionError::ExitCodeIsIncorrect(ScriptResult { stdout, stderr, .. })
+            | ActionError::UnexpectedOutputIsPresent(ScriptResult { stdout, stderr, .. }) => {
+                self.disply_all_output(stdout, stderr);
             }
-            ActionResult::Verify(VerifyResult { action, got, .. }) => {
-                let VerifyAction {
-                    expected_value: expected,
-                    ..
-                } = action;
-
-                if !result.success() {
-                    self.display(&format!(
-                        "===\n{}\n===",
-                        colored_diff::PrettyDifference {
-                            expected: &String::from(expected.clone()),
-                            actual: got,
-                        }
-                    ));
-                }
+            ActionError::OutputDoesNotMatch(VerifyResult {
+                action: VerifyAction { expected_value, .. },
+                got,
+            }) => {
+                self.display_diff(&String::from(expected_value.clone()), got);
             }
-            ActionResult::CreateFile(_) => {}
         }
+    }
+
+    fn display_diff(&mut self, expected: &str, actual: &str) {
+        self.display(&format!(
+            "===\n{}\n===",
+            colored_diff::PrettyDifference { expected, actual }
+        ));
+    }
+
+    fn disply_all_output(&mut self, stdout: &str, stderr: &str) {
+        self.display(&format!(
+            "\n=== stdout:\n{}\n\n=== stderr:\n{}\n\n",
+            stdout, stderr
+        ));
     }
 
     fn display(&self, text: &str) {
