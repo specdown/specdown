@@ -1,4 +1,6 @@
-use crate::types::{CreateFileAction, OutputExpectation, ScriptAction, VerifyAction, VerifyValue};
+use crate::types::{
+    CreateFileAction, ExitCode, OutputExpectation, ScriptAction, VerifyAction, VerifyValue,
+};
 
 #[derive(Debug, PartialEq)]
 pub enum ActionError {
@@ -14,15 +16,16 @@ trait ActionErrorProvider {
 #[derive(Clone, Debug, PartialEq)]
 pub struct ScriptResult {
     pub action: ScriptAction,
-    pub exit_code: Option<i32>,
+    pub exit_code: Option<ExitCode>,
     pub stdout: String,
     pub stderr: String,
 }
 
 impl ActionErrorProvider for ScriptResult {
     fn error(&self) -> Option<ActionError> {
-        let i32_exit_code = self.action.expected_exit_code.map(i32::from);
-        if i32_exit_code != None && i32_exit_code != self.exit_code {
+        if self.action.expected_exit_code != None
+            && self.action.expected_exit_code != self.exit_code
+        {
             return Some(ActionError::ExitCodeIsIncorrect(self.clone()));
         }
 
@@ -135,7 +138,7 @@ mod tests {
                         expected_exit_code: Some(ExitCode(1)),
                         expected_output: OutputExpectation::Any,
                     },
-                    exit_code: Some(1),
+                    exit_code: Some(ExitCode(1)),
                     stdout: "".to_string(),
                     stderr: "".to_string(),
                 });
@@ -152,7 +155,7 @@ mod tests {
                         expected_exit_code: Some(ExitCode(1)),
                         expected_output: OutputExpectation::Any,
                     },
-                    exit_code: Some(2),
+                    exit_code: Some(ExitCode(2)),
                     stdout: "".to_string(),
                     stderr: "".to_string(),
                 };

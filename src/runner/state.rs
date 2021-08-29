@@ -90,7 +90,7 @@ mod tests {
         };
         let script_result1 = ActionResult::Script(ScriptResult {
             action,
-            exit_code: Some(0),
+            exit_code: Some(ExitCode(0)),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
         });
@@ -109,7 +109,7 @@ mod tests {
         };
         let script_result1 = ActionResult::Script(ScriptResult {
             action,
-            exit_code: Some(2),
+            exit_code: Some(ExitCode(2)),
             stdout: "stderr1".to_string(),
             stderr: "stderr1".to_string(),
         });
@@ -139,7 +139,7 @@ mod tests {
                 expected_exit_code: None,
                 expected_output: OutputExpectation::Any,
             },
-            exit_code: Some(0),
+            exit_code: Some(ExitCode(0)),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
         });
@@ -150,7 +150,7 @@ mod tests {
                 expected_exit_code: None,
                 expected_output: OutputExpectation::Any,
             },
-            exit_code: Some(0),
+            exit_code: Some(ExitCode(0)),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
         });
@@ -176,7 +176,7 @@ mod tests {
                 expected_exit_code: None,
                 expected_output: OutputExpectation::Any,
             },
-            exit_code: Some(0),
+            exit_code: Some(ExitCode(0)),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
         });
@@ -187,7 +187,7 @@ mod tests {
                 expected_exit_code: None,
                 expected_output: OutputExpectation::Any,
             },
-            exit_code: Some(0),
+            exit_code: Some(ExitCode(0)),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
         });

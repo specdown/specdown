@@ -7,7 +7,7 @@ use super::printer::Printer;
 use crate::results::action_result::{ActionError, CreateFileResult, ScriptResult, VerifyResult};
 use crate::runner::error::Error;
 use crate::runner::RunEvent;
-use crate::types::{OutputExpectation, Stream, VerifyAction};
+use crate::types::{ExitCode, OutputExpectation, Stream, VerifyAction};
 
 struct Summary {
     pub number_succeeded: u32,
@@ -60,7 +60,7 @@ impl BasicPrinter {
         self.count_action(result);
         self.display_action(result);
         if let Some(error) = result.error() {
-            self.dsiplay_action_error(&error);
+            self.display_action_error(&error);
         }
     }
 
@@ -139,17 +139,8 @@ impl BasicPrinter {
                 ActionError::ExitCodeIsIncorrect(result) => {
                     format!(
                         "failed (expected exitcode {}, got {})",
-                        result
-                            .action
-                            .expected_exit_code
-                            .map(String::from)
-                            .or_else(|| Some("None".to_string()))
-                            .unwrap(),
-                        result
-                            .exit_code
-                            .map(|code| code.to_string())
-                            .or_else(|| Some("None".to_string()))
-                            .unwrap()
+                        BasicPrinter::exit_code_to_string(result.action.expected_exit_code),
+                        BasicPrinter::exit_code_to_string(result.exit_code),
                     )
                 }
                 ActionError::UnexpectedOutputIsPresent(result) => {
@@ -170,7 +161,14 @@ impl BasicPrinter {
         }
     }
 
-    fn dsiplay_action_error(&mut self, error: &ActionError) {
+    fn exit_code_to_string(exit_code: Option<ExitCode>) -> String {
+        exit_code
+            .map(String::from)
+            .or_else(|| Some("None".to_string()))
+            .unwrap()
+    }
+
+    fn display_action_error(&mut self, error: &ActionError) {
         match error {
             ActionError::ExitCodeIsIncorrect(ScriptResult { stdout, stderr, .. })
             | ActionError::UnexpectedOutputIsPresent(ScriptResult { stdout, stderr, .. }) => {
