@@ -1,4 +1,4 @@
-use crate::results::action_result::{ActionResult, VerifyResult};
+use crate::results::{ActionResult, VerifyResult};
 use crate::runner::state::ScriptOutput;
 use crate::types::{Source, Stream, VerifyAction};
 
@@ -69,7 +69,7 @@ mod tests {
         use crate::types::{ScriptName, Source, Stream, VerifyAction, VerifyValue};
 
         use super::{run, ActionResult, Error, MockScriptOutput};
-        use crate::results::action_result::VerifyResult;
+        use crate::results::VerifyResult;
 
         #[test]
         fn returns_result_for_stdout_verification() {

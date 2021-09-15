@@ -5,7 +5,7 @@ pub use executor::{Executor, Shell};
 pub use runnable_action::to_runnable;
 pub use state::State;
 
-use crate::results::action_result::ActionResult;
+use crate::results::ActionResult;
 
 mod error;
 mod executor;

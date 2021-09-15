@@ -1,4 +1,4 @@
-use crate::results::action_result::ActionResult;
+use crate::results::ActionResult;
 use crate::runner::error::Error;
 use crate::runner::executor::Executor;
 use crate::runner::state::State;

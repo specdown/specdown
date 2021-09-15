@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 
-use crate::results::action_result::{ActionResult, CreateFileResult};
+use crate::results::{ActionResult, CreateFileResult};
 use crate::types::{CreateFileAction, FileContent, FilePath};
 
 pub fn run(action: &CreateFileAction) -> ActionResult {
@@ -21,7 +21,7 @@ pub fn run(action: &CreateFileAction) -> ActionResult {
 #[cfg(test)]
 mod tests {
     use super::{run, ActionResult, FileContent, FilePath};
-    use crate::results::action_result::CreateFileResult;
+    use crate::results::CreateFileResult;
     use crate::types::CreateFileAction;
     use std::fs;
 
