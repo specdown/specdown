@@ -2,12 +2,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 pub struct FileReader {
-    dir: PathBuf,
+    directory: PathBuf,
 }
 
 impl FileReader {
     pub fn create(directory: PathBuf) -> Self {
-        FileReader { dir: directory }
+        FileReader { directory }
     }
 
     pub fn read_file(&self, spec_file: &Path) -> String {
@@ -18,7 +18,7 @@ impl FileReader {
         if path.has_root() {
             path.to_path_buf()
         } else {
-            self.dir.join(path)
+            self.directory.join(path)
         }
     }
 }
@@ -32,9 +32,7 @@ mod tests {
         use std::path::Path;
 
         fn reader() -> FileReader {
-            FileReader {
-                dir: Path::new("/usr/local/specdown").to_path_buf(),
-            }
+            FileReader::create(Path::new("/usr/local/specdown").to_path_buf())
         }
 
         #[cfg(not(windows))]
