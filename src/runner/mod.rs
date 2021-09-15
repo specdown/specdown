@@ -1,11 +1,12 @@
 use std::path::PathBuf;
 
 pub use error::Error;
+pub use executor::{Executor, Shell};
 
 use crate::results::action_result::ActionResult;
 
 mod error;
-pub mod executor;
+mod executor;
 mod file;
 pub mod runnable_action;
 mod script;
