@@ -5,7 +5,7 @@ use crossterm::style::Stylize;
 use super::action_result::ActionResult;
 use super::printer::Printer;
 use crate::results::action_result::{ActionError, CreateFileResult, ScriptResult, VerifyResult};
-use crate::runner::error::Error;
+use crate::runner::Error;
 use crate::runner::RunEvent;
 use crate::types::{ExitCode, OutputExpectation, Stream, VerifyAction};
 

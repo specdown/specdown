@@ -9,8 +9,8 @@ use crate::config::Config;
 use crate::exit_codes::ExitCode;
 use crate::results::basic_printer::BasicPrinter;
 use crate::results::printer::Printer;
-use crate::runner::error::Error;
 use crate::runner::executor::Shell;
+use crate::runner::Error;
 use crate::runner::RunEvent;
 
 mod file_reader;
