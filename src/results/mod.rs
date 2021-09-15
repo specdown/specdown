@@ -1,5 +1,6 @@
 pub use action_result::{ActionResult, CreateFileResult, ScriptResult, VerifyResult};
+pub use printer::Printer;
 
 mod action_result;
 pub mod basic_printer;
-pub mod printer;
+mod printer;
