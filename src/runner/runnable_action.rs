@@ -5,7 +5,7 @@ use crate::runner::state::State;
 use crate::runner::{error, file, script, verify};
 use crate::types::{Action, CreateFileAction, ScriptAction, VerifyAction};
 
-pub fn from_action(action: &Action) -> &dyn RunnableAction {
+pub fn to_runnable(action: &Action) -> &dyn RunnableAction {
     match action {
         Action::Script(a) => a,
         Action::Verify(a) => a,

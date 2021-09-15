@@ -6,7 +6,7 @@ use crate::parser;
 use crate::runner::state::State;
 use crate::runner::Error;
 use crate::runner::Executor;
-use crate::runner::{runnable_action, RunEvent};
+use crate::runner::{to_runnable, RunEvent};
 use crate::types::Action;
 
 pub struct RunCommand {
@@ -57,7 +57,7 @@ impl RunCommand {
     }
 
     fn run_single_action(&self, state: &mut State, action: &Action) -> RunEvent {
-        runnable_action::from_action(action)
+        to_runnable(action)
             .run(state, &*self.executor)
             .map(|result| {
                 state.add_result(&result);
