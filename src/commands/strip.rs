@@ -22,10 +22,6 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
         .map(Path::new)
         .expect("spec-file should always exist");
 
-    execute_strip(spec_file);
-}
-
-fn execute_strip(spec_file: &Path) {
     let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
     let stripped = parser::strip(&contents);
     println!("{}", stripped);
