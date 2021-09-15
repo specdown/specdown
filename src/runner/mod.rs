@@ -3,6 +3,7 @@ use std::path::PathBuf;
 pub use error::Error;
 pub use executor::{Executor, Shell};
 pub use runnable_action::to_runnable;
+pub use state::State;
 
 use crate::results::action_result::ActionResult;
 
@@ -11,7 +12,7 @@ mod executor;
 mod file;
 mod runnable_action;
 mod script;
-pub mod state;
+mod state;
 mod verify;
 
 #[derive(Clone)]
