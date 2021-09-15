@@ -1,8 +1,10 @@
-use crate::results::action_result::ActionResult;
-use crate::runner::error::Error;
 use std::path::PathBuf;
 
-pub mod error;
+pub use error::Error;
+
+use crate::results::action_result::ActionResult;
+
+mod error;
 pub mod executor;
 mod file;
 pub mod runnable_action;
