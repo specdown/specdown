@@ -47,6 +47,22 @@ pub fn create() -> clap::App<'static, 'static> {
 }
 
 pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
+    let events = create_run_command(run_matches).map_or_else(
+        |err| vec![RunEvent::ErrorOccurred(err)],
+        |executor| executor.execute(),
+    );
+
+    let mut printer = Box::new(BasicPrinter::new(config.colour));
+    for event in &events {
+        printer.print(event);
+    }
+
+    let exit_code = events_to_exit_code(&events);
+
+    std::process::exit(exit_code as i32)
+}
+
+fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, Error> {
     let spec_files = run_matches
         .values_of("spec-files")
         .expect("spec-files should always exist")
@@ -60,26 +76,13 @@ pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
     let file_reader = FileReader::new(spec_dir);
-    let mut printer = Box::new(BasicPrinter::new(config.colour));
 
-    let events = match Shell::new(&shell_cmd) {
-        Ok(executor) => RunCommand {
-            spec_files,
-            executor: Box::new(executor),
-            running_dir,
-            file_reader,
-        }
-        .execute(),
-        Err(err) => vec![RunEvent::ErrorOccurred(err)],
-    };
-
-    for event in &events {
-        printer.print(event);
-    }
-
-    let exit_code = events_to_exit_code(&events);
-
-    std::process::exit(exit_code as i32)
+    Shell::new(&shell_cmd).map(|executor| RunCommand {
+        spec_files,
+        executor: Box::new(executor),
+        running_dir,
+        file_reader,
+    })
 }
 
 fn events_to_exit_code(events: &[RunEvent]) -> ExitCode {
