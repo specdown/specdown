@@ -8,7 +8,7 @@ use run_command::RunCommand;
 use crate::config::Config;
 use crate::exit_codes::ExitCode;
 use crate::results::basic_printer::BasicPrinter;
-use crate::results::printer::Printer;
+use crate::results::Printer;
 use crate::runner::Error;
 use crate::runner::RunEvent;
 use crate::runner::Shell;
