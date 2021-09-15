@@ -6,7 +6,7 @@ pub struct FileReader {
 }
 
 impl FileReader {
-    pub fn create(directory: PathBuf) -> Self {
+    pub fn new(directory: PathBuf) -> Self {
         FileReader { directory }
     }
 
@@ -41,7 +41,7 @@ mod tests {
                 .and_then(|mut file| file.write_all("example content".as_bytes()))
                 .unwrap_or_else(|err| panic!("Failed to write file: {}", err));
 
-            let reader = FileReader::create("/home".into());
+            let reader = FileReader::new("/home".into());
             let content = reader.read_file(&full_path);
             assert_eq!("example content", content);
         }
@@ -54,7 +54,7 @@ mod tests {
                 .and_then(|mut file| file.write_all("example content".as_bytes()))
                 .unwrap_or_else(|err| panic!("Failed to write file: {}", err));
 
-            let reader = FileReader::create(directory.path().to_path_buf());
+            let reader = FileReader::new(directory.path().to_path_buf());
             let content = reader.read_file(Path::new("example.txt"));
             assert_eq!("example content", content);
         }
