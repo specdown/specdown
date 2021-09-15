@@ -14,7 +14,7 @@ impl FileReader {
         fs::read_to_string(self.to_absolute(spec_file)).expect("failed to read spec file")
     }
 
-    pub fn to_absolute(&self, path: &Path) -> PathBuf {
+    fn to_absolute(&self, path: &Path) -> PathBuf {
         if path.has_root() {
             path.to_path_buf()
         } else {
@@ -29,37 +29,34 @@ mod tests {
 
     mod to_absolute {
         use super::FileReader;
+        use std::fs::File;
+        use std::io::Write;
         use std::path::Path;
 
-        fn reader() -> FileReader {
-            FileReader::create(Path::new("/usr/local/specdown").to_path_buf())
+        #[test]
+        fn test_reads_a_file_when_the_path_is_absolute() {
+            let directory = tempfile::tempdir().expect("Failed to create a temporary directory");
+            let full_path = directory.path().join("example.txt");
+            File::create(full_path.clone())
+                .and_then(|mut file| file.write_all("example content".as_bytes()))
+                .unwrap_or_else(|err| panic!("Failed to write file: {}", err));
+
+            let reader = FileReader::create("/home".into());
+            let content = reader.read_file(&full_path);
+            assert_eq!("example content", content);
         }
 
-        #[cfg(not(windows))]
         #[test]
-        fn test_returns_the_path_when_it_is_absolute() {
-            let path = Path::new("/home/user/file");
-            assert_eq!(path, reader().to_absolute(path));
-        }
+        fn test_reads_a_file_when_the_path_is_relative() {
+            let directory = tempfile::tempdir().expect("Failed to create a temporary directory");
+            let full_path = directory.path().join("example.txt");
+            File::create(full_path)
+                .and_then(|mut file| file.write_all("example content".as_bytes()))
+                .unwrap_or_else(|err| panic!("Failed to write file: {}", err));
 
-        #[cfg(not(windows))]
-        #[test]
-        fn test_returns_the_working_dir_prepended_when_path_is_relative() {
-            let path = Path::new("./file");
-            assert_eq!(
-                Path::new("/usr/local/specdown/file"),
-                reader().to_absolute(path)
-            );
-        }
-
-        #[cfg(not(windows))]
-        #[test]
-        fn test_returns_the_working_dir_prepended_when_path_contains_parent() {
-            let path = Path::new("../file");
-            assert_eq!(
-                Path::new("/usr/local/specdown/../file"),
-                reader().to_absolute(path)
-            );
+            let reader = FileReader::create(directory.path().to_path_buf());
+            let content = reader.read_file(Path::new("example.txt"));
+            assert_eq!("example content", content);
         }
     }
 }
