@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::results::action_result::{ActionResult, ScriptResult};
+use crate::results::{ActionResult, ScriptResult};
 use crate::types::{ScriptAction, ScriptName};
 
 pub struct State {
@@ -68,7 +68,7 @@ impl ScriptOutput for State {
 #[cfg(test)]
 mod tests {
     use super::{ActionResult, ScriptOutput, State};
-    use crate::results::action_result::{CreateFileResult, ScriptResult, VerifyResult};
+    use crate::results::{CreateFileResult, ScriptResult, VerifyResult};
     use crate::types::{
         CreateFileAction, ExitCode, FileContent, FilePath, OutputExpectation, ScriptAction,
         ScriptCode, ScriptName, Source, Stream, VerifyAction, VerifyValue,

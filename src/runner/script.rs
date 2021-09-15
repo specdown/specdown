@@ -1,4 +1,4 @@
-use crate::results::action_result::{ActionResult, ScriptResult};
+use crate::results::{ActionResult, ScriptResult};
 use crate::types::{ExitCode, ScriptAction};
 
 use super::error::Error;
