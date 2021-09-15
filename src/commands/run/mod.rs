@@ -59,7 +59,7 @@ pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
         .map(std::path::Path::to_path_buf);
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
-    let file_reader = FileReader::create(spec_dir);
+    let file_reader = FileReader::new(spec_dir);
     let mut printer = Box::new(BasicPrinter::new(config.colour));
 
     let events = match Shell::new(&shell_cmd) {
