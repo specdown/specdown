@@ -3,10 +3,7 @@ use std::path::{Path, PathBuf};
 
 use crate::commands::run::file_reader::FileReader;
 use crate::parser;
-use crate::runner::state::State;
-use crate::runner::Error;
-use crate::runner::Executor;
-use crate::runner::{to_runnable, RunEvent};
+use crate::runner::{Error, Executor, RunEvent, State, to_runnable};
 use crate::types::Action;
 
 pub struct RunCommand {
