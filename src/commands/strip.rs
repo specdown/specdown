@@ -26,4 +26,3 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
     let stripped = parser::strip(&contents);
     println!("{}", stripped);
 }
-

@@ -3,9 +3,9 @@ use std::path::{Path, PathBuf};
 
 use crate::commands::run::file_reader::FileReader;
 use crate::parser;
-use crate::runner::executor::Executor;
 use crate::runner::state::State;
 use crate::runner::Error;
+use crate::runner::Executor;
 use crate::runner::{runnable_action, RunEvent};
 use crate::types::Action;
 
