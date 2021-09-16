@@ -47,3 +47,17 @@ Running tests for writing_file_example.md:
 
 ```
 
+## UTF-8 Characters
+
+UTF-8 characters are supported:
+
+``` shell
+echo "✓"
+```
+
+Can be verified as:
+
+``` text
+✓
+```
+
