@@ -11,7 +11,7 @@ use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, St
 
 #[derive(Debug, PartialEq)]
 pub enum CodeBlockType {
-    Script(ScriptName, Option<ExitCode>, OutputExpectation),
+    Script(Option<ScriptName>, Option<ExitCode>, OutputExpectation),
     Verify(Source),
     CreateFile(FilePath),
     Skip(),
@@ -44,7 +44,11 @@ fn to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
 }
 
 fn script_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
-    let name = get_string_argument(f, "name")?;
+    let name = if f.has_argument("name") {
+        Some(ScriptName(get_string_argument(f, "name")?))
+    } else {
+        None
+    };
     let expected_exit_code = if f.has_argument("expected_exit_code") {
         Some(ExitCode(get_integer_argument(f, "expected_exit_code")?))
     } else {
@@ -54,7 +58,7 @@ fn script_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
         .or_else(|_| Ok("any".to_string()))
         .and_then(|s| to_expected_output(&s))?;
     Ok(CodeBlockType::Script(
-        ScriptName(name),
+        name,
         expected_exit_code,
         expected_output,
     ))
@@ -85,8 +89,16 @@ fn skip_to_code_block_type(_f: &function::Function) -> CodeBlockType {
 }
 
 fn verify_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
-    let name = ScriptName(get_string_argument(f, "script_name")?);
-    let stream_name = get_token_argument(f, "stream").or_else(|_| Ok("stdout".to_string()))?;
+    let name = if f.has_argument("script_name") {
+        Some(ScriptName(get_string_argument(f, "script_name")?))
+    } else {
+        None
+    };
+    let stream_name = if f.has_argument("stream") {
+        get_token_argument(f, "stream")?
+    } else {
+        "stdout".to_string()
+    };
     let stream = to_stream(&stream_name).ok_or_else(|| Error::InvalidArgumentValue {
         function: f.name.to_string(),
         argument: "stream".to_string(),
@@ -130,20 +142,32 @@ mod tests {
         };
 
         mod script {
-            use super::{parse, CodeBlockType, Error, ExitCode, OutputExpectation, ScriptName};
+            use super::{parse, CodeBlockType, ExitCode, OutputExpectation, ScriptName};
 
             #[test]
-            fn succeeds_when_function_is_script() {
+            fn succeeds_when_function_is_script_with_a_name() {
                 let result = parse("shell,script(name=\"example-script\")");
                 assert_eq!(
                     result,
                     Ok((
                         "shell",
                         CodeBlockType::Script(
-                            ScriptName("example-script".to_string(),),
+                            Some(ScriptName("example-script".to_string())),
                             None,
                             OutputExpectation::Any
                         )
+                    ))
+                );
+            }
+
+            #[test]
+            fn succeeds_when_function_is_script_without_a_name() {
+                let result = parse("shell,script()");
+                assert_eq!(
+                    result,
+                    Ok((
+                        "shell",
+                        CodeBlockType::Script(None, None, OutputExpectation::Any)
                     ))
                 );
             }
@@ -156,7 +180,7 @@ mod tests {
                     Ok((
                         "shell",
                         CodeBlockType::Script(
-                            ScriptName("example-script".to_string(),),
+                            Some(ScriptName("example-script".to_string())),
                             Some(ExitCode(2)),
                             OutputExpectation::Any,
                         )
@@ -172,7 +196,7 @@ mod tests {
                     Ok((
                         "shell",
                         CodeBlockType::Script(
-                            ScriptName("example-script".to_string(),),
+                            Some(ScriptName("example-script".to_string())),
                             None,
                             OutputExpectation::Any,
                         )
@@ -188,23 +212,11 @@ mod tests {
                     Ok((
                         "shell",
                         CodeBlockType::Script(
-                            ScriptName("example-script".to_string(),),
+                            Some(ScriptName("example-script".to_string())),
                             None,
                             OutputExpectation::StdOut,
                         )
                     ))
-                );
-            }
-
-            #[test]
-            fn fails_when_name_is_missing() {
-                let result = parse("shell,script()");
-                assert_eq!(
-                    result,
-                    Err(Error::MissingArgument {
-                        function: "script".to_string(),
-                        argument: "name".to_string()
-                    })
                 );
             }
         }
@@ -220,7 +232,7 @@ mod tests {
                     Ok((
                         "",
                         CodeBlockType::Verify(Source {
-                            name: ScriptName("example-script".to_string()),
+                            name: Some(ScriptName("example-script".to_string())),
                             stream: Stream::StdOut
                         })
                     ))
@@ -235,7 +247,7 @@ mod tests {
                     Ok((
                         "",
                         CodeBlockType::Verify(Source {
-                            name: ScriptName("example-script".to_string()),
+                            name: Some(ScriptName("example-script".to_string())),
                             stream: Stream::StdErr
                         })
                     ))
@@ -250,7 +262,7 @@ mod tests {
                     Ok((
                         "",
                         CodeBlockType::Verify(Source {
-                            name: ScriptName("the-script".to_string()),
+                            name: Some(ScriptName("the-script".to_string())),
                             stream: Stream::StdOut
                         })
                     ))
@@ -272,14 +284,17 @@ mod tests {
             }
 
             #[test]
-            fn fails_when_script_name_is_missing() {
-                let result = parse("shell,verify(stream=stderr)");
+            fn succeeds_when_script_name_is_not_present() {
+                let result = parse("text,verify(stream=stderr)");
                 assert_eq!(
                     result,
-                    Err(Error::MissingArgument {
-                        function: "verify".to_string(),
-                        argument: "script_name".to_string()
-                    })
+                    Ok((
+                        "text",
+                        CodeBlockType::Verify(Source {
+                            name: None,
+                            stream: Stream::StdErr
+                        })
+                    ))
                 );
             }
         }

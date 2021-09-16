@@ -45,7 +45,7 @@ mod tests {
         assert_eq!(
             create_action("shell,script(name=\"script-name\")", "code".to_string()),
             Ok(Some(Action::Script(ScriptAction {
-                script_name: ScriptName("script-name".to_string()),
+                script_name: Some(ScriptName("script-name".to_string())),
                 script_code: ScriptCode("code".to_string()),
                 expected_exit_code: None,
                 expected_output: OutputExpectation::Any,
@@ -62,7 +62,7 @@ mod tests {
             ),
             Ok(Some(Action::Verify(VerifyAction {
                 source: Source {
-                    name: ScriptName("script-name".to_string()),
+                    name: Some(ScriptName("script-name".to_string())),
                     stream: Stream::StdOut,
                 },
                 expected_value: VerifyValue("value".to_string())
