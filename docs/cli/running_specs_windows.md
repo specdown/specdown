@@ -192,6 +192,27 @@ Running tests for setting_the_shell_example.md:
 
 ```
 
+## Environment Variables
+
+You can provide environment variable to the `run` command. These variables are then
+available in all `script` actions:
+
+```` markdown
+# Environment Variables Example
+
+```shell,script(name="environment_variables")
+echo $GREETING, $SUBJECT
+```
+
+```text,verify(script_name="environment_variables")
+Hello, World
+```
+````
+
+``` shell
+specdown run --env 'GREETING=Hello' --env 'SUBJECT=World' environment_variables.md
+```
+
 ## Command Help
 
 You can display all the options available by using `--help` on the `run` sub-command.
@@ -212,6 +233,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+        --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
         --running-dir <running-dir>        The directory where commands will be executed
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
 
