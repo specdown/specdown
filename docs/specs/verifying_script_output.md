@@ -62,3 +62,45 @@ Running tests for verify_example.md:
 
 ```
 
+## Omitting the script name
+
+If you leave out the `script_name` argument then `verify` will test
+the output of of the last script run in the file. You can also omit
+the `name` argument on `script` if you don't intent to reference it.
+
+Given the file `omit_name_example.md`:
+
+```` markdown
+# Omitting The Script Name Example
+
+Run a script with no name:
+
+```shell,script()
+echo "Example Output!"
+```
+
+Verify the output:
+
+```text,verify()
+Example Output!
+```
+````
+
+When you run the following:
+
+``` shell
+specdown run omit_name_example.md
+```
+
+The you will see the following output:
+
+``` text
+Running tests for omit_name_example.md:
+
+  - running script '<unnamed>' succeeded
+  - verifying stdout from '<unnamed>' succeeded
+
+  2 functions run (2 succeeded / 0 failed)
+
+```
+
