@@ -9,7 +9,7 @@ specdown
 Outputs:
 
 ```,verify(script_name="with-no-args", stream=stderr)
-specdown 0.47.4
+specdown 0.48.0
 A tool to test markdown files and drive devlopment from documentation.
 
 USAGE:
