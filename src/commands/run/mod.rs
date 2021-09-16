@@ -38,11 +38,20 @@ pub fn create() -> clap::App<'static, 'static> {
         .help("The shell command used to execute script blocks")
         .required(false);
 
+    let env = Arg::with_name("env")
+        .long("env")
+        .takes_value(true)
+        .multiple(true)
+        .number_of_values(1)
+        .help("Set an environment variable (format: 'VAR_NAME=value')")
+        .required(false);
+
     SubCommand::with_name(NAME)
         .about("Runs a given Markdown Specification")
         .arg(spec_file)
         .arg(test_dir)
         .arg(shell_cmd)
+        .arg(env)
 }
 
 pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
@@ -73,15 +82,26 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         .map(Path::new)
         .map(std::path::Path::to_path_buf);
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
+    let env: Vec<(String, String)> = run_matches.values_of("env").map_or(vec![], |values| {
+        values.map(environment_variable_string_to_tuple).collect()
+    });
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
     let file_reader = FileReader::new(spec_dir);
 
-    Shell::new(&shell_cmd).map(|executor| RunCommand {
+    Shell::new(&shell_cmd, &env).map(|executor| RunCommand {
         spec_files,
         executor: Box::new(executor),
         running_dir,
         file_reader,
     })
+}
+
+fn environment_variable_string_to_tuple(string: &str) -> (String, String) {
+    match string.splitn(2, '=').collect::<Vec<_>>()[..] {
+        [] => panic!("Empty environment variable split"),
+        [name] => (name.to_string(), "".to_string()),
+        [name, value, ..] => (name.to_string(), value.to_string()),
+    }
 }
 
 fn events_to_exit_code(events: &[RunEvent]) -> ExitCode {
