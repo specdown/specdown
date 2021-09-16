@@ -48,7 +48,7 @@ pub fn create() -> clap::App<'static, 'static> {
 pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
     let events = create_run_command(run_matches).map_or_else(
         |err| vec![RunEvent::ErrorOccurred(err)],
-        |executor| executor.execute(),
+        |command| command.execute(),
     );
 
     let mut printer = Box::new(BasicPrinter::new(config.colour));
