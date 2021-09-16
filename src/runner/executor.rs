@@ -11,6 +11,20 @@ pub struct Output {
     pub exit_code: Option<i32>,
 }
 
+impl From<std::process::Output> for Output {
+    fn from(output: std::process::Output) -> Self {
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let exit_code = output.status.code();
+
+        Output {
+            stdout,
+            stderr,
+            exit_code,
+        }
+    }
+}
+
 pub trait Executor {
     fn execute(&self, script: &ScriptCode) -> Result<Output, Error>;
 }
@@ -60,28 +74,15 @@ impl Executor for Shell {
     fn execute(&self, script: &ScriptCode) -> Result<Output, Error> {
         let ScriptCode(code_string) = script;
 
-        let command_result = Command::new(&self.command)
+        Command::new(&self.command)
             .args(&self.args)
             .arg(code_string)
-            .output();
-
-        match command_result {
-            Ok(output) => {
-                let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-                let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-                let exit_code = output.status.code();
-
-                Ok(Output {
-                    stdout,
-                    stderr,
-                    exit_code,
-                })
-            }
-            Err(err) => Err(Error::CommandFailed {
+            .output()
+            .map(Output::from)
+            .map_err(|err| Error::CommandFailed {
                 command: format!("{} {:?}", self.command, self.args),
                 message: err.to_string(),
-            }),
-        }
+            })
     }
 }
 
