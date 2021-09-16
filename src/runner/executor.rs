@@ -4,6 +4,7 @@ use crate::types::ScriptCode;
 
 use super::error::Error;
 use shell_words::ParseError;
+use std::collections::HashMap;
 
 pub struct Output {
     pub stdout: String,
@@ -33,21 +34,23 @@ pub trait Executor {
 pub struct Shell {
     command: String,
     args: Vec<String>,
+    env: HashMap<String, String>,
 }
 
 impl Shell {
-    pub fn new(shell_command: &str) -> Result<Self, Error> {
+    pub fn new(shell_command: &str, env: &[(String, String)]) -> Result<Self, Error> {
         shell_words::split(shell_command)
             .map_err(|err| Shell::parse_error_to_error(shell_command, err))
             .and_then(|words| Shell::check_is_not_empty(shell_command, &words))
-            .map(|words| Shell::create_shell_instance(&words))
+            .map(|words| Shell::create_shell_instance(&words, env))
     }
 
-    fn create_shell_instance(words: &[String]) -> Shell {
+    fn create_shell_instance(words: &[String], env: &[(String, String)]) -> Shell {
         let (command, args) = words.split_at(1);
         Self {
             command: command.first().unwrap().to_string(),
             args: Vec::from(args),
+            env: env.to_vec().into_iter().collect(),
         }
     }
 
@@ -77,6 +80,7 @@ impl Executor for Shell {
         Command::new(&self.command)
             .args(&self.args)
             .arg(code_string)
+            .envs(&self.env)
             .output()
             .map(Output::from)
             .map_err(|err| Error::CommandFailed {
@@ -99,7 +103,7 @@ mod tests {
         #[cfg(not(windows))]
         #[test]
         fn new_with_command_with_arguments() {
-            let shell = Shell::new("bash -c").expect("shell to be created");
+            let shell = Shell::new("bash -c", &[]).expect("shell to be created");
             let output = shell
                 .execute(&ScriptCode("echo $0".to_string()))
                 .expect("success");
@@ -109,7 +113,7 @@ mod tests {
         #[cfg(windows)]
         #[test]
         fn new_with_command_with_arguments() {
-            let shell = Shell::new("cmd.exe /c").expect("shell to be created");
+            let shell = Shell::new("cmd.exe /c", &[]).expect("shell to be created");
             let output = shell
                 .execute(&ScriptCode("echo cmd.exe".to_string()))
                 .expect("success");
@@ -118,7 +122,7 @@ mod tests {
 
         #[test]
         fn new_with_command_without_arguments() {
-            let shell = Shell::new("echo").expect("shell to be created");
+            let shell = Shell::new("echo", &[]).expect("shell to be created");
             let output = shell
                 .execute(&ScriptCode("hello".to_string()))
                 .expect("success");
@@ -129,7 +133,7 @@ mod tests {
         #[test]
         fn new_with_empty_command_string() {
             assert_eq!(
-                Shell::new(""),
+                Shell::new("", &[]),
                 Err(Error::BadShellCommand {
                     command: "".to_string(),
                     message: "Command is empty".to_string(),
@@ -140,7 +144,7 @@ mod tests {
         #[test]
         fn new_invalid_command() {
             assert_eq!(
-                Shell::new("broken \" command"),
+                Shell::new("broken \" command", &[]),
                 Err(Error::BadShellCommand {
                     command: "broken \" command".to_string(),
                     message: "Parse error : missing closing quote".to_string(),
@@ -151,7 +155,7 @@ mod tests {
         #[cfg(not(windows))]
         #[test]
         fn returning_utf8_chars() {
-            let shell = Shell::new("bash -c").expect("shell to be created");
+            let shell = Shell::new("bash -c", &[]).expect("shell to be created");
             let output = shell
                 .execute(&ScriptCode("echo '\u{2550}'".to_string()))
                 .expect("success");
@@ -162,7 +166,7 @@ mod tests {
         #[cfg(not(windows))]
         #[test]
         fn returning_stderr() {
-            let shell = Shell::new("bash -c").expect("shell to be created");
+            let shell = Shell::new("bash -c", &[]).expect("shell to be created");
             let output = shell
                 .execute(&ScriptCode("echo 'test' >&2".to_string()))
                 .expect("success");
@@ -173,11 +177,22 @@ mod tests {
         #[cfg(not(windows))]
         #[test]
         fn returning_exit_code() {
-            let shell = Shell::new("bash -c").expect("shell to be created");
+            let shell = Shell::new("bash -c", &[]).expect("shell to be created");
             let output = shell
                 .execute(&ScriptCode("exit 12".to_string()))
                 .expect("success");
             assert_eq!(output.exit_code, Some(12));
+        }
+
+        #[cfg(not(windows))]
+        #[test]
+        fn with_environment_variable() {
+            let shell = Shell::new("bash -c", &[("MESSAGE".to_string(), "hello".to_string())])
+                .expect("shell to be created");
+            let output = shell
+                .execute(&ScriptCode("echo $MESSAGE".to_string()))
+                .expect("success");
+            assert_eq!("hello\n", output.stdout);
         }
     }
 }
