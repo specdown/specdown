@@ -2,12 +2,14 @@ use std::path::Path;
 
 use crossterm::style::Stylize;
 
-use super::action_result::ActionResult;
-use super::printer::Printer;
+use crate::ansi::strip_ansi_escape_chars;
 use crate::results::action_result::{ActionError, CreateFileResult, ScriptResult, VerifyResult};
 use crate::runner::Error;
 use crate::runner::RunEvent;
 use crate::types::{ExitCode, OutputExpectation, Stream, VerifyAction};
+
+use super::action_result::ActionResult;
+use super::printer::Printer;
 
 struct Summary {
     pub number_succeeded: u32,
@@ -219,14 +221,6 @@ impl BasicPrinter {
     fn display_error(&self, text: &str) {
         self.display(&format!("{}", text.red()));
     }
-}
-
-fn strip_ansi_escape_chars(string: &str) -> String {
-    strip_ansi_escapes::strip(string)
-        .expect("ANSI code to be stripped from got")
-        .iter()
-        .map(|&c| c as char)
-        .collect()
 }
 
 fn stream_to_string(stream: &Stream) -> &str {
