@@ -42,3 +42,17 @@ Running tests for writing_file_example.md:
   3 functions run (3 succeeded / 0 failed)
 
 ```
+
+## UTF-8 Characters
+
+UTF-8 characters are supported:
+
+```shell,script(name="unicode_example")
+echo "✓"
+```
+
+Can be verified as:
+
+```text,verify(script_name="unicode_example")
+✓
+```

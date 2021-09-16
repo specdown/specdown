@@ -1,3 +1,4 @@
+use crate::ansi::strip_ansi_escape_chars;
 use crate::results::{ActionResult, VerifyResult};
 use crate::runner::state::ScriptOutput;
 use crate::types::{Source, Stream, VerifyAction};
@@ -29,14 +30,6 @@ pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<Ac
     }
 }
 
-fn strip_ansi_escape_chars(string: &str) -> String {
-    strip_ansi_escapes::strip(string)
-        .expect("ANSI code to be stripped from got")
-        .iter()
-        .map(|&c| c as char)
-        .collect()
-}
-
 #[cfg(test)]
 mod tests {
     use super::{run, ActionResult, Error, ScriptOutput};
@@ -66,10 +59,10 @@ mod tests {
     }
 
     mod test {
+        use crate::results::VerifyResult;
         use crate::types::{ScriptName, Source, Stream, VerifyAction, VerifyValue};
 
         use super::{run, ActionResult, Error, MockScriptOutput};
-        use crate::results::VerifyResult;
 
         #[test]
         fn returns_result_for_stdout_verification() {
