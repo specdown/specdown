@@ -146,5 +146,37 @@ mod tests {
                 })
             );
         }
+
+        #[cfg(not(windows))]
+        #[test]
+        fn returning_utf8_chars() {
+            let shell = Shell::new("bash -c").expect("shell to be created");
+            let output = shell
+                .execute(&ScriptCode("echo '\u{2550}'".to_string()))
+                .expect("success");
+            let expected = "\u{2550}\n";
+            assert_eq!(output.stdout, expected);
+        }
+
+        #[cfg(not(windows))]
+        #[test]
+        fn returning_stderr() {
+            let shell = Shell::new("bash -c").expect("shell to be created");
+            let output = shell
+                .execute(&ScriptCode("echo 'test' >&2".to_string()))
+                .expect("success");
+            let expected = "test\n";
+            assert_eq!(output.stderr, expected);
+        }
+
+        #[cfg(not(windows))]
+        #[test]
+        fn returning_exit_code() {
+            let shell = Shell::new("bash -c").expect("shell to be created");
+            let output = shell
+                .execute(&ScriptCode("exit 12".to_string()))
+                .expect("success");
+            assert_eq!(output.exit_code, Some(12));
+        }
     }
 }
