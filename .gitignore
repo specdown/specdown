@@ -5,3 +5,4 @@
 .specdown/
 *.bak
 .tests/
+/running_dir/
