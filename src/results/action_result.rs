@@ -116,7 +116,7 @@ mod tests {
             fn returns_none_when_successful_script() {
                 let result = ActionResult::Script(ScriptResult {
                     action: ScriptAction {
-                        script_name: ScriptName("example_script".to_string()),
+                        script_name: Some(ScriptName("example_script".to_string())),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: None,
                         expected_output: OutputExpectation::Any,
@@ -133,7 +133,7 @@ mod tests {
             fn returns_none_when_exit_code_is_expected() {
                 let result = ActionResult::Script(ScriptResult {
                     action: ScriptAction {
-                        script_name: ScriptName("example_script".to_string()),
+                        script_name: Some(ScriptName("example_script".to_string())),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: Some(ExitCode(1)),
                         expected_output: OutputExpectation::Any,
@@ -150,7 +150,7 @@ mod tests {
             fn returns_exit_code_is_incorrect_when_exit_code_is_incorrect() {
                 let script_result = ScriptResult {
                     action: ScriptAction {
-                        script_name: ScriptName("example_script".to_string()),
+                        script_name: Some(ScriptName("example_script".to_string())),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: Some(ExitCode(1)),
                         expected_output: OutputExpectation::Any,
@@ -172,7 +172,7 @@ mod tests {
             ) {
                 let script_result = ScriptResult {
                     action: ScriptAction {
-                        script_name: ScriptName("example_script".to_string()),
+                        script_name: Some(ScriptName("example_script".to_string())),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: None,
                         expected_output: OutputExpectation::StdOut,
@@ -194,7 +194,7 @@ mod tests {
             ) {
                 let script_result = ScriptResult {
                     action: ScriptAction {
-                        script_name: ScriptName("example_script".to_string()),
+                        script_name: Some(ScriptName("example_script".to_string())),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: None,
                         expected_output: OutputExpectation::StdErr,
@@ -216,7 +216,7 @@ mod tests {
             ) {
                 let script_result = ScriptResult {
                     action: ScriptAction {
-                        script_name: ScriptName("example_script".to_string()),
+                        script_name: Some(ScriptName("example_script".to_string())),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: None,
                         expected_output: OutputExpectation::None,
@@ -238,7 +238,7 @@ mod tests {
             ) {
                 let script_result = ScriptResult {
                     action: ScriptAction {
-                        script_name: ScriptName("example_script".to_string()),
+                        script_name: Some(ScriptName("example_script".to_string())),
                         script_code: ScriptCode("example code".to_string()),
                         expected_exit_code: None,
                         expected_output: OutputExpectation::None,
@@ -266,7 +266,7 @@ mod tests {
                 let result = ActionResult::Verify(VerifyResult {
                     action: VerifyAction {
                         source: Source {
-                            name: ScriptName("example_script".to_string()),
+                            name: Some(ScriptName("example_script".to_string())),
                             stream: Stream::StdOut,
                         },
                         expected_value: VerifyValue("the output".to_string()),
@@ -282,7 +282,7 @@ mod tests {
                 let verify_result = VerifyResult {
                     action: VerifyAction {
                         source: Source {
-                            name: ScriptName("example_script".to_string()),
+                            name: Some(ScriptName("example_script".to_string())),
                             stream: Stream::StdOut,
                         },
                         expected_value: VerifyValue("expected output".to_string()),

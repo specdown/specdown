@@ -16,7 +16,7 @@ impl From<ScriptName> for String {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Source {
-    pub name: ScriptName,
+    pub name: Option<ScriptName>,
     pub stream: Stream,
 }
 
@@ -73,7 +73,7 @@ pub enum OutputExpectation {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ScriptAction {
-    pub script_name: ScriptName,
+    pub script_name: Option<ScriptName>,
     pub script_code: ScriptCode,
     pub expected_exit_code: Option<ExitCode>,
     pub expected_output: OutputExpectation,

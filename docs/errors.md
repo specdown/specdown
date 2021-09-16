@@ -38,8 +38,8 @@ Given `missing_function_argument_example.md`:
 ~~~markdown,file(path="missing_function_argument_example.md")
 # Unknown Function Example
 
-```shell,script()
-echo "This script is missing a name"
+```shell,file()
+This file has no path!
 ```
 ~~~
 
@@ -54,7 +54,7 @@ With the following error message:
 ```text,verify(script_name="missing_function_argument_example")
 Running tests for missing_function_argument_example.md:
 
-  - Function script requires argument name
+  - Function file requires argument path
 
   0 functions run (0 succeeded / 0 failed)
 

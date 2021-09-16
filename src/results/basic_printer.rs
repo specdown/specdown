@@ -113,13 +113,20 @@ impl BasicPrinter {
             ActionResult::Script(ScriptResult { action, .. }) => {
                 format!(
                     "running script '{}'",
-                    String::from(action.script_name.clone())
+                    action
+                        .script_name
+                        .clone()
+                        .map_or("<unnamed>".to_string(), |value| value.into())
                 )
             }
             ActionResult::Verify(VerifyResult { action, .. }) => format!(
                 "verifying {} from '{}'",
                 stream_to_string(&action.source.stream),
-                String::from(action.source.name.clone()),
+                action
+                    .source
+                    .name
+                    .clone()
+                    .map_or("<unnamed>".to_string(), |name| name.into()),
             ),
             ActionResult::CreateFile(CreateFileResult { action, .. }) => {
                 format!("creating file {}", String::from(action.file_path.clone()))
