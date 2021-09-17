@@ -148,7 +148,7 @@ To demonstrate this, let's take the following `setting_the_shell_example.md` spe
 # Setting the Shell Example
 
 ```shell,script(name="get_shell_name")
-echo $0
+basename "$0"
 ```
 
 ```text,verify(script_name="get_shell_name")
@@ -209,6 +209,47 @@ Hello, World
 specdown run --env 'GREETING=Hello' --env 'SUBJECT=World' environment_variables.md
 ```
 
+## Adding to `$PATH`
+
+If you want addition paths to be added to your running environment you can use `--add-path`.
+To demonstrate this, let's create a couple of scripts in different directories:
+
+```shell,script(name="create_scripts", expected_exit_code=0)
+mkdir -p vendor/bin
+echo "echo 'PHP COMMAND OUTPUT'" >vendor/bin/php-cmd
+chmod +x vendor/bin/php-cmd
+
+mkdir -p node_modules/.bin
+echo "echo 'NODE COMMAND OUTPUT'" >node_modules/.bin/node-cmd
+chmod +x node_modules/.bin/node-cmd
+```
+
+The we can write a spec to test these scripts:
+
+~~~markdown,file(path="add_path.md")
+# Add Path Example
+
+```shell,script(expected_exit_code=0)
+set -e
+
+php-cmd
+node-cmd
+echo "ECHO OUTPUT"
+```
+
+```text,verify()
+PHP COMMAND OUTPUT
+NODE COMMAND OUTPUT
+ECHO OUTPUT
+```
+~~~
+
+Now we can run the spec providing the additional paths:
+
+```shell,script(expected_exit_code=0)
+specdown run --add-path "$PWD/vendor/bin" --add-path "$PWD/node_modules/.bin" add_path.md
+```
+
 ## Command Help
 
 You can display all the options available by using `--help` on the `run` sub-command.
@@ -229,6 +270,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+        --add-path <add-path>...           Adds the given directory to PATH
         --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
         --running-dir <running-dir>        The directory where commands will be executed
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]

@@ -49,6 +49,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+        --add-path <add-path>...           Adds the given directory to PATH
         --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
         --running-dir <running-dir>        The directory where commands will be executed
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]

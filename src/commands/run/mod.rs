@@ -45,12 +45,21 @@ pub fn create() -> clap::App<'static, 'static> {
         .help("Set an environment variable (format: 'VAR_NAME=value')")
         .required(false);
 
+    let add_path = Arg::with_name("add-path")
+        .long("add-path")
+        .takes_value(true)
+        .multiple(true)
+        .number_of_values(1)
+        .help("Adds the given directory to PATH")
+        .required(false);
+
     SubCommand::with_name(NAME)
         .about("Runs a given Markdown Specification")
         .arg(spec_file)
         .arg(test_dir)
         .arg(shell_cmd)
         .arg(env)
+        .arg(add_path)
 }
 
 pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
@@ -81,9 +90,12 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         .map(Path::new)
         .map(std::path::Path::to_path_buf);
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
-    let env: Vec<(String, String)> = run_matches
+    let env = run_matches
         .values_of("env")
         .map_or(vec![], parse_environment_variables);
+    let paths = run_matches
+        .values_of("add-path")
+        .map_or(vec![], std::iter::Iterator::collect);
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
     let file_reader = FileReader::new(spec_dir);
 
@@ -94,7 +106,7 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         file_reader,
     };
 
-    ShellExecutor::new(&shell_cmd, &env).map(new_command)
+    ShellExecutor::new(&shell_cmd, &env, &paths).map(new_command)
 }
 
 fn parse_environment_variables<'a>(
