@@ -5,9 +5,8 @@ use shell_words::ParseError;
 
 use crate::types::ScriptCode;
 
-use super::error::Error;
-use crate::runner::executor::Output;
-use crate::runner::Executor;
+use super::executor::Output;
+use super::{Error, Executor};
 
 #[derive(Debug, PartialEq)]
 pub struct ShellExecutor {
@@ -71,13 +70,10 @@ impl Executor for ShellExecutor {
 
 #[cfg(test)]
 mod tests {
-    use super::{Executor, ShellExecutor};
+    use super::{Error, Executor, ScriptCode, ShellExecutor};
 
     mod shell {
-        use crate::runner::Error;
-        use crate::types::ScriptCode;
-
-        use super::{Executor, ShellExecutor};
+        use super::{Error, Executor, ScriptCode, ShellExecutor};
 
         #[cfg(not(windows))]
         #[test]

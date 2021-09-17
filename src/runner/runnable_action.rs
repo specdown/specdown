@@ -1,9 +1,7 @@
 use crate::results::ActionResult;
-use crate::runner::error::Error;
-use crate::runner::executor::Executor;
-use crate::runner::state::State;
-use crate::runner::{error, file, script, verify};
 use crate::types::{Action, CreateFileAction, ScriptAction, VerifyAction};
+
+use super::{error, file, script, verify, Error, Executor, State};
 
 pub fn to_runnable(action: &Action) -> &dyn RunnableAction {
     match action {

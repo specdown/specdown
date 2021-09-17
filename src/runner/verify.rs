@@ -3,7 +3,7 @@ use crate::results::{ActionResult, VerifyResult};
 use crate::runner::state::ScriptOutput;
 use crate::types::{Source, Stream, VerifyAction};
 
-use super::error::Error;
+use super::Error;
 
 pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<ActionResult, Error> {
     let Source { name, stream } = action.source.clone();

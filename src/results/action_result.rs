@@ -103,10 +103,10 @@ impl ActionResult {
 
 #[cfg(test)]
 mod tests {
-    use super::{ActionError, ActionResult, ScriptResult};
+    use super::{ActionError, ActionResult, CreateFileResult, ScriptResult, VerifyResult};
 
     mod success {
-        use super::{ActionError, ActionResult, ScriptResult};
+        use super::{ActionError, ActionResult, CreateFileResult, ScriptResult, VerifyResult};
 
         mod error {
             use super::{ActionError, ActionResult, ScriptResult};
@@ -257,8 +257,7 @@ mod tests {
         }
 
         mod verify {
-            use super::{ActionError, ActionResult};
-            use crate::results::action_result::VerifyResult;
+            use super::{ActionError, ActionResult, VerifyResult};
             use crate::types::{ScriptName, Source, Stream, VerifyAction, VerifyValue};
 
             #[test]
@@ -299,8 +298,7 @@ mod tests {
         }
 
         mod create_file {
-            use super::ActionResult;
-            use crate::results::action_result::CreateFileResult;
+            use super::{ActionResult, CreateFileResult};
             use crate::types::{CreateFileAction, FileContent, FilePath};
 
             #[test]

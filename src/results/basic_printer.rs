@@ -3,12 +3,12 @@ use std::path::Path;
 use crossterm::style::Stylize;
 
 use crate::ansi::strip_ansi_escape_chars;
-use crate::results::action_result::{ActionError, CreateFileResult, ScriptResult, VerifyResult};
 use crate::runner::Error;
 use crate::runner::RunEvent;
 use crate::types::{ExitCode, OutputExpectation, Stream, VerifyAction};
 
 use super::action_result::ActionResult;
+use super::action_result::{ActionError, CreateFileResult, ScriptResult, VerifyResult};
 use super::printer::Printer;
 
 struct Summary {

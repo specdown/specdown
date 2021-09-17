@@ -1,6 +1,6 @@
 use crate::types::ScriptCode;
 
-use super::error::Error;
+use super::Error;
 
 pub struct Output {
     pub stdout: String,
