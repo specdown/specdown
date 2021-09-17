@@ -8,17 +8,22 @@ use super::Error;
 pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<ActionResult, Error> {
     let Source { name, stream } = action.source.clone();
 
-    name.as_ref()
+    let result = name
+        .as_ref()
         .map(|script_name| script_output.get_result(&String::from(script_name)))
         .or_else(|| Some(script_output.get_last_result()))
-        .flatten()
+        .flatten();
+
+    let script_name = result.and_then(|r| r.action.script_name.clone());
+
+    result
         .map(|result| match stream {
             Stream::StdErr => result.stderr.clone(),
             Stream::StdOut => result.stdout.clone(),
         })
         .map(|got| {
             ActionResult::Verify(VerifyResult {
-                action: (*action).clone(),
+                action: action.with_script_name(script_name),
                 got: strip_ansi_escape_chars(&got),
             })
         })
@@ -57,6 +62,22 @@ mod tests {
                 }),
             }
         }
+
+        fn with_unnamed_result(stdout: &str, stderr: &str) -> Self {
+            MockScriptOutput {
+                result: Some(ScriptResult {
+                    action: ScriptAction {
+                        script_name: None,
+                        script_code: ScriptCode("".to_string()),
+                        expected_exit_code: None,
+                        expected_output: OutputExpectation::Any,
+                    },
+                    exit_code: None,
+                    stdout: stdout.to_string(),
+                    stderr: stderr.to_string(),
+                }),
+            }
+        }
     }
 
     impl ScriptOutput for MockScriptOutput {
@@ -66,7 +87,7 @@ mod tests {
                 .as_ref()
                 .expect("Result must be set to use get_result()");
             if Some(ScriptName(name.to_string())) == unwrapped_result.action.script_name {
-                Some(&unwrapped_result)
+                Some(unwrapped_result)
             } else {
                 None
             }
@@ -90,7 +111,7 @@ mod tests {
                 stream: Stream::StdOut,
             };
             let verify_value = VerifyValue("hello world".to_string());
-            let script_output = MockScriptOutput::with_result("example_script", "hello world", "");
+            let script_output = MockScriptOutput::with_unnamed_result("hello world", "");
 
             let action = VerifyAction {
                 source,
@@ -107,7 +128,30 @@ mod tests {
         }
 
         #[test]
-        fn returns_result_for_stderr_verification_with_unnamed_script() {
+        fn returns_result_for_stdout_verification_with_unnamed_verification() {
+            let source = Source {
+                name: None,
+                stream: Stream::StdOut,
+            };
+            let verify_value = VerifyValue("hello world".to_string());
+            let script_output = MockScriptOutput::with_result("example_script", "hello world", "");
+
+            let action = VerifyAction {
+                source,
+                expected_value: verify_value,
+            };
+
+            assert_eq!(
+                run(&action, &script_output),
+                Ok(ActionResult::Verify(VerifyResult {
+                    action: action.with_script_name(Some(ScriptName("example_script".to_string()))),
+                    got: "hello world".to_string(),
+                }))
+            );
+        }
+
+        #[test]
+        fn returns_result_for_stderr_verification_with_unnamed_verification() {
             let source = Source {
                 name: None,
                 stream: Stream::StdErr,
@@ -123,7 +167,7 @@ mod tests {
             assert_eq!(
                 run(&action, &script_output),
                 Ok(ActionResult::Verify(VerifyResult {
-                    action,
+                    action: action.with_script_name(Some(ScriptName("example_script".to_string()))),
                     got: "hello world".to_string(),
                 }))
             );

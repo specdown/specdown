@@ -92,6 +92,18 @@ pub struct VerifyAction {
     pub expected_value: VerifyValue,
 }
 
+impl VerifyAction {
+    pub fn with_script_name(&self, script_name: Option<ScriptName>) -> Self {
+        VerifyAction {
+            source: Source {
+                name: script_name,
+                stream: self.source.stream.clone(),
+            },
+            expected_value: self.expected_value.clone(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct CreateFileAction {
     pub file_path: FilePath,
@@ -107,7 +119,7 @@ pub enum Action {
 
 #[cfg(test)]
 mod tests {
-    use super::{ExitCode, FilePath, ScriptName, VerifyValue};
+    use super::{ExitCode, FilePath, ScriptName, Source, Stream, VerifyAction, VerifyValue};
 
     mod script_name {
         use super::ScriptName;
@@ -164,6 +176,33 @@ mod tests {
         #[test]
         fn converts_from_exit_code_into_string() {
             assert_eq!(String::from(ExitCode(10)), String::from("10"));
+        }
+    }
+
+    mod verify_action {
+        use super::{Source, Stream, VerifyAction, VerifyValue};
+        use crate::types::ScriptName;
+
+        #[test]
+        fn with_script_name_returns_an_instance_with_script_name_updated() {
+            let action = VerifyAction {
+                source: Source {
+                    name: None,
+                    stream: Stream::StdOut,
+                },
+                expected_value: VerifyValue("".to_string()),
+            };
+
+            assert_eq!(
+                VerifyAction {
+                    source: Source {
+                        name: Some(ScriptName("new_name".to_string())),
+                        stream: Stream::StdOut
+                    },
+                    expected_value: VerifyValue("".to_string())
+                },
+                action.with_script_name(Some(ScriptName("new_name".to_string())))
+            );
         }
     }
 }
