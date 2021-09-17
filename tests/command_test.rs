@@ -1,207 +1,220 @@
+use assert_cmd::output::OutputResult;
 use assert_cmd::Command;
 use indoc::formatdoc;
 
+fn assert_ok(result: &OutputResult) {
+    let output = match result {
+        Ok(out) => out,
+        Err(err) => err.as_output().unwrap(),
+    };
+
+    println!("Output:\n{}", String::from_utf8_lossy(&output.stdout));
+    println!("Error:\n{}", String::from_utf8_lossy(&output.stderr));
+
+    assert!(result.is_ok());
+}
+
 #[test]
 fn test_readme() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("README.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[test]
 fn test_doc_index() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/index.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[cfg(not(windows))]
 #[test]
 fn test_doc_display_help() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/cli/display_help.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[cfg(windows)]
 #[test]
 fn test_doc_display_help() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/cli/display_help_windows.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[cfg(not(windows))]
 #[test]
 fn test_doc_running_specs() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/cli/running_specs.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[cfg(windows)]
 #[test]
 fn test_doc_running_specs() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/cli/running_specs_windows.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[test]
 fn test_doc_creating_test_files() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/specs/creating_test_files.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[test]
 fn test_doc_verifying_script_output() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/specs/verifying_script_output.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[test]
 fn test_doc_verifying_exit_codes() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/specs/verifying_exit_codes.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[test]
 fn test_doc_output_expectations() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/specs/output_expectations.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[cfg(not(windows))]
 #[test]
 fn test_doc_errors() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/errors.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[cfg(windows)]
 #[test]
 fn test_doc_errors() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/errors_windows.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[test]
 fn test_doc_skipping_code_blocks() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/specs/skipping_code_blocks.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[cfg(not(windows))]
 #[test]
 fn test_doc_stripping_specs() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/cli/stripping_specs.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[cfg(windows)]
 #[test]
 fn test_doc_stripping_specs() {
-    Command::cargo_bin("specdown")
+    let result = Command::cargo_bin("specdown")
         .unwrap()
-        .arg("--no-colour")
         .arg("run")
         .arg("--running-dir")
         .arg(".specdown")
         .arg("docs/cli/stripping_specs_windows.md")
-        .assert()
-        .success();
+        .ok();
+
+    assert_ok(&result);
 }
 
 #[test]
