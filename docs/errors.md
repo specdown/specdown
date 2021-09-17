@@ -25,7 +25,7 @@ With the following error message:
 ```text,verify(script_name="unknown_function_example")
 Running tests for unknown_function_example.md:
 
-  - Unknown function: function
+  ✗ Unknown function: function
 
   0 functions run (0 succeeded / 0 failed)
 
@@ -54,7 +54,7 @@ With the following error message:
 ```text,verify(script_name="missing_function_argument_example")
 Running tests for missing_function_argument_example.md:
 
-  - Function file requires argument path
+  ✗ Function file requires argument path
 
   0 functions run (0 succeeded / 0 failed)
 
@@ -83,7 +83,7 @@ With the following error message:
 ```text,verify(script_name="invalid_argument_value_example")
 Running tests for invalid_argument_value_example.md:
 
-  - Function script requires argument name to be a string, got integer
+  ✗ Function script requires argument name to be a string, got integer
 
   0 functions run (0 succeeded / 0 failed)
 
@@ -116,7 +116,7 @@ With the following error message:
 ```text,verify(script_name="invalid_token_option_example")
 Running tests for invalid_token_option_example.md:
 
-  - Argument stream for function verify must be output, stdout or stderr, got unknown
+  ✗ Argument stream for function verify must be output, stdout or stderr, got unknown
 
   0 functions run (0 succeeded / 0 failed)
 
@@ -145,7 +145,7 @@ With the following error message:
 ```text,verify(script_name="verify_unknown_script_example")
 Running tests for verify_unknown_script_example.md:
 
-  - Failed to verify the output of 'unknown': No script with that name has been executed yet.
+  ✗ Failed to verify the output of 'unknown': No script with that name has been executed yet.
 
   0 functions run (0 succeeded / 0 failed)
 
@@ -169,7 +169,7 @@ specdown run --shell-command '' empty_shell_command_example.md
 With the following error message:
 
 ```text,verify(script_name="empty_shell_command_example")
-  - Invalid shell command provided:  (Error: Command is empty)
+  ✗ Invalid shell command provided:  (Error: Command is empty)
 ```
 
 ## Invalid Shell Command
@@ -189,7 +189,7 @@ specdown run --shell-command 'invalid " command' invalid_shell_command_example.m
 With the following error message:
 
 ```text,verify(script_name="invalid_shell_command_example")
-  - Invalid shell command provided: invalid " command (Error: Parse error : missing closing quote)
+  ✗ Invalid shell command provided: invalid " command (Error: Parse error : missing closing quote)
 ```
 
 ## Shell Which Can't Be Run
@@ -215,7 +215,7 @@ With the following error message:
 ```text,verify(script_name="missing_shell_example")
 Running tests for missing_shell_example.md:
 
-  - Failed to run command: does-not-exist [] (Error: No such file or directory (os error 2))
+  ✗ Failed to run command: does-not-exist [] (Error: No such file or directory (os error 2))
 
   0 functions run (0 succeeded / 0 failed)
 

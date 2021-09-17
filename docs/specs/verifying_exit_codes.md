@@ -31,8 +31,8 @@ Then you'll see:
 ```text,verify(script_name="exit_example")
 Running tests for exit_example.md:
 
-  - running script 'command_1' succeeded
-  - running script 'command_2' failed (expected exitcode 0, got 1)
+  ✓ running script 'command_1' succeeded
+  ✗ running script 'command_2' failed (expected exitcode 0, got 1)
 
 === stdout:
 
