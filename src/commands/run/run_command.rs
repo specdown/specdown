@@ -3,8 +3,7 @@ use std::path::{Path, PathBuf};
 
 use crate::commands::run::file_reader::FileReader;
 use crate::parser;
-use crate::runner::{to_runnable, Error, Executor, RunEvent, State};
-use crate::types::Action;
+use crate::runner::{Error, Executor, RunEvent, Runner, State};
 
 pub struct RunCommand {
     pub spec_files: Vec<PathBuf>,
@@ -25,6 +24,7 @@ impl RunCommand {
 
     fn run_spec_file(&self, spec_file: &Path) -> Vec<RunEvent> {
         let mut state = State::new();
+        let mut runner = Runner::create(&*self.executor, &mut state);
 
         let start_events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
         let contents = self.file_reader.read_file(spec_file);
@@ -32,7 +32,7 @@ impl RunCommand {
             .map_err(|err| Error::RunFailed {
                 message: err.to_string(),
             })
-            .map(|action_list| self.run_actions(&mut state, &action_list))
+            .map(|action_list| runner.run(&action_list))
             .or_else::<Error, _>(|err| Ok(vec![RunEvent::ErrorOccurred(err)]))
             .unwrap();
         let end_events = vec![RunEvent::SpecFileCompleted {
@@ -44,24 +44,6 @@ impl RunCommand {
             .chain(run_events.into_iter())
             .chain(end_events.into_iter())
             .collect()
-    }
-
-    fn run_actions(&self, mut state: &mut State, actions: &[Action]) -> Vec<RunEvent> {
-        actions
-            .iter()
-            .map(|action| self.run_single_action(&mut state, action))
-            .collect()
-    }
-
-    fn run_single_action(&self, state: &mut State, action: &Action) -> RunEvent {
-        to_runnable(action)
-            .run(state, &*self.executor)
-            .map(|result| {
-                state.add_result(&result);
-                RunEvent::TestCompleted(result)
-            })
-            .or_else::<Error, _>(|error| Ok(RunEvent::ErrorOccurred(error)))
-            .unwrap()
     }
 
     fn change_to_running_directory(&self) {
