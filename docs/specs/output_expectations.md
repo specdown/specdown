@@ -34,7 +34,7 @@ The you will see the following output:
 ```text,verify(script_name="any_output_expectation")
 Running tests for output_expectation_any.md:
 
-  - running script 'stdout_and_stderr' succeeded
+  ✓ running script 'stdout_and_stderr' succeeded
 
   1 functions run (1 succeeded / 0 failed)
 
@@ -70,8 +70,8 @@ The you will see the following output:
 ```text,verify(script_name="stdout_output_expectation")
 Running tests for output_expectation_stdout.md:
 
-  - running script 'stdout' succeeded
-  - running script 'stdout_and_stderr' failed (unexpected stderr)
+  ✓ running script 'stdout' succeeded
+  ✗ running script 'stdout_and_stderr' failed (unexpected stderr)
 
 === stdout:
 More good stdout
@@ -117,8 +117,8 @@ The you will see the following output:
 ```text,verify(script_name="stderr_output_expectation")
 Running tests for output_expectation_stderr.md:
 
-  - running script 'stderr' succeeded
-  - running script 'stdout_and_stderr' failed (unexpected stdout)
+  ✓ running script 'stderr' succeeded
+  ✗ running script 'stdout_and_stderr' failed (unexpected stdout)
 
 === stdout:
 Bad stdout
@@ -167,8 +167,8 @@ The you will see the following output:
 ```text,verify(script_name="none_output_expectation")
 Running tests for output_expectation_none.md:
 
-  - running script 'no_output' succeeded
-  - running script 'stdout' failed (unexpected output)
+  ✓ running script 'no_output' succeeded
+  ✗ running script 'stdout' failed (unexpected output)
 
 === stdout:
 Bad stdout
@@ -178,7 +178,7 @@ Bad stdout
 
 
 
-  - running script 'stderr' failed (unexpected output)
+  ✗ running script 'stderr' failed (unexpected output)
 
 === stdout:
 

@@ -214,11 +214,11 @@ impl BasicPrinter {
     }
 
     fn display_success_item(&self, text: &str) {
-        self.display_success(&format!("  - {}", text));
+        self.display_success(&format!("  \u{2713} {}", text));
     }
 
     fn display_error_item(&self, text: &str) {
-        self.display_error(&format!("  - {}", text));
+        self.display_error(&format!("  \u{2717} {}", text));
     }
 
     fn display_success(&self, text: &str) {
