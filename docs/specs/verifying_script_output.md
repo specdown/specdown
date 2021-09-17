@@ -76,13 +76,23 @@ Given the file `omit_name_example.md`:
 Run a script with no name:
 
 ```shell,script()
-echo "Example Output!"
+echo "Script with no name!"
 ```
 
 Verify the output:
 
 ```text,verify()
-Example Output!
+Script with no name!
+```
+
+```shell,script(name="script_with_name")
+echo "Script with name!"
+```
+
+Verify the output:
+
+```text,verify()
+Script with name!
 ```
 ````
 
@@ -99,8 +109,10 @@ Running tests for omit_name_example.md:
 
   - running script '<unnamed>' succeeded
   - verifying stdout from '<unnamed>' succeeded
+  - running script 'script_with_name' succeeded
+  - verifying stdout from 'script_with_name' succeeded
 
-  2 functions run (2 succeeded / 0 failed)
+  4 functions run (4 succeeded / 0 failed)
 
 ```
 
