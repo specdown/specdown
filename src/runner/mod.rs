@@ -1,8 +1,9 @@
 use std::path::PathBuf;
 
 pub use error::Error;
-pub use executor::{Executor, Shell};
+pub use executor::Executor;
 pub use runnable_action::to_runnable;
+pub use shell_executor::ShellExecutor;
 pub use state::State;
 
 use crate::results::ActionResult;
@@ -12,6 +13,7 @@ mod executor;
 mod file;
 mod runnable_action;
 mod script;
+mod shell_executor;
 mod state;
 mod verify;
 

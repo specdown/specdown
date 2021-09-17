@@ -11,7 +11,7 @@ use crate::results::basic_printer::BasicPrinter;
 use crate::results::Printer;
 use crate::runner::Error;
 use crate::runner::RunEvent;
-use crate::runner::Shell;
+use crate::runner::ShellExecutor;
 
 mod file_reader;
 mod run_command;
@@ -88,7 +88,7 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
     let file_reader = FileReader::new(spec_dir);
 
-    Shell::new(&shell_cmd, &env).map(|executor| RunCommand {
+    ShellExecutor::new(&shell_cmd, &env).map(|executor| RunCommand {
         spec_files,
         executor: Box::new(executor),
         running_dir,
