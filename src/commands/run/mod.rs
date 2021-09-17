@@ -6,12 +6,12 @@ use file_reader::FileReader;
 use run_command::RunCommand;
 
 use crate::config::Config;
-use crate::exit_codes::ExitCode;
 use crate::results::basic_printer::BasicPrinter;
 use crate::results::Printer;
 use crate::runner::shell_executor::ShellExecutor;
 use crate::runner::{Error, RunEvent};
 
+mod exit_code;
 mod file_reader;
 mod run_command;
 
@@ -64,7 +64,7 @@ pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
         printer.print(event);
     }
 
-    let exit_code = events_to_exit_code(&events);
+    let exit_code = exit_code::from_events(&events);
 
     std::process::exit(exit_code as i32)
 }
@@ -109,27 +109,4 @@ fn parse_environment_variable(string: &str) -> (String, String) {
         [name] => (name.to_string(), "".to_string()),
         [name, value, ..] => (name.to_string(), value.to_string()),
     }
-}
-
-fn events_to_exit_code(events: &[RunEvent]) -> ExitCode {
-    let mut exit_code = ExitCode::Success;
-
-    for event in events {
-        match event {
-            RunEvent::SpecFileCompleted { success: false } => {
-                if exit_code == ExitCode::Success {
-                    exit_code = ExitCode::TestFailed;
-                }
-            }
-            RunEvent::ErrorOccurred(error) => {
-                return match error {
-                    Error::RunFailed { .. } => ExitCode::TestFailed,
-                    _ => ExitCode::ErrorOccurred,
-                }
-            }
-            _ => {}
-        }
-    }
-
-    exit_code
 }
