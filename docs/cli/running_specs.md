@@ -35,8 +35,8 @@ And you will get the following output:
 ``` text
 Running tests for example-spec.md:
 
-  - running script 'command_1' succeeded
-  - verifying stdout from 'command_1' succeeded
+  ✓ running script 'command_1' succeeded
+  ✓ verifying stdout from 'command_1' succeeded
 
   2 functions run (2 succeeded / 0 failed)
 
@@ -75,13 +75,13 @@ And you will get the following output:
 ``` text
 Running tests for example-file1.md:
 
-  - running script 'command_1' succeeded
+  ✓ running script 'command_1' succeeded
 
   1 functions run (1 succeeded / 0 failed)
 
 Running tests for example-file2.md:
 
-  - running script 'command_2' succeeded
+  ✓ running script 'command_2' succeeded
 
   1 functions run (1 succeeded / 0 failed)
 
@@ -133,10 +133,10 @@ specdown run --running-dir running_dir running_dir_example.md
 ``` text
 Running tests for running_dir_example.md:
 
-  - running script 'ls' succeeded
-  - verifying stdout from 'ls' succeeded
-  - running script 'cat' succeeded
-  - verifying stdout from 'cat' succeeded
+  ✓ running script 'ls' succeeded
+  ✓ verifying stdout from 'ls' succeeded
+  ✓ running script 'cat' succeeded
+  ✓ verifying stdout from 'cat' succeeded
 
   4 functions run (4 succeeded / 0 failed)
 
@@ -152,7 +152,7 @@ To demonstrate this, let's take the following `setting_the_shell_example.md` spe
 # Setting the Shell Example
 
 ```shell,script(name="get_shell_name")
-echo $0
+basename "$0"
 ```
 
 ```text,verify(script_name="get_shell_name")
@@ -177,8 +177,8 @@ And it will give the following output:
 ``` text
 Running tests for setting_the_shell_example.md:
 
-  - running script 'get_shell_name' succeeded
-  - verifying stdout from 'get_shell_name' failed
+  ✓ running script 'get_shell_name' succeeded
+  ✗ verifying stdout from 'get_shell_name' failed
 ===
 < left / > right
 <bash
@@ -213,6 +213,47 @@ Hello, World
 specdown run --env 'GREETING=Hello' --env 'SUBJECT=World' environment_variables.md
 ```
 
+## Adding to `$PATH`
+
+If you want addition paths to be added to your running environment you can use `--add-path`.
+To demonstrate this, let's create a couple of scripts in different directories:
+
+``` shell
+mkdir -p vendor/bin
+echo "echo 'PHP COMMAND OUTPUT'" >vendor/bin/php-cmd
+chmod +x vendor/bin/php-cmd
+
+mkdir -p node_modules/.bin
+echo "echo 'NODE COMMAND OUTPUT'" >node_modules/.bin/node-cmd
+chmod +x node_modules/.bin/node-cmd
+```
+
+The we can write a spec to test these scripts:
+
+```` markdown
+# Add Path Example
+
+```shell,script(expected_exit_code=0)
+set -e
+
+php-cmd
+node-cmd
+echo "ECHO OUTPUT"
+```
+
+```text,verify()
+PHP COMMAND OUTPUT
+NODE COMMAND OUTPUT
+ECHO OUTPUT
+```
+````
+
+Now we can run the spec providing the additional paths:
+
+``` shell
+specdown run --add-path "$PWD/vendor/bin" --add-path "$PWD/node_modules/.bin" add_path.md
+```
+
 ## Command Help
 
 You can display all the options available by using `--help` on the `run` sub-command.
@@ -233,6 +274,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+        --add-path <add-path>...           Adds the given directory to PATH
         --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
         --running-dir <running-dir>        The directory where commands will be executed
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]

@@ -39,9 +39,9 @@ And we'll see
 ``` text
 Running tests for writing_file_example.md:
 
-  - creating file example.txt succeeded
-  - running script 'cat-file' succeeded
-  - verifying stdout from 'cat-file' succeeded
+  ✓ creating file example.txt succeeded
+  ✓ running script 'cat-file' succeeded
+  ✓ verifying stdout from 'cat-file' succeeded
 
   3 functions run (3 succeeded / 0 failed)
 

@@ -46,9 +46,9 @@ The you will see the following output:
 ``` text
 Running tests for verify_example.md:
 
-  - running script 'stdout_and_stderr' succeeded
-  - verifying stdout from 'stdout_and_stderr' succeeded
-  - verifying stderr from 'stdout_and_stderr' failed
+  ✓ running script 'stdout_and_stderr' succeeded
+  ✓ verifying stdout from 'stdout_and_stderr' succeeded
+  ✗ verifying stderr from 'stdout_and_stderr' failed
 ===
 < left / > right
 <Good stderr
@@ -107,10 +107,10 @@ The you will see the following output:
 ``` text
 Running tests for omit_name_example.md:
 
-  - running script '<unnamed>' succeeded
-  - verifying stdout from '<unnamed>' succeeded
-  - running script 'script_with_name' succeeded
-  - verifying stdout from 'script_with_name' succeeded
+  ✓ running script '<unnamed>' succeeded
+  ✓ verifying stdout from '<unnamed>' succeeded
+  ✓ running script 'script_with_name' succeeded
+  ✓ verifying stdout from 'script_with_name' succeeded
 
   4 functions run (4 succeeded / 0 failed)
 

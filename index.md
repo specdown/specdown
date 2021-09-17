@@ -112,8 +112,8 @@ This will produce the following output:
 ``` text
 Running tests for example.md:
 
-  - running script 'hello-specdown' succeeded
-  - verifying stdout from 'hello-specdown' succeeded
+  ✓ running script 'hello-specdown' succeeded
+  ✓ verifying stdout from 'hello-specdown' succeeded
 
   2 functions run (2 succeeded / 0 failed)
 
