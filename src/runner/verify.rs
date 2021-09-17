@@ -8,12 +8,15 @@ use super::Error;
 pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<ActionResult, Error> {
     let Source { name, stream } = action.source.clone();
 
-    let got_raw = match (name.clone(), stream) {
-        (Some(script_name), Stream::StdErr) => script_output.get_stderr(&String::from(script_name)),
-        (Some(script_name), Stream::StdOut) => script_output.get_stdout(&String::from(script_name)),
-        (None, Stream::StdErr) => script_output.get_last_stderr(),
-        (None, Stream::StdOut) => script_output.get_last_stdout(),
+    let result = match &name {
+        Some(script_name) => script_output.get_result(&String::from(script_name)),
+        None => script_output.get_last_result(),
     };
+
+    let got_raw = result.map(|r| match stream {
+        Stream::StdErr => r.stderr.clone(),
+        Stream::StdOut => r.stdout.clone(),
+    });
 
     match got_raw {
         None => Err(Error::ScriptOutputMissing {
@@ -35,38 +38,50 @@ pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<Ac
 #[cfg(test)]
 mod tests {
     use super::{run, ActionResult, Error, ScriptOutput};
+    use crate::results::ScriptResult;
+    use crate::types::{OutputExpectation, ScriptAction, ScriptCode, ScriptName};
 
     struct MockScriptOutput {
-        script_name: String,
-        stdout: String,
-        stderr: String,
-        last_stdout: Option<String>,
-        last_stderr: Option<String>,
+        result: Option<ScriptResult>,
+    }
+
+    impl MockScriptOutput {
+        fn without_result() -> Self {
+            MockScriptOutput { result: None }
+        }
+
+        fn with_result(name: &str, stdout: &str, stderr: &str) -> Self {
+            MockScriptOutput {
+                result: Some(ScriptResult {
+                    action: ScriptAction {
+                        script_name: Some(ScriptName(name.to_string())),
+                        script_code: ScriptCode("".to_string()),
+                        expected_exit_code: None,
+                        expected_output: OutputExpectation::Any,
+                    },
+                    exit_code: None,
+                    stdout: stdout.to_string(),
+                    stderr: stderr.to_string(),
+                }),
+            }
+        }
     }
 
     impl ScriptOutput for MockScriptOutput {
-        fn get_stdout(&self, name: &str) -> Option<String> {
-            if name == self.script_name {
-                Some(self.stdout.clone())
+        fn get_result(&self, name: &str) -> Option<&ScriptResult> {
+            let unwrapped_result = self
+                .result
+                .as_ref()
+                .expect("Result must be set to use get_result()");
+            if Some(ScriptName(name.to_string())) == unwrapped_result.action.script_name {
+                Some(&unwrapped_result)
             } else {
                 None
             }
         }
 
-        fn get_stderr(&self, name: &str) -> Option<String> {
-            if name == self.script_name {
-                Some(self.stderr.clone())
-            } else {
-                None
-            }
-        }
-
-        fn get_last_stdout(&self) -> Option<String> {
-            self.last_stdout.clone()
-        }
-
-        fn get_last_stderr(&self) -> Option<String> {
-            self.last_stderr.clone()
+        fn get_last_result(&self) -> Option<&ScriptResult> {
+            self.result.as_ref()
         }
     }
 
@@ -83,13 +98,7 @@ mod tests {
                 stream: Stream::StdOut,
             };
             let verify_value = VerifyValue("hello world".to_string());
-            let script_output = MockScriptOutput {
-                script_name: "example_script".to_string(),
-                stdout: "".to_string(),
-                stderr: "".to_string(),
-                last_stdout: Some("hello world".to_string()),
-                last_stderr: Some("".to_string()),
-            };
+            let script_output = MockScriptOutput::with_result("example_script", "hello world", "");
 
             let action = VerifyAction {
                 source,
@@ -112,13 +121,7 @@ mod tests {
                 stream: Stream::StdErr,
             };
             let verify_value = VerifyValue("hello world".to_string());
-            let script_output = MockScriptOutput {
-                script_name: "example_script".to_string(),
-                stdout: "".to_string(),
-                stderr: "".to_string(),
-                last_stdout: Some("".to_string()),
-                last_stderr: Some("hello world".to_string()),
-            };
+            let script_output = MockScriptOutput::with_result("example_script", "", "hello world");
 
             let action = VerifyAction {
                 source,
@@ -141,13 +144,7 @@ mod tests {
                 stream: Stream::StdOut,
             };
             let verify_value = VerifyValue("hello world".to_string());
-            let script_output = MockScriptOutput {
-                script_name: "example_script".to_string(),
-                stdout: "hello world".to_string(),
-                stderr: "".to_string(),
-                last_stdout: None,
-                last_stderr: None,
-            };
+            let script_output = MockScriptOutput::with_result("example_script", "hello world", "");
 
             let action = VerifyAction {
                 source,
@@ -170,13 +167,9 @@ mod tests {
                 stream: Stream::StdErr,
             };
             let verify_value = VerifyValue("error message".to_string());
-            let script_output = MockScriptOutput {
-                script_name: "my_script".to_string(),
-                stdout: "hello world".to_string(),
-                stderr: "error message".to_string(),
-                last_stdout: None,
-                last_stderr: None,
-            };
+            let script_output =
+                MockScriptOutput::with_result("my_script", "hello world", "error message");
+
             let action = VerifyAction {
                 source,
                 expected_value: verify_value,
@@ -198,13 +191,7 @@ mod tests {
                 stream: Stream::StdErr,
             };
             let verify_value = VerifyValue("error message".to_string());
-            let script_output = MockScriptOutput {
-                script_name: "existing_script".to_string(),
-                stdout: "".to_string(),
-                stderr: "".to_string(),
-                last_stdout: None,
-                last_stderr: None,
-            };
+            let script_output = MockScriptOutput::with_result("existing_script", "", "");
             let action = VerifyAction {
                 source,
                 expected_value: verify_value,
@@ -224,13 +211,7 @@ mod tests {
                 stream: Stream::StdErr,
             };
             let verify_value = VerifyValue("error message".to_string());
-            let script_output = MockScriptOutput {
-                script_name: "existing_script".to_string(),
-                stdout: "".to_string(),
-                stderr: "".to_string(),
-                last_stdout: None,
-                last_stderr: None,
-            };
+            let script_output = MockScriptOutput::without_result();
             let action = VerifyAction {
                 source,
                 expected_value: verify_value,
@@ -251,13 +232,8 @@ mod tests {
                 stream: Stream::StdOut,
             };
             let verify_value = VerifyValue("\x1b[34mThis is coloured".to_string());
-            let script_output = MockScriptOutput {
-                script_name: "colour_script".to_string(),
-                stdout: "\x1b[31mThis is coloured".to_string(),
-                stderr: "".to_string(),
-                last_stdout: None,
-                last_stderr: None,
-            };
+            let script_output =
+                MockScriptOutput::with_result("colour_script", "\x1b[31mThis is coloured", "");
             let action = VerifyAction {
                 source,
                 expected_value: verify_value,

@@ -14,6 +14,13 @@ impl From<ScriptName> for String {
     }
 }
 
+impl From<&ScriptName> for String {
+    fn from(script_name: &ScriptName) -> Self {
+        let ScriptName(value) = script_name;
+        value.clone()
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Source {
     pub name: Option<ScriptName>,
@@ -109,6 +116,14 @@ mod tests {
         fn converts_to_string_from_script_name() {
             assert_eq!(
                 String::from(ScriptName("name".to_string())),
+                String::from("name")
+            );
+        }
+
+        #[test]
+        fn converts_to_string_from_script_name_reference() {
+            assert_eq!(
+                String::from(&ScriptName("name".to_string())),
                 String::from("name")
             );
         }

@@ -9,10 +9,8 @@ pub struct State {
 }
 
 pub trait ScriptOutput {
-    fn get_stdout(&self, name: &str) -> Option<String>;
-    fn get_stderr(&self, name: &str) -> Option<String>;
-    fn get_last_stdout(&self) -> Option<String>;
-    fn get_last_stderr(&self) -> Option<String>;
+    fn get_result(&self, name: &str) -> Option<&ScriptResult>;
+    fn get_last_result(&self) -> Option<&ScriptResult>;
 }
 
 impl State {
@@ -47,24 +45,12 @@ impl State {
 }
 
 impl ScriptOutput for State {
-    fn get_stdout(&self, name: &str) -> Option<String> {
-        self.script_results
-            .get(name)
-            .map(|result| result.stdout.to_string())
+    fn get_result(&self, name: &str) -> Option<&ScriptResult> {
+        self.script_results.get(name)
     }
 
-    fn get_stderr(&self, name: &str) -> Option<String> {
-        self.script_results
-            .get(name)
-            .map(|result| result.stderr.to_string())
-    }
-
-    fn get_last_stdout(&self) -> Option<String> {
-        self.last_script_result.clone().map(|result| result.stdout)
-    }
-
-    fn get_last_stderr(&self) -> Option<String> {
-        self.last_script_result.clone().map(|result| result.stderr)
+    fn get_last_result(&self) -> Option<&ScriptResult> {
+        self.last_script_result.as_ref()
     }
 }
 
@@ -134,8 +120,8 @@ mod tests {
     }
 
     #[test]
-    fn get_script_stdout_returns_the_output_when_script_output_exists() {
-        let script_result1 = ActionResult::Script(ScriptResult {
+    fn get_result_returns_the_result_when_script_result_exists() {
+        let script_result1 = ScriptResult {
             action: ScriptAction {
                 script_name: Some(ScriptName("script1".to_string())),
                 script_code: ScriptCode("script1".to_string()),
@@ -145,45 +131,8 @@ mod tests {
             exit_code: Some(ExitCode(0)),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
-        });
-        let script_result2 = ActionResult::Script(ScriptResult {
-            action: ScriptAction {
-                script_name: Some(ScriptName("script2".to_string())),
-                script_code: ScriptCode("script2".to_string()),
-                expected_exit_code: None,
-                expected_output: OutputExpectation::Any,
-            },
-            exit_code: Some(ExitCode(0)),
-            stdout: "stdout2".to_string(),
-            stderr: "stderr2".to_string(),
-        });
-        let mut state = State::new();
-        state.add_result(&script_result1);
-        state.add_result(&script_result2);
-        assert_eq!(state.get_stdout("script1"), Some("stdout1".to_string()));
-        assert_eq!(state.get_stdout("script2"), Some("stdout2".to_string()));
-    }
-
-    #[test]
-    fn get_script_stdout_returns_none_when_script_output_does_not_exists() {
-        let state = State::new();
-        assert_eq!(state.get_stdout("does-not-exist"), None);
-    }
-
-    #[test]
-    fn get_script_stderr_returns_the_output_when_script_output_exists() {
-        let script_result1 = ActionResult::Script(ScriptResult {
-            action: ScriptAction {
-                script_name: Some(ScriptName("script1".to_string())),
-                script_code: ScriptCode("script1".to_string()),
-                expected_exit_code: None,
-                expected_output: OutputExpectation::Any,
-            },
-            exit_code: Some(ExitCode(0)),
-            stdout: "stdout1".to_string(),
-            stderr: "stderr1".to_string(),
-        });
-        let script_result2 = ActionResult::Script(ScriptResult {
+        };
+        let script_result2 = ScriptResult {
             action: ScriptAction {
                 script_name: Some(ScriptName("script2".to_string())),
                 script_code: ScriptCode("script1".to_string()),
@@ -193,18 +142,18 @@ mod tests {
             exit_code: Some(ExitCode(0)),
             stdout: "stdout2".to_string(),
             stderr: "stderr2".to_string(),
-        });
+        };
         let mut state = State::new();
-        state.add_result(&script_result1);
-        state.add_result(&script_result2);
-        assert_eq!(state.get_stderr("script1"), Some("stderr1".to_string()));
-        assert_eq!(state.get_stderr("script2"), Some("stderr2".to_string()));
+        state.add_result(&ActionResult::Script(script_result1.clone()));
+        state.add_result(&ActionResult::Script(script_result2.clone()));
+        assert_eq!(state.get_result("script1"), Some(&script_result1));
+        assert_eq!(state.get_result("script2"), Some(&script_result2));
     }
 
     #[test]
-    fn get_script_stderr_returns_none_when_script_output_does_not_exists() {
+    fn get_result_returns_none_when_script_result_does_not_exists() {
         let state = State::new();
-        assert_eq!(state.get_stderr("does-not-exist"), None);
+        assert_eq!(state.get_result("does-not-exist"), None);
     }
 
     #[test]
@@ -270,50 +219,26 @@ mod tests {
     }
 
     #[test]
-    fn get_last_stdout_returns_none_when_no_scripts_have_been_run() {
-        assert_eq!(None, State::new().get_last_stdout());
+    fn get_last_result_returns_none_when_no_scripts_have_been_run() {
+        assert_eq!(None, State::new().get_last_result());
     }
 
     #[test]
-    fn get_last_stdout_returns_none_stdout_from_last_script() {
+    fn get_last_result_returns_result_from_last_script() {
         let action = ScriptAction {
             script_name: None,
             script_code: ScriptCode("script1".to_string()),
             expected_exit_code: None,
             expected_output: OutputExpectation::Any,
         };
-        let script_result1 = ActionResult::Script(ScriptResult {
+        let script_result = ScriptResult {
             action,
             exit_code: Some(ExitCode(0)),
             stdout: "stdout1".to_string(),
             stderr: "stderr1".to_string(),
-        });
-        let mut state = State::new();
-        state.add_result(&script_result1);
-        assert_eq!(Some("stdout1".to_string()), state.get_last_stdout());
-    }
-
-    #[test]
-    fn get_last_stderr_returns_none_when_no_scripts_have_been_run() {
-        assert_eq!(None, State::new().get_last_stderr());
-    }
-
-    #[test]
-    fn get_last_stderr_returns_none_stdout_from_last_script() {
-        let action = ScriptAction {
-            script_name: None,
-            script_code: ScriptCode("script1".to_string()),
-            expected_exit_code: None,
-            expected_output: OutputExpectation::Any,
         };
-        let script_result1 = ActionResult::Script(ScriptResult {
-            action,
-            exit_code: Some(ExitCode(0)),
-            stdout: "stdout1".to_string(),
-            stderr: "stderr1".to_string(),
-        });
         let mut state = State::new();
-        state.add_result(&script_result1);
-        assert_eq!(Some("stderr1".to_string()), state.get_last_stderr());
+        state.add_result(&ActionResult::Script(script_result.clone()));
+        assert_eq!(Some(&script_result), state.get_last_result());
     }
 }
