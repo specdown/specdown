@@ -1,9 +1,10 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::commands::run::file_reader::FileReader;
 use crate::parser;
 use crate::runner::{Error, Executor, RunEvent, Runner, State};
+
+use super::file_reader::FileReader;
 
 pub struct RunCommand {
     pub spec_files: Vec<PathBuf>,

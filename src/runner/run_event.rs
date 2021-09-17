@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
+use super::Error;
 use crate::results::ActionResult;
-use crate::runner::Error;
 
 #[derive(Clone)]
 pub enum RunEvent {
