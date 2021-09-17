@@ -8,31 +8,23 @@ use super::Error;
 pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<ActionResult, Error> {
     let Source { name, stream } = action.source.clone();
 
-    let result = match &name {
-        Some(script_name) => script_output.get_result(&String::from(script_name)),
-        None => script_output.get_last_result(),
-    };
-
-    let got_raw = result.map(|r| match stream {
-        Stream::StdErr => r.stderr.clone(),
-        Stream::StdOut => r.stdout.clone(),
-    });
-
-    match got_raw {
-        None => Err(Error::ScriptOutputMissing {
-            missing_script_name: name.map_or("<unnamed>".to_string(), String::from),
-        }),
-        Some(got_raw) => {
-            let got = strip_ansi_escape_chars(&got_raw);
-
-            let result = ActionResult::Verify(VerifyResult {
+    name.as_ref()
+        .map(|script_name| script_output.get_result(&String::from(script_name)))
+        .or_else(|| Some(script_output.get_last_result()))
+        .flatten()
+        .map(|result| match stream {
+            Stream::StdErr => result.stderr.clone(),
+            Stream::StdOut => result.stdout.clone(),
+        })
+        .map(|got| {
+            ActionResult::Verify(VerifyResult {
                 action: (*action).clone(),
-                got,
-            });
-
-            Ok(result)
-        }
-    }
+                got: strip_ansi_escape_chars(&got),
+            })
+        })
+        .ok_or(Error::ScriptOutputMissing {
+            missing_script_name: name.map_or("<unnamed>".to_string(), String::from),
+        })
 }
 
 #[cfg(test)]
