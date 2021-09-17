@@ -81,21 +81,29 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         .map(Path::new)
         .map(std::path::Path::to_path_buf);
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
-    let env: Vec<(String, String)> = run_matches.values_of("env").map_or(vec![], |values| {
-        values.map(environment_variable_string_to_tuple).collect()
-    });
+    let env: Vec<(String, String)> = run_matches
+        .values_of("env")
+        .map_or(vec![], parse_environment_variables);
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
     let file_reader = FileReader::new(spec_dir);
 
-    ShellExecutor::new(&shell_cmd, &env).map(|executor| RunCommand {
+    let new_command = |e| RunCommand {
         spec_files,
-        executor: Box::new(executor),
+        executor: Box::new(e),
         running_dir,
         file_reader,
-    })
+    };
+
+    ShellExecutor::new(&shell_cmd, &env).map(new_command)
 }
 
-fn environment_variable_string_to_tuple(string: &str) -> (String, String) {
+fn parse_environment_variables<'a>(
+    strings: impl Iterator<Item = &'a str>,
+) -> Vec<(String, String)> {
+    strings.map(parse_environment_variable).collect()
+}
+
+fn parse_environment_variable(string: &str) -> (String, String) {
     match string.splitn(2, '=').collect::<Vec<_>>()[..] {
         [] => panic!("Empty environment variable split"),
         [name] => (name.to_string(), "".to_string()),
