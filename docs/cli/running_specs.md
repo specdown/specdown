@@ -89,6 +89,12 @@ Running tests for example-file2.md:
 
 ## Setting the Running Directory
 
+By default, the `run` command will run the scripts in whatever the current
+working directory is set to. There are a couple of options you can use to
+change this behaviour.
+
+### Setting a Specific Running Directory: `--running-dir`
+
 You can set the directory for the commands to be executed in using the
 `--running-dir` argument.
 
@@ -140,6 +146,41 @@ Running tests for running_dir_example.md:
   ✓ verifying stdout from 'cat' succeeded
 
   4 functions run (4 succeeded / 0 failed)
+
+```
+
+### Using a Temporary Running Directory: `--temporary-running-directory`
+
+You ask specdown to create a temporary running directory for the commands to be
+executed in using the `--temporary-running-directory` argument.
+
+And we can create a spec called `temporary_running_dir_example.md`:
+
+```` markdown
+# Demo Spec
+
+## Listing a file which does not exist
+
+`test -e` will return `1` if the file does not exist.
+
+```shell,script(name="ls", expected_exit_code=1)
+test -e "missing-file.txt"
+```
+````
+
+Now we can run specdown using the following command:
+
+``` shell
+echo "this file is in the current working directory" >missing-file.txt
+specdown run --temporary-running-dir temporary_running_dir_example.md
+```
+
+``` text
+Running tests for temporary_running_dir_example.md:
+
+  ✓ running script 'ls' succeeded
+
+  1 functions run (1 succeeded / 0 failed)
 
 ```
 
@@ -293,11 +334,12 @@ specdown-run
 Runs a given Markdown Specification
 
 USAGE:
-    specdown run [OPTIONS] <spec-files>...
+    specdown run [FLAGS] [OPTIONS] <spec-files>...
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help                     Prints help information
+        --temporary-running-dir    Create a temporary directory to run the scripts in
+    -V, --version                  Prints version information
 
 OPTIONS:
         --add-path <add-path>...           Adds the given directory to PATH

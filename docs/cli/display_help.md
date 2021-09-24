@@ -12,7 +12,7 @@ specdown
 
 Outputs:
 
-    specdown 0.51.0
+    specdown 0.52.0
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:
@@ -43,11 +43,12 @@ Displays:
     Runs a given Markdown Specification
     
     USAGE:
-        specdown run [OPTIONS] <spec-files>...
+        specdown run [FLAGS] [OPTIONS] <spec-files>...
     
     FLAGS:
-        -h, --help       Prints help information
-        -V, --version    Prints version information
+        -h, --help                     Prints help information
+            --temporary-running-dir    Create a temporary directory to run the scripts in
+        -V, --version                  Prints version information
     
     OPTIONS:
             --add-path <add-path>...           Adds the given directory to PATH
