@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use clap::{Arg, SubCommand};
 
@@ -6,6 +6,7 @@ use file_reader::FileReader;
 use run_command::RunCommand;
 
 use crate::config::Config;
+use crate::exit_codes::ExitCode;
 use crate::results::basic_printer::BasicPrinter;
 use crate::results::Printer;
 use crate::runner::shell_executor::ShellExecutor;
@@ -24,10 +25,16 @@ pub fn create() -> clap::App<'static, 'static> {
         .help("The spec files to run")
         .required(true);
 
-    let test_dir = Arg::with_name("running-dir")
+    let running_dir = Arg::with_name("running-dir")
         .long("running-dir")
         .takes_value(true)
         .help("The directory where commands will be executed")
+        .required(false);
+
+    let temp_running_dir = Arg::with_name("temp-running-dir")
+        .long("temporary-running-dir")
+        .takes_value(false)
+        .help("Create a temporary directory to run the scripts in")
         .required(false);
 
     let shell_cmd = Arg::with_name("shell-command")
@@ -64,7 +71,8 @@ pub fn create() -> clap::App<'static, 'static> {
     SubCommand::with_name(NAME)
         .about("Runs a given Markdown Specification")
         .arg(spec_file)
-        .arg(test_dir)
+        .arg(running_dir)
+        .arg(temp_running_dir)
         .arg(shell_cmd)
         .arg(env)
         .arg(unset_env)
@@ -77,7 +85,7 @@ pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
         |command| command.execute(),
     );
 
-    let mut printer = Box::new(BasicPrinter::new(config.colour));
+    let mut printer = BasicPrinter::new(config.colour);
     for event in &events {
         printer.print(event);
     }
@@ -94,10 +102,11 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         .map(Path::new)
         .map(std::path::Path::to_path_buf)
         .collect();
-    let running_dir = run_matches
+    let specified_running_dir = run_matches
         .value_of("running-dir")
         .map(Path::new)
         .map(std::path::Path::to_path_buf);
+    let temp_running_dir = run_matches.is_present("temp-running-dir");
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
     let env = run_matches
         .values_of("env")
@@ -111,6 +120,8 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
     let file_reader = FileReader::new(spec_dir);
 
+    let running_dir = get_running_dir(specified_running_dir, temp_running_dir);
+
     let new_command = |e| RunCommand {
         spec_files,
         executor: Box::new(e),
@@ -119,6 +130,29 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     };
 
     ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths).map(new_command)
+}
+
+fn get_running_dir(
+    specified_running_dir: Option<PathBuf>,
+    temp_running_dir: bool,
+) -> Option<PathBuf> {
+    if specified_running_dir.is_some() && temp_running_dir {
+        println!(
+            "  \u{2717} --running-dir and --temporary-running-dir cannot be specified at the same time"
+        );
+        std::process::exit(ExitCode::ErrorOccurred as i32)
+    }
+
+    if temp_running_dir {
+        Some(
+            tempfile::tempdir()
+                .expect("Failed to create temporary running directory")
+                .path()
+                .to_path_buf(),
+        )
+    } else {
+        specified_running_dir
+    }
 }
 
 fn parse_environment_variables<'a>(

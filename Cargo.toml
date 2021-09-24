@@ -22,6 +22,7 @@ nom = "7"
 colored-diff = "0.2.2"
 strip-ansi-escapes = "0.1.1"
 shell-words = "1.0.0"
+tempfile = "3.2.0"
 
 [dev-dependencies]
 assert_cmd = "2.0.1"

@@ -1,8 +1,11 @@
 # Errors
 
-There are a number of errors that can occur when the if a markdown spec contains some invalid content.
+There are a number of errors that can occur when the if a markdown spec contains
+some invalid content.
 
-## Unknown Function
+## Spec File Errors
+
+### Unknown Function
 
 Given `unknown_function_example.md`:
 
@@ -31,7 +34,7 @@ Running tests for unknown_function_example.md:
 
 ```
 
-## Missing Function Arguments
+### Missing Function Arguments
 
 Given `missing_function_argument_example.md`:
 
@@ -60,7 +63,7 @@ Running tests for missing_function_argument_example.md:
 
 ```
 
-## Invalid Argument Value
+### Invalid Argument Value
 
 Given `invalid_argument_value_example.md`:
 
@@ -89,7 +92,7 @@ Running tests for invalid_argument_value_example.md:
 
 ```
 
-## Invalid Argument Option
+### Invalid Argument Option
 
 Given `invalid_token_option_example.md`:
 
@@ -122,7 +125,7 @@ Running tests for invalid_token_option_example.md:
 
 ```
 
-## Verify Unknown Script
+### Verify Unknown Script
 
 Given `verify_unknown_script_example.md`:
 
@@ -151,8 +154,31 @@ Running tests for verify_unknown_script_example.md:
 
 ```
 
+## Run Command Errors
 
-## Empty Shell Command
+### Setting `--running-dir` and `--temporary-running-dir`
+
+Given `empty_spec.md`:
+
+~~~markdown,file(path="empty_spec.md")
+# Nothing to see here
+~~~
+
+Running the following command will fail:
+
+```shell,script(name="empty_shell_command_example", expected_exit_code=2)
+specdown run --running-dir dirname --temporary-running-dir empty_shell_command_example.md
+```
+
+With the following error message:
+
+```text,verify()
+  ✗ --running-dir and --temporary-running-dir cannot be specified at the same time
+```
+
+### Shell Command Errors
+
+#### Empty Shell Command
 
 Given `empty_shell_command_example.md`:
 
@@ -172,7 +198,7 @@ With the following error message:
   ✗ Invalid shell command provided:  (Error: Command is empty)
 ```
 
-## Invalid Shell Command
+#### Invalid Shell Command
 
 Given `invalid_shell_command_example.md`:
 
@@ -192,7 +218,7 @@ With the following error message:
   ✗ Invalid shell command provided: invalid " command (Error: Parse error : missing closing quote)
 ```
 
-## Shell Which Can't Be Run
+#### Shell Which Can't Be Run
 
 Given `missing_shell_example.md`:
 
