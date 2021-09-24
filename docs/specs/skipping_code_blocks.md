@@ -4,8 +4,8 @@ layout: page
 
 # Skipping Code Blocks
 
-Not all codeblocks in your markdown need to be tested by specdown.
-If you you want some that are just informative, use the function `skip()`.
+Not all codeblocks in your markdown need to be tested by specdown,
+if you want specdown to skip a codeblock then use the function `skip()`.
 
 Given the following markdown file `skip_example.md`:
 
