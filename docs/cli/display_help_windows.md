@@ -42,11 +42,12 @@ specdown.exe-run
 Runs a given Markdown Specification
 
 USAGE:
-    specdown.exe run [OPTIONS] <spec-files>...
+    specdown.exe run [FLAGS] [OPTIONS] <spec-files>...
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help                     Prints help information
+        --temporary-running-dir    Create a temporary directory to run the scripts in
+    -V, --version                  Prints version information
 
 OPTIONS:
         --add-path <add-path>...           Adds the given directory to PATH
