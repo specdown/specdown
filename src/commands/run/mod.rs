@@ -120,12 +120,20 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     let current_dir = std::env::current_dir().expect("Failed to get current working directory");
     let file_reader = FileReader::new(current_dir.clone());
 
-    let running_dir =
-        get_running_dir(specified_running_dir, temp_running_dir).unwrap_or(current_dir);
+    let running_dir = get_running_dir(specified_running_dir, temp_running_dir)
+        .unwrap_or_else(|| current_dir.clone());
 
     std::fs::create_dir_all(&running_dir).expect("Failed to create running directory");
     let running_dir_canonicalized = std::fs::canonicalize(&running_dir)
         .unwrap_or_else(|_| panic!("Failed to canonicalize {:?}", running_dir));
+
+    env.push((
+        "SPECDOWN_START_DIR".to_string(),
+        current_dir
+            .into_os_string()
+            .into_string()
+            .expect("failed to convert current working dir into a string"),
+    ));
 
     env.push((
         "SPECDOWN_RUNNING_DIR".to_string(),
