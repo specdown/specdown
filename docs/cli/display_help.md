@@ -12,7 +12,7 @@ specdown
 
 Outputs:
 
-    specdown 0.50.0
+    specdown 0.51.0
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:
@@ -54,6 +54,7 @@ Displays:
             --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
             --running-dir <running-dir>        The directory where commands will be executed
             --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
+            --unset-env <unset-env>...         Unset an environment variable
     
     ARGS:
         <spec-files>...    The spec files to run

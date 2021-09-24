@@ -89,7 +89,8 @@ Running tests for example-file2.md:
 
 ## Setting the Running Directory
 
-You can set the directory for the commands to be executed in using the `--running-dir` argument.
+You can set the directory for the commands to be executed in using the
+`--running-dir` argument.
 
 To demonstrate this, we can make a new directory with a file in it:
 
@@ -144,7 +145,8 @@ Running tests for running_dir_example.md:
 
 ## Setting the Shell
 
-By default, specdown runs commands with `bash -c`. You can override this with the `--shell-command` option.
+By default, specdown runs commands with `bash -c`. You can override this with
+the `--shell-command` option.
 
 To demonstrate this, let's take the following `setting_the_shell_example.md` spec:
 
@@ -192,16 +194,18 @@ Running tests for setting_the_shell_example.md:
 
 ```
 
-## Environment Variables
+## Environment
 
-You can provide environment variable to the `run` command. These variables are then
-available in all `script` actions:
+### Setting Environment Variables
+
+You can provide environment variable to the `run` command. These variables are
+then available in all `script` actions:
 
 ```` markdown
-# Environment Variables Example
+# Setting Environment Variables Example
 
 ```shell,script(name="environment_variables")
-echo $GREETING, $SUBJECT
+echo "$GREETING, $SUBJECT"
 ```
 
 ```text,verify(script_name="environment_variables")
@@ -213,10 +217,31 @@ Hello, World
 specdown run --env 'GREETING=Hello' --env 'SUBJECT=World' environment_variables.md
 ```
 
-## Adding to `$PATH`
+### Unsetting Environment Variables
 
-If you want addition paths to be added to your running environment you can use `--add-path`.
-To demonstrate this, let's create a couple of scripts in different directories:
+You can provide environment variable to the `run` command. These variables are
+then available in all `script` actions:
+
+```` markdown
+# Unsetting Variables Example
+
+`grep` will return an exit code of `1` if it does not find the string it is
+searching for. The follow script asserts that `UNSET_ME` is not set.
+
+```shell,script(expected_exit_code=1)
+env | grep UNSET_ME
+```
+````
+
+``` shell
+UNSET_ME=1 specdown run --unset-env UNSET_ME unset_environment_variables.md
+```
+
+### Adding to `$PATH`
+
+If you want addition paths to be added to your running environment you can use
+`--add-path`. To demonstrate this, let's create a couple of scripts in different
+directories:
 
 ``` shell
 mkdir -p vendor/bin
@@ -256,7 +281,8 @@ specdown run --add-path "$PWD/vendor/bin" --add-path "$PWD/node_modules/.bin" ad
 
 ## Command Help
 
-You can display all the options available by using `--help` on the `run` sub-command.
+You can display all the options available by using `--help` on the `run`
+sub-command.
 
 ``` shell
 specdown run --help
@@ -278,6 +304,7 @@ OPTIONS:
         --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
         --running-dir <running-dir>        The directory where commands will be executed
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
+        --unset-env <unset-env>...         Unset an environment variable
 
 ARGS:
     <spec-files>...    The spec files to run
