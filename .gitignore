@@ -2,7 +2,5 @@
 /dist
 /gh-pages
 **/*.rs.bk
-.specdown/
 *.bak
 .tests/
-/running_dir/

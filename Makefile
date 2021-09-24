@@ -25,7 +25,6 @@ format:
 
 .PHONY=test
 test: check
-	mkdir -p .specdown
 	export PATH="$$(pwd)/target/debug:$$PATH"; cargo test -- --nocapture
 
 dist:
