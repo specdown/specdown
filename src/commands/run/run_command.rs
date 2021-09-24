@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::parser;
@@ -9,7 +8,7 @@ use super::file_reader::FileReader;
 pub struct RunCommand {
     pub spec_files: Vec<PathBuf>,
     pub executor: Box<dyn Executor>,
-    pub running_dir: Option<PathBuf>,
+    pub running_dir: PathBuf,
     pub file_reader: FileReader,
 }
 
@@ -48,9 +47,6 @@ impl RunCommand {
     }
 
     fn change_to_running_directory(&self) {
-        if let Some(dir) = &self.running_dir {
-            fs::create_dir_all(dir).expect("Failed to create running directory");
-            std::env::set_current_dir(dir).expect("Failed to set running directory");
-        }
+        std::env::set_current_dir(&self.running_dir).expect("Failed to set running directory");
     }
 }

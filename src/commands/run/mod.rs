@@ -108,7 +108,7 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         .map(std::path::Path::to_path_buf);
     let temp_running_dir = run_matches.is_present("temp-running-dir");
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
-    let env = run_matches
+    let mut env = run_matches
         .values_of("env")
         .map_or(vec![], parse_environment_variables);
     let unset_env = run_matches.values_of("unset-env").map_or(vec![], |v| {
@@ -117,15 +117,29 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     let paths = run_matches
         .values_of("add-path")
         .map_or(vec![], std::iter::Iterator::collect);
-    let spec_dir = std::env::current_dir().expect("Failed to get current working directory");
-    let file_reader = FileReader::new(spec_dir);
+    let current_dir = std::env::current_dir().expect("Failed to get current working directory");
+    let file_reader = FileReader::new(current_dir.clone());
 
-    let running_dir = get_running_dir(specified_running_dir, temp_running_dir);
+    let running_dir =
+        get_running_dir(specified_running_dir, temp_running_dir).unwrap_or(current_dir);
+
+    std::fs::create_dir_all(&running_dir).expect("Failed to create running directory");
+    let running_dir_canonicalized = std::fs::canonicalize(&running_dir)
+        .unwrap_or_else(|_| panic!("Failed to canonicalize {:?}", running_dir));
+
+    env.push((
+        "SPECDOWN_RUNNING_DIR".to_string(),
+        running_dir_canonicalized
+            .clone()
+            .into_os_string()
+            .into_string()
+            .expect("failed to convert current working dir into a string"),
+    ));
 
     let new_command = |e| RunCommand {
         spec_files,
         executor: Box::new(e),
-        running_dir,
+        running_dir: running_dir_canonicalized,
         file_reader,
     };
 

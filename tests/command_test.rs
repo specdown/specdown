@@ -127,6 +127,18 @@ fn test_doc_verifying_exit_codes() {
 }
 
 #[test]
+fn test_doc_global_environment_variables() {
+    let result = Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--temporary-running-dir")
+        .arg("docs/specs/global_environment_variables.md")
+        .ok();
+
+    assert_ok(&result);
+}
+
+#[test]
 fn test_doc_output_expectations() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
