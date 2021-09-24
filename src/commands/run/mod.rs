@@ -45,6 +45,14 @@ pub fn create() -> clap::App<'static, 'static> {
         .help("Set an environment variable (format: 'VAR_NAME=value')")
         .required(false);
 
+    let unset_env = Arg::with_name("unset-env")
+        .long("unset-env")
+        .takes_value(true)
+        .multiple(true)
+        .number_of_values(1)
+        .help("Unset an environment variable")
+        .required(false);
+
     let add_path = Arg::with_name("add-path")
         .long("add-path")
         .takes_value(true)
@@ -59,6 +67,7 @@ pub fn create() -> clap::App<'static, 'static> {
         .arg(test_dir)
         .arg(shell_cmd)
         .arg(env)
+        .arg(unset_env)
         .arg(add_path)
 }
 
@@ -93,6 +102,9 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     let env = run_matches
         .values_of("env")
         .map_or(vec![], parse_environment_variables);
+    let unset_env = run_matches.values_of("unset-env").map_or(vec![], |v| {
+        v.map(std::string::ToString::to_string).collect()
+    });
     let paths = run_matches
         .values_of("add-path")
         .map_or(vec![], std::iter::Iterator::collect);
@@ -106,7 +118,7 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         file_reader,
     };
 
-    ShellExecutor::new(&shell_cmd, &env, &paths).map(new_command)
+    ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths).map(new_command)
 }
 
 fn parse_environment_variables<'a>(
