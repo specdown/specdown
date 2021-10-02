@@ -1,7 +1,8 @@
 queue_rules:
   - name: default
     conditions:
-      - status-success=lint
+      - status-success=lint (windows-latest)
+      - status-success=lint (ubuntu-latest)
       - status-success=versio-plan
       - status-success=cargo-test (ubuntu-latest)
       - status-success=cargo-test (macos-latest)
@@ -12,7 +13,8 @@ queue_rules:
 pull_request_rules:
   - name: automatic rebase for dependencies
     conditions:
-      - status-success=lint
+      - status-success=lint (windows-latest)
+      - status-success=lint (ubuntu-latest)
       - status-success=versio-plan
       - status-success=cargo-test (ubuntu-latest)
       - status-success=cargo-test (macos-latest)
