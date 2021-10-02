@@ -190,6 +190,30 @@ fn test_doc_skipping_code_blocks() {
 
 #[cfg(not(windows))]
 #[test]
+fn test_doc_completion() {
+    let result = Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("docs/cli/completion.md")
+        .ok();
+
+    assert_ok(&result);
+}
+
+#[cfg(windows)]
+#[test]
+fn test_doc_completion() {
+    let result = Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("docs/cli/completion_windows.md")
+        .ok();
+
+    assert_ok(&result);
+}
+
+#[cfg(not(windows))]
+#[test]
 fn test_doc_stripping_specs() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
@@ -239,9 +263,10 @@ fn test_displays_error_when_required_args_are_missing() {
                 -V, --version      Prints version information
 
             SUBCOMMANDS:
-                help     Prints this message or the help of the given subcommand(s)
-                run      Runs a given Markdown Specification
-                strip    Outputs a version of the markdown with all specdown functions removed
+                completion    Output completion for a shell of your choice
+                help          Prints this message or the help of the given subcommand(s)
+                run           Runs a given Markdown Specification
+                strip         Outputs a version of the markdown with all specdown functions removed
             ",
             BINARY_NAME
         ));

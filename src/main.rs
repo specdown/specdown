@@ -26,6 +26,7 @@ fn main() {
         .arg(no_colour)
         .subcommand(commands::run::create())
         .subcommand(commands::strip::create())
+        .subcommand(commands::completion::create())
         .setting(AppSettings::ArgRequiredElseHelp);
 
     let matches = app.get_matches();
@@ -40,5 +41,10 @@ fn main() {
     } else if matches.is_present(commands::strip::NAME) {
         let strip_matches = matches.subcommand_matches(commands::strip::NAME).unwrap();
         commands::strip::execute(strip_matches);
+    } else if matches.is_present(commands::completion::NAME) {
+        let strip_matches = matches
+            .subcommand_matches(commands::completion::NAME)
+            .unwrap();
+        commands::completion::execute(strip_matches);
     }
 }
