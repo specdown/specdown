@@ -121,6 +121,7 @@ mod tests {
 
     mod shell {
         use super::{Error, Executor, ScriptCode, ShellExecutor};
+        #[cfg(not(windows))]
         use std::env;
         use std::path::PathBuf;
 
