@@ -13,6 +13,18 @@ class Specdown < Formula
 
   def install
     system "cargo", "install", "--locked", "--root", prefix, "--path", "."
+
+    # Install bash completion
+    output = Utils.safe_popen_read("#{bin}/specdown", "completion", "bash")
+    (bash_completion/"specdown").write output
+
+    # Install zsh completion
+    output = Utils.safe_popen_read("#{bin}/specdown", "completion", "zsh")
+    (zsh_completion/"_specdown").write output
+
+    # Install fish completion
+    output = Utils.safe_popen_read("#{bin}/specdown", "completion", "fish")
+    (fish_completion/"specdown.fish").write output
   end
 
   test do
