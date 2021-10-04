@@ -12,7 +12,7 @@ specdown
 
 Outputs:
 
-    specdown 0.53.0
+    specdown 0.54.0
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:
@@ -24,9 +24,10 @@ Outputs:
         -V, --version      Prints version information
     
     SUBCOMMANDS:
-        help     Prints this message or the help of the given subcommand(s)
-        run      Runs a given Markdown Specification
-        strip    Outputs a version of the markdown with all specdown functions removed
+        completion    Output completion for a shell of your choice
+        help          Prints this message or the help of the given subcommand(s)
+        run           Runs a given Markdown Specification
+        strip         Outputs a version of the markdown with all specdown functions removed
 
 ## Sub-commands
 
