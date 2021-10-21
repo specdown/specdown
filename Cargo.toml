@@ -16,7 +16,7 @@ keywords = [ "markdown", "testing", "bdd", "tdd", "documentation" ]
 
 [dependencies]
 clap = "2.33.0"
-crossterm = "0.21"
+crossterm = "0.22"
 comrak = "0.10.0"
 nom = "7"
 colored-diff = "0.2.2"
