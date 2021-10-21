@@ -6,6 +6,8 @@ layout: page
 
 Completions make it a little easier to run specdown, allowing you to press tab and have a half typed command be completed. Completions can be generated in specdown by running the completion command.
 
+If you installed specdown with homebrew, these are already installed
+
 ## Example
 
 We support assorted shells
