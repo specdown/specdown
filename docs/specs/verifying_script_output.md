@@ -48,9 +48,7 @@ Running tests for verify_example.md:
 ===
 < left / > right
 <Good stderr
-<
 >Bad stderr
->
 
 ===
 

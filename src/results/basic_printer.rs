@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use crossterm::style::Stylize;
+use termdiff::arrows_color_theme;
 
 use crate::ansi::strip_ansi_escape_chars;
 use crate::runner::Error;
@@ -192,7 +193,7 @@ impl BasicPrinter {
     fn display_diff(&mut self, expected: &str, actual: &str) {
         self.display(&format!(
             "===\n{}\n===",
-            colored_diff::PrettyDifference { expected, actual }
+            termdiff::DrawDiff::new(expected, actual, arrows_color_theme())
         ));
     }
 

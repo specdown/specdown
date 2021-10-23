@@ -220,9 +220,7 @@ Running tests for setting_the_shell_example.md:
 ===
 < left / > right
 <bash
-<
 >sh
->
 
 ===
 
