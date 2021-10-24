@@ -136,7 +136,7 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     ));
 
     env.push((
-        "SPECDOWN_RUNNING_DIR".to_string(),
+        "SPECDOWN_WORKING_DIR".to_string(),
         running_dir_canonicalized
             .clone()
             .into_os_string()
