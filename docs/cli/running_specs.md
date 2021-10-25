@@ -218,7 +218,7 @@ Running tests for setting_the_shell_example.md:
   ✓ running script 'get_shell_name' succeeded
   ✗ verifying stdout from 'get_shell_name' failed
 ===
-< left / > right
+< expected / > actual
 <bash
 >sh
 
