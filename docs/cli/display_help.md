@@ -12,7 +12,7 @@ specdown
 
 Outputs:
 
-    specdown 0.55.5
+    specdown 0.55.6
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:
