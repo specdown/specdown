@@ -46,7 +46,7 @@ Running tests for verify_example.md:
   ✓ verifying stdout from 'stdout_and_stderr' succeeded
   ✗ verifying stderr from 'stdout_and_stderr' failed
 ===
-< left / > right
+< expected / > actual
 <Good stderr
 >Bad stderr
 
