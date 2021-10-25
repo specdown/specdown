@@ -32,7 +32,7 @@ impl State {
                 .action
                 .script_name
                 .clone()
-                .map_or("<unknown-script-value".to_string(), |value| value.into());
+                .map_or("<unknown-script-value".to_string(), Into::into);
             self.script_results
                 .insert(script_name, script_result.clone());
             self.last_script_result = Some(script_result.clone());
