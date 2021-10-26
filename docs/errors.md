@@ -160,7 +160,7 @@ Running tests for verify_unknown_script_example.md:
 
 ## Run Command Errors
 
-### Setting `--running-dir` and `--temporary-running-dir`
+### Setting `--workspace-dir` and `--temporary-workspace-dir`
 
 Given `empty_spec.md`:
 
@@ -171,13 +171,13 @@ Given `empty_spec.md`:
 Running the following command will fail:
 
 ``` shell
-specdown run --running-dir dirname --temporary-running-dir empty_shell_command_example.md
+specdown run --workspace-dir dirname --temporary-workspace-dir empty_shell_command_example.md
 ```
 
 With the following error message:
 
 ``` text
-  ✗ --running-dir and --temporary-running-dir cannot be specified at the same time
+  ✗ --workspace-dir and --temporary-workspace-dir cannot be specified at the same time
 ```
 
 ### Shell Command Errors

@@ -87,25 +87,30 @@ Running tests for example-file2.md:
 
 ```
 
-## Setting the Running Directory
+## Setting the Working Directory
 
-By default, the `run` command will run the scripts in whatever the current
-working directory is set to. There are a couple of options you can use to
-change this behaviour.
+There are three directories that you need to know about when running specdown:
 
-### Setting a Specific Running Directory: `--running-dir`
+1.  The **start directory**: The current working directory when specdown was run
+    (e.g. this might be the root of your repository).
+2.  The **workspace directory**: A directory with context which is required to
+    run the scripts. This defaults to the **start directory**.
+3.  The **working directory**: A sub-directory of the workspace directory where
+    script actions will be run. This defaults to the **workspace directory**.
+
+### Setting a Specific Working Directory: `--workspace-dir`
 
 You can set the directory for the commands to be executed in using the
-`--running-dir` argument.
+`--workspace-dir` argument.
 
 To demonstrate this, we can make a new directory with a file in it:
 
 ``` shell
-mkdir running_dir
-echo "file in working dir" >running_dir/test_file.txt
+mkdir workspace_dir
+echo "file in workspace dir" >workspace_dir/test_file.txt
 ```
 
-And we can create a spec called `running_dir_example.md`:
+And we can create a spec called `workspace_dir_example.md`:
 
 ```` markdown
 # Demo Spec
@@ -127,18 +132,18 @@ cat test_file.txt
 ```
 
 ```text,verify(script_name="cat")
-file in working dir
+file in workspace dir
 ```
 ````
 
 Now we can run specdown using the following command:
 
 ``` shell
-specdown run --running-dir running_dir running_dir_example.md
+specdown run --workspace-dir workspace_dir workspace_dir_example.md
 ```
 
 ``` text
-Running tests for running_dir_example.md:
+Running tests for workspace_dir_example.md:
 
   ✓ running script 'ls' succeeded
   ✓ verifying stdout from 'ls' succeeded
@@ -149,12 +154,12 @@ Running tests for running_dir_example.md:
 
 ```
 
-### Using a Temporary Running Directory: `--temporary-running-directory`
+### Using a Temporary Working Directory: `--temporary-workspace-directory`
 
-You ask specdown to create a temporary running directory for the commands to be
-executed in using the `--temporary-running-directory` argument.
+You ask specdown to create a temporary workspace directory for the commands to be
+executed in using the `--temporary-workspace-directory` argument.
 
-And we can create a spec called `temporary_running_dir_example.md`:
+And we can create a spec called `temporary_workspace_dir_example.md`:
 
 ```` markdown
 # Demo Spec
@@ -171,17 +176,49 @@ test -e "missing-file.txt"
 Now we can run specdown using the following command:
 
 ``` shell
-echo "this file is in the current working directory" >missing-file.txt
-specdown run --temporary-running-dir temporary_running_dir_example.md
+echo "this file is in the current workspace directory" >missing-file.txt
+specdown run --temporary-workspace-dir temporary_workspace_dir_example.md
 ```
 
 ``` text
-Running tests for temporary_running_dir_example.md:
+Running tests for temporary_workspace_dir_example.md:
 
   ✓ running script 'ls' succeeded
 
   1 functions run (1 succeeded / 0 failed)
 
+```
+
+### Setting the Working Directory: `--working-dir`
+
+The working directory is a sub-directory or the workspace where script actions
+are run.
+
+If we create a file called `workspace/working_dir/message.txt`:
+
+``` shell
+mkdir -p workspace/working_dir
+echo "Message Example" >workspace/working_dir/message.txt
+```
+
+And a spec file which checks the contents of a `message.txt`
+
+```` markdown
+# Working Directory Example
+
+```shell,script(name="cat_message_file")
+cat message.txt
+```
+
+```text,verify()
+Message Example
+```
+````
+
+We can set the working directoy by calling specdown with the following arguments:
+
+``` shell
+specdown run --workspace-dir workspace --working-dir working_dir working_dir_example.md
 ```
 
 ## Setting the Shell
@@ -335,16 +372,18 @@ USAGE:
     specdown run [FLAGS] [OPTIONS] <spec-files>...
 
 FLAGS:
-    -h, --help                     Prints help information
-        --temporary-running-dir    Create a temporary directory to run the scripts in
-    -V, --version                  Prints version information
+    -h, --help                       Prints help information
+        --temporary-workspace-dir    Create a temporary workspace directory
+    -V, --version                    Prints version information
 
 OPTIONS:
         --add-path <add-path>...           Adds the given directory to PATH
         --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
-        --running-dir <running-dir>        The directory where commands will be executed
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
         --unset-env <unset-env>...         Unset an environment variable
+        --working-dir <working-dir>        The directory where commands will be executed. This is relative to the
+                                           workspace dir
+        --workspace-dir <workspace-dir>    Set the workspace directory
 
 ARGS:
     <spec-files>...    The spec files to run

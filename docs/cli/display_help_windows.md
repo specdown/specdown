@@ -12,7 +12,7 @@ specdown
 
 Outputs:
 
-    specdown 0.55.6
+    specdown 0.55.7
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:
@@ -47,16 +47,18 @@ Displays:
         specdown.exe run [FLAGS] [OPTIONS] <spec-files>...
     
     FLAGS:
-        -h, --help                     Prints help information
-            --temporary-running-dir    Create a temporary directory to run the scripts in
-        -V, --version                  Prints version information
+        -h, --help                       Prints help information
+            --temporary-workspace-dir    Create a temporary workspace directory
+        -V, --version                    Prints version information
     
     OPTIONS:
             --add-path <add-path>...           Adds the given directory to PATH
             --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
-            --running-dir <running-dir>        The directory where commands will be executed
             --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
             --unset-env <unset-env>...         Unset an environment variable
+            --working-dir <working-dir>        The directory where commands will be executed. This is relative to the
+                                               workspace dir
+            --workspace-dir <workspace-dir>    Set the workspace directory
     
     ARGS:
         <spec-files>...    The spec files to run
