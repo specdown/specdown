@@ -337,7 +337,7 @@ USAGE:
 
 FLAGS:
     -h, --help                       Prints help information
-        --temporary-workspace-dir    Create a temporary directory to run the scripts in
+        --temporary-workspace-dir    Create a temporary workspace directory
     -V, --version                    Prints version information
 
 OPTIONS:
@@ -345,7 +345,9 @@ OPTIONS:
         --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
         --unset-env <unset-env>...         Unset an environment variable
-        --workspace-dir <workspace-dir>    The directory where commands will be executed
+        --working-dir <working-dir>        The directory where commands will be executed. This is relative to the
+                                           workspace dir
+        --workspace-dir <workspace-dir>    Set the workspace directory
 
 ARGS:
     <spec-files>...    The spec files to run

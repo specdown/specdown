@@ -28,13 +28,21 @@ pub fn create() -> clap::App<'static, 'static> {
     let workspace_dir = Arg::with_name("workspace-dir")
         .long("workspace-dir")
         .takes_value(true)
-        .help("The directory where commands will be executed")
+        .help("Set the workspace directory")
         .required(false);
 
     let temp_workspace_dir = Arg::with_name("temp-workspace-dir")
         .long("temporary-workspace-dir")
         .takes_value(false)
-        .help("Create a temporary directory to run the scripts in")
+        .help("Create a temporary workspace directory")
+        .required(false);
+
+    let working_dir = Arg::with_name("working-dir")
+        .long("working-dir")
+        .takes_value(true)
+        .help(
+            "The directory where commands will be executed. This is relative to the workspace dir",
+        )
         .required(false);
 
     let shell_cmd = Arg::with_name("shell-command")
@@ -73,6 +81,7 @@ pub fn create() -> clap::App<'static, 'static> {
         .arg(spec_file)
         .arg(workspace_dir)
         .arg(temp_workspace_dir)
+        .arg(working_dir)
         .arg(shell_cmd)
         .arg(env)
         .arg(unset_env)
@@ -107,6 +116,10 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         .map(Path::new)
         .map(std::path::Path::to_path_buf);
     let temp_workspace_dir = run_matches.is_present("temp-workspace-dir");
+    let working_dir = run_matches
+        .value_of("working-dir")
+        .map(Path::new)
+        .map(std::path::Path::to_path_buf);
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
     let mut env = run_matches
         .values_of("env")
@@ -127,27 +140,40 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     let workspace_dir_canonicalized = std::fs::canonicalize(&workspace_dir)
         .unwrap_or_else(|_| panic!("Failed to canonicalize {:?}", workspace_dir));
 
+    let actual_working_dir = working_dir.map_or_else(
+        || workspace_dir_canonicalized.clone(),
+        |dir| workspace_dir_canonicalized.clone().join(dir),
+    );
+
     env.push((
         "SPECDOWN_START_DIR".to_string(),
         current_dir
             .into_os_string()
             .into_string()
-            .expect("failed to convert current workspace dir into a string"),
+            .expect("failed to convert start dir dir into a string"),
+    ));
+
+    env.push((
+        "SPECDOWN_WORKSPACE_DIR".to_string(),
+        workspace_dir_canonicalized
+            .into_os_string()
+            .into_string()
+            .expect("failed to convert working dir into a string"),
     ));
 
     env.push((
         "SPECDOWN_WORKING_DIR".to_string(),
-        workspace_dir_canonicalized
+        actual_working_dir
             .clone()
             .into_os_string()
             .into_string()
-            .expect("failed to convert current workspace dir into a string"),
+            .expect("failed to convert working dir into a string"),
     ));
 
     let new_command = |e| RunCommand {
         spec_files,
         executor: Box::new(e),
-        working_dir: workspace_dir_canonicalized,
+        working_dir: actual_working_dir,
         file_reader,
     };
 

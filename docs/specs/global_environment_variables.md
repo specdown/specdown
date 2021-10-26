@@ -3,22 +3,22 @@
 When running scripts, some global environment variables are made available. All
 these variables are prefixed with `SPECDOWN_`.
 
-## `SPECDOWN_WORKING_DIR`
+## `SPECDOWN_WORKSPACE_DIR`
 
-This environment variable contains the path to the directory where specdown is
-running `script` actions.
+This environment variable contains the path to the directory where running
+context directory exists.
 
 This can be demonstrated with the following spec:
 
 ~~~markdown,file(path="check_workspace_dir.md")
-# Check Running Directory
+# Check Workspace Directory
 
-Verify that `SPECDOWN_WORKING_DIR` is set the current workspace directory.
+Verify that `SPECDOWN_WORKSPACE_DIR` is set the current workspace directory.
 
 ```shell,script(name="check_workspace_directory", expected_exit_code=0)
 echo "pwd: $(pwd)"
-echo "SPECDOWN_WORKING_DIR: $SPECDOWN_WORKING_DIR"
-test "$(pwd)" -ef "$SPECDOWN_WORKING_DIR"
+echo "SPECDOWN_WORKSPACE_DIR: $SPECDOWN_WORKSPACE_DIR"
+test "$(pwd)" -ef "$SPECDOWN_WORKSPACE_DIR"
 ```
 ~~~
 
@@ -39,6 +39,32 @@ Works with `--temporary-workspace-dir`:
 
 ```shell,script(name="specdown_workspace_dir_with_temp_workspace_dir", expected_exit_code=0)
 specdown run --temporary-workspace-dir check_workspace_dir.md
+```
+
+## `SPECDOWN_WORKING_DIR`
+
+This environment variable contains the path to the directory where specdown is
+running `script` actions.
+
+This can be demonstrated with the following spec:
+
+~~~markdown,file(path="check_working_dir.md")
+# Check Running Directory
+
+Verify that `SPECDOWN_WORKING_DIR` is set the current workspace directory.
+
+```shell,script(name="check_workspace_directory", expected_exit_code=0)
+echo "pwd: $(pwd)"
+echo "SPECDOWN_WORKING_DIR: $SPECDOWN_WORKING_DIR"
+test "$(pwd)" -ef "$SPECDOWN_WORKING_DIR"
+```
+~~~
+
+When runnig with `--working-dir` set:
+
+```shell,script(name="specdown_working_dir_with_workspace_dir", expected_exit_code=0)
+mkdir -p workspace/specific_working_dir
+specdown run --workspace-dir workspace --working-dir specific_working_dir check_working_dir.md
 ```
 
 ### `SPECDOWN_START_DIR`
