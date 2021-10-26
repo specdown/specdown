@@ -19,7 +19,7 @@ fn test_readme() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("README.md")
         .ok();
 
@@ -31,7 +31,7 @@ fn test_doc_index() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/index.md")
         .ok();
 
@@ -44,7 +44,7 @@ fn test_doc_display_help() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/cli/display_help.md")
         .ok();
 
@@ -57,7 +57,7 @@ fn test_doc_display_help() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/cli/display_help_windows.md")
         .ok();
 
@@ -70,7 +70,7 @@ fn test_doc_running_specs() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/cli/running_specs.md")
         .ok();
 
@@ -83,7 +83,7 @@ fn test_doc_running_specs() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/cli/running_specs_windows.md")
         .ok();
 
@@ -95,7 +95,7 @@ fn test_doc_creating_test_files() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/specs/creating_test_files.md")
         .ok();
 
@@ -107,7 +107,7 @@ fn test_doc_verifying_script_output() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/specs/verifying_script_output.md")
         .ok();
 
@@ -119,7 +119,7 @@ fn test_doc_verifying_exit_codes() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/specs/verifying_exit_codes.md")
         .ok();
 
@@ -131,7 +131,7 @@ fn test_doc_global_environment_variables() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/specs/global_environment_variables.md")
         .ok();
 
@@ -143,7 +143,7 @@ fn test_doc_output_expectations() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/specs/output_expectations.md")
         .ok();
 
@@ -156,7 +156,7 @@ fn test_doc_errors() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/errors.md")
         .ok();
 
@@ -169,7 +169,7 @@ fn test_doc_errors() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/errors_windows.md")
         .ok();
 
@@ -181,7 +181,7 @@ fn test_doc_skipping_code_blocks() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/specs/skipping_code_blocks.md")
         .ok();
 
@@ -218,7 +218,7 @@ fn test_doc_stripping_specs() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/cli/stripping_specs.md")
         .ok();
 
@@ -231,7 +231,7 @@ fn test_doc_stripping_specs() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
-        .arg("--temporary-running-dir")
+        .arg("--temporary-workspace-dir")
         .arg("docs/cli/stripping_specs_windows.md")
         .ok();
 

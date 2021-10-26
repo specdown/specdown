@@ -8,13 +8,13 @@ use super::file_reader::FileReader;
 pub struct RunCommand {
     pub spec_files: Vec<PathBuf>,
     pub executor: Box<dyn Executor>,
-    pub running_dir: PathBuf,
+    pub working_dir: PathBuf,
     pub file_reader: FileReader,
 }
 
 impl RunCommand {
     pub fn execute(&self) -> Vec<RunEvent> {
-        self.change_to_running_directory();
+        self.change_to_working_directory();
 
         self.spec_files
             .iter()
@@ -46,7 +46,7 @@ impl RunCommand {
             .collect()
     }
 
-    fn change_to_running_directory(&self) {
-        std::env::set_current_dir(&self.running_dir).expect("Failed to set running directory");
+    fn change_to_working_directory(&self) {
+        std::env::set_current_dir(&self.working_dir).expect("Failed to set running directory");
     }
 }

@@ -25,14 +25,14 @@ pub fn create() -> clap::App<'static, 'static> {
         .help("The spec files to run")
         .required(true);
 
-    let running_dir = Arg::with_name("running-dir")
-        .long("running-dir")
+    let workspace_dir = Arg::with_name("workspace-dir")
+        .long("workspace-dir")
         .takes_value(true)
         .help("The directory where commands will be executed")
         .required(false);
 
-    let temp_running_dir = Arg::with_name("temp-running-dir")
-        .long("temporary-running-dir")
+    let temp_workspace_dir = Arg::with_name("temp-workspace-dir")
+        .long("temporary-workspace-dir")
         .takes_value(false)
         .help("Create a temporary directory to run the scripts in")
         .required(false);
@@ -71,8 +71,8 @@ pub fn create() -> clap::App<'static, 'static> {
     SubCommand::with_name(NAME)
         .about("Runs a given Markdown Specification")
         .arg(spec_file)
-        .arg(running_dir)
-        .arg(temp_running_dir)
+        .arg(workspace_dir)
+        .arg(temp_workspace_dir)
         .arg(shell_cmd)
         .arg(env)
         .arg(unset_env)
@@ -102,11 +102,11 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         .map(Path::new)
         .map(std::path::Path::to_path_buf)
         .collect();
-    let specified_running_dir = run_matches
-        .value_of("running-dir")
+    let specified_workspace_dir = run_matches
+        .value_of("workspace-dir")
         .map(Path::new)
         .map(std::path::Path::to_path_buf);
-    let temp_running_dir = run_matches.is_present("temp-running-dir");
+    let temp_workspace_dir = run_matches.is_present("temp-workspace-dir");
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
     let mut env = run_matches
         .values_of("env")
@@ -117,63 +117,63 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     let paths = run_matches
         .values_of("add-path")
         .map_or(vec![], std::iter::Iterator::collect);
-    let current_dir = std::env::current_dir().expect("Failed to get current working directory");
+    let current_dir = std::env::current_dir().expect("Failed to get current workspace directory");
     let file_reader = FileReader::new(current_dir.clone());
 
-    let running_dir = get_running_dir(specified_running_dir, temp_running_dir)
+    let workspace_dir = get_workspace_dir(specified_workspace_dir, temp_workspace_dir)
         .unwrap_or_else(|| current_dir.clone());
 
-    std::fs::create_dir_all(&running_dir).expect("Failed to create running directory");
-    let running_dir_canonicalized = std::fs::canonicalize(&running_dir)
-        .unwrap_or_else(|_| panic!("Failed to canonicalize {:?}", running_dir));
+    std::fs::create_dir_all(&workspace_dir).expect("Failed to create workspace directory");
+    let workspace_dir_canonicalized = std::fs::canonicalize(&workspace_dir)
+        .unwrap_or_else(|_| panic!("Failed to canonicalize {:?}", workspace_dir));
 
     env.push((
         "SPECDOWN_START_DIR".to_string(),
         current_dir
             .into_os_string()
             .into_string()
-            .expect("failed to convert current working dir into a string"),
+            .expect("failed to convert current workspace dir into a string"),
     ));
 
     env.push((
         "SPECDOWN_WORKING_DIR".to_string(),
-        running_dir_canonicalized
+        workspace_dir_canonicalized
             .clone()
             .into_os_string()
             .into_string()
-            .expect("failed to convert current working dir into a string"),
+            .expect("failed to convert current workspace dir into a string"),
     ));
 
     let new_command = |e| RunCommand {
         spec_files,
         executor: Box::new(e),
-        running_dir: running_dir_canonicalized,
+        working_dir: workspace_dir_canonicalized,
         file_reader,
     };
 
     ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths).map(new_command)
 }
 
-fn get_running_dir(
-    specified_running_dir: Option<PathBuf>,
-    temp_running_dir: bool,
+fn get_workspace_dir(
+    specified_workspace_dir: Option<PathBuf>,
+    temp_workspace_dir: bool,
 ) -> Option<PathBuf> {
-    if specified_running_dir.is_some() && temp_running_dir {
+    if specified_workspace_dir.is_some() && temp_workspace_dir {
         println!(
-            "  \u{2717} --running-dir and --temporary-running-dir cannot be specified at the same time"
+            "  \u{2717} --workspace-dir and --temporary-workspace-dir cannot be specified at the same time"
         );
         std::process::exit(ExitCode::ErrorOccurred as i32)
     }
 
-    if temp_running_dir {
+    if temp_workspace_dir {
         Some(
             tempfile::tempdir()
-                .expect("Failed to create temporary running directory")
+                .expect("Failed to create temporary workspace directory")
                 .path()
                 .to_path_buf(),
         )
     } else {
-        specified_running_dir
+        specified_workspace_dir
     }
 }
 
