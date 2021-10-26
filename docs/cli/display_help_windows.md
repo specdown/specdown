@@ -46,16 +46,16 @@ USAGE:
     specdown.exe run [FLAGS] [OPTIONS] <spec-files>...
 
 FLAGS:
-    -h, --help                     Prints help information
-        --temporary-running-dir    Create a temporary directory to run the scripts in
-    -V, --version                  Prints version information
+    -h, --help                       Prints help information
+        --temporary-workspace-dir    Create a temporary directory to run the scripts in
+    -V, --version                    Prints version information
 
 OPTIONS:
         --add-path <add-path>...           Adds the given directory to PATH
         --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
-        --running-dir <running-dir>        The directory where commands will be executed
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
         --unset-env <unset-env>...         Unset an environment variable
+        --workspace-dir <workspace-dir>    The directory where commands will be executed
 
 ARGS:
     <spec-files>...    The spec files to run
