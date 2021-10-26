@@ -185,6 +185,38 @@ Running tests for temporary_workspace_dir_example.md:
 
 ```
 
+### Setting the Working Directory: `--working-dir`
+
+The working directory is a sub-directory or the workspace where script actions
+are run.
+
+If we create a file called `workspace/working_dir/message.txt`:
+
+```shell,script()
+mkdir -p workspace/working_dir
+echo "Message Example" >workspace/working_dir/message.txt
+```
+
+And a spec file which checks the contents of a `message.txt`
+
+~~~markdown,file(path="working_dir_example.md")
+# Working Directory Example
+
+```shell,script(name="cat_message_file")
+cat message.txt
+```
+
+```text,verify()
+Message Example
+```
+~~~
+
+We can set the working directoy by calling specdown with the following arguments:
+
+```shell,script(name="working_dir_example", expected_exit_code=0)
+specdown run --workspace-dir workspace --working-dir working_dir working_dir_example.md
+```
+
 ## Setting the Shell
 
 By default, specdown runs commands with `bash -c`. You can override this with
@@ -337,7 +369,7 @@ USAGE:
 
 FLAGS:
     -h, --help                       Prints help information
-        --temporary-workspace-dir    Create a temporary directory to run the scripts in
+        --temporary-workspace-dir    Create a temporary workspace directory
     -V, --version                    Prints version information
 
 OPTIONS:
@@ -345,7 +377,9 @@ OPTIONS:
         --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
         --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
         --unset-env <unset-env>...         Unset an environment variable
-        --workspace-dir <workspace-dir>    The directory where commands will be executed
+        --working-dir <working-dir>        The directory where commands will be executed. This is relative to the
+                                           workspace dir
+        --workspace-dir <workspace-dir>    Set the workspace directory
 
 ARGS:
     <spec-files>...    The spec files to run
