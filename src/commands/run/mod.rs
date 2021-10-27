@@ -28,6 +28,7 @@ pub fn create() -> clap::App<'static, 'static> {
     let workspace_dir = Arg::with_name("workspace-dir")
         .long("workspace-dir")
         .takes_value(true)
+        .value_name("dir")
         .help("Set the workspace directory")
         .required(false);
 
@@ -40,14 +41,23 @@ pub fn create() -> clap::App<'static, 'static> {
     let working_dir = Arg::with_name("working-dir")
         .long("working-dir")
         .takes_value(true)
+        .value_name("dir")
         .help(
             "The directory where commands will be executed. This is relative to the workspace dir",
         )
         .required(false);
 
+    let workspace_init_command = Arg::with_name("workspace-init-command")
+        .long("workspace-init-command")
+        .takes_value(true)
+        .value_name("command")
+        .help("A command to run in the workspace before running the specs")
+        .required(false);
+
     let shell_cmd = Arg::with_name("shell-command")
         .long("shell-command")
         .takes_value(true)
+        .value_name("command")
         .default_value("bash -c")
         .help("The shell command used to execute script blocks")
         .required(false);
@@ -55,6 +65,7 @@ pub fn create() -> clap::App<'static, 'static> {
     let env = Arg::with_name("env")
         .long("env")
         .takes_value(true)
+        .value_name("env-var")
         .multiple(true)
         .number_of_values(1)
         .help("Set an environment variable (format: 'VAR_NAME=value')")
@@ -63,6 +74,7 @@ pub fn create() -> clap::App<'static, 'static> {
     let unset_env = Arg::with_name("unset-env")
         .long("unset-env")
         .takes_value(true)
+        .value_name("var-name")
         .multiple(true)
         .number_of_values(1)
         .help("Unset an environment variable")
@@ -71,6 +83,7 @@ pub fn create() -> clap::App<'static, 'static> {
     let add_path = Arg::with_name("add-path")
         .long("add-path")
         .takes_value(true)
+        .value_name("path")
         .multiple(true)
         .number_of_values(1)
         .help("Adds the given directory to PATH")
@@ -82,6 +95,7 @@ pub fn create() -> clap::App<'static, 'static> {
         .arg(workspace_dir)
         .arg(temp_workspace_dir)
         .arg(working_dir)
+        .arg(workspace_init_command)
         .arg(shell_cmd)
         .arg(env)
         .arg(unset_env)
@@ -120,6 +134,9 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         .value_of("working-dir")
         .map(Path::new)
         .map(std::path::Path::to_path_buf);
+    let workspace_init_command = run_matches
+        .value_of("workspace-init-command")
+        .map(std::string::ToString::to_string);
     let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
     let mut env = run_matches
         .values_of("env")
@@ -174,6 +191,7 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
         spec_files,
         executor: Box::new(e),
         working_dir: actual_working_dir,
+        workspace_init_command,
         file_reader,
     };
 
