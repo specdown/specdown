@@ -12,7 +12,7 @@ specdown
 
 Outputs:
 
-    specdown 0.55.7
+    specdown 1.0.0
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:
@@ -35,31 +35,21 @@ You can also run a specific sub-command with the `--help` argument for help on t
 For example:
 
 ``` shell
-specdown run --help
+specdown strip --help
 ```
 
 Displays:
 
-    specdown-run 
-    Runs a given Markdown Specification
+    specdown-strip 
+    Outputs a version of the markdown with all specdown functions removed
     
     USAGE:
-        specdown run [FLAGS] [OPTIONS] <spec-files>...
+        specdown strip <spec-file>
     
     FLAGS:
-        -h, --help                       Prints help information
-            --temporary-workspace-dir    Create a temporary workspace directory
-        -V, --version                    Prints version information
-    
-    OPTIONS:
-            --add-path <add-path>...           Adds the given directory to PATH
-            --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
-            --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
-            --unset-env <unset-env>...         Unset an environment variable
-            --working-dir <working-dir>        The directory where commands will be executed. This is relative to the
-                                               workspace dir
-            --workspace-dir <workspace-dir>    Set the workspace directory
+        -h, --help       Prints help information
+        -V, --version    Prints version information
     
     ARGS:
-        <spec-files>...    The spec files to run
+        <spec-file>    The spec file to strip specdown functions from
 

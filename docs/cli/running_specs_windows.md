@@ -189,6 +189,68 @@ Running tests for temporary_workspace_dir_example.md:
 
 ```
 
+### Initialising a Workspace: `--workspace-init-command`
+
+You can have spec down run a command to initialise a workspace. This command is
+run in the `SPECDOWN_WORKSPACE_DIR` and has access to the the other `SPECDOWN_*`
+environment variables.
+
+We can create a spec (`init_workspace_test.md`) which checks the contents of a
+file in the root of the workspace.
+
+```` markdown
+### Init Workspace Test
+
+```shell,script(name="display_message")
+cat "$SPECDOWN_WORKSPACE_DIR"/message.txt
+```
+
+```text,verify()
+Message from workspace root
+```
+````
+
+We can now run that spec and have `--workspace-init-command` create the file:
+
+``` shell
+specdown run \
+    --temporary-workspace-dir \
+    --workspace-init-command 'echo "Message from workspace root" >message.txt' \
+    init_workspace_test.md
+```
+
+### Setting the Working Directory: `--working-dir`
+
+The working directory is a sub-directory or the workspace where script actions
+are run.
+
+If we create a file called `workspace/working_dir/message.txt`:
+
+``` shell
+mkdir -p workspace/working_dir
+echo "Message Example" >workspace/working_dir/message.txt
+```
+
+And a spec file which checks the contents of a `message.txt`
+
+```` markdown
+# Working Directory Example
+
+```shell,script(name="cat_message_file")
+cat message.txt
+```
+
+```text,verify()
+Message Example
+```
+````
+
+We can set the working directoy by calling specdown with the following arguments:
+
+``` shell
+specdown run --workspace-dir workspace --working-dir working_dir working_dir_example.md
+```
+
 ## Setting the Shell
 
 By default, specdown runs commands with `bash -c`. You can override this with
@@ -345,13 +407,14 @@ FLAGS:
     -V, --version                    Prints version information
 
 OPTIONS:
-        --add-path <add-path>...           Adds the given directory to PATH
-        --env <env>...                     Set an environment variable (format: 'VAR_NAME=value')
-        --shell-command <shell-command>    The shell command used to execute script blocks [default: bash -c]
-        --unset-env <unset-env>...         Unset an environment variable
-        --working-dir <working-dir>        The directory where commands will be executed. This is relative to the
-                                           workspace dir
-        --workspace-dir <workspace-dir>    Set the workspace directory
+        --add-path <path>...                  Adds the given directory to PATH
+        --env <env-var>...                    Set an environment variable (format: 'VAR_NAME=value')
+        --shell-command <command>             The shell command used to execute script blocks [default: bash -c]
+        --unset-env <var-name>...             Unset an environment variable
+        --working-dir <dir>                   The directory where commands will be executed. This is relative to the
+                                              workspace dir
+        --workspace-dir <dir>                 Set the workspace directory
+        --workspace-init-command <command>    A command to run in the workspace before running the specs
 
 ARGS:
     <spec-files>...    The spec files to run
