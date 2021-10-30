@@ -1,6 +1,10 @@
-extern crate clap;
-
-extern crate nom;
+#![warn(
+    rust_2018_idioms,
+    unused,
+    rust_2021_compatibility,
+    nonstandard_style,
+    future_incompatible
+)]
 
 use crate::config::Config;
 use clap::{App, AppSettings, Arg};

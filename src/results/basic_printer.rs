@@ -117,7 +117,7 @@ impl BasicPrinter {
                     action
                         .script_name
                         .clone()
-                        .map_or("<unnamed>".to_string(), |value| value.into())
+                        .map_or("<unnamed>".to_string(), Into::into)
                 )
             }
             ActionResult::Verify(VerifyResult { action, .. }) => format!(
@@ -127,7 +127,7 @@ impl BasicPrinter {
                     .source
                     .name
                     .clone()
-                    .map_or("<unnamed>".to_string(), |name| name.into()),
+                    .map_or("<unnamed>".to_string(), Into::into),
             ),
             ActionResult::CreateFile(CreateFileResult { action, .. }) => {
                 format!("creating file {}", String::from(action.file_path.clone()))

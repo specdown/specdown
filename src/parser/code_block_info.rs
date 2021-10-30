@@ -27,8 +27,7 @@ pub fn parse(input: &str) -> Result<(&str, CodeBlockType)> {
         }
         Err(nom_error) => Err(Error::ParserFailed(format!(
             "Failed parsing function from '{}' :: {}",
-            input,
-            nom_error.to_string()
+            input, nom_error
         ))),
     }
 }
