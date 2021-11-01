@@ -3,4 +3,5 @@ pub use printer::Printer;
 
 mod action_result;
 pub mod basic_printer;
+mod diff_theme;
 mod printer;
