@@ -21,6 +21,7 @@ check:
 
 .PHONY=format
 format:
+	cargo fix --allow-dirty --allow-staged
 	cargo fmt --all
 
 .PHONY=test

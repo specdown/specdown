@@ -1,5 +1,5 @@
-extern crate comrak;
 use self::comrak::nodes::NodeCodeBlock;
+use comrak;
 use comrak::nodes::{AstNode, NodeValue};
 use comrak::{format_commonmark, parse_document, Arena, ComrakOptions};
 
