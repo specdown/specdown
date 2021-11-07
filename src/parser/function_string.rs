@@ -30,14 +30,14 @@ fn argument_list(input: &str) -> IResult<&str, HashMap<String, ArgumentValue>> {
     map(p, |args| list_of_args_to_hash_map(&args))(input)
 }
 
-fn list_of_args_to_hash_map(arguments: &[Argument]) -> HashMap<String, ArgumentValue> {
+fn list_of_args_to_hash_map(arguments: &[Argument<'_>]) -> HashMap<String, ArgumentValue> {
     arguments
         .iter()
         .map(|(name, value)| (String::from(*name), value.clone()))
         .collect()
 }
 
-fn argument(input: &str) -> IResult<&str, Argument> {
+fn argument(input: &str) -> IResult<&str, Argument<'_>> {
     let p = tuple((
         argument_name,
         tuple((space0, tag("="), space0)),

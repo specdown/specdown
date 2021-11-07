@@ -1,6 +1,15 @@
-extern crate clap;
+//! A tool to test markdown files and drive development from documentation
 
-extern crate nom;
+#![warn(
+    rust_2018_idioms,
+    unused,
+    rust_2021_compatibility,
+    nonstandard_style,
+    future_incompatible,
+    missing_copy_implementations,
+    missing_debug_implementations,
+    missing_docs
+)]
 
 use crate::config::Config;
 use clap::{App, AppSettings, Arg};
