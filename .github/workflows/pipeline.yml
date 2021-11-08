@@ -293,7 +293,7 @@ jobs:
         run: echo ::set-output name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk
           -F / '{print $2}' | sed -e "s/:refs//")
         shell: bash
-      - uses: dlavrenuek/conventional-changelog-action@v1.1.2
+      - uses: dlavrenuek/conventional-changelog-action@v1.2.0
         id: changelog
         with:
           from: v${{ needs.release.outputs.previous_version }}
