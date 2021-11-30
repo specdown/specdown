@@ -15,7 +15,7 @@ categories = [
 keywords = [ "markdown", "testing", "bdd", "tdd", "documentation" ]
 
 [dependencies]
-clap = "2.33.0"
+clap = "2.34.0"
 crossterm = "0.22"
 comrak = "0.10.0"
 nom = "7"
