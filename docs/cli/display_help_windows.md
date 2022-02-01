@@ -9,7 +9,7 @@ specdown
 Outputs:
 
 ```,verify(stream=stderr)
-specdown 1.1.5
+specdown 1.1.6
 A tool to test markdown files and drive devlopment from documentation.
 
 USAGE:
