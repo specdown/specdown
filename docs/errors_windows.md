@@ -241,7 +241,7 @@ With the following error message:
 ```text,verify(script_name="missing_shell_example")
 Running tests for missing_shell_example.md:
 
-  ✗ Failed to run command: does-not-exist [] (Error: The system cannot find the file specified. (os error 2))
+  ✗ Failed to run command: does-not-exist [] (Error: program not found)
 
   0 functions run (0 succeeded / 0 failed)
 

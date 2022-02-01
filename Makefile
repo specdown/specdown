@@ -16,7 +16,7 @@ clean:
 .PHONY=check
 check:
 	cargo fmt --all -- --check
-	cargo clippy --all-targets --all-features -- -D warnings -Dclippy::all -D clippy::pedantic -D clippy::cargo
+	cargo clippy --all-targets --all-features -- -D warnings -D clippy::all -D clippy::pedantic -D clippy::cargo -A clippy::multiple-crate-versions
 	cargo check
 
 .PHONY=format
