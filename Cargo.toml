@@ -21,7 +21,7 @@ comrak = "0.12.1"
 nom = "7"
 termdiff = "3.0.0"
 strip-ansi-escapes = "0.1.1"
-shell-words = "1.0.0"
+shell-words = "1.1.0"
 tempfile = "3.3.0"
 
 [dev-dependencies]
