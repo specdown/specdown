@@ -7,7 +7,7 @@ use nom::{
 use super::error::{Error, Result};
 use super::function;
 use super::function_string;
-use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream};
+use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream, TargetOs};
 
 #[derive(Debug, PartialEq)]
 pub enum CodeBlockType {
@@ -98,13 +98,22 @@ fn verify_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     } else {
         "stdout".to_string()
     };
+    let target_os = if f.has_argument("target_os") {
+        Some(TargetOs(get_string_argument(f, "target_os")?))
+    } else {
+        None
+    };
     let stream = to_stream(&stream_name).ok_or_else(|| Error::InvalidArgumentValue {
         function: f.name.to_string(),
         argument: "stream".to_string(),
         got: stream_name.to_string(),
         expected: "output, stdout or stderr".to_string(),
     })?;
-    Ok(CodeBlockType::Verify(Source { name, stream }))
+    Ok(CodeBlockType::Verify(Source {
+        name,
+        stream,
+        target_os,
+    }))
 }
 
 fn to_stream(stream_name: &str) -> Option<Stream> {
@@ -222,6 +231,7 @@ mod tests {
 
         mod verify {
             use super::{parse, CodeBlockType, Error, ScriptName, Source, Stream};
+            use crate::types::TargetOs;
 
             #[test]
             fn succeeds_when_function_is_verify_and_stream_is_stdout() {
@@ -232,7 +242,8 @@ mod tests {
                         "",
                         CodeBlockType::Verify(Source {
                             name: Some(ScriptName("example-script".to_string())),
-                            stream: Stream::StdOut
+                            stream: Stream::StdOut,
+                            target_os: None
                         })
                     ))
                 );
@@ -247,7 +258,8 @@ mod tests {
                         "",
                         CodeBlockType::Verify(Source {
                             name: Some(ScriptName("example-script".to_string())),
-                            stream: Stream::StdErr
+                            stream: Stream::StdErr,
+                            target_os: None
                         })
                     ))
                 );
@@ -262,7 +274,40 @@ mod tests {
                         "",
                         CodeBlockType::Verify(Source {
                             name: Some(ScriptName("the-script".to_string())),
-                            stream: Stream::StdOut
+                            stream: Stream::StdOut,
+                            target_os: None
+                        })
+                    ))
+                );
+            }
+
+            #[test]
+            fn target_os_defaults_to_none_when_function_is_verify_and_target_os_is_unset() {
+                let result = parse(",verify(script_name=\"the-script\")");
+                assert_eq!(
+                    result,
+                    Ok((
+                        "",
+                        CodeBlockType::Verify(Source {
+                            name: Some(ScriptName("the-script".to_string())),
+                            stream: Stream::StdOut,
+                            target_os: None
+                        })
+                    ))
+                );
+            }
+
+            #[test]
+            fn target_os_can_be_set_when_function_is_verify_and_target_os_is_unset() {
+                let result = parse(",verify(script_name=\"the-script\",target_os=\"some-os\")");
+                assert_eq!(
+                    result,
+                    Ok((
+                        "",
+                        CodeBlockType::Verify(Source {
+                            name: Some(ScriptName("the-script".to_string())),
+                            stream: Stream::StdOut,
+                            target_os: Some(TargetOs("some-os".to_string()))
                         })
                     ))
                 );
@@ -291,7 +336,8 @@ mod tests {
                         "text",
                         CodeBlockType::Verify(Source {
                             name: None,
-                            stream: Stream::StdErr
+                            stream: Stream::StdErr,
+                            target_os: None
                         })
                     ))
                 );

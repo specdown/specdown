@@ -50,7 +50,7 @@ impl ShellExecutor {
         Self {
             command: command.first().unwrap().to_string(),
             args: Vec::from(args),
-            env: env.to_vec().into_iter().collect(),
+            env: env.iter().cloned().collect(),
             unset_env: unset_env.to_vec(),
             paths: paths.iter().map(PathBuf::from).collect(),
         }

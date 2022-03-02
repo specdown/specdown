@@ -37,7 +37,7 @@ When you run the following:
 specdown run verify_example.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ```text,verify(script_name="verify_example")
 Running tests for verify_example.md:
@@ -96,7 +96,7 @@ When you run the following:
 specdown run omit_name_example.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ```text,verify(script_name="omit_name_example")
 Running tests for omit_name_example.md:
@@ -107,5 +107,169 @@ Running tests for omit_name_example.md:
   ✓ verifying stdout from 'script_with_name' succeeded
 
   4 functions run (4 succeeded / 0 failed)
+
+```
+
+## Making OS Specific verifications
+
+An operating system can be specified for the verification to apply to. This is limited to the [values provided by rust](https://doc.rust-lang.org/std/env/consts/constant.OS.html)
+
+Given the file `os_specific.md`:
+
+~~~markdown,file(path="os_specific.md")
+# OS Specific verifiction
+
+Run a script with no name:
+
+```shell,script(name="os_specific")
+specdown -h
+```
+
+Verify the output:
+
+```text,verify(script_name="os_specific",target_os="windows")
+specdown 1.1.10
+A tool to test markdown files and drive devlopment from documentation.
+
+USAGE:
+    specdown.exe [FLAGS] [SUBCOMMAND]
+
+FLAGS:
+    -h, --help         Prints help information
+        --no-colour    Disables coloured output
+    -V, --version      Prints version information
+
+SUBCOMMANDS:
+    completion    Output completion for a shell of your choice
+    help          Prints this message or the help of the given subcommand(s)
+    run           Runs a given Markdown Specification
+    strip         Outputs a version of the markdown with all specdown functions removed
+```
+
+```text,verify(script_name="os_specific",target_os="linux")
+specdown 1.1.10
+A tool to test markdown files and drive devlopment from documentation.
+
+USAGE:
+    specdown [FLAGS] [SUBCOMMAND]
+
+FLAGS:
+    -h, --help         Prints help information
+        --no-colour    Disables coloured output
+    -V, --version      Prints version information
+
+SUBCOMMANDS:
+    completion    Output completion for a shell of your choice
+    help          Prints this message or the help of the given subcommand(s)
+    run           Runs a given Markdown Specification
+    strip         Outputs a version of the markdown with all specdown functions removed
+```
+
+```text,verify(script_name="os_specific",target_os="macos")
+specdown 1.1.10
+A tool to test markdown files and drive devlopment from documentation.
+
+USAGE:
+    specdown [FLAGS] [SUBCOMMAND]
+
+FLAGS:
+    -h, --help         Prints help information
+        --no-colour    Disables coloured output
+    -V, --version      Prints version information
+
+SUBCOMMANDS:
+    completion    Output completion for a shell of your choice
+    help          Prints this message or the help of the given subcommand(s)
+    run           Runs a given Markdown Specification
+    strip         Outputs a version of the markdown with all specdown functions removed
+```
+~~~
+
+When you run the following:
+
+```shell,script(name="os_specific", expected_exit_code=0)
+specdown run os_specific.md
+```
+
+Then you will see the following output:
+
+```text,verify(script_name="os_specific")
+Running tests for os_specific.md:
+
+  ✓ running script 'os_specific' succeeded
+  ✓ verifying stdout from 'os_specific' succeeded
+
+  2 functions run (2 succeeded / 0 failed)
+
+```
+
+You may also negate the target os
+Given the file `os_specific_negation.md`:
+
+~~~markdown,file(path="os_specific_negation.md")
+# OS Specific nagative verifiction
+
+Run a script with no name:
+
+```shell,script(name="os_specific_negation")
+specdown -h
+```
+
+Verify the output:
+
+```text,verify(script_name="os_specific_negation",target_os="!windows")
+specdown 1.1.10
+A tool to test markdown files and drive devlopment from documentation.
+
+USAGE:
+    specdown [FLAGS] [SUBCOMMAND]
+
+FLAGS:
+    -h, --help         Prints help information
+        --no-colour    Disables coloured output
+    -V, --version      Prints version information
+
+SUBCOMMANDS:
+    completion    Output completion for a shell of your choice
+    help          Prints this message or the help of the given subcommand(s)
+    run           Runs a given Markdown Specification
+    strip         Outputs a version of the markdown with all specdown functions removed
+```
+
+```text,verify(script_name="os_specific_negation",target_os="windows")
+specdown 1.1.10
+A tool to test markdown files and drive devlopment from documentation.
+
+USAGE:
+    specdown.exe [FLAGS] [SUBCOMMAND]
+
+FLAGS:
+    -h, --help         Prints help information
+        --no-colour    Disables coloured output
+    -V, --version      Prints version information
+
+SUBCOMMANDS:
+    completion    Output completion for a shell of your choice
+    help          Prints this message or the help of the given subcommand(s)
+    run           Runs a given Markdown Specification
+    strip         Outputs a version of the markdown with all specdown functions removed
+```
+~~~
+
+When you run the following:
+
+```shell,script(name="os_specific_negation", expected_exit_code=0)
+specdown run os_specific_negation.md
+```
+
+Then you will see the following output:
+
+```text,verify(script_name="os_specific_negation")
+Running tests for os_specific_negation.md:
+
+  ✓ running script 'os_specific_negation' succeeded
+  ✓ verifying stdout from 'os_specific_negation' succeeded
+
+  2 functions run (2 succeeded / 0 failed)
 
 ```

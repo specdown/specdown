@@ -5,6 +5,9 @@ pub enum Stream {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+pub struct TargetOs(pub String);
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct ScriptName(pub String);
 
 impl From<ScriptName> for String {
@@ -25,6 +28,7 @@ impl From<&ScriptName> for String {
 pub struct Source {
     pub name: Option<ScriptName>,
     pub stream: Stream,
+    pub target_os: Option<TargetOs>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -98,6 +102,7 @@ impl VerifyAction {
             source: Source {
                 name: script_name,
                 stream: self.source.stream.clone(),
+                target_os: None,
             },
             expected_value: self.expected_value.clone(),
         }
@@ -189,6 +194,7 @@ mod tests {
                 source: Source {
                     name: None,
                     stream: Stream::StdOut,
+                    target_os: None,
                 },
                 expected_value: VerifyValue("".to_string()),
             };
@@ -197,7 +203,8 @@ mod tests {
                 VerifyAction {
                     source: Source {
                         name: Some(ScriptName("new_name".to_string())),
-                        stream: Stream::StdOut
+                        stream: Stream::StdOut,
+                        target_os: None
                     },
                     expected_value: VerifyValue("".to_string())
                 },
