@@ -4,6 +4,7 @@ class Specdown < Formula
   url "https://github.com/{{ github_repo }}/archive/{{ git_tag }}.tar.gz"
   sha256 "{{ file_sha }}"
 
+  depends_on "help2man" => :build
   depends_on "rust" => :build
 
   resource("testdata") do
@@ -25,6 +26,10 @@ class Specdown < Formula
     # Install fish completion
     output = Utils.safe_popen_read("#{bin}/specdown", "completion", "fish")
     (fish_completion/"specdown.fish").write output
+
+    # Man pages
+    output = Utils.safe_popen_read("help2man", "#{bin}/specdown")
+    (man1/"specdown.1").write output
   end
 
   test do
