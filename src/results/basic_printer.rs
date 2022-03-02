@@ -99,8 +99,8 @@ impl BasicPrinter {
     }
 
     fn display_action(&mut self, result: &ActionResult) {
-        let title = BasicPrinter::action_title(result);
-        let result_message = BasicPrinter::action_result_message(result);
+        let title = Self::action_title(result);
+        let result_message = Self::action_result_message(result);
         let full_message = &format!("{} {}", title, result_message);
         if result.success() {
             self.display_success_item(full_message);
@@ -148,8 +148,8 @@ impl BasicPrinter {
             Some(ActionError::ExitCodeIsIncorrect(result)) => {
                 format!(
                     "failed (expected exitcode {}, got {})",
-                    BasicPrinter::exit_code_to_string(result.action.expected_exit_code),
-                    BasicPrinter::exit_code_to_string(result.exit_code),
+                    Self::exit_code_to_string(result.action.expected_exit_code),
+                    Self::exit_code_to_string(result.exit_code),
                 )
             }
             Some(ActionError::UnexpectedOutputIsPresent(result)) => {
@@ -231,7 +231,7 @@ impl BasicPrinter {
     }
 }
 
-fn stream_to_string(stream: &Stream) -> &str {
+const fn stream_to_string(stream: &Stream) -> &str {
     match stream {
         Stream::StdOut => "stdout",
         Stream::StdErr => "stderr",

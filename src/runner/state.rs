@@ -39,7 +39,7 @@ impl State {
         }
     }
 
-    pub fn is_success(&self) -> bool {
+    pub const fn is_success(&self) -> bool {
         self.is_success
     }
 }
