@@ -6,7 +6,11 @@ use crate::types::{Source, Stream, VerifyAction};
 use super::Error;
 
 pub fn run(action: &VerifyAction, script_output: &dyn ScriptOutput) -> Result<ActionResult, Error> {
-    let Source { name, stream } = action.source.clone();
+    let Source {
+        name,
+        stream,
+        target_os: _,
+    } = action.source.clone();
 
     let result = name
         .as_ref()
@@ -109,6 +113,7 @@ mod tests {
             let source = Source {
                 name: None,
                 stream: Stream::StdOut,
+                target_os: None,
             };
             let verify_value = VerifyValue("hello world".to_string());
             let script_output = MockScriptOutput::with_unnamed_result("hello world", "");
@@ -132,6 +137,7 @@ mod tests {
             let source = Source {
                 name: None,
                 stream: Stream::StdOut,
+                target_os: None,
             };
             let verify_value = VerifyValue("hello world".to_string());
             let script_output = MockScriptOutput::with_result("example_script", "hello world", "");
@@ -155,6 +161,7 @@ mod tests {
             let source = Source {
                 name: None,
                 stream: Stream::StdErr,
+                target_os: None,
             };
             let verify_value = VerifyValue("hello world".to_string());
             let script_output = MockScriptOutput::with_result("example_script", "", "hello world");
@@ -178,6 +185,7 @@ mod tests {
             let source = Source {
                 name: Some(ScriptName("example_script".to_string())),
                 stream: Stream::StdOut,
+                target_os: None,
             };
             let verify_value = VerifyValue("hello world".to_string());
             let script_output = MockScriptOutput::with_result("example_script", "hello world", "");
@@ -201,6 +209,7 @@ mod tests {
             let source = Source {
                 name: Some(ScriptName("my_script".to_string())),
                 stream: Stream::StdErr,
+                target_os: None,
             };
             let verify_value = VerifyValue("error message".to_string());
             let script_output =
@@ -225,6 +234,7 @@ mod tests {
             let source = Source {
                 name: Some(ScriptName("missing_script".to_string())),
                 stream: Stream::StdErr,
+                target_os: None,
             };
             let verify_value = VerifyValue("error message".to_string());
             let script_output = MockScriptOutput::with_result("existing_script", "", "");
@@ -245,6 +255,7 @@ mod tests {
             let source = Source {
                 name: None,
                 stream: Stream::StdErr,
+                target_os: None,
             };
             let verify_value = VerifyValue("error message".to_string());
             let script_output = MockScriptOutput::without_result();
@@ -266,6 +277,7 @@ mod tests {
             let source = Source {
                 name: Some(ScriptName("colour_script".to_string())),
                 stream: Stream::StdOut,
+                target_os: None,
             };
             let verify_value = VerifyValue("\x1b[34mThis is coloured".to_string());
             let script_output =
