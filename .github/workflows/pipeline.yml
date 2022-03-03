@@ -8,7 +8,7 @@ jobs:
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         name: Checkout the repository
       - uses: actions/cache@v2.1.7
         name: Cache cargo
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - uses: chaaz/versio-actions/install@v1.2
@@ -50,7 +50,7 @@ jobs:
   cargo-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions/cache@v2.1.7
         with:
           path: |
@@ -78,7 +78,7 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions/cache@v2.1.7
         with:
           path: |
@@ -112,7 +112,7 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions/cache@v2.1.7
         with:
           path: |
@@ -154,7 +154,7 @@ jobs:
       previous_version: ${{ steps.previous_version.outputs.previous_version }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -199,7 +199,7 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         name: Install additional dependencies
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         name: Checkout the repository
         with:
           ref: v${{ needs.release.outputs.current_version }}
@@ -264,7 +264,7 @@ jobs:
       - release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         name: Checkout the repository
         with:
           lfs: true
@@ -316,12 +316,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout specdown
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
         with:
           repository: specdown/specdown
           path: specdown
       - name: Checkout gh-pages
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
         with:
           repository: specdown/specdown
           ref: gh-pages
@@ -373,13 +373,13 @@ jobs:
         run: echo ::set-output "name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" |
           awk -F / '{print $2}' | sed -e "s/:refs//")"
         shell: bash
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         name: Checkout this repository
         with:
           token: ${{ secrets.COMMITTER_TOKEN }}
           path: main-repo
           ref: v${{ needs.release.outputs.current_version }}
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           repository: specdown/homebrew-repo
           token: ${{ secrets.COMMITTER_TOKEN }}
