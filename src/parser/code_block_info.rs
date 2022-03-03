@@ -83,7 +83,7 @@ fn file_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     Ok(CodeBlockType::CreateFile(FilePath(path)))
 }
 
-fn skip_to_code_block_type(_f: &function::Function) -> CodeBlockType {
+const fn skip_to_code_block_type(_f: &function::Function) -> CodeBlockType {
     CodeBlockType::Skip()
 }
 

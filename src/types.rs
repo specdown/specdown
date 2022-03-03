@@ -94,7 +94,7 @@ pub struct VerifyAction {
 
 impl VerifyAction {
     pub fn with_script_name(&self, script_name: Option<ScriptName>) -> Self {
-        VerifyAction {
+        Self {
             source: Source {
                 name: script_name,
                 stream: self.source.stream.clone(),

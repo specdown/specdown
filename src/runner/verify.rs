@@ -43,12 +43,12 @@ mod tests {
     }
 
     impl MockScriptOutput {
-        fn without_result() -> Self {
-            MockScriptOutput { result: None }
+        const fn without_result() -> Self {
+            Self { result: None }
         }
 
         fn with_result(name: &str, stdout: &str, stderr: &str) -> Self {
-            MockScriptOutput {
+            Self {
                 result: Some(ScriptResult {
                     action: ScriptAction {
                         script_name: Some(ScriptName(name.to_string())),
@@ -64,7 +64,7 @@ mod tests {
         }
 
         fn with_unnamed_result(stdout: &str, stderr: &str) -> Self {
-            MockScriptOutput {
+            Self {
                 result: Some(ScriptResult {
                     action: ScriptAction {
                         script_name: None,

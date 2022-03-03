@@ -3,9 +3,9 @@ use std::borrow::Cow;
 use termdiff::{ArrowsColorTheme, Theme};
 
 #[derive(Debug)]
-pub(crate) struct DiffTheme {}
+pub struct DiffTheme {}
 const BASE_THEME: ArrowsColorTheme = ArrowsColorTheme {};
-pub(crate) const DIFF_THEME: DiffTheme = DiffTheme {};
+pub const DIFF_THEME: DiffTheme = DiffTheme {};
 
 impl Theme for DiffTheme {
     fn highlight_insert<'this>(&self, input: &'this str) -> Cow<'this, str> {

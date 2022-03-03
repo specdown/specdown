@@ -32,9 +32,9 @@ impl ShellExecutor {
         P: AsRef<OsStr>,
     {
         shell_words::split(shell_command)
-            .map_err(|err| ShellExecutor::parse_error_to_error(shell_command, err))
-            .and_then(|words| ShellExecutor::check_is_not_empty(shell_command, &words))
-            .map(|words| ShellExecutor::create_shell_instance(&words, env, unset_env, paths))
+            .map_err(|err| Self::parse_error_to_error(shell_command, err))
+            .and_then(|words| Self::check_is_not_empty(shell_command, &words))
+            .map(|words| Self::create_shell_instance(&words, env, unset_env, paths))
     }
 
     fn create_shell_instance<P>(
@@ -42,7 +42,7 @@ impl ShellExecutor {
         env: &[(String, String)],
         unset_env: &[String],
         paths: &[P],
-    ) -> ShellExecutor
+    ) -> Self
     where
         P: AsRef<OsStr>,
     {
@@ -50,7 +50,7 @@ impl ShellExecutor {
         Self {
             command: command.first().unwrap().to_string(),
             args: Vec::from(args),
-            env: env.to_vec().into_iter().collect(),
+            env: env.iter().cloned().collect(),
             unset_env: unset_env.to_vec(),
             paths: paths.iter().map(PathBuf::from).collect(),
         }

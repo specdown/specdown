@@ -6,8 +6,8 @@ pub struct FileReader {
 }
 
 impl FileReader {
-    pub fn new(directory: PathBuf) -> Self {
-        FileReader { directory }
+    pub const fn new(directory: PathBuf) -> Self {
+        Self { directory }
     }
 
     pub fn read_file(&self, spec_file: &Path) -> String {
@@ -38,7 +38,7 @@ mod tests {
             let directory = tempfile::tempdir().expect("Failed to create a temporary directory");
             let full_path = directory.path().join("example.txt");
             File::create(full_path.clone())
-                .and_then(|mut file| file.write_all("example content".as_bytes()))
+                .and_then(|mut file| file.write_all(b"example content"))
                 .unwrap_or_else(|err| panic!("Failed to write file: {}", err));
 
             let reader = FileReader::new("/home".into());
@@ -51,7 +51,7 @@ mod tests {
             let directory = tempfile::tempdir().expect("Failed to create a temporary directory");
             let full_path = directory.path().join("example.txt");
             File::create(full_path)
-                .and_then(|mut file| file.write_all("example content".as_bytes()))
+                .and_then(|mut file| file.write_all(b"example content"))
                 .unwrap_or_else(|err| panic!("Failed to write file: {}", err));
 
             let reader = FileReader::new(directory.path().to_path_buf());

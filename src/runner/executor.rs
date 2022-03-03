@@ -14,7 +14,7 @@ impl From<std::process::Output> for Output {
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
         let exit_code = output.status.code();
 
-        Output {
+        Self {
             stdout,
             stderr,
             exit_code,
