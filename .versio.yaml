@@ -21,9 +21,9 @@ projects:
           - file: docs/specs/verifying_script_output.md
             pattern: specdown (\d+\.\d+\.\d+)
           - file: docs/specs/verifying_script_output.md
-            pattern: specdown.exe (\d+\.\d+\.\d+)
+            pattern: specdown (\d+\.\d+\.\d+)
           - file: docs/specs/verifying_script_output.md
-            pattern: specdown.exe (\d+\.\d+\.\d+)
+            pattern: specdown (\d+\.\d+\.\d+)
           - file: tests/command_test.rs
             pattern: specdown (\d+\.\d+\.\d+)
       hooks:
