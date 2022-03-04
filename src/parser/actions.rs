@@ -1,6 +1,6 @@
 use super::code_block_info;
 use super::error::Result;
-use crate::parser::code_block_info::{CodeBlockInfo, ScriptCodeBlock};
+use crate::parser::code_block_info::{CodeBlockInfo, CodeBlockType, ScriptCodeBlock};
 use crate::types::{
     Action, CreateFileAction, FileContent, ScriptAction, ScriptCode, Source, TargetOs,
     VerifyAction, VerifyValue,
@@ -12,24 +12,28 @@ pub fn create_action(info: &str, literal: String) -> Result<Option<Action>> {
         code_block_type, ..
     } = code_block_info::parse(info)?;
 
-    Ok(match code_block_type {
+    Ok(from_code_block_type(literal, &code_block_type))
+}
+
+fn from_code_block_type(literal: String, code_block_type: &CodeBlockType) -> Option<Action> {
+    match code_block_type {
         code_block_info::CodeBlockType::Script(code_block) => {
             Some(Action::Script(to_script_action(code_block, literal)))
         }
         code_block_info::CodeBlockType::Verify(source) => {
-            to_verify_action(&source, literal).map(Action::Verify)
+            to_verify_action(source, literal).map(Action::Verify)
         }
-        code_block_info::CodeBlockType::CreateFile(file_path) => {
+        code_block_info::CodeBlockType::CreateFile(ref file_path) => {
             Some(Action::CreateFile(CreateFileAction {
-                file_path,
+                file_path: file_path.clone(),
                 file_content: FileContent(literal),
             }))
         }
         code_block_info::CodeBlockType::Skip() => None,
-    })
+    }
 }
 
-fn to_script_action(code_block: ScriptCodeBlock, literal: String) -> ScriptAction {
+fn to_script_action(code_block: &ScriptCodeBlock, literal: String) -> ScriptAction {
     let ScriptCodeBlock {
         script_name,
         expected_exit_code,
@@ -37,10 +41,10 @@ fn to_script_action(code_block: ScriptCodeBlock, literal: String) -> ScriptActio
     } = code_block;
 
     ScriptAction {
-        script_name,
+        script_name: script_name.clone(),
         script_code: ScriptCode(literal),
-        expected_exit_code,
-        expected_output,
+        expected_exit_code: *expected_exit_code,
+        expected_output: expected_output.clone(),
     }
 }
 
