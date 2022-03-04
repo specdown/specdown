@@ -33,7 +33,7 @@ When you run the following:
 specdown run output_expectation_any.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ``` text
 Running tests for output_expectation_any.md:
@@ -69,7 +69,7 @@ When you run the following:
 specdown run output_expectation_stdout.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ``` text
 Running tests for output_expectation_stdout.md:
@@ -116,7 +116,7 @@ When you run the following:
 specdown run output_expectation_stderr.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ``` text
 Running tests for output_expectation_stderr.md:
@@ -166,7 +166,7 @@ When you run the following:
 specdown run output_expectation_none.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ``` text
 Running tests for output_expectation_none.md:
