@@ -29,7 +29,7 @@ When you run the following:
 specdown run output_expectation_any.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ```text,verify(script_name="any_output_expectation")
 Running tests for output_expectation_any.md:
@@ -65,7 +65,7 @@ When you run the following:
 specdown run output_expectation_stdout.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ```text,verify(script_name="stdout_output_expectation")
 Running tests for output_expectation_stdout.md:
@@ -112,7 +112,7 @@ When you run the following:
 specdown run output_expectation_stderr.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ```text,verify(script_name="stderr_output_expectation")
 Running tests for output_expectation_stderr.md:
@@ -162,7 +162,7 @@ When you run the following:
 specdown run output_expectation_none.md
 ```
 
-The you will see the following output:
+Then you will see the following output:
 
 ```text,verify(script_name="none_output_expectation")
 Running tests for output_expectation_none.md:
