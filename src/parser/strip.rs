@@ -15,8 +15,9 @@ pub fn strip(markdown: &str) -> String {
             &mut node.data.borrow_mut().value
         {
             let info_string = String::from_utf8((*info).clone()).expect("UTF8 string");
-            let (language, _function) =
-                code_block_info::parse(&info_string).expect("To parse codeblock info");
+            let language = code_block_info::parse(&info_string)
+                .expect("To parse codeblock info")
+                .language;
             *info = Vec::from(language);
         }
     });

@@ -1,6 +1,6 @@
 use super::code_block_info;
 use super::error::Result;
-use crate::parser::code_block_info::ScriptCodeBlock;
+use crate::parser::code_block_info::{CodeBlockInfo, ScriptCodeBlock};
 use crate::types::{
     Action, CreateFileAction, FileContent, ScriptAction, ScriptCode, Source, TargetOs,
     VerifyAction, VerifyValue,
@@ -8,9 +8,11 @@ use crate::types::{
 use std::env::consts::OS;
 
 pub fn create_action(info: &str, literal: String) -> Result<Option<Action>> {
-    let (_, block) = code_block_info::parse(info)?;
+    let CodeBlockInfo {
+        code_block_type, ..
+    } = code_block_info::parse(info)?;
 
-    Ok(match block {
+    Ok(match code_block_type {
         code_block_info::CodeBlockType::Script(code_block) => {
             Some(Action::Script(to_script_action(code_block, literal)))
         }
