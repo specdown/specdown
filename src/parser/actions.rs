@@ -1,5 +1,6 @@
 use super::code_block_info;
 use super::error::Result;
+use crate::parser::code_block_info::ScriptCodeBlock;
 use crate::types::{
     Action, CreateFileAction, FileContent, ScriptAction, ScriptCode, Source, TargetOs,
     VerifyAction, VerifyValue,
@@ -10,53 +11,56 @@ pub fn create_action(info: &str, literal: String) -> Result<Option<Action>> {
     let (_, block) = code_block_info::parse(info)?;
 
     Ok(match block {
-        code_block_info::CodeBlockType::Script(
-            script_name,
-            expected_exit_code,
-            expected_output,
-        ) => Some(Action::Script(ScriptAction {
-            script_name,
-            script_code: ScriptCode(literal),
-            expected_exit_code,
-            expected_output,
-        })),
-        code_block_info::CodeBlockType::Verify(Source {
-            target_os: None,
-            name,
-            stream,
-        }) => Some(Action::Verify(VerifyAction {
-            source: Source {
-                name,
-                stream,
-                target_os: None,
-            },
-            expected_value: VerifyValue(literal),
-        })),
-        code_block_info::CodeBlockType::Verify(Source {
-            target_os: Some(TargetOs(target_os)),
-            name,
-            stream,
-        }) if target_os_matches_current(&target_os) => Some(Action::Verify(VerifyAction {
-            source: Source {
-                name,
-                stream,
-                target_os: Some(TargetOs(target_os)),
-            },
-            expected_value: VerifyValue(literal),
-        })),
+        code_block_info::CodeBlockType::Script(code_block) => {
+            Some(Action::Script(to_script_action(code_block, literal)))
+        }
+        code_block_info::CodeBlockType::Verify(source) => {
+            to_verify_action(&source, literal).map(Action::Verify)
+        }
         code_block_info::CodeBlockType::CreateFile(file_path) => {
             Some(Action::CreateFile(CreateFileAction {
                 file_path,
                 file_content: FileContent(literal),
             }))
         }
-        code_block_info::CodeBlockType::Skip()
-        | code_block_info::CodeBlockType::Verify(Source {
-            name: _,
-            stream: _,
-            target_os: Some(_),
-        }) => None,
+        code_block_info::CodeBlockType::Skip() => None,
     })
+}
+
+fn to_script_action(code_block: ScriptCodeBlock, literal: String) -> ScriptAction {
+    let ScriptCodeBlock {
+        script_name,
+        expected_exit_code,
+        expected_output,
+    } = code_block;
+
+    ScriptAction {
+        script_name,
+        script_code: ScriptCode(literal),
+        expected_exit_code,
+        expected_output,
+    }
+}
+
+fn to_verify_action(source: &Source, literal: String) -> Option<VerifyAction> {
+    match source {
+        Source {
+            target_os: None, ..
+        } => Some(VerifyAction {
+            source: source.clone(),
+            expected_value: VerifyValue(literal),
+        }),
+        Source {
+            target_os: Some(TargetOs(ref target_os)),
+            ..
+        } if target_os_matches_current(target_os) => Some(VerifyAction {
+            source: source.clone(),
+            expected_value: VerifyValue(literal),
+        }),
+        Source {
+            target_os: Some(_), ..
+        } => None,
+    }
 }
 
 fn target_os_matches_current(target_os: &str) -> bool {
