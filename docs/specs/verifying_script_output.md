@@ -128,7 +128,7 @@ specdown -h
 Verify the output:
 
 ```text,verify(script_name="os_specific",target_os="windows")
-specdown 1.1.10
+specdown 1.2.0
 A tool to test markdown files and drive devlopment from documentation.
 
 USAGE:
