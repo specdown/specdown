@@ -10,20 +10,36 @@ use super::function_string;
 use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream, TargetOs};
 
 #[derive(Debug, PartialEq)]
+pub struct ScriptCodeBlock {
+    pub script_name: Option<ScriptName>,
+    pub expected_exit_code: Option<ExitCode>,
+    pub expected_output: OutputExpectation,
+}
+
+#[derive(Debug, PartialEq)]
 pub enum CodeBlockType {
-    Script(Option<ScriptName>, Option<ExitCode>, OutputExpectation),
+    Script(ScriptCodeBlock),
     Verify(Source),
     CreateFile(FilePath),
     Skip(),
 }
 
-pub fn parse(input: &str) -> Result<(&str, CodeBlockType)> {
+#[derive(Debug, PartialEq)]
+pub struct CodeBlockInfo {
+    pub language: String,
+    pub code_block_type: CodeBlockType,
+}
+
+pub fn parse(input: &str) -> Result<CodeBlockInfo> {
     let split_on_comma = tuple((take_until(","), tag(","), function_string::parse));
     let mut parse_codeblock_info = map(split_on_comma, |(language, _comma, func)| (language, func));
 
     match parse_codeblock_info(input) {
         Ok((_, (language, func))) => {
-            to_code_block_type(&func).map(|code_block_type| (language, code_block_type))
+            to_code_block_type(&func).map(|code_block_type| CodeBlockInfo {
+                language: language.to_string(),
+                code_block_type,
+            })
         }
         Err(nom_error) => Err(Error::ParserFailed(format!(
             "Failed parsing function from '{}' :: {}",
@@ -56,11 +72,11 @@ fn script_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     let expected_output = get_token_argument(f, "expected_output")
         .or_else(|_| Ok("any".to_string()))
         .and_then(|s| to_expected_output(&s))?;
-    Ok(CodeBlockType::Script(
-        name,
+    Ok(CodeBlockType::Script(ScriptCodeBlock {
+        script_name: name,
         expected_exit_code,
         expected_output,
-    ))
+    }))
 }
 
 fn to_expected_output(s: &str) -> Result<OutputExpectation> {
@@ -139,32 +155,35 @@ fn get_token_argument(f: &function::Function, name: &str) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::{
-        parse, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation, ScriptName, Source,
-        Stream,
+        parse, CodeBlockInfo, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation,
+        ScriptCodeBlock, ScriptName, Source, Stream,
     };
 
     mod parse {
         use super::{
-            parse, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation, ScriptName, Source,
-            Stream,
+            parse, CodeBlockInfo, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation,
+            ScriptCodeBlock, ScriptName, Source, Stream,
         };
 
         mod script {
-            use super::{parse, CodeBlockType, ExitCode, OutputExpectation, ScriptName};
+            use super::{
+                parse, CodeBlockInfo, CodeBlockType, ExitCode, OutputExpectation, ScriptCodeBlock,
+                ScriptName,
+            };
 
             #[test]
             fn succeeds_when_function_is_script_with_a_name() {
                 let result = parse("shell,script(name=\"example-script\")");
                 assert_eq!(
                     result,
-                    Ok((
-                        "shell",
-                        CodeBlockType::Script(
-                            Some(ScriptName("example-script".to_string())),
-                            None,
-                            OutputExpectation::Any
-                        )
-                    ))
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                            script_name: Some(ScriptName("example-script".to_string())),
+                            expected_exit_code: None,
+                            expected_output: OutputExpectation::Any,
+                        })
+                    })
                 );
             }
 
@@ -173,10 +192,14 @@ mod tests {
                 let result = parse("shell,script()");
                 assert_eq!(
                     result,
-                    Ok((
-                        "shell",
-                        CodeBlockType::Script(None, None, OutputExpectation::Any)
-                    ))
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                            script_name: None,
+                            expected_exit_code: None,
+                            expected_output: OutputExpectation::Any,
+                        })
+                    })
                 );
             }
 
@@ -185,14 +208,14 @@ mod tests {
                 let result = parse("shell,script(name=\"example-script\", expected_exit_code=2)");
                 assert_eq!(
                     result,
-                    Ok((
-                        "shell",
-                        CodeBlockType::Script(
-                            Some(ScriptName("example-script".to_string())),
-                            Some(ExitCode(2)),
-                            OutputExpectation::Any,
-                        )
-                    ))
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                            script_name: Some(ScriptName("example-script".to_string())),
+                            expected_exit_code: Some(ExitCode(2)),
+                            expected_output: OutputExpectation::Any,
+                        })
+                    })
                 );
             }
 
@@ -201,14 +224,14 @@ mod tests {
                 let result = parse("shell,script(name=\"example-script\", expected_output=any)");
                 assert_eq!(
                     result,
-                    Ok((
-                        "shell",
-                        CodeBlockType::Script(
-                            Some(ScriptName("example-script".to_string())),
-                            None,
-                            OutputExpectation::Any,
-                        )
-                    ))
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                            script_name: Some(ScriptName("example-script".to_string())),
+                            expected_exit_code: None,
+                            expected_output: OutputExpectation::Any,
+                        })
+                    })
                 );
             }
 
@@ -217,20 +240,20 @@ mod tests {
                 let result = parse("shell,script(name=\"example-script\", expected_output=stdout)");
                 assert_eq!(
                     result,
-                    Ok((
-                        "shell",
-                        CodeBlockType::Script(
-                            Some(ScriptName("example-script".to_string())),
-                            None,
-                            OutputExpectation::StdOut,
-                        )
-                    ))
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                            script_name: Some(ScriptName("example-script".to_string())),
+                            expected_exit_code: None,
+                            expected_output: OutputExpectation::StdOut,
+                        })
+                    })
                 );
             }
         }
 
         mod verify {
-            use super::{parse, CodeBlockType, Error, ScriptName, Source, Stream};
+            use super::{parse, CodeBlockInfo, CodeBlockType, Error, ScriptName, Source, Stream};
             use crate::types::TargetOs;
 
             #[test]
@@ -238,14 +261,14 @@ mod tests {
                 let result = parse(",verify(script_name=\"example-script\", stream=stdout)");
                 assert_eq!(
                     result,
-                    Ok((
-                        "",
-                        CodeBlockType::Verify(Source {
+                    Ok(CodeBlockInfo {
+                        language: "".to_string(),
+                        code_block_type: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("example-script".to_string())),
                             stream: Stream::StdOut,
-                            target_os: None
+                            target_os: None,
                         })
-                    ))
+                    })
                 );
             }
 
@@ -254,14 +277,14 @@ mod tests {
                 let result = parse(",verify(script_name=\"example-script\", stream=stderr)");
                 assert_eq!(
                     result,
-                    Ok((
-                        "",
-                        CodeBlockType::Verify(Source {
+                    Ok(CodeBlockInfo {
+                        language: "".to_string(),
+                        code_block_type: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("example-script".to_string())),
                             stream: Stream::StdErr,
-                            target_os: None
+                            target_os: None,
                         })
-                    ))
+                    })
                 );
             }
 
@@ -270,14 +293,14 @@ mod tests {
                 let result = parse(",verify(script_name=\"the-script\")");
                 assert_eq!(
                     result,
-                    Ok((
-                        "",
-                        CodeBlockType::Verify(Source {
+                    Ok(CodeBlockInfo {
+                        language: "".to_string(),
+                        code_block_type: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("the-script".to_string())),
                             stream: Stream::StdOut,
-                            target_os: None
+                            target_os: None,
                         })
-                    ))
+                    })
                 );
             }
 
@@ -286,14 +309,14 @@ mod tests {
                 let result = parse(",verify(script_name=\"the-script\")");
                 assert_eq!(
                     result,
-                    Ok((
-                        "",
-                        CodeBlockType::Verify(Source {
+                    Ok(CodeBlockInfo {
+                        language: "".to_string(),
+                        code_block_type: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("the-script".to_string())),
                             stream: Stream::StdOut,
-                            target_os: None
+                            target_os: None,
                         })
-                    ))
+                    })
                 );
             }
 
@@ -302,14 +325,14 @@ mod tests {
                 let result = parse(",verify(script_name=\"the-script\",target_os=\"some-os\")");
                 assert_eq!(
                     result,
-                    Ok((
-                        "",
-                        CodeBlockType::Verify(Source {
+                    Ok(CodeBlockInfo {
+                        language: "".to_string(),
+                        code_block_type: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("the-script".to_string())),
                             stream: Stream::StdOut,
-                            target_os: Some(TargetOs("some-os".to_string()))
+                            target_os: Some(TargetOs("some-os".to_string())),
                         })
-                    ))
+                    })
                 );
             }
 
@@ -332,30 +355,32 @@ mod tests {
                 let result = parse("text,verify(stream=stderr)");
                 assert_eq!(
                     result,
-                    Ok((
-                        "text",
-                        CodeBlockType::Verify(Source {
+                    Ok(CodeBlockInfo {
+                        language: "text".to_string(),
+                        code_block_type: CodeBlockType::Verify(Source {
                             name: None,
                             stream: Stream::StdErr,
-                            target_os: None
+                            target_os: None,
                         })
-                    ))
+                    })
                 );
             }
         }
 
         mod file {
-            use super::{parse, CodeBlockType, Error, FilePath};
+            use super::{parse, CodeBlockInfo, CodeBlockType, Error, FilePath};
 
             #[test]
             fn succeeds_when_function_is_file() {
                 let result = parse("text,file(path=\"example.txt\")");
                 assert_eq!(
                     result,
-                    Ok((
-                        "text",
-                        CodeBlockType::CreateFile(FilePath("example.txt".to_string()))
-                    ))
+                    Ok(CodeBlockInfo {
+                        language: "text".to_string(),
+                        code_block_type: CodeBlockType::CreateFile(FilePath(
+                            "example.txt".to_string()
+                        ))
+                    })
                 );
             }
 
@@ -366,19 +391,25 @@ mod tests {
                     result,
                     Err(Error::MissingArgument {
                         function: "file".to_string(),
-                        argument: "path".to_string()
+                        argument: "path".to_string(),
                     })
                 );
             }
         }
 
         mod skip {
-            use super::{parse, CodeBlockType, Error};
+            use super::{parse, CodeBlockInfo, CodeBlockType, Error};
 
             #[test]
             fn succeeds_when_function_is_skip() {
                 let result = parse("text,skip()");
-                assert_eq!(result, Ok(("text", CodeBlockType::Skip())));
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockInfo {
+                        language: "text".to_string(),
+                        code_block_type: CodeBlockType::Skip()
+                    })
+                );
             }
 
             #[test]
@@ -388,7 +419,7 @@ mod tests {
                     result,
                     Err(Error::MissingArgument {
                         function: "file".to_string(),
-                        argument: "path".to_string()
+                        argument: "path".to_string(),
                     })
                 );
             }

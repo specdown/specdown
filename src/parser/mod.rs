@@ -24,7 +24,8 @@ pub fn parse(markdown: &str) -> Result<Vec<Action>> {
 fn to_action(element: &markdown::Element) -> Result<Option<Action>> {
     match element {
         markdown::Element::FencedCodeBlock { info, literal } => {
-            actions::create_action(info, literal.clone())
+            let code_block_type = code_block_info::parse(info)?.code_block_type;
+            Ok(actions::create_action(&code_block_type, literal.clone()))
         }
     }
 }
