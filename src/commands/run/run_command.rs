@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::parser;
+use crate::parsers;
 use crate::runner::{Error, Executor, RunEvent, Runner, State};
 use crate::types::ScriptCode;
 
@@ -40,7 +40,7 @@ impl RunCommand {
 
         let start_events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
         let contents = self.file_reader.read_file(spec_file);
-        let run_events = parser::parse(&contents)
+        let run_events = parsers::parse(&contents)
             .map_err(|err| Error::RunFailed {
                 message: err.to_string(),
             })
