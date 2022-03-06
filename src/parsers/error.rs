@@ -1,23 +1,15 @@
+use super::function_string_parser;
 use std::fmt;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
+    FunctionStringParser(function_string_parser::Error),
     RootMustBeDocument,
     StringEncodingFailed(String),
     ParserFailed(String),
     UnknownFunction(String),
-    MissingArgument {
-        function: String,
-        argument: String,
-    },
-    IncorrectArgumentType {
-        function: String,
-        argument: String,
-        expected: String,
-        got: String,
-    },
     InvalidArgumentValue {
         function: String,
         argument: String,
@@ -37,15 +29,18 @@ impl fmt::Display for Error {
             }
             Self::ParserFailed(msg) => write!(f, "The parser failed: {}", msg),
             Self::UnknownFunction(name) => write!(f, "Unknown function: {}", name),
-            Self::MissingArgument { function, argument } => {
+            Self::FunctionStringParser(function_string_parser::Error::MissingArgument {
+                function,
+                argument,
+            }) => {
                 write!(f, "Function {} requires argument {}", function, argument)
             }
-            Self::IncorrectArgumentType {
+            Self::FunctionStringParser(function_string_parser::Error::IncorrectArgumentType {
                 function,
                 argument,
                 expected,
                 got,
-            } => write!(
+            }) => write!(
                 f,
                 "Function {} requires argument {} to be a {}, got {}",
                 function, argument, expected, got
@@ -67,6 +62,7 @@ impl fmt::Display for Error {
 #[cfg(test)]
 mod tests {
     use super::Error;
+    use crate::parsers::function_string_parser;
 
     #[test]
     fn display_root_must_be_document() {
@@ -105,10 +101,10 @@ mod tests {
         assert_eq!(
             format!(
                 "{}",
-                Error::MissingArgument {
+                Error::FunctionStringParser(function_string_parser::Error::MissingArgument {
                     function: "funcy".to_string(),
                     argument: "argy".to_string()
-                }
+                })
             ),
             "Function funcy requires argument argy"
         );
@@ -119,12 +115,12 @@ mod tests {
         assert_eq!(
             format!(
                 "{}",
-                Error::IncorrectArgumentType {
+                Error::FunctionStringParser(function_string_parser::Error::IncorrectArgumentType {
                     function: "test_func".to_string(),
                     argument: "test_arg".to_string(),
                     expected: "token".to_string(),
                     got: "string".to_string()
-                }
+                })
             ),
             "Function test_func requires argument test_arg to be a token, got string"
         );
