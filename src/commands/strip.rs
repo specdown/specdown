@@ -1,4 +1,4 @@
-use crate::parser;
+use crate::parsers;
 use clap::{Arg, SubCommand};
 use std::fs;
 use std::path::Path;
@@ -23,6 +23,6 @@ pub fn execute(run_matches: &clap::ArgMatches<'_>) {
         .expect("spec-file should always exist");
 
     let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
-    let stripped = parser::strip(&contents);
+    let stripped = parsers::strip(&contents);
     println!("{}", stripped);
 }

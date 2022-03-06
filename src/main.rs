@@ -18,7 +18,7 @@ mod ansi;
 mod commands;
 mod config;
 mod exit_codes;
-mod parser;
+mod parsers;
 mod results;
 mod runner;
 mod types;

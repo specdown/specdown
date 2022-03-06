@@ -1,11 +1,9 @@
 use crate::types::Action;
 
 mod actions;
-mod argument_value;
 mod code_block_info;
 mod error;
-mod function;
-mod function_string;
+mod function_string_parser;
 mod markdown;
 mod strip;
 

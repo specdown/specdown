@@ -4,10 +4,11 @@ use nom::{
     sequence::tuple,
 };
 
-use super::error::{Error, Result};
-use super::function;
-use super::function_string;
 use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream, TargetOs};
+
+use super::error::{Error, Result};
+use super::function_string_parser;
+use super::function_string_parser::Function;
 
 #[derive(Debug, PartialEq)]
 pub struct ScriptCodeBlock {
@@ -31,7 +32,7 @@ pub struct CodeBlockInfo {
 }
 
 pub fn parse(input: &str) -> Result<CodeBlockInfo> {
-    let split_on_comma = tuple((take_until(","), tag(","), function_string::parse));
+    let split_on_comma = tuple((take_until(","), tag(","), function_string_parser::parse));
     let mut parse_codeblock_info = map(split_on_comma, |(language, _comma, func)| (language, func));
 
     match parse_codeblock_info(input) {
@@ -48,7 +49,7 @@ pub fn parse(input: &str) -> Result<CodeBlockInfo> {
     }
 }
 
-fn to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
+fn to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     match &f.name[..] {
         "script" => script_to_code_block_type(f),
         "verify" => verify_to_code_block_type(f),
@@ -58,7 +59,7 @@ fn to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
     }
 }
 
-fn script_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
+fn script_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     let name = if f.has_argument("name") {
         Some(ScriptName(get_string_argument(f, "name")?))
     } else {
@@ -94,16 +95,16 @@ fn to_expected_output(s: &str) -> Result<OutputExpectation> {
     }
 }
 
-fn file_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
+fn file_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     let path = get_string_argument(f, "path")?;
     Ok(CodeBlockType::CreateFile(FilePath(path)))
 }
 
-const fn skip_to_code_block_type(_f: &function::Function) -> CodeBlockType {
+const fn skip_to_code_block_type(_f: &Function) -> CodeBlockType {
     CodeBlockType::Skip()
 }
 
-fn verify_to_code_block_type(f: &function::Function) -> Result<CodeBlockType> {
+fn verify_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     let name = if f.has_argument("script_name") {
         Some(ScriptName(get_string_argument(f, "script_name")?))
     } else {
@@ -140,16 +141,19 @@ fn to_stream(stream_name: &str) -> Option<Stream> {
     }
 }
 
-fn get_integer_argument(f: &function::Function, name: &str) -> Result<i32> {
+fn get_integer_argument(f: &Function, name: &str) -> Result<i32> {
     f.get_integer_argument(name)
+        .map_err(Error::FunctionStringParser)
 }
 
-fn get_string_argument(f: &function::Function, name: &str) -> Result<String> {
+fn get_string_argument(f: &Function, name: &str) -> Result<String> {
     f.get_string_argument(name)
+        .map_err(Error::FunctionStringParser)
 }
 
-fn get_token_argument(f: &function::Function, name: &str) -> Result<String> {
+fn get_token_argument(f: &Function, name: &str) -> Result<String> {
     f.get_token_argument(name)
+        .map_err(Error::FunctionStringParser)
 }
 
 #[cfg(test)]
@@ -253,8 +257,9 @@ mod tests {
         }
 
         mod verify {
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error, ScriptName, Source, Stream};
             use crate::types::TargetOs;
+
+            use super::{parse, CodeBlockInfo, CodeBlockType, Error, ScriptName, Source, Stream};
 
             #[test]
             fn succeeds_when_function_is_verify_and_stream_is_stdout() {
@@ -368,6 +373,8 @@ mod tests {
         }
 
         mod file {
+            use crate::parsers::function_string_parser;
+
             use super::{parse, CodeBlockInfo, CodeBlockType, Error, FilePath};
 
             #[test]
@@ -389,15 +396,19 @@ mod tests {
                 let result = parse("text,file()");
                 assert_eq!(
                     result,
-                    Err(Error::MissingArgument {
-                        function: "file".to_string(),
-                        argument: "path".to_string(),
-                    })
+                    Err(Error::FunctionStringParser(
+                        function_string_parser::Error::MissingArgument {
+                            function: "file".to_string(),
+                            argument: "path".to_string(),
+                        }
+                    ))
                 );
             }
         }
 
         mod skip {
+            use crate::parsers::function_string_parser;
+
             use super::{parse, CodeBlockInfo, CodeBlockType, Error};
 
             #[test]
@@ -417,10 +428,12 @@ mod tests {
                 let result = parse("text,file()");
                 assert_eq!(
                     result,
-                    Err(Error::MissingArgument {
-                        function: "file".to_string(),
-                        argument: "path".to_string(),
-                    })
+                    Err(Error::FunctionStringParser(
+                        function_string_parser::Error::MissingArgument {
+                            function: "file".to_string(),
+                            argument: "path".to_string(),
+                        }
+                    ))
                 );
             }
         }

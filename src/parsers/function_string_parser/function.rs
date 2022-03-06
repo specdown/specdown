@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
-use super::error;
-
 use super::argument_value::{ArgumentValue, IncorrectArgumentType};
+use super::error::Error;
 
 #[derive(Debug, PartialEq)]
 pub struct Function {
@@ -22,28 +21,28 @@ impl Function {
         self.arguments.contains_key(name)
     }
 
-    pub fn get_integer_argument(&self, name: &str) -> error::Result<i32> {
+    pub fn get_integer_argument(&self, name: &str) -> Result<i32, Error> {
         self.get_required_argument(name)?
             .integer()
             .map_err(|err| self.incorrect_argument_type_error(name, err))
     }
 
-    pub fn get_string_argument(&self, name: &str) -> error::Result<String> {
+    pub fn get_string_argument(&self, name: &str) -> Result<String, Error> {
         self.get_required_argument(name)?
             .string()
             .map_err(|err| self.incorrect_argument_type_error(name, err))
     }
 
-    pub fn get_token_argument(&self, name: &str) -> error::Result<String> {
+    pub fn get_token_argument(&self, name: &str) -> Result<String, Error> {
         self.get_required_argument(name)?
             .token()
             .map_err(|err| self.incorrect_argument_type_error(name, err))
     }
 
-    fn get_required_argument(&self, name: &str) -> error::Result<&ArgumentValue> {
+    fn get_required_argument(&self, name: &str) -> Result<&ArgumentValue, Error> {
         self.arguments
             .get(name)
-            .ok_or_else(|| error::Error::MissingArgument {
+            .ok_or_else(|| Error::MissingArgument {
                 function: self.name.clone(),
                 argument: name.to_string(),
             })
@@ -53,8 +52,8 @@ impl Function {
         &self,
         argument: &str,
         IncorrectArgumentType { expected, got }: IncorrectArgumentType,
-    ) -> error::Error {
-        error::Error::IncorrectArgumentType {
+    ) -> Error {
+        Error::IncorrectArgumentType {
             function: self.name.to_string(),
             argument: argument.to_string(),
             expected,

@@ -1,6 +1,6 @@
 use super::code_block_info;
 
-use crate::parser::code_block_info::{CodeBlockType, ScriptCodeBlock};
+use crate::parsers::code_block_info::{CodeBlockType, ScriptCodeBlock};
 use crate::types::{
     Action, CreateFileAction, FileContent, ScriptAction, ScriptCode, Source, TargetOs,
     VerifyAction, VerifyValue,
@@ -72,8 +72,9 @@ fn target_os_matches_current(target_os: &str) -> bool {
 #[cfg(test)]
 mod tests {
 
-    use super::{create_action, Action, CodeBlockType, FileContent, ScriptCode, VerifyValue};
-    use crate::parser::code_block_info::ScriptCodeBlock;
+    use super::{
+        create_action, Action, CodeBlockType, FileContent, ScriptCode, ScriptCodeBlock, VerifyValue,
+    };
     use crate::types::{
         CreateFileAction, FilePath, OutputExpectation, ScriptAction, ScriptName, Source, Stream,
         TargetOs, VerifyAction,
