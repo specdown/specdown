@@ -1,20 +1,24 @@
 use comrak::nodes::{AstNode, NodeCodeBlock, NodeValue};
 use comrak::{parse_document, Arena, ComrakOptions};
 
-use super::error::{Error, Result};
+#[derive(Debug, PartialEq)]
+pub enum Error {
+    RootMustBeDocument,
+    StringEncodingFailed(String),
+}
 
 #[derive(Debug, PartialEq)]
 pub enum Element {
     FencedCodeBlock { info: String, literal: String },
 }
 
-pub fn parse(markdown: &str) -> Result<Vec<Element>> {
+pub fn parse(markdown: &str) -> Result<Vec<Element>, Error> {
     let arena = Arena::new();
     let root = parse_document(&arena, markdown, &ComrakOptions::default());
     extract_elements(root)
 }
 
-fn extract_elements<'a>(root: &'a AstNode<'a>) -> Result<Vec<Element>> {
+fn extract_elements<'a>(root: &'a AstNode<'a>) -> Result<Vec<Element>, Error> {
     let node_value = &root.data.borrow_mut().value;
 
     match node_value {
@@ -25,7 +29,7 @@ fn extract_elements<'a>(root: &'a AstNode<'a>) -> Result<Vec<Element>> {
     .collect()
 }
 
-fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Result<Element>> {
+fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Result<Element, Error>> {
     match node.data.borrow().value.clone() {
         NodeValue::CodeBlock(block) => Some(block)
             .filter(|b| b.fenced)
@@ -34,20 +38,20 @@ fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Result<Element>> {
     }
 }
 
-fn to_fenced_code_block_element(block: &NodeCodeBlock) -> Result<Element> {
+fn to_fenced_code_block_element(block: &NodeCodeBlock) -> Result<Element, Error> {
     let (info, literal) = node_block_to_components(block)?;
     let element = Element::FencedCodeBlock { info, literal };
     Ok(element)
 }
 
-fn node_block_to_components(block: &NodeCodeBlock) -> Result<(String, String)> {
+fn node_block_to_components(block: &NodeCodeBlock) -> Result<(String, String), Error> {
     let info = char_vec_to_string(&block.info)?;
     let literal = char_vec_to_string(&block.literal)?;
 
     Ok((info, literal))
 }
 
-fn char_vec_to_string(chars: &[u8]) -> Result<String> {
+fn char_vec_to_string(chars: &[u8]) -> Result<String, Error> {
     match String::from_utf8(chars.to_vec()) {
         Ok(string) => Ok(string),
         Err(err) => Err(Error::StringEncodingFailed(err.to_string())),

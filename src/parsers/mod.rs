@@ -7,12 +7,13 @@ mod function_string_parser;
 mod markdown;
 mod strip;
 
-use error::Result;
+use error::{Error, Result};
 
 pub use strip::strip;
 
 pub fn parse(markdown: &str) -> Result<Vec<Action>> {
-    markdown::parse(markdown)?
+    markdown::parse(markdown)
+        .map_err(Error::MarkdownParser)?
         .iter()
         .map(to_action)
         .collect::<Result<Vec<Option<Action>>>>()
