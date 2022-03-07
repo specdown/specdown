@@ -61,16 +61,17 @@ fn to_code_block_type(f: &Function) -> Result<CodeBlockType> {
 
 fn script_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     let name = if f.has_argument("name") {
-        Some(ScriptName(get_string_argument(f, "name")?))
+        Some(ScriptName(f.get_string_argument("name")?))
     } else {
         None
     };
     let expected_exit_code = if f.has_argument("expected_exit_code") {
-        Some(ExitCode(get_integer_argument(f, "expected_exit_code")?))
+        Some(ExitCode(f.get_integer_argument("expected_exit_code")?))
     } else {
         None
     };
-    let expected_output = get_token_argument(f, "expected_output")
+    let expected_output = f
+        .get_token_argument("expected_output")
         .or_else(|_| Ok("any".to_string()))
         .and_then(|s| to_expected_output(&s))?;
     Ok(CodeBlockType::Script(ScriptCodeBlock {
@@ -96,7 +97,7 @@ fn to_expected_output(s: &str) -> Result<OutputExpectation> {
 }
 
 fn file_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
-    let path = get_string_argument(f, "path")?;
+    let path = f.get_string_argument("path")?;
     Ok(CodeBlockType::CreateFile(FilePath(path)))
 }
 
@@ -106,17 +107,17 @@ const fn skip_to_code_block_type(_f: &Function) -> CodeBlockType {
 
 fn verify_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     let name = if f.has_argument("script_name") {
-        Some(ScriptName(get_string_argument(f, "script_name")?))
+        Some(ScriptName(f.get_string_argument("script_name")?))
     } else {
         None
     };
     let stream_name = if f.has_argument("stream") {
-        get_token_argument(f, "stream")?
+        f.get_token_argument("stream")?
     } else {
         "stdout".to_string()
     };
     let target_os = if f.has_argument("target_os") {
-        Some(TargetOs(get_string_argument(f, "target_os")?))
+        Some(TargetOs(f.get_string_argument("target_os")?))
     } else {
         None
     };
@@ -139,21 +140,6 @@ fn to_stream(stream_name: &str) -> Option<Stream> {
         "stderr" => Some(Stream::StdErr),
         _ => None,
     }
-}
-
-fn get_integer_argument(f: &Function, name: &str) -> Result<i32> {
-    f.get_integer_argument(name)
-        .map_err(Error::FunctionStringParser)
-}
-
-fn get_string_argument(f: &Function, name: &str) -> Result<String> {
-    f.get_string_argument(name)
-        .map_err(Error::FunctionStringParser)
-}
-
-fn get_token_argument(f: &Function, name: &str) -> Result<String> {
-    f.get_token_argument(name)
-        .map_err(Error::FunctionStringParser)
 }
 
 #[cfg(test)]

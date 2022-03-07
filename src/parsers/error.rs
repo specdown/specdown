@@ -18,6 +18,18 @@ pub enum Error {
     },
 }
 
+impl From<function_string_parser::Error> for Error {
+    fn from(error: function_string_parser::Error) -> Self {
+        Error::FunctionStringParser(error)
+    }
+}
+
+impl From<markdown::Error> for Error {
+    fn from(error: markdown::Error) -> Self {
+        Error::MarkdownParser(error)
+    }
+}
+
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
