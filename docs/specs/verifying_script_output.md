@@ -147,7 +147,7 @@ SUBCOMMANDS:
 ```
 
 ```text,verify(script_name="os_specific",target_os="linux")
-specdown 1.2.1
+specdown 1.2.2
 A tool to test markdown files and drive devlopment from documentation.
 
 USAGE:
@@ -166,7 +166,7 @@ SUBCOMMANDS:
 ```
 
 ```text,verify(script_name="os_specific",target_os="macos")
-specdown 1.2.1
+specdown 1.2.2
 A tool to test markdown files and drive devlopment from documentation.
 
 USAGE:
@@ -218,7 +218,7 @@ specdown -h
 Verify the output:
 
 ```text,verify(script_name="os_specific_negation",target_os="!windows")
-specdown 1.2.1
+specdown 1.2.2
 A tool to test markdown files and drive devlopment from documentation.
 
 USAGE:
@@ -237,7 +237,7 @@ SUBCOMMANDS:
 ```
 
 ```text,verify(script_name="os_specific_negation",target_os="windows")
-specdown 1.2.1
+specdown 1.2.2
 A tool to test markdown files and drive devlopment from documentation.
 
 USAGE:
