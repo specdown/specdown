@@ -8,6 +8,7 @@ use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, St
 use super::error::{Error, Result};
 use super::function_string_parser;
 use super::function_string_parser::Function;
+use nom::combinator::map;
 
 #[derive(Debug, PartialEq)]
 pub struct ScriptCodeBlock {
@@ -31,11 +32,12 @@ pub struct CodeBlockInfo {
 }
 
 pub fn parse(input: &str) -> Result<CodeBlockInfo> {
-    let mut parse_code_block_info = code_block_info(function_string_parser::parse);
+    let code_block_type = map(function_string_parser::parse, to_code_block_type);
+    let mut parse_code_block_info = code_block_info(code_block_type);
 
     match parse_code_block_info(input) {
-        Ok((_, (language, func))) => {
-            to_code_block_type(&func).map(|code_block_type| CodeBlockInfo {
+        Ok((_, (language, code_block_type_res))) => {
+            code_block_type_res.map(|code_block_type| CodeBlockInfo {
                 language: language.to_string(),
                 code_block_type,
             })
@@ -57,13 +59,13 @@ where
     separated_pair(take_until(","), tag(","), extra_info_parser)
 }
 
-fn to_code_block_type(f: &Function) -> Result<CodeBlockType> {
+fn to_code_block_type(f: Function) -> Result<CodeBlockType> {
     match &f.name[..] {
-        "script" => script_to_code_block_type(f),
-        "verify" => verify_to_code_block_type(f),
-        "file" => file_to_code_block_type(f),
-        "skip" => Ok(skip_to_code_block_type(f)),
-        _ => Err(Error::UnknownFunction(f.name.clone())),
+        "script" => script_to_code_block_type(&f),
+        "verify" => verify_to_code_block_type(&f),
+        "file" => file_to_code_block_type(&f),
+        "skip" => Ok(skip_to_code_block_type(&f)),
+        _ => Err(Error::UnknownFunction(f.name)),
     }
 }
 
