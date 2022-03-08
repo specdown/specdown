@@ -1,8 +1,5 @@
-use nom::{
-    bytes::streaming::{tag, take_until},
-    combinator::map,
-    sequence::tuple,
-};
+use nom::bytes::streaming::{tag, take_until};
+use nom::sequence::separated_pair;
 
 use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream, TargetOs};
 
@@ -32,8 +29,8 @@ pub struct CodeBlockInfo {
 }
 
 pub fn parse(input: &str) -> Result<CodeBlockInfo> {
-    let split_on_comma = tuple((take_until(","), tag(","), function_string_parser::parse));
-    let mut parse_codeblock_info = map(split_on_comma, |(language, _comma, func)| (language, func));
+    let mut parse_codeblock_info =
+        separated_pair(take_until(","), tag(","), function_string_parser::parse);
 
     match parse_codeblock_info(input) {
         Ok((_, (language, func))) => {
