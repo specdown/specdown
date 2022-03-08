@@ -1,4 +1,6 @@
+use nom::{Compare, FindSubstring, InputIter, InputLength, InputTake, IResult, Parser, UnspecializedInput};
 use nom::bytes::streaming::{tag, take_until};
+use nom::error::ParseError;
 use nom::sequence::separated_pair;
 
 use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream, TargetOs};
@@ -29,8 +31,9 @@ pub struct CodeBlockInfo {
 }
 
 pub fn parse(input: &str) -> Result<CodeBlockInfo> {
+    let extra_info_parser = function_string_parser::parse;
     let mut parse_codeblock_info =
-        separated_pair(take_until(","), tag(","), function_string_parser::parse);
+        info_string(extra_info_parser);
 
     match parse_codeblock_info(input) {
         Ok((_, (language, func))) => {
@@ -44,6 +47,16 @@ pub fn parse(input: &str) -> Result<CodeBlockInfo> {
             input, nom_error
         ))),
     }
+}
+
+pub fn info_string<I, O, E: ParseError<I>, F>(
+    extra_info_parser: F
+) -> impl FnMut(I) -> IResult<I, (I, O), E>
+    where
+        I: InputTake + InputLength + Compare<&str> + FindSubstring<&str>,
+        F: Parser<I, O, E>,
+{
+    separated_pair(take_until(","), tag(","), extra_info_parser)
 }
 
 fn to_code_block_type(f: &Function) -> Result<CodeBlockType> {
@@ -142,19 +155,19 @@ fn to_stream(stream_name: &str) -> Option<Stream> {
 #[cfg(test)]
 mod tests {
     use super::{
-        parse, CodeBlockInfo, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation,
+        CodeBlockInfo, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation, parse,
         ScriptCodeBlock, ScriptName, Source, Stream,
     };
 
     mod parse {
         use super::{
-            parse, CodeBlockInfo, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation,
+            CodeBlockInfo, CodeBlockType, Error, ExitCode, FilePath, OutputExpectation, parse,
             ScriptCodeBlock, ScriptName, Source, Stream,
         };
 
         mod script {
             use super::{
-                parse, CodeBlockInfo, CodeBlockType, ExitCode, OutputExpectation, ScriptCodeBlock,
+                CodeBlockInfo, CodeBlockType, ExitCode, OutputExpectation, parse, ScriptCodeBlock,
                 ScriptName,
             };
 
@@ -242,7 +255,7 @@ mod tests {
         mod verify {
             use crate::types::TargetOs;
 
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error, ScriptName, Source, Stream};
+            use super::{CodeBlockInfo, CodeBlockType, Error, parse, ScriptName, Source, Stream};
 
             #[test]
             fn succeeds_when_function_is_verify_and_stream_is_stdout() {
@@ -358,7 +371,7 @@ mod tests {
         mod file {
             use crate::parsers::function_string_parser;
 
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error, FilePath};
+            use super::{CodeBlockInfo, CodeBlockType, Error, FilePath, parse};
 
             #[test]
             fn succeeds_when_function_is_file() {
@@ -392,7 +405,7 @@ mod tests {
         mod skip {
             use crate::parsers::function_string_parser;
 
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+            use super::{CodeBlockInfo, CodeBlockType, Error, parse};
 
             #[test]
             fn succeeds_when_function_is_skip() {
