@@ -1,4 +1,5 @@
 use super::function_string_parser;
+use super::markdown;
 use std::fmt;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -6,8 +7,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Debug, PartialEq)]
 pub enum Error {
     FunctionStringParser(function_string_parser::Error),
-    RootMustBeDocument,
-    StringEncodingFailed(String),
+    MarkdownParser(markdown::Error),
     ParserFailed(String),
     UnknownFunction(String),
     InvalidArgumentValue {
@@ -18,13 +18,25 @@ pub enum Error {
     },
 }
 
+impl From<function_string_parser::Error> for Error {
+    fn from(error: function_string_parser::Error) -> Self {
+        Error::FunctionStringParser(error)
+    }
+}
+
+impl From<markdown::Error> for Error {
+    fn from(error: markdown::Error) -> Self {
+        Error::MarkdownParser(error)
+    }
+}
+
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::RootMustBeDocument => {
+            Self::MarkdownParser(markdown::Error::RootMustBeDocument) => {
                 write!(f, "RootMustBeDocument :: This error should never occur")
             }
-            Self::StringEncodingFailed(msg) => {
+            Self::MarkdownParser(markdown::Error::StringEncodingFailed(msg)) => {
                 write!(f, "Failed to encode string. Got error: {}", msg)
             }
             Self::ParserFailed(msg) => write!(f, "The parser failed: {}", msg),
@@ -61,13 +73,15 @@ impl fmt::Display for Error {
 
 #[cfg(test)]
 mod tests {
-    use super::Error;
-    use crate::parsers::function_string_parser;
+    use super::{function_string_parser, markdown, Error};
 
     #[test]
     fn display_root_must_be_document() {
         assert_eq!(
-            format!("{}", Error::RootMustBeDocument),
+            format!(
+                "{}",
+                Error::MarkdownParser(markdown::Error::RootMustBeDocument)
+            ),
             "RootMustBeDocument :: This error should never occur"
         );
     }
@@ -75,7 +89,10 @@ mod tests {
     #[test]
     fn display_string_encoding_failed() {
         assert_eq!(
-            format!("{}", Error::StringEncodingFailed("message".to_string())),
+            format!(
+                "{}",
+                Error::MarkdownParser(markdown::Error::StringEncodingFailed("message".to_string()))
+            ),
             "Failed to encode string. Got error: message"
         );
     }
