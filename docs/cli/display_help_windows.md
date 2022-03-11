@@ -12,7 +12,7 @@ specdown
 
 Outputs:
 
-    specdown 1.2.1
+    specdown 1.2.2
     A tool to test markdown files and drive devlopment from documentation.
     
     USAGE:
