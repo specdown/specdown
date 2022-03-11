@@ -1,22 +1,13 @@
 use crate::parsers::code_block_type;
-use crate::parsers::code_block_type::CodeBlockType;
-use nom::bytes::streaming::{tag, take_until};
-use nom::combinator::{map, map_res};
-use nom::error::ParseError;
-use nom::sequence::separated_pair;
-use nom::{Compare, Err, FindSubstring, IResult, InputLength, InputTake, Parser};
+use nom::Err;
 
-use super::error::{Error, Result};
-use super::function_string_parser;
-
-#[derive(Debug, PartialEq)]
-pub struct CodeBlockInfo<Extra> {
-    pub language: String,
-    pub code_block_type: Extra,
-}
+use super::code_block_type::CodeBlockType;
+use super::error::Result;
+use super::markdown::code_block_info::CodeBlockInfo;
+use crate::parsers::markdown::code_block_info;
 
 pub fn parse(input: &str) -> Result<CodeBlockInfo<CodeBlockType>> {
-    match parser(input) {
+    match code_block_info::parse(code_block_type::parse)(input) {
         Ok((_, result)) => Ok(result),
         Err(err) => match err {
             Err::Incomplete(_) => panic!("code_block_info parser returned an Incomplete error"),
@@ -25,37 +16,12 @@ pub fn parse(input: &str) -> Result<CodeBlockInfo<CodeBlockType>> {
     }
 }
 
-fn parser(input: &str) -> IResult<&str, CodeBlockInfo<CodeBlockType>, Error> {
-    let code_block_type = map_res(
-        function_string_parser::parse,
-        code_block_type::from_function,
-    );
-    let parse_code_block_info = code_block_info(code_block_type);
-
-    map(parse_code_block_info, |(language, code_block_type)| {
-        CodeBlockInfo {
-            language: language.to_string(),
-            code_block_type,
-        }
-    })(input)
-}
-
-fn code_block_info<Input, Output, Error: ParseError<Input>, InnerParser>(
-    extra_info_parser: InnerParser,
-) -> impl FnMut(Input) -> IResult<Input, (Input, Output), Error>
-where
-    Input: InputTake + InputLength + Compare<&'static str> + FindSubstring<&'static str>,
-    InnerParser: Parser<Input, Output, Error>,
-{
-    separated_pair(take_until(","), tag(","), extra_info_parser)
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+    use super::{parse, CodeBlockInfo, CodeBlockType};
 
     mod parse {
-        use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+        use super::{parse, CodeBlockInfo, CodeBlockType};
 
         mod script {
             use super::{parse, CodeBlockInfo, CodeBlockType};
@@ -69,7 +35,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "shell".to_string(),
-                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                        extra: CodeBlockType::Script(ScriptCodeBlock {
                             script_name: Some(ScriptName("example-script".to_string())),
                             expected_exit_code: None,
                             expected_output: OutputExpectation::Any,
@@ -85,7 +51,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "shell".to_string(),
-                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                        extra: CodeBlockType::Script(ScriptCodeBlock {
                             script_name: None,
                             expected_exit_code: None,
                             expected_output: OutputExpectation::Any,
@@ -101,7 +67,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "shell".to_string(),
-                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                        extra: CodeBlockType::Script(ScriptCodeBlock {
                             script_name: Some(ScriptName("example-script".to_string())),
                             expected_exit_code: Some(ExitCode(2)),
                             expected_output: OutputExpectation::Any,
@@ -117,7 +83,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "shell".to_string(),
-                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                        extra: CodeBlockType::Script(ScriptCodeBlock {
                             script_name: Some(ScriptName("example-script".to_string())),
                             expected_exit_code: None,
                             expected_output: OutputExpectation::Any,
@@ -133,7 +99,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "shell".to_string(),
-                        code_block_type: CodeBlockType::Script(ScriptCodeBlock {
+                        extra: CodeBlockType::Script(ScriptCodeBlock {
                             script_name: Some(ScriptName("example-script".to_string())),
                             expected_exit_code: None,
                             expected_output: OutputExpectation::StdOut,
@@ -144,9 +110,10 @@ mod tests {
         }
 
         mod verify {
+            use crate::parsers::error::Error;
             use crate::types::{ScriptName, Source, Stream, TargetOs};
 
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+            use super::{parse, CodeBlockInfo, CodeBlockType};
 
             #[test]
             fn succeeds_when_function_is_verify_and_stream_is_stdout() {
@@ -155,7 +122,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        code_block_type: CodeBlockType::Verify(Source {
+                        extra: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("example-script".to_string())),
                             stream: Stream::StdOut,
                             target_os: None,
@@ -171,7 +138,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        code_block_type: CodeBlockType::Verify(Source {
+                        extra: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("example-script".to_string())),
                             stream: Stream::StdErr,
                             target_os: None,
@@ -187,7 +154,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        code_block_type: CodeBlockType::Verify(Source {
+                        extra: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("the-script".to_string())),
                             stream: Stream::StdOut,
                             target_os: None,
@@ -203,7 +170,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        code_block_type: CodeBlockType::Verify(Source {
+                        extra: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("the-script".to_string())),
                             stream: Stream::StdOut,
                             target_os: None,
@@ -219,7 +186,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        code_block_type: CodeBlockType::Verify(Source {
+                        extra: CodeBlockType::Verify(Source {
                             name: Some(ScriptName("the-script".to_string())),
                             stream: Stream::StdOut,
                             target_os: Some(TargetOs("some-os".to_string())),
@@ -249,7 +216,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "text".to_string(),
-                        code_block_type: CodeBlockType::Verify(Source {
+                        extra: CodeBlockType::Verify(Source {
                             name: None,
                             stream: Stream::StdErr,
                             target_os: None,
@@ -260,10 +227,11 @@ mod tests {
         }
 
         mod file {
+            use crate::parsers::error::Error;
             use crate::parsers::function_string_parser;
             use crate::types::FilePath;
 
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+            use super::{parse, CodeBlockInfo, CodeBlockType};
 
             #[test]
             fn succeeds_when_function_is_file() {
@@ -272,9 +240,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "text".to_string(),
-                        code_block_type: CodeBlockType::CreateFile(FilePath(
-                            "example.txt".to_string()
-                        )),
+                        extra: CodeBlockType::CreateFile(FilePath("example.txt".to_string())),
                     })
                 );
             }
@@ -295,9 +261,10 @@ mod tests {
         }
 
         mod skip {
+            use crate::parsers::error::Error;
             use crate::parsers::function_string_parser;
 
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+            use super::{parse, CodeBlockInfo, CodeBlockType};
 
             #[test]
             fn succeeds_when_function_is_skip() {
@@ -306,7 +273,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "text".to_string(),
-                        code_block_type: CodeBlockType::Skip(),
+                        extra: CodeBlockType::Skip(),
                     })
                 );
             }

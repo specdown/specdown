@@ -1,6 +1,9 @@
 use crate::parsers::error::{Error, Result};
+use crate::parsers::function_string_parser;
 use crate::parsers::function_string_parser::Function;
 use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream, TargetOs};
+use nom::combinator::map_res;
+use nom::IResult;
 
 #[derive(Debug, PartialEq)]
 pub struct ScriptCodeBlock {
@@ -17,7 +20,11 @@ pub enum CodeBlockType {
     Skip(),
 }
 
-pub fn from_function(f: Function) -> Result<CodeBlockType> {
+pub fn parse(input: &str) -> IResult<&str, CodeBlockType, Error> {
+    map_res(function_string_parser::parse, from_function)(input)
+}
+
+fn from_function(f: Function) -> Result<CodeBlockType> {
     match &f.name[..] {
         "script" => script_to_code_block_type(&f),
         "verify" => verify_to_code_block_type(&f),
