@@ -1,13 +1,13 @@
 use crate::parsers::code_block_type;
-use nom::{Err, IResult};
+use nom::Err;
 
 use super::code_block_type::CodeBlockType;
-use super::error::{Error, Result};
+use super::error::Result;
 use super::markdown::code_block_info::CodeBlockInfo;
 use crate::parsers::markdown::code_block_info;
 
 pub fn parse(input: &str) -> Result<CodeBlockInfo<CodeBlockType>> {
-    match parser(input) {
+    match code_block_info::parse(code_block_type::parse)(input) {
         Ok((_, result)) => Ok(result),
         Err(err) => match err {
             Err::Incomplete(_) => panic!("code_block_info parser returned an Incomplete error"),
@@ -16,16 +16,12 @@ pub fn parse(input: &str) -> Result<CodeBlockInfo<CodeBlockType>> {
     }
 }
 
-fn parser(input: &str) -> IResult<&str, CodeBlockInfo<CodeBlockType>, Error> {
-    code_block_info::parse(code_block_type::parse)(input)
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+    use super::{parse, CodeBlockInfo, CodeBlockType};
 
     mod parse {
-        use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+        use super::{parse, CodeBlockInfo, CodeBlockType};
 
         mod script {
             use super::{parse, CodeBlockInfo, CodeBlockType};
@@ -114,9 +110,10 @@ mod tests {
         }
 
         mod verify {
+            use crate::parsers::error::Error;
             use crate::types::{ScriptName, Source, Stream, TargetOs};
 
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+            use super::{parse, CodeBlockInfo, CodeBlockType};
 
             #[test]
             fn succeeds_when_function_is_verify_and_stream_is_stdout() {
@@ -230,10 +227,11 @@ mod tests {
         }
 
         mod file {
+            use crate::parsers::error::Error;
             use crate::parsers::function_string_parser;
             use crate::types::FilePath;
 
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+            use super::{parse, CodeBlockInfo, CodeBlockType};
 
             #[test]
             fn succeeds_when_function_is_file() {
@@ -263,9 +261,10 @@ mod tests {
         }
 
         mod skip {
+            use crate::parsers::error::Error;
             use crate::parsers::function_string_parser;
 
-            use super::{parse, CodeBlockInfo, CodeBlockType, Error};
+            use super::{parse, CodeBlockInfo, CodeBlockType};
 
             #[test]
             fn succeeds_when_function_is_skip() {
