@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use nom::error::ParseError;
 use nom::{
     branch::alt,
     bytes::streaming::{tag, take_until},
@@ -15,12 +16,14 @@ use super::function::Function;
 
 pub type Argument<'a> = (&'a str, ArgumentValue);
 
-pub fn parse(input: &str) -> IResult<&str, Function> {
+pub fn parse<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Function, E> {
     let p = tuple((space0, alpha1, space0, argument_list));
     map(p, |(_, name, _, arguments)| Function::new(name, arguments))(input)
 }
 
-fn argument_list(input: &str) -> IResult<&str, HashMap<String, ArgumentValue>> {
+fn argument_list<'a, E: ParseError<&'a str>>(
+    input: &'a str,
+) -> IResult<&'a str, HashMap<String, ArgumentValue>, E> {
     let p = delimited(
         tuple((tag("("), space0)),
         separated_list0(tuple((space0, tag(","), space0)), argument),
@@ -37,7 +40,7 @@ fn list_of_args_to_hash_map(arguments: &[Argument<'_>]) -> HashMap<String, Argum
         .collect()
 }
 
-fn argument(input: &str) -> IResult<&str, Argument<'_>> {
+fn argument<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Argument<'_>, E> {
     let p = tuple((
         argument_name,
         tuple((space0, tag("="), space0)),
@@ -46,29 +49,31 @@ fn argument(input: &str) -> IResult<&str, Argument<'_>> {
     map(p, |(name, _, value)| (name, value))(input)
 }
 
-fn argument_name(input: &str) -> IResult<&str, &str> {
+fn argument_name<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
     let mut p = tuple((alpha1, many0(alt((alphanumeric1, tag("_"))))));
     let (remainder, (start, parts)) = p(input)?;
     let length = start.len() + parts.join("").len();
     Ok((remainder, &input[0..length]))
 }
 
-fn argument_value(input: &str) -> IResult<&str, ArgumentValue> {
+fn argument_value<'a, E: ParseError<&'a str>>(
+    input: &'a str,
+) -> IResult<&'a str, ArgumentValue, E> {
     alt((integer_value, string_value, token_value))(input)
 }
 
-fn integer_value(input: &str) -> IResult<&str, ArgumentValue> {
+fn integer_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
     let p = digit1;
-    map(p, |s: &str| ArgumentValue::Integer(s.parse().unwrap()))(input)
+    map(p, |s: &'a str| ArgumentValue::Integer(s.parse().unwrap()))(input)
 }
 
-fn string_value(input: &str) -> IResult<&str, ArgumentValue> {
+fn string_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
     let p = delimited(tag("\""), take_until("\""), tag("\""));
-    map(p, |s: &str| ArgumentValue::String(s.to_string()))(input)
+    map(p, |s: &'a str| ArgumentValue::String(s.to_string()))(input)
 }
 
-fn token_value(input: &str) -> IResult<&str, ArgumentValue> {
-    map(alpha1, |token: &str| {
+fn token_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
+    map(alpha1, |token: &'a str| {
         ArgumentValue::Token(token.to_string())
     })(input)
 }
@@ -84,7 +89,7 @@ mod tests {
         #[test]
         fn succeeds_when_function_has_no_args() {
             assert_eq!(
-                parse("func(), more"),
+                parse::<nom::error::Error<&str>>("func(), more"),
                 Ok((
                     ", more",
                     Function {
@@ -98,7 +103,7 @@ mod tests {
         #[test]
         fn succeeds_when_function_has_leading_whitespace() {
             assert_eq!(
-                parse(" func(), more"),
+                parse::<nom::error::Error<&str>>(" func(), more"),
                 Ok((
                     ", more",
                     Function {
@@ -112,7 +117,7 @@ mod tests {
         #[test]
         fn succeeds_when_function_has_whitespace_before_opening_parenthesis() {
             assert_eq!(
-                parse("func (), more"),
+                parse::<nom::error::Error<&str>>("func (), more"),
                 Ok((
                     ", more",
                     Function {
@@ -126,7 +131,7 @@ mod tests {
         #[test]
         fn succeeds_when_function_has_args() {
             assert_eq!(
-                parse("funcy(arg=\"hi\")"),
+                parse::<nom::error::Error<&str>>("funcy(arg=\"hi\")"),
                 Ok((
                     "",
                     Function {
@@ -146,7 +151,10 @@ mod tests {
                 name: "fn".to_string(),
                 arguments: HashMap::new(),
             };
-            assert_eq!(parse("fn()"), Ok(("", expected_fn)));
+            assert_eq!(
+                parse::<nom::error::Error<&str>>("fn()"),
+                Ok(("", expected_fn))
+            );
         }
 
         #[test]
@@ -159,7 +167,10 @@ mod tests {
                     .collect(),
             };
 
-            assert_eq!(parse("fn(arg=\"abc\")"), Ok(("", expected_fn)));
+            assert_eq!(
+                parse::<nom::error::Error<&str>>("fn(arg=\"abc\")"),
+                Ok(("", expected_fn))
+            );
         }
 
         #[test]
@@ -172,7 +183,10 @@ mod tests {
                 },
             );
 
-            assert_eq!(parse("fn(arg1=abc,arg2=\"def\")"), Ok(("", expected_fn)));
+            assert_eq!(
+                parse::<nom::error::Error<&str>>("fn(arg1=abc,arg2=\"def\")"),
+                Ok(("", expected_fn))
+            );
         }
 
         #[test]
@@ -185,7 +199,10 @@ mod tests {
                 },
             );
 
-            assert_eq!(parse("fn(arg1=xxx , arg2=\"123\")"), Ok(("", expected_fn)));
+            assert_eq!(
+                parse::<nom::error::Error<&str>>("fn(arg1=xxx , arg2=\"123\")"),
+                Ok(("", expected_fn))
+            );
         }
     }
 
@@ -197,7 +214,10 @@ mod tests {
         #[test]
         fn succeeds_when_no_arguments_are_provided() {
             let expected_args = hashmap! {};
-            assert_eq!(argument_list("()"), Ok(("", expected_args)));
+            assert_eq!(
+                argument_list::<nom::error::Error<&str>>("()"),
+                Ok(("", expected_args))
+            );
         }
 
         #[test]
@@ -206,7 +226,10 @@ mod tests {
             "arg".to_string() => ArgumentValue::String("abc".to_string())
             };
 
-            assert_eq!(argument_list("(arg=\"abc\")"), Ok(("", expected_args)));
+            assert_eq!(
+                argument_list::<nom::error::Error<&str>>("(arg=\"abc\")"),
+                Ok(("", expected_args))
+            );
         }
 
         #[test]
@@ -216,7 +239,7 @@ mod tests {
                 "arg2".to_string() => ArgumentValue::String("def".to_string()),
             };
             assert_eq!(
-                argument_list("(arg1=abc,arg2=\"def\")"),
+                argument_list::<nom::error::Error<&str>>("(arg1=abc,arg2=\"def\")"),
                 Ok(("", expected_args))
             );
         }
@@ -228,7 +251,7 @@ mod tests {
                 "arg2".to_string() => ArgumentValue::String("123".to_string()),
             };
             assert_eq!(
-                argument_list("(arg1=xxx , arg2=\"123\")"),
+                argument_list::<nom::error::Error<&str>>("(arg1=xxx , arg2=\"123\")"),
                 Ok(("", expected_args))
             );
         }
@@ -240,7 +263,7 @@ mod tests {
                 "arg2".to_string() => ArgumentValue::String("123".to_string()),
             };
             assert_eq!(
-                argument_list("(  arg1=xxx,arg2=\"123\"  )"),
+                argument_list::<nom::error::Error<&str>>("(  arg1=xxx,arg2=\"123\"  )"),
                 Ok(("", expected_args))
             );
         }
@@ -252,7 +275,7 @@ mod tests {
         #[test]
         fn fails_when_name_starts_with_a_digit() {
             assert_eq!(
-                argument("1arg=\"value\",more..."),
+                argument::<nom::error::Error<&str>>("1arg=\"value\",more..."),
                 Err(nom::Err::Error(nom::error_position!(
                     "1arg=\"value\",more...",
                     nom::error::ErrorKind::Alpha
@@ -263,7 +286,7 @@ mod tests {
         #[test]
         fn succeeds_when_single_alpha_char_name() {
             assert_eq!(
-                argument("a=\"value\",more..."),
+                argument::<nom::error::Error<&str>>("a=\"value\",more..."),
                 Ok((
                     ",more...",
                     ("a", ArgumentValue::String("value".to_string()))
@@ -274,7 +297,7 @@ mod tests {
         #[test]
         fn succeeds_when_alpha_numeric_name() {
             assert_eq!(
-                argument("arg1=\"value\",more..."),
+                argument::<nom::error::Error<&str>>("arg1=\"value\",more..."),
                 Ok((
                     ",more...",
                     ("arg1", ArgumentValue::String("value".to_string()))
@@ -285,7 +308,7 @@ mod tests {
         #[test]
         fn succeeds_with_token_argument() {
             assert_eq!(
-                argument("arg=token,more..."),
+                argument::<nom::error::Error<&str>>("arg=token,more..."),
                 Ok((
                     ",more...",
                     ("arg", ArgumentValue::Token("token".to_string()))
@@ -296,7 +319,7 @@ mod tests {
         #[test]
         fn succeeds_when_arg_contains_underscore() {
             assert_eq!(
-                argument("arg_name=\"value\",more..."),
+                argument::<nom::error::Error<&str>>("arg_name=\"value\",more..."),
                 Ok((
                     ",more...",
                     ("arg_name", ArgumentValue::String("value".to_string()))
@@ -307,7 +330,7 @@ mod tests {
         #[test]
         fn succeeds_with_spaces_around_equals() {
             assert_eq!(
-                argument("arg  =  token rest"),
+                argument::<nom::error::Error<&str>>("arg  =  token rest"),
                 Ok((" rest", ("arg", ArgumentValue::Token("token".to_string()))))
             );
         }
@@ -319,7 +342,7 @@ mod tests {
         #[test]
         fn succeeds_when_there_is_a_remainder() {
             assert_eq!(
-                argument_value("\"string\" rest"),
+                argument_value::<nom::error::Error<&str>>("\"string\" rest"),
                 Ok((" rest", ArgumentValue::String("string".to_string())))
             );
         }
@@ -336,7 +359,7 @@ mod tests {
             #[test]
             fn succeeds_when_there_is_a_remainder() {
                 assert_eq!(
-                    argument_value("123 leftovers"),
+                    argument_value::<nom::error::Error<&str>>("123 leftovers"),
                     Ok((" leftovers", ArgumentValue::Integer(123)))
                 );
             }
@@ -349,7 +372,7 @@ mod tests {
             #[test]
             fn succeeds_when_there_is_a_remainder() {
                 assert_eq!(
-                    argument_value("\"arg_value1\" leftovers"),
+                    argument_value::<nom::error::Error<&str>>("\"arg_value1\" leftovers"),
                     Ok((
                         " leftovers",
                         ArgumentValue::String("arg_value1".to_string())
@@ -360,7 +383,7 @@ mod tests {
             #[test]
             fn succeeds_when_there_is_no_remainder() {
                 assert_eq!(
-                    argument_value("\"arg_value2\""),
+                    argument_value::<nom::error::Error<&str>>("\"arg_value2\""),
                     Ok(("", ArgumentValue::String("arg_value2".to_string())))
                 );
             }
@@ -368,7 +391,7 @@ mod tests {
             #[test]
             fn fails_when_there_is_no_closing_quote() {
                 assert_eq!(
-                    argument_value("\"arg_value2"),
+                    argument_value::<nom::error::Error<&str>>("\"arg_value2"),
                     Err(nom::Err::Incomplete(Unknown))
                 );
             }
@@ -379,7 +402,7 @@ mod tests {
 
             #[test]
             fn succeeds_when_there_is_a_remainder() {
-                let result = argument_value("stdout leftovers");
+                let result = argument_value::<nom::error::Error<&str>>("stdout leftovers");
                 assert_eq!(
                     result,
                     Ok((" leftovers", ArgumentValue::Token("stdout".to_string())))

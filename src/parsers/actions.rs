@@ -1,6 +1,4 @@
-use super::code_block_info;
-
-use crate::parsers::code_block_info::{CodeBlockType, ScriptCodeBlock};
+use crate::parsers::code_block_type::{CodeBlockType, ScriptCodeBlock};
 use crate::types::{
     Action, CreateFileAction, FileContent, ScriptAction, ScriptCode, Source, TargetOs,
     VerifyAction, VerifyValue,
@@ -9,19 +7,15 @@ use std::env::consts::OS;
 
 pub fn create_action(code_block_type: &CodeBlockType, literal: String) -> Option<Action> {
     match code_block_type {
-        code_block_info::CodeBlockType::Script(script_code_block) => {
+        CodeBlockType::Script(script_code_block) => {
             Some(Action::Script(to_script_action(script_code_block, literal)))
         }
-        code_block_info::CodeBlockType::Verify(source) => {
-            to_verify_action(source, literal).map(Action::Verify)
-        }
-        code_block_info::CodeBlockType::CreateFile(ref file_path) => {
-            Some(Action::CreateFile(CreateFileAction {
-                file_path: file_path.clone(),
-                file_content: FileContent(literal),
-            }))
-        }
-        code_block_info::CodeBlockType::Skip() => None,
+        CodeBlockType::Verify(source) => to_verify_action(source, literal).map(Action::Verify),
+        CodeBlockType::CreateFile(ref file_path) => Some(Action::CreateFile(CreateFileAction {
+            file_path: file_path.clone(),
+            file_content: FileContent(literal),
+        })),
+        CodeBlockType::Skip() => None,
     }
 }
 

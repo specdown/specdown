@@ -1,5 +1,7 @@
 use super::function_string_parser;
 use super::markdown;
+
+use nom::error::{ErrorKind, FromExternalError, ParseError};
 use std::fmt;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -27,6 +29,28 @@ impl From<function_string_parser::Error> for Error {
 impl From<markdown::Error> for Error {
     fn from(error: markdown::Error) -> Self {
         Error::MarkdownParser(error)
+    }
+}
+
+impl ParseError<&str> for Error {
+    fn from_error_kind(input: &str, kind: ErrorKind) -> Self {
+        Error::ParserFailed(format!(
+            "Failed parsing function from '{}' :: {:?}",
+            input, kind
+        ))
+    }
+
+    fn append(input: &str, kind: ErrorKind, other: Self) -> Self {
+        Error::ParserFailed(format!(
+            "Failed parsing function from '{}' :: {:?} (follows: {}",
+            input, kind, other
+        ))
+    }
+}
+
+impl FromExternalError<&str, Error> for Error {
+    fn from_external_error(_input: &str, _kind: ErrorKind, e: Error) -> Self {
+        e
     }
 }
 
