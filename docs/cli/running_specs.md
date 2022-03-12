@@ -390,12 +390,42 @@ sub-command.
 specdown run --help
 ```
 
-```text,verify(script_name="run_help")
+### Non-Windows Output
+
+```text,verify(script_name="run_help",target_os="!windows")
 specdown-run 
 Runs a given Markdown Specification
 
 USAGE:
     specdown run [FLAGS] [OPTIONS] <spec-files>...
+
+FLAGS:
+    -h, --help                       Prints help information
+        --temporary-workspace-dir    Create a temporary workspace directory
+    -V, --version                    Prints version information
+
+OPTIONS:
+        --add-path <path>...                  Adds the given directory to PATH
+        --env <env-var>...                    Set an environment variable (format: 'VAR_NAME=value')
+        --shell-command <command>             The shell command used to execute script blocks [default: bash -c]
+        --unset-env <var-name>...             Unset an environment variable
+        --working-dir <dir>                   The directory where commands will be executed. This is relative to the
+                                              workspace dir
+        --workspace-dir <dir>                 Set the workspace directory
+        --workspace-init-command <command>    A command to run in the workspace before running the specs
+
+ARGS:
+    <spec-files>...    The spec files to run
+```
+
+### Windows Output
+
+```text,verify(script_name="run_help",target_os="windows")
+specdown.exe-run 
+Runs a given Markdown Specification
+
+USAGE:
+    specdown.exe run [FLAGS] [OPTIONS] <spec-files>...
 
 FLAGS:
     -h, --help                       Prints help information

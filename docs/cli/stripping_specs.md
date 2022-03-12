@@ -40,7 +40,9 @@ You can display all the options available by using `--help` on the `strip` sub-c
 specdown strip --help
 ```
 
-```text,verify(script_name="run_help")
+### Non-Windows Output
+
+```text,verify(script_name="run_help",target_os="!windows")
 specdown-strip 
 Outputs a version of the markdown with all specdown functions removed
 
@@ -55,3 +57,19 @@ ARGS:
     <spec-file>    The spec file to strip specdown functions from
 ```
 
+### Windows Output
+
+```text,verify(script_name="run_help",target_os="windows")
+specdown.exe-strip 
+Outputs a version of the markdown with all specdown functions removed
+
+USAGE:
+    specdown.exe strip <spec-file>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <spec-file>    The spec file to strip specdown functions from
+```

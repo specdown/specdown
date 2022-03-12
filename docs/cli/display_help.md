@@ -6,14 +6,35 @@ You can run SpecDown with no sub-commands and it will display the help.
 specdown
 ```
 
-Outputs:
+## Non-Windows Output
 
-```,verify(stream=stderr)
+```,verify(stream=stderr,target_os="!windows")
 specdown 1.2.3
 A tool to test markdown files and drive devlopment from documentation.
 
 USAGE:
     specdown [FLAGS] [SUBCOMMAND]
+
+FLAGS:
+    -h, --help         Prints help information
+        --no-colour    Disables coloured output
+    -V, --version      Prints version information
+
+SUBCOMMANDS:
+    completion    Output completion for a shell of your choice
+    help          Prints this message or the help of the given subcommand(s)
+    run           Runs a given Markdown Specification
+    strip         Outputs a version of the markdown with all specdown functions removed
+```
+
+## Windows Output
+
+```,verify(stream=stderr,target_os="windows")
+specdown 1.2.3
+A tool to test markdown files and drive devlopment from documentation.
+
+USAGE:
+    specdown.exe [FLAGS] [SUBCOMMAND]
 
 FLAGS:
     -h, --help         Prints help information
