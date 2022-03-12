@@ -163,7 +163,6 @@ mod tests {
                 source: Source {
                     name: Some(ScriptName("script2".to_string())),
                     stream: Stream::StdOut,
-                    target_os: None,
                 },
                 expected_value: VerifyValue("expected".to_string()),
             },
@@ -181,7 +180,6 @@ mod tests {
                 source: Source {
                     name: Some(ScriptName("script2".to_string())),
                     stream: Stream::StdOut,
-                    target_os: None,
                 },
                 expected_value: VerifyValue("expected".to_string()),
             },
@@ -192,7 +190,6 @@ mod tests {
                 source: Source {
                     name: Some(ScriptName("script2".to_string())),
                     stream: Stream::StdOut,
-                    target_os: None,
                 },
                 expected_value: VerifyValue("expected".to_string()),
             },
@@ -211,7 +208,6 @@ mod tests {
                 source: Source {
                     name: Some(ScriptName("script2".to_string())),
                     stream: Stream::StdOut,
-                    target_os: None,
                 },
                 expected_value: VerifyValue("expected".to_string()),
             },

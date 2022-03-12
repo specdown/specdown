@@ -13,9 +13,15 @@ pub struct ScriptCodeBlock {
 }
 
 #[derive(Debug, PartialEq)]
+pub struct VerifyCodeBlock {
+    pub source: Source,
+    pub target_os: Option<TargetOs>,
+}
+
+#[derive(Debug, PartialEq)]
 pub enum CodeBlockType {
     Script(ScriptCodeBlock),
-    Verify(Source),
+    Verify(VerifyCodeBlock),
     CreateFile(FilePath),
     Skip(),
 }
@@ -102,9 +108,8 @@ fn verify_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
         got: stream_name.to_string(),
         expected: "output, stdout or stderr".to_string(),
     })?;
-    Ok(CodeBlockType::Verify(Source {
-        name,
-        stream,
+    Ok(CodeBlockType::Verify(VerifyCodeBlock {
+        source: Source { name, stream },
         target_os,
     }))
 }

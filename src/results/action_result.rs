@@ -267,7 +267,6 @@ mod tests {
                         source: Source {
                             name: Some(ScriptName("example_script".to_string())),
                             stream: Stream::StdOut,
-                            target_os: None,
                         },
                         expected_value: VerifyValue("the output".to_string()),
                     },
@@ -284,7 +283,6 @@ mod tests {
                         source: Source {
                             name: Some(ScriptName("example_script".to_string())),
                             stream: Stream::StdOut,
-                            target_os: None,
                         },
                         expected_value: VerifyValue("expected output".to_string()),
                     },

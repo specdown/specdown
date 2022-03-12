@@ -110,6 +110,7 @@ mod tests {
         }
 
         mod verify {
+            use crate::parsers::code_block_type::VerifyCodeBlock;
             use crate::parsers::error::Error;
             use crate::types::{ScriptName, Source, Stream, TargetOs};
 
@@ -122,9 +123,11 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        extra: CodeBlockType::Verify(Source {
-                            name: Some(ScriptName("example-script".to_string())),
-                            stream: Stream::StdOut,
+                        extra: CodeBlockType::Verify(VerifyCodeBlock {
+                            source: Source {
+                                name: Some(ScriptName("example-script".to_string())),
+                                stream: Stream::StdOut,
+                            },
                             target_os: None,
                         }),
                     })
@@ -138,9 +141,11 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        extra: CodeBlockType::Verify(Source {
-                            name: Some(ScriptName("example-script".to_string())),
-                            stream: Stream::StdErr,
+                        extra: CodeBlockType::Verify(VerifyCodeBlock {
+                            source: Source {
+                                name: Some(ScriptName("example-script".to_string())),
+                                stream: Stream::StdErr,
+                            },
                             target_os: None,
                         }),
                     })
@@ -154,9 +159,11 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        extra: CodeBlockType::Verify(Source {
-                            name: Some(ScriptName("the-script".to_string())),
-                            stream: Stream::StdOut,
+                        extra: CodeBlockType::Verify(VerifyCodeBlock {
+                            source: Source {
+                                name: Some(ScriptName("the-script".to_string())),
+                                stream: Stream::StdOut,
+                            },
                             target_os: None,
                         }),
                     })
@@ -170,9 +177,11 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        extra: CodeBlockType::Verify(Source {
-                            name: Some(ScriptName("the-script".to_string())),
-                            stream: Stream::StdOut,
+                        extra: CodeBlockType::Verify(VerifyCodeBlock {
+                            source: Source {
+                                name: Some(ScriptName("the-script".to_string())),
+                                stream: Stream::StdOut,
+                            },
                             target_os: None,
                         }),
                     })
@@ -186,9 +195,11 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "".to_string(),
-                        extra: CodeBlockType::Verify(Source {
-                            name: Some(ScriptName("the-script".to_string())),
-                            stream: Stream::StdOut,
+                        extra: CodeBlockType::Verify(VerifyCodeBlock {
+                            source: Source {
+                                name: Some(ScriptName("the-script".to_string())),
+                                stream: Stream::StdOut,
+                            },
                             target_os: Some(TargetOs("some-os".to_string())),
                         }),
                     })
@@ -216,9 +227,11 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "text".to_string(),
-                        extra: CodeBlockType::Verify(Source {
-                            name: None,
-                            stream: Stream::StdErr,
+                        extra: CodeBlockType::Verify(VerifyCodeBlock {
+                            source: Source {
+                                name: None,
+                                stream: Stream::StdErr,
+                            },
                             target_os: None,
                         }),
                     })
