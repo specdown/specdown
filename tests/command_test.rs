@@ -51,19 +51,6 @@ fn test_doc_display_help() {
     assert_ok(&result);
 }
 
-#[cfg(windows)]
-#[test]
-fn test_doc_display_help() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
-        .arg("docs/cli/display_help_windows.md")
-        .ok();
-
-    assert_ok(&result);
-}
-
 #[cfg(not(windows))]
 #[test]
 fn test_doc_running_specs() {
@@ -72,19 +59,6 @@ fn test_doc_running_specs() {
         .arg("run")
         .arg("--temporary-workspace-dir")
         .arg("docs/cli/running_specs.md")
-        .ok();
-
-    assert_ok(&result);
-}
-
-#[cfg(windows)]
-#[test]
-fn test_doc_running_specs() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
-        .arg("docs/cli/running_specs_windows.md")
         .ok();
 
     assert_ok(&result);
@@ -163,19 +137,6 @@ fn test_doc_errors() {
     assert_ok(&result);
 }
 
-#[cfg(windows)]
-#[test]
-fn test_doc_errors() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
-        .arg("docs/errors_windows.md")
-        .ok();
-
-    assert_ok(&result);
-}
-
 #[test]
 fn test_doc_skipping_code_blocks() {
     let result = Command::cargo_bin("specdown")
@@ -200,18 +161,6 @@ fn test_doc_completion() {
     assert_ok(&result);
 }
 
-#[cfg(windows)]
-#[test]
-fn test_doc_completion() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("docs/cli/completion_windows.md")
-        .ok();
-
-    assert_ok(&result);
-}
-
 #[cfg(not(windows))]
 #[test]
 fn test_doc_stripping_specs() {
@@ -220,19 +169,6 @@ fn test_doc_stripping_specs() {
         .arg("run")
         .arg("--temporary-workspace-dir")
         .arg("docs/cli/stripping_specs.md")
-        .ok();
-
-    assert_ok(&result);
-}
-
-#[cfg(windows)]
-#[test]
-fn test_doc_stripping_specs() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
-        .arg("docs/cli/stripping_specs_windows.md")
         .ok();
 
     assert_ok(&result);
