@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         name: Checkout the repository
-      - uses: actions/cache@v2.1.7
+      - uses: actions/cache@v3.0.1
         name: Cache cargo
         with:
           path: |
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v2.1.7
+      - uses: actions/cache@v3.0.1
         with:
           path: |
             .cache
@@ -79,7 +79,7 @@ jobs:
           - os: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v2.1.7
+      - uses: actions/cache@v3.0.1
         with:
           path: |
             ~/.cargo/registry
@@ -113,7 +113,7 @@ jobs:
           - os: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v2.1.7
+      - uses: actions/cache@v3.0.1
         with:
           path: |
             .cache
@@ -203,7 +203,7 @@ jobs:
         name: Checkout the repository
         with:
           ref: v${{ needs.release.outputs.current_version }}
-      - uses: actions/cache@v2.1.7
+      - uses: actions/cache@v3.0.1
         name: Cache cargo dependencies
         with:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
@@ -270,7 +270,7 @@ jobs:
           lfs: true
           fetch-depth: 0
           ref: v${{ needs.release.outputs.current_version }}
-      - uses: actions/cache@v2.1.7
+      - uses: actions/cache@v3.0.1
         name: Cache cargo dependencies
         with:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
