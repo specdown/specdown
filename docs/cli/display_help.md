@@ -30,7 +30,7 @@ SUBCOMMANDS:
 ## Windows Output
 
 ```,verify(stream=stderr,target_os="windows")
-specdown 1.2.3
+specdown 1.2.4
 A tool to test markdown files and drive devlopment from documentation.
 
 USAGE:
