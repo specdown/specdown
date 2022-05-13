@@ -12,7 +12,7 @@ projects:
       also:
           - file: docs/cli/display_help.md
             pattern: specdown (\d+\.\d+\.\d+)
-          - file: docs/cli/display_help_windows.md
+          - file: docs/cli/display_help.md
             pattern: specdown (\d+\.\d+\.\d+)
           - file: docs/specs/verifying_script_output.md
             pattern: specdown (\d+\.\d+\.\d+)
