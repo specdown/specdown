@@ -4,3 +4,4 @@
 **/*.rs.bk
 *.bak
 .tests/
+.release/
