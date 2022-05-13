@@ -162,8 +162,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-      - uses: chaaz/versio-actions/install@v1.2
-        name: Install versio
+      - name: Install versio
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgpgme11-dev
+          cargo install versio
       - id: previous_version
         run: echo ::set-output "name=previous_version::$( versio get --id 1 -v )"
         env:
