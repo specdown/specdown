@@ -42,7 +42,9 @@ jobs:
 
       - name: Release dry run
         shell: bash
-        run: uplift release --dry-run
+        run: |
+          git status
+          uplift release --dry-run
 
   cargo-check:
     runs-on: ubuntu-latest
