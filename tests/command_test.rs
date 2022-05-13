@@ -187,7 +187,7 @@ fn test_displays_error_when_required_args_are_missing() {
         .failure()
         .stderr(formatdoc!(
             "
-            specdown 1.2.3
+            specdown 1.2.4
             A tool to test markdown files and drive devlopment from documentation.
 
             USAGE:
