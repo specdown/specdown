@@ -173,6 +173,7 @@ jobs:
         run: |
           mkdir -p .release
           uplift tag --next --dry-run 2> .release/tag.log
+          git status
           cat .release/tag.log
           CURRENT_VERSION="$(cat .release/tag.log | grep 'identified next tag' | sed 's/^.*tag=\(.*\)$/\1/')"
           if [ -z "$CURRENT_VERSION" ] ; then
