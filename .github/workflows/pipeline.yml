@@ -198,6 +198,7 @@ jobs:
             git add Cargo.lock
             git commit --amend --no-edit
             git push
+            git push --tags
           fi
         env:
           CURR: ${{ steps.current_version.outputs.current_version }}
