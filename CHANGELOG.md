@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.7](https://github.com/specdown/specdown/releases/tag/v1.2.7) - 2022-05-13
+
+- [`25d0e7e`](https://github.com/specdown/specdown/commit/25d0e7ea064c03e2eb9addb03b1ef84392030b9a) fix: Removed unnecessary v prefixes
+- [`3f6a176`](https://github.com/specdown/specdown/commit/3f6a176c94fd5e88bc3202374bb351c91a4de6ae) ci(uplift): uplifted for version v1.2.6
+- [`44b130b`](https://github.com/specdown/specdown/commit/44b130b7e276484539430ba980a3560baac23945) ci(uplift): uplifted for version v1.2.6
+
 ## [v1.2.6](https://github.com/specdown/specdown/releases/tag/v1.2.6) - 2022-05-13
 
 - [`33a9945`](https://github.com/specdown/specdown/commit/33a9945288cb19d26defa8d85c6a04fc05822cf1) fix: Revert version in Cargo to 1.2.5
