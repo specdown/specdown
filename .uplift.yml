@@ -1,5 +1,5 @@
 bumps:
-  - file: ./cargo.toml
+  - file: ./Cargo.toml
     regex:
       - pattern: "version = \"$VERSION\""
         semver: true
