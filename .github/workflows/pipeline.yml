@@ -191,7 +191,11 @@ jobs:
         shell: bash
         run: |
           if [ "$PREV" != "$CURR" ] || [ -z "$PREV" ] ; then
-            uplift release
+            uplift release --no-push
+            cargo fetch
+            git add Cargo.lock
+            git commit --amend --no-edit
+            git push
           fi
         env:
           CURR: ${{ steps.current_version.outputs.current_version }}

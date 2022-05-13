@@ -19,7 +19,3 @@ bumps:
       - pattern: "specdown $VERSION"
         semver: true
         count: 0
-
-hooks:
-  before:
-    - cargo fetch
