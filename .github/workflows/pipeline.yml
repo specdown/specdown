@@ -43,8 +43,7 @@ jobs:
       - name: Release dry run
         shell: bash
         run: |
-          git status
-          uplift release --dry-run
+          uplift release --dry-run --fetch-all
 
   cargo-check:
     runs-on: ubuntu-latest
@@ -191,7 +190,7 @@ jobs:
         shell: bash
         run: |
           if [ "$PREV" != "$CURR" ] || [ -z "$PREV" ] ; then
-            uplift release --no-push
+            uplift release --fetch-all --no-push
             cargo fetch
             git config user.name "$(git log -1 --pretty=format:"%an")"
             git config user.email "$(git log -1 --pretty=format:'%ae')"
