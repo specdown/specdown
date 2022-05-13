@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.8](https://github.com/specdown/specdown/releases/tag/v1.2.8) - 2022-05-13
+
+- [`8c7d240`](https://github.com/specdown/specdown/commit/8c7d240dcdbf2542d4f4bf9339777462b1ec895e) fix: Re-tag commit
+- [`8daabec`](https://github.com/specdown/specdown/commit/8daabec159c6c68ce64a3c76683d09e4dd11c894) ci(uplift): uplifted for version v1.2.7
+- [`651b9ac`](https://github.com/specdown/specdown/commit/651b9ac19deebb993a5f16240b299efec7b14b1d) ci(uplift): uplifted for version v1.2.7
+
 ## [v1.2.7](https://github.com/specdown/specdown/releases/tag/v1.2.7) - 2022-05-13
 
 - [`25d0e7e`](https://github.com/specdown/specdown/commit/25d0e7ea064c03e2eb9addb03b1ef84392030b9a) fix: Removed unnecessary v prefixes
