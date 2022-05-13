@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.6](https://github.com/specdown/specdown/releases/tag/v1.2.6) - 2022-05-13
+
+- [`a12de67`](https://github.com/specdown/specdown/commit/a12de67fb05f667cc940b516b367bc94f76924b9) fix: Setup git config
+- [`033d947`](https://github.com/specdown/specdown/commit/033d947acf0c738f936b92255751a61b73a69162) fix: Update the lock file after release
+- [`64f2d84`](https://github.com/specdown/specdown/commit/64f2d84198a3fb1ddfa5c982bba408f34b855b6c) ci: Add debug code
+- [`2d4f5ba`](https://github.com/specdown/specdown/commit/2d4f5ba16a61a8e8970d019020118dfe476aa232) fix: Debug pipeline
+- [`4b0c516`](https://github.com/specdown/specdown/commit/4b0c5161faed8fe4594ffd1086f8f3bd92b3d5b4) fix: Display output from tag
+
 ## [v1.2.5](https://github.com/specdown/specdown/releases/tag/v1.2.5) - 2022-05-13
 
 - [`ffc2ff1`](https://github.com/specdown/specdown/commit/ffc2ff1dc7c1b128fdfffb67f2ee28aed76f15e2) fix: Fix fetching of current version
