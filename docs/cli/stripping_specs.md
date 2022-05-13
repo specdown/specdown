@@ -44,12 +44,31 @@ You can display all the options available by using `--help` on the `strip` sub-c
 specdown strip --help
 ```
 
+### Non-Windows Output
+
 ``` text
 specdown-strip 
 Outputs a version of the markdown with all specdown functions removed
 
 USAGE:
     specdown strip <spec-file>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <spec-file>    The spec file to strip specdown functions from
+```
+
+### Windows Output
+
+``` text
+specdown.exe-strip 
+Outputs a version of the markdown with all specdown functions removed
+
+USAGE:
+    specdown.exe strip <spec-file>
 
 FLAGS:
     -h, --help       Prints help information

@@ -74,12 +74,32 @@ You can display all the options available by using `--help` on the `completion` 
 specdown completion --help
 ```
 
+### Non-Windows
+
 ``` text
 specdown-completion 
 Output completion for a shell of your choice
 
 USAGE:
     specdown completion <completion-shell>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <completion-shell>    The shell to generate completions for [possible values: bash, fish, elvish, powershell,
+                          zsh]
+```
+
+### Windows
+
+``` text
+specdown.exe-completion 
+Output completion for a shell of your choice
+
+USAGE:
+    specdown.exe completion <completion-shell>
 
 FLAGS:
     -h, --help       Prints help information
