@@ -171,7 +171,7 @@ jobs:
       - name: Get current version
         id: current_version
         run: |
-          CURRENT_VERSION="$(uplift tag --next --silent --dry-run)"
+          CURRENT_VERSION="$(uplift tag --next --dry-run 2>&1 | grep 'identified next tag' | sed 's/.*tag=v\(.*\)$/\1/')"
           if [ -z "$CURRENT_VERSION" ] ; then
             echo ::set-output "name=current_version::$PREV"
           else
