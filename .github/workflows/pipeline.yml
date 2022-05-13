@@ -193,6 +193,8 @@ jobs:
           if [ "$PREV" != "$CURR" ] || [ -z "$PREV" ] ; then
             uplift release --no-push
             cargo fetch
+            git config user.name "$(git log -1 --pretty=format:"%an")"
+            git config user.email "$(git log -1 --pretty=format:'%ae')"
             git add Cargo.lock
             git commit --amend --no-edit
             git push
