@@ -25,31 +25,24 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  versio-plan:
+  uplift-dry-run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Install versio
+
+      - uses: gembaadvantage/uplift-action@v2
+        name: Install uplift
+        with:
+          version: latest
+          install-only: true
+          args: version
+
+      - name: Release dry run
         shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgpgme11-dev
-          cargo install versio
-      - name: Check projects
-        run: versio check
-      - name: Print changes
-        run: versio plan
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USER: ${{ github.actor }}
-      - name: version bump details
-        run: versio release --dry-run
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USER: ${{ github.actor }}
+        run: uplift release --dry-run
 
   cargo-check:
     runs-on: ubuntu-latest
@@ -147,7 +140,7 @@ jobs:
   release:
     if: github.ref == 'refs/heads/master'
     needs:
-      - versio-plan
+      - uplift-dry-run
       - cargo-test
       - lint
       - cargo-audit
@@ -162,40 +155,53 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-      - name: Install versio
+
+      - uses: gembaadvantage/uplift-action@v2
+        name: Install uplift
+        with:
+          version: latest
+          install-only: true
+          args: version
+
+      - name: Get previous version
+        id: previous_version
+        run: echo ::set-output "name=previous_version::$( git tag | grep -P "^v[0-9]+\\.[0-9]+\\.[0-9]+" | sort -V | tail -n 1 )"
         shell: bash
+
+      - name: Get current version
+        id: current_version
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libgpgme11-dev
-          cargo install versio
-      - id: previous_version
-        run: echo ::set-output "name=previous_version::$( versio get --id 1 -v )"
+          CURRENT_VERSION="$(uplift tag --next --silent --dry-run)"
+          if [ -z "$CURRENT_VERSION" ] ; then
+            echo ::set-output "name=current_version::$PREV"
+          else
+            echo ::set-output "name=current_version::$CURRENT_VERSION"
+          fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USER: ${{ github.actor }}
-      - run: echo ::set-output "name=BUMP::$( versio release --dry-run )"
-        id: get_versio_plan
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USER: ${{ github.actor }}
+          PREV: ${{ steps.previous_version.outputs.previous_version }}
+        shell: bash
 
       - name: Generate release
-        if: ${{ contains(steps.get_versio_plan.outputs.BUMP, ' -> ') }}
+        shell: bash
         run: |
-          versio release
+          if [ "$PREV" != "$CURR" ] || [ -z "$PREV" ] ; then
+            uplift release
+          fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CURR: ${{ steps.current_version.outputs.current_version }}
+          PREV: ${{ steps.previous_version.outputs.previous_version }}
+          GITHUB_TOKEN: ${{ github.token }}
           GITHUB_USER: ${{ github.actor }}
-          RUST_LOG: versio=trace
-          RUST_BACKTRACE: 1
-      - run: echo ::set-output "name=current_version::$( versio get --id 1 -v )"
-        id: current_version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USER: ${{ github.actor }}
-      - run: echo ::set-output "name=version_bump::true"
-        if: steps.current_version.outputs.current_version != steps.previous_version.outputs.previous_version
+      - run: |
+          if [ "$CURR" != "$PREV" ] ; then
+            echo ::set-output "name=version_bump::true"
+          fi
         id: version_bump
+        shell: bash
+        name: Did the version bump
+        env:
+          CURR: ${{ steps.current_version.outputs.current_version }}
+          PREV: ${{ steps.previous_version.outputs.previous_version }}
 
   build-release:
     if: needs.release.outputs.version_bump
@@ -248,8 +254,7 @@ jobs:
         name: Store built binary version
         with:
           name: bins
-          path: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-${{ matrix.target
-            }}${{ matrix.suffix }}
+          path: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-${{ matrix.target }}${{ matrix.suffix }}
     strategy:
       matrix:
         include:
