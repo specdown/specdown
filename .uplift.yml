@@ -1,0 +1,25 @@
+bumps:
+  - file: ./cargo.toml
+    regex:
+      - pattern: "version = \"$VERSION\""
+        semver: true
+        count: 1
+  - file: ./docs/cli/display_help.md
+    regex:
+      - pattern: "specdown $VERSION"
+        semver: true
+        count: 0
+  - file: ./docs/specs/verifying_script_output.md
+    regex:
+      - pattern: "specdown $VERSION"
+        semver: true
+        count: 0
+  - file: ./tests/command_test.rs
+    regex:
+      - pattern: "specdown $VERSION"
+        semver: true
+        count: 0
+
+hooks:
+  before:
+    - cargo fetch
