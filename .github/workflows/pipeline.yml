@@ -197,6 +197,8 @@ jobs:
             git config user.email "$(git log -1 --pretty=format:'%ae')"
             git add Cargo.lock
             git commit --amend --no-edit
+            git tag -d "$CURR"
+            git tag "$CURR"
             git push
             git push --tags
           fi
