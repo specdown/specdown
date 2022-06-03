@@ -1,27 +1,16 @@
 use crate::parsers;
-use clap::{Arg, SubCommand};
+use clap::Args;
 use std::fs;
 use std::path::Path;
 
-pub const NAME: &str = "strip";
-
-pub fn create() -> clap::App<'static, 'static> {
-    let spec_file = Arg::with_name("spec-file")
-        .index(1)
-        .help("The spec file to strip specdown functions from")
-        .required(true);
-
-    SubCommand::with_name(NAME)
-        .about("Outputs a version of the markdown with all specdown functions removed")
-        .arg(spec_file)
+#[derive(Args)]
+pub struct Arguments {
+    /// The spec file to strip specdown functions from
+    spec_file: String,
 }
 
-pub fn execute(run_matches: &clap::ArgMatches<'_>) {
-    let spec_file = run_matches
-        .value_of("spec-file")
-        .map(Path::new)
-        .expect("spec-file should always exist");
-
+pub fn execute(args: &Arguments) {
+    let spec_file = Path::new(&args.spec_file);
     let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
     let stripped = parsers::strip(&contents);
     println!("{}", stripped);

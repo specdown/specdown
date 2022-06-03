@@ -12,7 +12,7 @@
 )]
 
 use crate::config::Config;
-use clap::{App, AppSettings, Arg};
+use clap::{CommandFactory, Parser, Subcommand};
 
 mod ansi;
 mod commands;
@@ -23,37 +23,45 @@ mod results;
 mod runner;
 mod types;
 
+#[derive(Parser)]
+#[clap(version, about, long_about = None)]
+struct Cli {
+    /// Disables coloured output
+    #[clap(long)]
+    no_colour: bool,
+
+    #[clap(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Output completion for a shell of your choice
+    Completion(commands::completion::Arguments),
+
+    /// Runs a given Markdown Specification
+    Run(commands::run::Arguments),
+
+    /// Outputs a version of the markdown with all specdown functions removed
+    Strip(commands::strip::Arguments),
+}
+
 fn main() {
-    let no_colour = Arg::with_name("no-colour")
-        .long("no-colour")
-        .takes_value(false)
-        .help("Disables coloured output");
-
-    let app = App::new("specdown")
-        .about("A tool to test markdown files and drive devlopment from documentation.")
-        .version(env!("CARGO_PKG_VERSION"))
-        .arg(no_colour)
-        .subcommand(commands::run::create())
-        .subcommand(commands::strip::create())
-        .subcommand(commands::completion::create())
-        .setting(AppSettings::ArgRequiredElseHelp);
-
-    let matches = app.get_matches();
+    let cli = Cli::parse();
 
     let config = Config {
-        colour: !matches.is_present("no-colour"),
+        colour: !cli.no_colour,
     };
 
-    if matches.is_present(commands::run::NAME) {
-        let run_matches = matches.subcommand_matches(commands::run::NAME).unwrap();
-        commands::run::execute(&config, run_matches);
-    } else if matches.is_present(commands::strip::NAME) {
-        let strip_matches = matches.subcommand_matches(commands::strip::NAME).unwrap();
-        commands::strip::execute(strip_matches);
-    } else if matches.is_present(commands::completion::NAME) {
-        let strip_matches = matches
-            .subcommand_matches(commands::completion::NAME)
-            .unwrap();
-        commands::completion::execute(strip_matches);
+    match cli.command {
+        Commands::Completion(args) => {
+            commands::completion::execute(&mut Cli::command(), &args);
+        }
+        Commands::Run(args) => {
+            commands::run::execute(&config, &args);
+        }
+        Commands::Strip(args) => {
+            commands::strip::execute(&args);
+        }
     }
 }
