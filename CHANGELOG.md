@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.9](https://github.com/specdown/specdown/releases/tag/v1.2.9) - 2022-05-13
+
+- [`36e352e`](https://github.com/specdown/specdown/commit/36e352ed0507d1120e8b5599e232635717702788) Merge pull request #147 from specdown/dependabot/cargo/indoc-1.0.6
+- [`5fe3bec`](https://github.com/specdown/specdown/commit/5fe3becef72ab4fadd341ed847c38e742e41c376) Merge pull request #138 from specdown/dependabot/github_actions/actions/cache-3.0.2
+- [`2f37051`](https://github.com/specdown/specdown/commit/2f37051b557b83ef332829a58ae9e71fa2881849) Merge pull request #137 from specdown/dependabot/github_actions/actions/download-artifact-3
+- [`c0bd36f`](https://github.com/specdown/specdown/commit/c0bd36f862f669aa3a596d25d79835c2cbdf3ae7) Merge pull request #136 from specdown/dependabot/github_actions/actions/upload-artifact-3
+- [`d1d8973`](https://github.com/specdown/specdown/commit/d1d89739f877af472ce2fa03c806759bcef6d7f3) fix: bump indoc from 1.0.4 to 1.0.6
+- [`0b77b38`](https://github.com/specdown/specdown/commit/0b77b382171b9290c5d9e2d1a90eb7eb15d950e8) ci: bump actions/cache from 2.1.7 to 3.0.2
+- [`aa5effa`](https://github.com/specdown/specdown/commit/aa5effa48dc4036deeca144856922994a395b63e) ci: bump actions/download-artifact from 2 to 3
+- [`c322805`](https://github.com/specdown/specdown/commit/c3228059ce4f0051f0c866e5b6a33257bd35936f) ci: bump actions/upload-artifact from 2 to 3
+- [`7c61fec`](https://github.com/specdown/specdown/commit/7c61fec7d48397c4b92c45cc42d23c41822c9f5a) Merge pull request #135 from specdown/dependabot/cargo/crossterm-0.23.2
+- [`a32cc2d`](https://github.com/specdown/specdown/commit/a32cc2dc6da304cc1cacd9632cb71196a9d1e181) fix: bump crossterm from 0.23.1 to 0.23.2
+- [`0b70f20`](https://github.com/specdown/specdown/commit/0b70f20b83d26fc62354e4ac3e042c1fbea4e873) ci: Disable uplift --dry-run on PRs (for now)
+- [`d9f5cd4`](https://github.com/specdown/specdown/commit/d9f5cd47ed77962701c0f3f1d44364ee517e2307) ci: Add --fetch-all to uplift release
+
 ## [v1.2.8](https://github.com/specdown/specdown/releases/tag/v1.2.8) - 2022-05-13
 
 - [`8c7d240`](https://github.com/specdown/specdown/commit/8c7d240dcdbf2542d4f4bf9339777462b1ec895e) fix: Re-tag commit
