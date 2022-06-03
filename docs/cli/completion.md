@@ -81,32 +81,30 @@ specdown-completion
 Output completion for a shell of your choice
 
 USAGE:
-    specdown completion <completion-shell>
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    specdown completion <SHELL>
 
 ARGS:
-    <completion-shell>    The shell to generate completions for [possible values: bash, fish, elvish, powershell,
-                          zsh]
+    <SHELL>    The shell to generate completions for [possible values: bash, elvish, fig, fish,
+               powershell, zsh]
+
+OPTIONS:
+    -h, --help    Print help information
 ```
 
 ### Windows
 
 ``` text
-specdown.exe-completion 
+specdown-completion 
 Output completion for a shell of your choice
 
 USAGE:
-    specdown.exe completion <completion-shell>
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    specdown completion <SHELL>
 
 ARGS:
-    <completion-shell>    The shell to generate completions for [possible values: bash, fish, elvish, powershell,
-                          zsh]
+    <SHELL>    The shell to generate completions for [possible values: bash, elvish, fig, fish,
+               powershell, zsh]
+
+OPTIONS:
+    -h, --help    Print help information
 ```
 

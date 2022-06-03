@@ -51,30 +51,28 @@ specdown-strip
 Outputs a version of the markdown with all specdown functions removed
 
 USAGE:
-    specdown strip <spec-file>
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    specdown strip <SPEC_FILE>
 
 ARGS:
-    <spec-file>    The spec file to strip specdown functions from
+    <SPEC_FILE>    The spec file to strip specdown functions from
+
+OPTIONS:
+    -h, --help    Print help information
 ```
 
 ### Windows Output
 
 ``` text
-specdown.exe-strip 
+specdown-strip 
 Outputs a version of the markdown with all specdown functions removed
 
 USAGE:
-    specdown.exe strip <spec-file>
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    specdown strip <SPEC_FILE>
 
 ARGS:
-    <spec-file>    The spec file to strip specdown functions from
+    <SPEC_FILE>    The spec file to strip specdown functions from
+
+OPTIONS:
+    -h, --help    Print help information
 ```
 

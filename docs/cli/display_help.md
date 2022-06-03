@@ -12,39 +12,39 @@ specdown
 
 ## Non-Windows Output
 
-    specdown 1.2.8
-    A tool to test markdown files and drive devlopment from documentation.
+    specdown 1.2.9
+    A tool to test markdown files and drive development from documentation.
     
     USAGE:
-        specdown [FLAGS] [SUBCOMMAND]
+        specdown [OPTIONS] <SUBCOMMAND>
     
-    FLAGS:
-        -h, --help         Prints help information
+    OPTIONS:
+        -h, --help         Print help information
             --no-colour    Disables coloured output
-        -V, --version      Prints version information
+        -V, --version      Print version information
     
     SUBCOMMANDS:
         completion    Output completion for a shell of your choice
-        help          Prints this message or the help of the given subcommand(s)
+        help          Print this message or the help of the given subcommand(s)
         run           Runs a given Markdown Specification
         strip         Outputs a version of the markdown with all specdown functions removed
 
 ## Windows Output
 
-    specdown 1.2.8
-    A tool to test markdown files and drive devlopment from documentation.
+    specdown 1.2.9
+    A tool to test markdown files and drive development from documentation.
     
     USAGE:
-        specdown.exe [FLAGS] [SUBCOMMAND]
+        specdown [OPTIONS] <SUBCOMMAND>
     
-    FLAGS:
-        -h, --help         Prints help information
+    OPTIONS:
+        -h, --help         Print help information
             --no-colour    Disables coloured output
-        -V, --version      Prints version information
+        -V, --version      Print version information
     
     SUBCOMMANDS:
         completion    Output completion for a shell of your choice
-        help          Prints this message or the help of the given subcommand(s)
+        help          Print this message or the help of the given subcommand(s)
         run           Runs a given Markdown Specification
         strip         Outputs a version of the markdown with all specdown functions removed
 
@@ -63,12 +63,11 @@ Displays:
     Outputs a version of the markdown with all specdown functions removed
     
     USAGE:
-        specdown strip <spec-file>
-    
-    FLAGS:
-        -h, --help       Prints help information
-        -V, --version    Prints version information
+        specdown strip <SPEC_FILE>
     
     ARGS:
-        <spec-file>    The spec file to strip specdown functions from
+        <SPEC_FILE>    The spec file to strip specdown functions from
+    
+    OPTIONS:
+        -h, --help    Print help information
 
