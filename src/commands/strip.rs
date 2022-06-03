@@ -1,17 +1,17 @@
 use crate::parsers;
 use clap::Args;
 use std::fs;
-use std::path::Path;
+use std::path::PathBuf;
 
 #[derive(Args)]
 pub struct Arguments {
     /// The spec file to strip specdown functions from
-    spec_file: String,
+    #[clap(parse(from_os_str))]
+    spec_file: PathBuf,
 }
 
 pub fn execute(args: &Arguments) {
-    let spec_file = Path::new(&args.spec_file);
-    let contents = fs::read_to_string(spec_file).expect("failed to read spec file");
+    let contents = fs::read_to_string(&args.spec_file).expect("failed to read spec file");
     let stripped = parsers::strip(&contents);
     println!("{}", stripped);
 }

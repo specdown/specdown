@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use clap::Args;
 
@@ -19,19 +19,19 @@ mod run_command;
 #[derive(Args)]
 pub struct Arguments {
     /// The spec files to run
-    spec_files: Vec<String>,
+    spec_files: Vec<PathBuf>,
 
     /// Set the workspace directory
-    #[clap(long)]
-    workspace_dir: Option<String>,
+    #[clap(long, parse(from_os_str))]
+    workspace_dir: Option<PathBuf>,
 
     /// Create a temporary workspace directory
     #[clap(long)]
     temporary_workspace_dir: bool,
 
     /// The directory where commands will be executed. This is relative to the workspace dir
-    #[clap(long)]
-    working_dir: Option<String>,
+    #[clap(long, parse(from_os_str))]
+    working_dir: Option<PathBuf>,
 
     /// A command to run in the workspace before running the specs
     #[clap(long)]
@@ -72,23 +72,7 @@ pub fn execute(config: &Config, args: &Arguments) {
 }
 
 fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
-    let spec_files = args
-        .spec_files
-        .iter()
-        .map(Path::new)
-        .map(std::path::Path::to_path_buf)
-        .collect();
-    let specified_workspace_dir = args
-        .workspace_dir
-        .as_ref()
-        .map(Path::new)
-        .map(std::path::Path::to_path_buf);
     let temp_workspace_dir = args.temporary_workspace_dir;
-    let working_dir = args
-        .working_dir
-        .as_ref()
-        .map(Path::new)
-        .map(std::path::Path::to_path_buf);
     let workspace_init_command = args.workspace_init_command.clone();
     let shell_cmd = args.shell_command.clone();
     let mut env = parse_environment_variables(&args.env);
@@ -98,14 +82,14 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
     let current_dir = std::env::current_dir().expect("Failed to get current workspace directory");
     let file_reader = FileReader::new(current_dir.clone());
 
-    let workspace_dir = get_workspace_dir(specified_workspace_dir, temp_workspace_dir)
+    let workspace_dir = get_workspace_dir(args.workspace_dir.clone(), temp_workspace_dir)
         .unwrap_or_else(|| current_dir.clone());
 
     std::fs::create_dir_all(&workspace_dir).expect("Failed to create workspace directory");
     let workspace_dir_canonicalized = std::fs::canonicalize(&workspace_dir)
         .unwrap_or_else(|_| panic!("Failed to canonicalize {:?}", workspace_dir));
 
-    let actual_working_dir = working_dir.map_or_else(
+    let actual_working_dir = args.working_dir.clone().map_or_else(
         || workspace_dir_canonicalized.clone(),
         |dir| workspace_dir_canonicalized.clone().join(dir),
     );
@@ -136,7 +120,7 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
     ));
 
     let new_command = |e| RunCommand {
-        spec_files,
+        spec_files: args.spec_files.clone(),
         executor: Box::new(e),
         working_dir: actual_working_dir,
         workspace_init_command,
