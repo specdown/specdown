@@ -3,7 +3,7 @@ queue_rules:
     conditions:
       - status-success=lint (windows-latest)
       - status-success=lint (ubuntu-latest)
-      - status-success=versio-plan
+      - status-success=uplift-dry-run
       - status-success=cargo-test (ubuntu-latest)
       - status-success=cargo-test (macos-latest)
       - status-success=cargo-test (windows-latest)
@@ -15,7 +15,7 @@ pull_request_rules:
     conditions:
       - status-success=lint (windows-latest)
       - status-success=lint (ubuntu-latest)
-      - status-success=versio-plan
+      - status-success=uplift-dry-run
       - status-success=cargo-test (ubuntu-latest)
       - status-success=cargo-test (macos-latest)
       - status-success=cargo-test (windows-latest)
