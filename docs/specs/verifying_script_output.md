@@ -129,57 +129,57 @@ Verify the output:
 
 ```text,verify(script_name="os_specific",target_os="windows")
 specdown 1.2.9
-A tool to test markdown files and drive devlopment from documentation.
+A tool to test markdown files and drive development from documentation.
 
 USAGE:
-    specdown.exe [FLAGS] [SUBCOMMAND]
+    specdown.exe [OPTIONS] <SUBCOMMAND>
 
-FLAGS:
-    -h, --help         Prints help information
+OPTIONS:
+    -h, --help         Print help information
         --no-colour    Disables coloured output
-    -V, --version      Prints version information
+    -V, --version      Print version information
 
 SUBCOMMANDS:
     completion    Output completion for a shell of your choice
-    help          Prints this message or the help of the given subcommand(s)
+    help          Print this message or the help of the given subcommand(s)
     run           Runs a given Markdown Specification
     strip         Outputs a version of the markdown with all specdown functions removed
 ```
 
 ```text,verify(script_name="os_specific",target_os="linux")
 specdown 1.2.9
-A tool to test markdown files and drive devlopment from documentation.
+A tool to test markdown files and drive development from documentation.
 
 USAGE:
-    specdown [FLAGS] [SUBCOMMAND]
+    specdown [OPTIONS] <SUBCOMMAND>
 
-FLAGS:
-    -h, --help         Prints help information
+OPTIONS:
+    -h, --help         Print help information
         --no-colour    Disables coloured output
-    -V, --version      Prints version information
+    -V, --version      Print version information
 
 SUBCOMMANDS:
     completion    Output completion for a shell of your choice
-    help          Prints this message or the help of the given subcommand(s)
+    help          Print this message or the help of the given subcommand(s)
     run           Runs a given Markdown Specification
     strip         Outputs a version of the markdown with all specdown functions removed
 ```
 
 ```text,verify(script_name="os_specific",target_os="macos")
 specdown 1.2.9
-A tool to test markdown files and drive devlopment from documentation.
+A tool to test markdown files and drive development from documentation.
 
 USAGE:
-    specdown [FLAGS] [SUBCOMMAND]
+    specdown [OPTIONS] <SUBCOMMAND>
 
-FLAGS:
-    -h, --help         Prints help information
+OPTIONS:
+    -h, --help         Print help information
         --no-colour    Disables coloured output
-    -V, --version      Prints version information
+    -V, --version      Print version information
 
 SUBCOMMANDS:
     completion    Output completion for a shell of your choice
-    help          Prints this message or the help of the given subcommand(s)
+    help          Print this message or the help of the given subcommand(s)
     run           Runs a given Markdown Specification
     strip         Outputs a version of the markdown with all specdown functions removed
 ```
@@ -219,38 +219,38 @@ Verify the output:
 
 ```text,verify(script_name="os_specific_negation",target_os="!windows")
 specdown 1.2.9
-A tool to test markdown files and drive devlopment from documentation.
+A tool to test markdown files and drive development from documentation.
 
 USAGE:
-    specdown [FLAGS] [SUBCOMMAND]
+    specdown [OPTIONS] <SUBCOMMAND>
 
-FLAGS:
-    -h, --help         Prints help information
+OPTIONS:
+    -h, --help         Print help information
         --no-colour    Disables coloured output
-    -V, --version      Prints version information
+    -V, --version      Print version information
 
 SUBCOMMANDS:
     completion    Output completion for a shell of your choice
-    help          Prints this message or the help of the given subcommand(s)
+    help          Print this message or the help of the given subcommand(s)
     run           Runs a given Markdown Specification
     strip         Outputs a version of the markdown with all specdown functions removed
 ```
 
 ```text,verify(script_name="os_specific_negation",target_os="windows")
 specdown 1.2.9
-A tool to test markdown files and drive devlopment from documentation.
+A tool to test markdown files and drive development from documentation.
 
 USAGE:
-    specdown.exe [FLAGS] [SUBCOMMAND]
+    specdown.exe [OPTIONS] <SUBCOMMAND>
 
-FLAGS:
-    -h, --help         Prints help information
+OPTIONS:
+    -h, --help         Print help information
         --no-colour    Disables coloured output
-    -V, --version      Prints version information
+    -V, --version      Print version information
 
 SUBCOMMANDS:
     completion    Output completion for a shell of your choice
-    help          Prints this message or the help of the given subcommand(s)
+    help          Print this message or the help of the given subcommand(s)
     run           Runs a given Markdown Specification
     strip         Outputs a version of the markdown with all specdown functions removed
 ```

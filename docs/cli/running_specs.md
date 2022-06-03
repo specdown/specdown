@@ -397,25 +397,38 @@ specdown-run
 Runs a given Markdown Specification
 
 USAGE:
-    specdown run [FLAGS] [OPTIONS] <spec-files>...
-
-FLAGS:
-    -h, --help                       Prints help information
-        --temporary-workspace-dir    Create a temporary workspace directory
-    -V, --version                    Prints version information
-
-OPTIONS:
-        --add-path <path>...                  Adds the given directory to PATH
-        --env <env-var>...                    Set an environment variable (format: 'VAR_NAME=value')
-        --shell-command <command>             The shell command used to execute script blocks [default: bash -c]
-        --unset-env <var-name>...             Unset an environment variable
-        --working-dir <dir>                   The directory where commands will be executed. This is relative to the
-                                              workspace dir
-        --workspace-dir <dir>                 Set the workspace directory
-        --workspace-init-command <command>    A command to run in the workspace before running the specs
+    specdown run [OPTIONS] [SPEC_FILES]...
 
 ARGS:
-    <spec-files>...    The spec files to run
+    <SPEC_FILES>...    The spec files to run
+
+OPTIONS:
+        --add-path <ADD_PATH>
+            Adds the given directory to PATH
+
+        --env <ENV>
+            Set an environment variable (format: 'VAR_NAME=value')
+
+    -h, --help
+            Print help information
+
+        --shell-command <SHELL_COMMAND>
+            The shell command used to execute script blocks [default: "bash -c"]
+
+        --temporary-workspace-dir
+            Create a temporary workspace directory
+
+        --unset-env <UNSET_ENV>
+            Unset an environment variable
+
+        --working-dir <WORKING_DIR>
+            The directory where commands will be executed. This is relative to the workspace dir
+
+        --workspace-dir <WORKSPACE_DIR>
+            Set the workspace directory
+
+        --workspace-init-command <WORKSPACE_INIT_COMMAND>
+            A command to run in the workspace before running the specs
 ```
 
 ### Windows Output

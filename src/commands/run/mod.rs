@@ -1,6 +1,6 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-use clap::{Arg, SubCommand};
+use clap::Args;
 
 use file_reader::FileReader;
 use run_command::RunCommand;
@@ -16,94 +16,47 @@ mod exit_code;
 mod file_reader;
 mod run_command;
 
-pub const NAME: &str = "run";
+#[derive(Args)]
+pub struct Arguments {
+    /// The spec files to run
+    spec_files: Vec<PathBuf>,
 
-pub fn create() -> clap::App<'static, 'static> {
-    let spec_file = Arg::with_name("spec-files")
-        .index(1)
-        .min_values(1)
-        .help("The spec files to run")
-        .required(true);
+    /// Set the workspace directory
+    #[clap(long, parse(from_os_str))]
+    workspace_dir: Option<PathBuf>,
 
-    let workspace_dir = Arg::with_name("workspace-dir")
-        .long("workspace-dir")
-        .takes_value(true)
-        .value_name("dir")
-        .help("Set the workspace directory")
-        .required(false);
+    /// Create a temporary workspace directory
+    #[clap(long)]
+    temporary_workspace_dir: bool,
 
-    let temp_workspace_dir = Arg::with_name("temp-workspace-dir")
-        .long("temporary-workspace-dir")
-        .takes_value(false)
-        .help("Create a temporary workspace directory")
-        .required(false);
+    /// The directory where commands will be executed. This is relative to the workspace dir
+    #[clap(long, parse(from_os_str))]
+    working_dir: Option<PathBuf>,
 
-    let working_dir = Arg::with_name("working-dir")
-        .long("working-dir")
-        .takes_value(true)
-        .value_name("dir")
-        .help(
-            "The directory where commands will be executed. This is relative to the workspace dir",
-        )
-        .required(false);
+    /// A command to run in the workspace before running the specs
+    #[clap(long)]
+    workspace_init_command: Option<String>,
 
-    let workspace_init_command = Arg::with_name("workspace-init-command")
-        .long("workspace-init-command")
-        .takes_value(true)
-        .value_name("command")
-        .help("A command to run in the workspace before running the specs")
-        .required(false);
+    /// The shell command used to execute script blocks
+    #[clap(long, default_value_t = String::from("bash -c"))]
+    shell_command: String,
 
-    let shell_cmd = Arg::with_name("shell-command")
-        .long("shell-command")
-        .takes_value(true)
-        .value_name("command")
-        .default_value("bash -c")
-        .help("The shell command used to execute script blocks")
-        .required(false);
+    /// Set an environment variable (format: 'VAR_NAME=value')
+    // todo: Add validator
+    #[clap(long)]
+    env: Vec<String>,
 
-    let env = Arg::with_name("env")
-        .long("env")
-        .takes_value(true)
-        .value_name("env-var")
-        .multiple(true)
-        .number_of_values(1)
-        .help("Set an environment variable (format: 'VAR_NAME=value')")
-        .required(false);
+    /// Unset an environment variable
+    #[clap(long)]
+    unset_env: Vec<String>,
 
-    let unset_env = Arg::with_name("unset-env")
-        .long("unset-env")
-        .takes_value(true)
-        .value_name("var-name")
-        .multiple(true)
-        .number_of_values(1)
-        .help("Unset an environment variable")
-        .required(false);
-
-    let add_path = Arg::with_name("add-path")
-        .long("add-path")
-        .takes_value(true)
-        .value_name("path")
-        .multiple(true)
-        .number_of_values(1)
-        .help("Adds the given directory to PATH")
-        .required(false);
-
-    SubCommand::with_name(NAME)
-        .about("Runs a given Markdown Specification")
-        .arg(spec_file)
-        .arg(workspace_dir)
-        .arg(temp_workspace_dir)
-        .arg(working_dir)
-        .arg(workspace_init_command)
-        .arg(shell_cmd)
-        .arg(env)
-        .arg(unset_env)
-        .arg(add_path)
+    /// Adds the given directory to PATH
+    #[clap(long)]
+    add_path: Vec<String>,
 }
 
-pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
-    let events = create_run_command(run_matches).map_or_else(
+pub fn execute(config: &Config, args: &Arguments) {
+    let events = create_run_command(args).map_or_else(
         |err| vec![RunEvent::ErrorOccurred(err)],
         |command| command.execute(),
     );
@@ -118,46 +71,25 @@ pub fn execute(config: &Config, run_matches: &clap::ArgMatches<'_>) {
     std::process::exit(exit_code as i32)
 }
 
-fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, Error> {
-    let spec_files = run_matches
-        .values_of("spec-files")
-        .expect("spec-files should always exist")
-        .map(Path::new)
-        .map(std::path::Path::to_path_buf)
-        .collect();
-    let specified_workspace_dir = run_matches
-        .value_of("workspace-dir")
-        .map(Path::new)
-        .map(std::path::Path::to_path_buf);
-    let temp_workspace_dir = run_matches.is_present("temp-workspace-dir");
-    let working_dir = run_matches
-        .value_of("working-dir")
-        .map(Path::new)
-        .map(std::path::Path::to_path_buf);
-    let workspace_init_command = run_matches
-        .value_of("workspace-init-command")
-        .map(std::string::ToString::to_string);
-    let shell_cmd = run_matches.value_of("shell-command").unwrap().to_string();
-    let mut env = run_matches
-        .values_of("env")
-        .map_or(vec![], parse_environment_variables);
-    let unset_env = run_matches.values_of("unset-env").map_or(vec![], |v| {
-        v.map(std::string::ToString::to_string).collect()
-    });
-    let paths = run_matches
-        .values_of("add-path")
-        .map_or(vec![], std::iter::Iterator::collect);
+fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
+    let temp_workspace_dir = args.temporary_workspace_dir;
+    let workspace_init_command = args.workspace_init_command.clone();
+    let shell_cmd = args.shell_command.clone();
+    let mut env = parse_environment_variables(&args.env);
+
+    let unset_env = args.unset_env.clone();
+    let paths = args.add_path.clone();
     let current_dir = std::env::current_dir().expect("Failed to get current workspace directory");
     let file_reader = FileReader::new(current_dir.clone());
 
-    let workspace_dir = get_workspace_dir(specified_workspace_dir, temp_workspace_dir)
+    let workspace_dir = get_workspace_dir(args.workspace_dir.clone(), temp_workspace_dir)
         .unwrap_or_else(|| current_dir.clone());
 
     std::fs::create_dir_all(&workspace_dir).expect("Failed to create workspace directory");
     let workspace_dir_canonicalized = std::fs::canonicalize(&workspace_dir)
         .unwrap_or_else(|_| panic!("Failed to canonicalize {:?}", workspace_dir));
 
-    let actual_working_dir = working_dir.map_or_else(
+    let actual_working_dir = args.working_dir.clone().map_or_else(
         || workspace_dir_canonicalized.clone(),
         |dir| workspace_dir_canonicalized.clone().join(dir),
     );
@@ -188,7 +120,7 @@ fn create_run_command(run_matches: &clap::ArgMatches<'_>) -> Result<RunCommand, 
     ));
 
     let new_command = |e| RunCommand {
-        spec_files,
+        spec_files: args.spec_files.clone(),
         executor: Box::new(e),
         working_dir: actual_working_dir,
         workspace_init_command,
@@ -221,10 +153,11 @@ fn get_workspace_dir(
     }
 }
 
-fn parse_environment_variables<'a>(
-    strings: impl Iterator<Item = &'a str>,
-) -> Vec<(String, String)> {
-    strings.map(parse_environment_variable).collect()
+fn parse_environment_variables(strings: &[String]) -> Vec<(String, String)> {
+    strings
+        .iter()
+        .map(|s| parse_environment_variable(s))
+        .collect()
 }
 
 fn parse_environment_variable(string: &str) -> (String, String) {
