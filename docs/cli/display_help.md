@@ -9,7 +9,7 @@ specdown
 ## Non-Windows Output
 
 ```,verify(stream=stderr,target_os="!windows")
-specdown 1.2.9
+specdown 1.2.10
 A tool to test markdown files and drive development from documentation.
 
 USAGE:
@@ -30,7 +30,7 @@ SUBCOMMANDS:
 ## Windows Output
 
 ```,verify(stream=stderr,target_os="windows")
-specdown 1.2.9
+specdown 1.2.10
 A tool to test markdown files and drive development from documentation.
 
 USAGE:

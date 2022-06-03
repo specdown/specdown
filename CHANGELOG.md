@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.10](https://github.com/specdown/specdown/releases/tag/v1.2.10) - 2022-06-03
+
+- [`072e30f`](https://github.com/specdown/specdown/commit/072e30feb68b49cae05fccce347bf4187ee00555) Merge pull request #155 from specdown/dependabot/github_actions/dlavrenuek/conventional-changelog-action-1.2.1
+- [`7dccfe4`](https://github.com/specdown/specdown/commit/7dccfe4f758e39db254e71a38ccb8b0c193c599c) Merge pull request #154 from specdown/dependabot/github_actions/actions/cache-3.0.3
+- [`a3d1826`](https://github.com/specdown/specdown/commit/a3d1826d430dc150c35eda587ae1215eaf02ec60) ci: Update mergify config for uplift
+- [`eafe586`](https://github.com/specdown/specdown/commit/eafe58607189aa80b2655a90aa432d2e45625f81) Merge pull request #156 from tomphp/clap3
+- [`b5c0c0c`](https://github.com/specdown/specdown/commit/b5c0c0c19b316a61157647b9ee10739de7b2d2b8) refactor: Use PathBuf as argument type
+- [`9e8cc9f`](https://github.com/specdown/specdown/commit/9e8cc9f23cd794c42ffd9849bd770834f096ddaa) fix: Upgrade to clap 3
+- [`7b32c8e`](https://github.com/specdown/specdown/commit/7b32c8e913ee91b099402f7363d1805fd872accd) ci: bump dlavrenuek/conventional-changelog-action from 1.2.0 to 1.2.1
+- [`b806372`](https://github.com/specdown/specdown/commit/b8063725127d147c1f410668b9634162e0746ed7) ci: bump actions/cache from 3.0.2 to 3.0.3
+
 ## [v1.2.9](https://github.com/specdown/specdown/releases/tag/v1.2.9) - 2022-05-13
 
 - [`36e352e`](https://github.com/specdown/specdown/commit/36e352ed0507d1120e8b5599e232635717702788) Merge pull request #147 from specdown/dependabot/cargo/indoc-1.0.6
