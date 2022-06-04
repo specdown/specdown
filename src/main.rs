@@ -22,6 +22,7 @@ mod parsers;
 mod results;
 mod runner;
 mod types;
+mod workspace;
 
 #[derive(Parser)]
 #[clap(version, about, long_about = None)]
