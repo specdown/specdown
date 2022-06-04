@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::Args;
+pub use arguments::Arguments;
 
 use file_reader::FileReader;
 use run_command::RunCommand;
@@ -12,48 +12,10 @@ use crate::results::Printer;
 use crate::runner::shell_executor::ShellExecutor;
 use crate::runner::{Error, RunEvent};
 
+mod arguments;
 mod exit_code;
 mod file_reader;
 mod run_command;
-
-#[derive(Args)]
-pub struct Arguments {
-    /// The spec files to run
-    spec_files: Vec<PathBuf>,
-
-    /// Set the workspace directory
-    #[clap(long, parse(from_os_str))]
-    workspace_dir: Option<PathBuf>,
-
-    /// Create a temporary workspace directory
-    #[clap(long)]
-    temporary_workspace_dir: bool,
-
-    /// The directory where commands will be executed. This is relative to the workspace dir
-    #[clap(long, parse(from_os_str))]
-    working_dir: Option<PathBuf>,
-
-    /// A command to run in the workspace before running the specs
-    #[clap(long)]
-    workspace_init_command: Option<String>,
-
-    /// The shell command used to execute script blocks
-    #[clap(long, default_value_t = String::from("bash -c"))]
-    shell_command: String,
-
-    /// Set an environment variable (format: 'VAR_NAME=value')
-    // todo: Add validator
-    #[clap(long)]
-    env: Vec<String>,
-
-    /// Unset an environment variable
-    #[clap(long)]
-    unset_env: Vec<String>,
-
-    /// Adds the given directory to PATH
-    #[clap(long)]
-    add_path: Vec<String>,
-}
 
 pub fn execute(config: &Config, args: &Arguments) {
     let events = create_run_command(args).map_or_else(
