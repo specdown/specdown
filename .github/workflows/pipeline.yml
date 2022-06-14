@@ -27,7 +27,6 @@ jobs:
 
   uplift-dry-run:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
