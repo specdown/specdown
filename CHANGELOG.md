@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.11](https://github.com/specdown/specdown/releases/tag/v1.2.11) - 2022-06-14
+
+- [`31302ec`](https://github.com/specdown/specdown/commit/31302ec143291aefa573c43ea3f99f76f3712bbc) Merge pull request #158 from specdown/dependabot/cargo/comrak-0.13.0
+- [`2728504`](https://github.com/specdown/specdown/commit/2728504d21a7dd88e956ad07a1ecfc1d7280d75e) Merge branch master into dependabot/cargo/comrak-0.13.0
+- [`2753a10`](https://github.com/specdown/specdown/commit/2753a10b9d3707e0fbd7f19e9bbc484015acbbb8) ci: Remove uplift-dry-run from mergify
+- [`624d5d3`](https://github.com/specdown/specdown/commit/624d5d39e734e3de399f65e2743927885ccf17e1) Revert "Run uplift-dry-run on branches"
+- [`584e2ff`](https://github.com/specdown/specdown/commit/584e2ff9eb93ebb361c8101b1d61cdbda70d071a) fix: bump comrak from 0.12.1 to 0.13.0
+- [`8d39bfd`](https://github.com/specdown/specdown/commit/8d39bfd7053701afb4f9a6a0d644fb2e8cb852ea) Run uplift-dry-run on branches
+- [`1ef1801`](https://github.com/specdown/specdown/commit/1ef1801b988bdf069898c88767559760624810c2) Merge pull request #157 from tomphp/workspaces
+- [`8c3f906`](https://github.com/specdown/specdown/commit/8c3f9065470db173835212d7ff5d046b2ff6d1c6) refactor: Extract workspace logic
+- [`25ba72c`](https://github.com/specdown/specdown/commit/25ba72cabc5bf94791f6aebff7e20b43a6a84a4f) refactor: Extract Arguments for run command
+
 ## [v1.2.10](https://github.com/specdown/specdown/releases/tag/v1.2.10) - 2022-06-03
 
 - [`072e30f`](https://github.com/specdown/specdown/commit/072e30feb68b49cae05fccce347bf4187ee00555) Merge pull request #155 from specdown/dependabot/github_actions/dlavrenuek/conventional-changelog-action-1.2.1
