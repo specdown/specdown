@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.17](https://github.com/specdown/specdown/releases/tag/v1.2.17) - 2022-07-04
+
+- [`a995e69`](https://github.com/specdown/specdown/commit/a995e6976b7750242826c9391c8d3202a6c224b0) Merge pull request #168 from specdown/dependabot/cargo/crossterm-0.24.0
+- [`ee7007e`](https://github.com/specdown/specdown/commit/ee7007e973a995c519092a1cfd1ef13d86f70ba1) fix: bump crossterm from 0.23.2 to 0.24.0
+
 ## [v1.2.16](https://github.com/specdown/specdown/releases/tag/v1.2.16) - 2022-07-01
 
 - [`c7a6e06`](https://github.com/specdown/specdown/commit/c7a6e06c361ab8c01f4aadc9fe226c38cadee824) Merge pull request #166 from specdown/dependabot/cargo/clap-3.2.8
