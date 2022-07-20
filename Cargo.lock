@@ -172,9 +172,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.2.12"
+version = "3.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab8b79fe3946ceb4a0b1c080b4018992b8d27e9ff363644c1c9b6387c854614d"
+checksum = "ac2bd7a1eb07da9ac757c923f69373deb7bc2ba5efc951b873bcb5e693992dca"
 dependencies = [
  "atty",
  "bitflags",
@@ -193,7 +193,7 @@ version = "3.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da92e6facd8d73c22745a5d3cbb59bdf8e46e3235c923e516527d8e81eec14a4"
 dependencies = [
- "clap 3.2.12",
+ "clap 3.2.13",
 ]
 
 [[package]]
@@ -202,7 +202,7 @@ version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d77159b3389b97ee638bb2a1d572069a7d9088a55e6281e3c76fc17b9cd51227"
 dependencies = [
- "clap 3.2.12",
+ "clap 3.2.13",
  "clap_complete",
  "clap_complete_fig",
 ]
@@ -213,7 +213,7 @@ version = "3.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3918ed0e233c37ab6055a2dc4b2bad2e113d44f56675e0140936b9bd253e4505"
 dependencies = [
- "clap 3.2.12",
+ "clap 3.2.13",
  "clap_complete",
 ]
 
@@ -918,7 +918,7 @@ name = "specdown"
 version = "1.2.22"
 dependencies = [
  "assert_cmd",
- "clap 3.2.12",
+ "clap 3.2.13",
  "clap_complete_command",
  "clap_derive",
  "comrak",
