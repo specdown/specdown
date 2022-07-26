@@ -172,9 +172,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.2.14"
+version = "3.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54635806b078b7925d6e36810b1755f2a4b5b4d57560432c1ecf60bcbe10602b"
+checksum = "44bbe24bbd31a185bc2c4f7c2abe80bea13a20d57ee4e55be70ac512bdc76417"
 dependencies = [
  "atty",
  "bitflags",
@@ -193,7 +193,7 @@ version = "3.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da92e6facd8d73c22745a5d3cbb59bdf8e46e3235c923e516527d8e81eec14a4"
 dependencies = [
- "clap 3.2.14",
+ "clap 3.2.15",
 ]
 
 [[package]]
@@ -202,7 +202,7 @@ version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d77159b3389b97ee638bb2a1d572069a7d9088a55e6281e3c76fc17b9cd51227"
 dependencies = [
- "clap 3.2.14",
+ "clap 3.2.15",
  "clap_complete",
  "clap_complete_fig",
 ]
@@ -213,15 +213,15 @@ version = "3.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3918ed0e233c37ab6055a2dc4b2bad2e113d44f56675e0140936b9bd253e4505"
 dependencies = [
- "clap 3.2.14",
+ "clap 3.2.15",
  "clap_complete",
 ]
 
 [[package]]
 name = "clap_derive"
-version = "3.2.7"
+version = "3.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "759bf187376e1afa7b85b959e6a664a3e7a95203415dba952ad19139e798f902"
+checksum = "9ba52acd3b0a5c33aeada5cdaa3267cdc7c594a98731d4268cdc1532f4264cb4"
 dependencies = [
  "heck",
  "proc-macro-error",
@@ -918,7 +918,7 @@ name = "specdown"
 version = "1.2.24"
 dependencies = [
  "assert_cmd",
- "clap 3.2.14",
+ "clap 3.2.15",
  "clap_complete_command",
  "clap_derive",
  "comrak",
