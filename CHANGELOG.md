@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.27](https://github.com/specdown/specdown/releases/tag/v1.2.27) - 2022-08-02
+
+- [`2c68c17`](https://github.com/specdown/specdown/commit/2c68c17c19f6c21e78046358831276482c0f9c49) Merge pull request #178 from specdown/dependabot/cargo/indoc-1.0.7
+- [`63ebeeb`](https://github.com/specdown/specdown/commit/63ebeeb669ea0499b38b8ba496f78434f86a00b8) fix: bump indoc from 1.0.6 to 1.0.7
+
 ## [v1.2.26](https://github.com/specdown/specdown/releases/tag/v1.2.26) - 2022-08-01
 
 - [`a83ef85`](https://github.com/specdown/specdown/commit/a83ef8587dcd211e95d88fbb5cf26a58efd5ee91) Merge pull request #177 from specdown/dependabot/cargo/clap-3.2.16
