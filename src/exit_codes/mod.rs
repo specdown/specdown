@@ -1,4 +1,4 @@
-#[derive(PartialEq, Debug, Clone)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 pub enum ExitCode {
     Success = 0,
     TestFailed = 1,

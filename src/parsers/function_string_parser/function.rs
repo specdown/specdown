@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::argument_value::{ArgumentValue, IncorrectArgumentType};
 use super::error::Error;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct Function {
     pub name: String,
     pub arguments: HashMap<String, ArgumentValue>,

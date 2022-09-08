@@ -6,7 +6,7 @@ use std::fmt;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Error {
     FunctionStringParser(function_string_parser::Error),
     MarkdownParser(markdown::Error),

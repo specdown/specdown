@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum Error {
     RunFailed { message: String },
     CommandFailed { command: String, message: String },
