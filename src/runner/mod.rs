@@ -35,7 +35,7 @@ impl<'a> Runner<'a> {
 
     fn run_action(&mut self, action: &Action) -> RunEvent {
         to_runnable(action)
-            .run(self.state, &*self.executor)
+            .run(self.state, self.executor)
             .map(|result| {
                 self.state.add_result(&result);
                 RunEvent::TestCompleted(result)

@@ -12,7 +12,7 @@ use std::env::JoinPathsError;
 use std::ffi::{OsStr, OsString};
 use std::path::PathBuf;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct ShellExecutor {
     command: String,
     args: Vec<String>,

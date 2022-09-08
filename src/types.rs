@@ -1,13 +1,13 @@
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Stream {
     StdOut,
     StdErr,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TargetOs(pub String);
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ScriptName(pub String);
 
 impl From<ScriptName> for String {
@@ -24,16 +24,16 @@ impl From<&ScriptName> for String {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Source {
     pub name: Option<ScriptName>,
     pub stream: Stream,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ScriptCode(pub String);
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct VerifyValue(pub String);
 
 impl From<VerifyValue> for String {
@@ -43,7 +43,7 @@ impl From<VerifyValue> for String {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FilePath(pub String);
 
 impl From<FilePath> for String {
@@ -53,10 +53,10 @@ impl From<FilePath> for String {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FileContent(pub String);
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ExitCode(pub i32);
 
 impl From<ExitCode> for String {
@@ -73,7 +73,7 @@ impl From<ExitCode> for i32 {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum OutputExpectation {
     Any,
     StdOut,
@@ -81,7 +81,7 @@ pub enum OutputExpectation {
     None,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ScriptAction {
     pub script_name: Option<ScriptName>,
     pub script_code: ScriptCode,
@@ -89,7 +89,7 @@ pub struct ScriptAction {
     pub expected_output: OutputExpectation,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct VerifyAction {
     pub source: Source,
     pub expected_value: VerifyValue,
@@ -107,13 +107,13 @@ impl VerifyAction {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CreateFileAction {
     pub file_path: FilePath,
     pub file_content: FileContent,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Action {
     Script(ScriptAction),
     Verify(VerifyAction),

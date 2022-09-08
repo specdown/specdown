@@ -1,13 +1,13 @@
 use comrak::nodes::{AstNode, NodeCodeBlock, NodeValue};
 use comrak::{parse_document, Arena, ComrakOptions};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Error {
     RootMustBeDocument,
     StringEncodingFailed(String),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Element {
     FencedCodeBlock { info: String, literal: String },
 }

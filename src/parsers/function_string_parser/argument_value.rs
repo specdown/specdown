@@ -1,11 +1,11 @@
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum ArgumentValue {
     Integer(i32),
     String(String),
     Token(String),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct IncorrectArgumentType {
     pub expected: String,
     pub got: String,

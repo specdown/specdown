@@ -2,7 +2,7 @@ use crate::types::{
     CreateFileAction, ExitCode, OutputExpectation, ScriptAction, VerifyAction, VerifyValue,
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum ActionError {
     ExitCodeIsIncorrect(ScriptResult),
     UnexpectedOutputIsPresent(ScriptResult),
@@ -13,7 +13,7 @@ trait ActionErrorProvider {
     fn error(&self) -> Option<ActionError>;
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ScriptResult {
     pub action: ScriptAction,
     pub exit_code: Option<ExitCode>,
@@ -49,7 +49,7 @@ impl ActionErrorProvider for ScriptResult {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct VerifyResult {
     pub action: VerifyAction,
     pub got: String,
@@ -65,7 +65,7 @@ impl ActionErrorProvider for VerifyResult {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CreateFileResult {
     pub action: CreateFileAction,
 }
@@ -76,7 +76,7 @@ impl ActionErrorProvider for CreateFileResult {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ActionResult {
     Script(ScriptResult),
     Verify(VerifyResult),

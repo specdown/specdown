@@ -5,20 +5,20 @@ use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, St
 use nom::combinator::map_res;
 use nom::IResult;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct ScriptCodeBlock {
     pub script_name: Option<ScriptName>,
     pub expected_exit_code: Option<ExitCode>,
     pub expected_output: OutputExpectation,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct VerifyCodeBlock {
     pub source: Source,
     pub target_os: Option<TargetOs>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum CodeBlockType {
     Script(ScriptCodeBlock),
     Verify(VerifyCodeBlock),

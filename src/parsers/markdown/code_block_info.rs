@@ -4,7 +4,7 @@ use nom::error::ParseError;
 use nom::sequence::separated_pair;
 use nom::{IResult, Parser};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct CodeBlockInfo<Extra> {
     pub language: String,
     pub extra: Extra,
