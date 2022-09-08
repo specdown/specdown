@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.29](https://github.com/specdown/specdown/releases/tag/v1.2.29) - 2022-09-08
+
+- [`46aba3e`](https://github.com/specdown/specdown/commit/46aba3efd89bd5484caf09f176846ffb620976a5) Merge pull request #186 from specdown/dependabot/cargo/clap-3.2.20
+- [`03cc057`](https://github.com/specdown/specdown/commit/03cc057273333609e742a38608da47d1fdc4611c) fix: bump clap from 3.2.16 to 3.2.20
+- [`6ef2ed1`](https://github.com/specdown/specdown/commit/6ef2ed10aed65408b9c62f7d2fd94e9b8bb6ed18) Merge pull request #187 from specdown/linting
+- [`5f4d68a`](https://github.com/specdown/specdown/commit/5f4d68a7b64d57b4cb27fa921c4e39f8cf348493) style: Run clippy
+
 ## [v1.2.28](https://github.com/specdown/specdown/releases/tag/v1.2.28) - 2022-08-11
 
 - [`d311210`](https://github.com/specdown/specdown/commit/d311210c13baaa5da009105cc749685c2143197f) Merge pull request #180 from specdown/dependabot/cargo/crossterm-0.25.0
