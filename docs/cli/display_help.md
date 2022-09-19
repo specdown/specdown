@@ -12,7 +12,7 @@ specdown
 
 ## Non-Windows Output
 
-    specdown 1.2.29
+    specdown 1.2.30
     A tool to test markdown files and drive development from documentation.
     
     USAGE:
@@ -31,7 +31,7 @@ specdown
 
 ## Windows Output
 
-    specdown 1.2.29
+    specdown 1.2.30
     A tool to test markdown files and drive development from documentation.
     
     USAGE:
