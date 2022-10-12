@@ -16,7 +16,7 @@ keywords = [ "markdown", "testing", "bdd", "tdd", "documentation" ]
 
 [dependencies]
 clap = { version = "3.2.22", features = ["derive"] }
-clap_derive = "4.0.10"
+clap_derive = "4.0.13"
 clap_complete_command = "0.3.4"
 crossterm = "0.25"
 comrak = "0.14.0"

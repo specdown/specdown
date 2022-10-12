@@ -232,9 +232,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.0.10"
+version = "4.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db342ce9fda24fb191e2ed4e102055a4d381c1086a06630174cd8da8d5d917ce"
+checksum = "c42f169caba89a7d512b5418b09864543eeb4d497416c917d7137863bd2076ad"
 dependencies = [
  "heck",
  "proc-macro-error",
@@ -933,7 +933,7 @@ dependencies = [
  "assert_cmd",
  "clap 3.2.22",
  "clap_complete_command",
- "clap_derive 4.0.10",
+ "clap_derive 4.0.13",
  "comrak",
  "crossterm 0.25.0",
  "indoc",
