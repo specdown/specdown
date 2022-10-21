@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.36](https://github.com/specdown/specdown/releases/tag/v1.2.36) - 2022-10-21
+
+- [`7a48652`](https://github.com/specdown/specdown/commit/7a48652bc396ed0148ba5af7543d8d1c5568e166) Merge pull request #215 from specdown/dependabot/cargo/assert_cmd-2.0.5
+- [`1548ee8`](https://github.com/specdown/specdown/commit/1548ee85b4cb2d789d391066e8c20eedbcc97951) fix: bump assert_cmd from 2.0.4 to 2.0.5
+- [`09780b5`](https://github.com/specdown/specdown/commit/09780b54c9b03cafe6d5f23fc29d39760bfd9684) Merge pull request #207 from specdown/dependabot/cargo/clap_derive-4.0.13
+- [`1e10d8b`](https://github.com/specdown/specdown/commit/1e10d8bc979554356cc2463b9029ea080e815f74) fix: bump clap_derive from 4.0.10 to 4.0.13
+
 ## [v1.2.35](https://github.com/specdown/specdown/releases/tag/v1.2.35) - 2022-10-06
 
 - [`c10771f`](https://github.com/specdown/specdown/commit/c10771fefc807e9e0bba89bff97b07275147cac6) Merge pull request #203 from specdown/dependabot/cargo/clap_derive-4.0.10
