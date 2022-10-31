@@ -52,7 +52,7 @@ mod tests {
                 result: Some(ScriptResult {
                     action: ScriptAction {
                         script_name: Some(ScriptName(name.to_string())),
-                        script_code: ScriptCode("".to_string()),
+                        script_code: ScriptCode(String::new()),
                         expected_exit_code: None,
                         expected_output: OutputExpectation::Any,
                     },
@@ -68,7 +68,7 @@ mod tests {
                 result: Some(ScriptResult {
                     action: ScriptAction {
                         script_name: None,
-                        script_code: ScriptCode("".to_string()),
+                        script_code: ScriptCode(String::new()),
                         expected_exit_code: None,
                         expected_output: OutputExpectation::Any,
                     },

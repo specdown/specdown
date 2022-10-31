@@ -61,15 +61,15 @@ impl fmt::Display for Error {
                 write!(f, "RootMustBeDocument :: This error should never occur")
             }
             Self::MarkdownParser(markdown::Error::StringEncodingFailed(msg)) => {
-                write!(f, "Failed to encode string. Got error: {}", msg)
+                write!(f, "Failed to encode string. Got error: {msg}")
             }
-            Self::ParserFailed(msg) => write!(f, "The parser failed: {}", msg),
-            Self::UnknownFunction(name) => write!(f, "Unknown function: {}", name),
+            Self::ParserFailed(msg) => write!(f, "The parser failed: {msg}"),
+            Self::UnknownFunction(name) => write!(f, "Unknown function: {name}"),
             Self::FunctionStringParser(function_string_parser::Error::MissingArgument {
                 function,
                 argument,
             }) => {
-                write!(f, "Function {} requires argument {}", function, argument)
+                write!(f, "Function {function} requires argument {argument}")
             }
             Self::FunctionStringParser(function_string_parser::Error::IncorrectArgumentType {
                 function,

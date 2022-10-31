@@ -26,7 +26,7 @@ pub struct BasicPrinter {
 impl BasicPrinter {
     pub fn new(colour: bool) -> Self {
         Self {
-            display_function: Box::new(|line: &str| println!("{}", line)),
+            display_function: Box::new(|line: &str| println!("{line}")),
             summary: Summary {
                 number_succeeded: 0,
                 number_failed: 0,
@@ -101,7 +101,7 @@ impl BasicPrinter {
     fn display_action(&mut self, result: &ActionResult) {
         let title = Self::action_title(result);
         let result_message = Self::action_result_message(result);
-        let full_message = &format!("{} {}", title, result_message);
+        let full_message = &format!("{title} {result_message}");
         if result.success() {
             self.display_success_item(full_message);
         } else {
@@ -215,11 +215,11 @@ impl BasicPrinter {
     }
 
     fn display_success_item(&self, text: &str) {
-        self.display_success(&format!("  \u{2713} {}", text));
+        self.display_success(&format!("  \u{2713} {text}"));
     }
 
     fn display_error_item(&self, text: &str) {
-        self.display_error(&format!("  \u{2717} {}", text));
+        self.display_error(&format!("  \u{2717} {text}"));
     }
 
     fn display_success(&self, text: &str) {

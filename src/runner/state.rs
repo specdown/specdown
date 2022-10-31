@@ -111,7 +111,7 @@ mod tests {
     fn does_not_update_success_when_file_result_is_added() {
         let action = CreateFileAction {
             file_path: FilePath("example.txt".to_string()),
-            file_content: FileContent("".to_string()),
+            file_content: FileContent(String::new()),
         };
         let file_result = ActionResult::CreateFile(CreateFileResult { action });
         let mut state = State::new();

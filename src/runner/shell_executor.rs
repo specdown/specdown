@@ -59,7 +59,7 @@ impl ShellExecutor {
     fn parse_error_to_error(shell_command: &str, err: ParseError) -> Error {
         Error::BadShellCommand {
             command: shell_command.to_string(),
-            message: format!("Parse error : {}", err),
+            message: format!("Parse error : {err}"),
         }
     }
 
@@ -163,7 +163,7 @@ mod tests {
             assert_eq!(
                 ShellExecutor::new::<PathBuf>("", &[], &[], &[]),
                 Err(Error::BadShellCommand {
-                    command: "".to_string(),
+                    command: String::new(),
                     message: "Command is empty".to_string(),
                 })
             );
@@ -260,7 +260,7 @@ mod tests {
             let output = shell
                 .execute(&ScriptCode("echo -n $PATH".to_string()))
                 .expect("success");
-            assert_eq!(format!("my/bin:other/bin:{}", path), output.stdout);
+            assert_eq!(format!("my/bin:other/bin:{path}"), output.stdout);
         }
     }
 }

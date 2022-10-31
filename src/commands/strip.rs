@@ -13,5 +13,5 @@ pub struct Arguments {
 pub fn execute(args: &Arguments) {
     let contents = fs::read_to_string(&args.spec_file).expect("failed to read spec file");
     let stripped = parsers::strip(&contents);
-    println!("{}", stripped);
+    println!("{stripped}");
 }

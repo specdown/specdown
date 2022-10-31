@@ -120,7 +120,7 @@ fn parse_environment_variables(strings: &[String]) -> Vec<(String, String)> {
 fn parse_environment_variable(string: &str) -> (String, String) {
     match string.splitn(2, '=').collect::<Vec<_>>()[..] {
         [] => panic!("Empty environment variable split"),
-        [name] => (name.to_string(), "".to_string()),
+        [name] => (name.to_string(), String::new()),
         [name, value, ..] => (name.to_string(), value.to_string()),
     }
 }

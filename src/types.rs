@@ -193,7 +193,7 @@ mod tests {
                     name: None,
                     stream: Stream::StdOut,
                 },
-                expected_value: VerifyValue("".to_string()),
+                expected_value: VerifyValue(String::new()),
             };
 
             assert_eq!(
@@ -202,7 +202,7 @@ mod tests {
                         name: Some(ScriptName("new_name".to_string())),
                         stream: Stream::StdOut,
                     },
-                    expected_value: VerifyValue("".to_string())
+                    expected_value: VerifyValue(String::new())
                 },
                 action.with_script_name(Some(ScriptName("new_name".to_string())))
             );
