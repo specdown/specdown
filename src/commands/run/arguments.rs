@@ -7,7 +7,7 @@ pub struct Arguments {
     pub spec_files: Vec<PathBuf>,
 
     /// Set the workspace directory
-    #[clap(long, parse(from_os_str))]
+    #[clap(long)]
     pub workspace_dir: Option<PathBuf>,
 
     /// Create a temporary workspace directory
@@ -15,7 +15,7 @@ pub struct Arguments {
     pub temporary_workspace_dir: bool,
 
     /// The directory where commands will be executed. This is relative to the workspace dir
-    #[clap(long, parse(from_os_str))]
+    #[clap(long)]
     pub working_dir: Option<PathBuf>,
 
     /// A command to run in the workspace before running the specs

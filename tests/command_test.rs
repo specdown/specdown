@@ -187,22 +187,20 @@ fn test_displays_error_when_required_args_are_missing() {
         .failure()
         .stderr(formatdoc!(
             "
-            specdown 1.2.37
             A tool to test markdown files and drive development from documentation.
             
-            USAGE:
-                {} [OPTIONS] <SUBCOMMAND>
+            Usage: {} [OPTIONS] <COMMAND>
             
-            OPTIONS:
-                -h, --help         Print help information
-                    --no-colour    Disables coloured output
-                -V, --version      Print version information
-            
-            SUBCOMMANDS:
-                completion    Output completion for a shell of your choice
-                help          Print this message or the help of the given subcommand(s)
-                run           Runs a given Markdown Specification
-                strip         Outputs a version of the markdown with all specdown functions removed
+            Commands:
+              completion  Output completion for a shell of your choice
+              run         Runs a given Markdown Specification
+              strip       Outputs a version of the markdown with all specdown functions removed
+              help        Print this message or the help of the given subcommand(s)
+
+            Options:
+                  --no-colour  Disables coloured output
+              -h, --help       Print help information
+              -V, --version    Print version information
             ",
             BINARY_NAME
         ));

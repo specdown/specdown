@@ -393,69 +393,62 @@ specdown run --help
 ### Non-Windows Output
 
 ```text,verify(script_name="run_help",target_os="!windows")
-specdown-run 
 Runs a given Markdown Specification
 
-USAGE:
-    specdown run [OPTIONS] [SPEC_FILES]...
+Usage: specdown run [OPTIONS] [SPEC_FILES]...
 
-ARGS:
-    <SPEC_FILES>...    The spec files to run
+Arguments:
+  [SPEC_FILES]...  The spec files to run
 
-OPTIONS:
-        --add-path <ADD_PATH>
-            Adds the given directory to PATH
-
-        --env <ENV>
-            Set an environment variable (format: 'VAR_NAME=value')
-
-    -h, --help
-            Print help information
-
-        --shell-command <SHELL_COMMAND>
-            The shell command used to execute script blocks [default: "bash -c"]
-
-        --temporary-workspace-dir
-            Create a temporary workspace directory
-
-        --unset-env <UNSET_ENV>
-            Unset an environment variable
-
-        --working-dir <WORKING_DIR>
-            The directory where commands will be executed. This is relative to the workspace dir
-
-        --workspace-dir <WORKSPACE_DIR>
-            Set the workspace directory
-
-        --workspace-init-command <WORKSPACE_INIT_COMMAND>
-            A command to run in the workspace before running the specs
+Options:
+      --workspace-dir <WORKSPACE_DIR>
+          Set the workspace directory
+      --temporary-workspace-dir
+          Create a temporary workspace directory
+      --working-dir <WORKING_DIR>
+          The directory where commands will be executed. This is relative to the workspace dir
+      --workspace-init-command <WORKSPACE_INIT_COMMAND>
+          A command to run in the workspace before running the specs
+      --shell-command <SHELL_COMMAND>
+          The shell command used to execute script blocks [default: "bash -c"]
+      --env <ENV>
+          Set an environment variable (format: 'VAR_NAME=value')
+      --unset-env <UNSET_ENV>
+          Unset an environment variable
+      --add-path <ADD_PATH>
+          Adds the given directory to PATH
+  -h, --help
+          Print help information
 ```
 
 ### Windows Output
 
 ```text,verify(script_name="run_help",target_os="windows")
-specdown.exe-run 
 Runs a given Markdown Specification
 
-USAGE:
-    specdown.exe run [FLAGS] [OPTIONS] <spec-files>...
+Usage: specdown run [OPTIONS] [SPEC_FILES]...
 
-FLAGS:
-    -h, --help                       Prints help information
-        --temporary-workspace-dir    Create a temporary workspace directory
-    -V, --version                    Prints version information
+Arguments:
+  [SPEC_FILES]...  The spec files to run
 
-OPTIONS:
-        --add-path <path>...                  Adds the given directory to PATH
-        --env <env-var>...                    Set an environment variable (format: 'VAR_NAME=value')
-        --shell-command <command>             The shell command used to execute script blocks [default: bash -c]
-        --unset-env <var-name>...             Unset an environment variable
-        --working-dir <dir>                   The directory where commands will be executed. This is relative to the
-                                              workspace dir
-        --workspace-dir <dir>                 Set the workspace directory
-        --workspace-init-command <command>    A command to run in the workspace before running the specs
-
-ARGS:
-    <spec-files>...    The spec files to run
+Options:
+      --workspace-dir <WORKSPACE_DIR>
+          Set the workspace directory
+      --temporary-workspace-dir
+          Create a temporary workspace directory
+      --working-dir <WORKING_DIR>
+          The directory where commands will be executed. This is relative to the workspace dir
+      --workspace-init-command <WORKSPACE_INIT_COMMAND>
+          A command to run in the workspace before running the specs
+      --shell-command <SHELL_COMMAND>
+          The shell command used to execute script blocks [default: "bash -c"]
+      --env <ENV>
+          Set an environment variable (format: 'VAR_NAME=value')
+      --unset-env <UNSET_ENV>
+          Unset an environment variable
+      --add-path <ADD_PATH>
+          Adds the given directory to PATH
+  -h, --help
+          Print help information
 ```
 
