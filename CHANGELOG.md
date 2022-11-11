@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.37](https://github.com/specdown/specdown/releases/tag/v1.2.37) - 2022-11-11
+
+- [`5fb087c`](https://github.com/specdown/specdown/commit/5fb087cbfbed97ea4a21dcd1bfd638e8f380dac3) Merge pull request #218 from PurpleBooth/follow-clippy-advice
+- [`32b5e65`](https://github.com/specdown/specdown/commit/32b5e6526619f2a96d490154f05c55093902c35f) fix: Follow clippy advice
+- [`84d4b2f`](https://github.com/specdown/specdown/commit/84d4b2f57c49961e3053567aa8098e5bb3b1aad8) Merge pull request #216 from specdown/dependabot/cargo/clap_derive-4.0.18
+- [`4fb3a61`](https://github.com/specdown/specdown/commit/4fb3a61a4e6b010928b4ae0044bbe3260a9451e8) Merge branch master into dependabot/cargo/clap_derive-4.0.18
+- [`032da4c`](https://github.com/specdown/specdown/commit/032da4c487fda718b02c83a7059a473b540d1434) Merge branch master into dependabot/cargo/clap_derive-4.0.18
+- [`241eefe`](https://github.com/specdown/specdown/commit/241eefef2816ba6b0f975b52f3f91949e64b8dfb) fix: bump clap_derive from 4.0.13 to 4.0.18
+
 ## [v1.2.36](https://github.com/specdown/specdown/releases/tag/v1.2.36) - 2022-10-21
 
 - [`7a48652`](https://github.com/specdown/specdown/commit/7a48652bc396ed0148ba5af7543d8d1c5568e166) Merge pull request #215 from specdown/dependabot/cargo/assert_cmd-2.0.5
