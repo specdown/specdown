@@ -23,7 +23,7 @@ pub struct ScriptResult {
 
 impl ActionErrorProvider for ScriptResult {
     fn error(&self) -> Option<ActionError> {
-        if self.action.expected_exit_code != None
+        if self.action.expected_exit_code.is_some()
             && self.action.expected_exit_code != self.exit_code
         {
             return Some(ActionError::ExitCodeIsIncorrect(self.clone()));
@@ -85,7 +85,7 @@ pub enum ActionResult {
 
 impl ActionResult {
     pub fn success(&self) -> bool {
-        self.error() == None
+        self.error().is_none()
     }
 
     pub fn error(&self) -> Option<ActionError> {
@@ -122,8 +122,8 @@ mod tests {
                         expected_output: OutputExpectation::Any,
                     },
                     exit_code: None,
-                    stdout: "".to_string(),
-                    stderr: "".to_string(),
+                    stdout: String::new(),
+                    stderr: String::new(),
                 });
                 assert_eq!(result.error(), None);
                 assert!(result.success());
@@ -139,8 +139,8 @@ mod tests {
                         expected_output: OutputExpectation::Any,
                     },
                     exit_code: Some(ExitCode(1)),
-                    stdout: "".to_string(),
-                    stderr: "".to_string(),
+                    stdout: String::new(),
+                    stderr: String::new(),
                 });
                 assert_eq!(result.error(), None);
                 assert!(result.success());
@@ -156,8 +156,8 @@ mod tests {
                         expected_output: OutputExpectation::Any,
                     },
                     exit_code: Some(ExitCode(2)),
-                    stdout: "".to_string(),
-                    stderr: "".to_string(),
+                    stdout: String::new(),
+                    stderr: String::new(),
                 };
                 let result = ActionResult::Script(script_result.clone());
                 assert_eq!(
@@ -178,7 +178,7 @@ mod tests {
                         expected_output: OutputExpectation::StdOut,
                     },
                     exit_code: None,
-                    stdout: "".to_string(),
+                    stdout: String::new(),
                     stderr: "unexpected output".to_string(),
                 };
                 let result = ActionResult::Script(script_result.clone());
@@ -201,7 +201,7 @@ mod tests {
                     },
                     exit_code: None,
                     stdout: "unexpected output".to_string(),
-                    stderr: "".to_string(),
+                    stderr: String::new(),
                 };
                 let result = ActionResult::Script(script_result.clone());
                 assert_eq!(
@@ -223,7 +223,7 @@ mod tests {
                     },
                     exit_code: None,
                     stdout: "unexpected output".to_string(),
-                    stderr: "".to_string(),
+                    stderr: String::new(),
                 };
                 let result = ActionResult::Script(script_result.clone());
                 assert_eq!(
@@ -244,7 +244,7 @@ mod tests {
                         expected_output: OutputExpectation::None,
                     },
                     exit_code: None,
-                    stdout: "".to_string(),
+                    stdout: String::new(),
                     stderr: "unexpected output".to_string(),
                 };
                 let result = ActionResult::Script(script_result.clone());

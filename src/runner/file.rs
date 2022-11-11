@@ -12,7 +12,7 @@ pub fn run(action: &CreateFileAction) -> ActionResult {
 
     // TODO: Nice error handling
     let mut file = File::create(path_string).expect("Failed to create file");
-    write!(file, "{}", content_string).expect("Failed to write to file");
+    write!(file, "{content_string}").expect("Failed to write to file");
     ActionResult::CreateFile(CreateFileResult {
         action: action.clone(),
     })

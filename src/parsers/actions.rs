@@ -58,7 +58,7 @@ fn target_os_matches_current(target_os: &str) -> bool {
         return true;
     }
 
-    target_os.starts_with('!') && target_os != format!("!{}", OS)
+    target_os.starts_with('!') && target_os != format!("!{OS}")
 }
 
 #[cfg(test)]

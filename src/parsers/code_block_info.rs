@@ -122,7 +122,7 @@ mod tests {
                 assert_eq!(
                     result,
                     Ok(CodeBlockInfo {
-                        language: "".to_string(),
+                        language: String::new(),
                         extra: CodeBlockType::Verify(VerifyCodeBlock {
                             source: Source {
                                 name: Some(ScriptName("example-script".to_string())),
@@ -140,7 +140,7 @@ mod tests {
                 assert_eq!(
                     result,
                     Ok(CodeBlockInfo {
-                        language: "".to_string(),
+                        language: String::new(),
                         extra: CodeBlockType::Verify(VerifyCodeBlock {
                             source: Source {
                                 name: Some(ScriptName("example-script".to_string())),
@@ -158,7 +158,7 @@ mod tests {
                 assert_eq!(
                     result,
                     Ok(CodeBlockInfo {
-                        language: "".to_string(),
+                        language: String::new(),
                         extra: CodeBlockType::Verify(VerifyCodeBlock {
                             source: Source {
                                 name: Some(ScriptName("the-script".to_string())),
@@ -176,7 +176,7 @@ mod tests {
                 assert_eq!(
                     result,
                     Ok(CodeBlockInfo {
-                        language: "".to_string(),
+                        language: String::new(),
                         extra: CodeBlockType::Verify(VerifyCodeBlock {
                             source: Source {
                                 name: Some(ScriptName("the-script".to_string())),
@@ -194,7 +194,7 @@ mod tests {
                 assert_eq!(
                     result,
                     Ok(CodeBlockInfo {
-                        language: "".to_string(),
+                        language: String::new(),
                         extra: CodeBlockType::Verify(VerifyCodeBlock {
                             source: Source {
                                 name: Some(ScriptName("the-script".to_string())),
