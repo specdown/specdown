@@ -172,9 +172,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.0.18"
+version = "4.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "335867764ed2de42325fafe6d18b8af74ba97ee0c590fa016f157535b42ab04b"
+checksum = "8e67816e006b17427c9b4386915109b494fec2d929c63e3bd3561234cbf1bf1e"
 dependencies = [
  "atty",
  "bitflags",
@@ -191,7 +191,7 @@ version = "4.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfe581a2035db4174cdbdc91265e1aba50f381577f0510d0ad36c7bc59cc84a3"
 dependencies = [
- "clap 4.0.18",
+ "clap 4.0.19",
 ]
 
 [[package]]
@@ -200,7 +200,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4160b4a4f72ef58bd766bad27c09e6ef1cc9d82a22f6a0f55d152985a4a48e31"
 dependencies = [
- "clap 4.0.18",
+ "clap 4.0.19",
  "clap_complete",
  "clap_complete_fig",
 ]
@@ -211,7 +211,7 @@ version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b36d1abc7184a737efc9f589e6e783e8b56c72e71fca748cf9947ed0a6f46d44"
 dependencies = [
- "clap 4.0.18",
+ "clap 4.0.19",
  "clap_complete",
 ]
 
@@ -916,7 +916,7 @@ name = "specdown"
 version = "1.2.37"
 dependencies = [
  "assert_cmd",
- "clap 4.0.18",
+ "clap 4.0.19",
  "clap_complete_command",
  "clap_derive",
  "comrak",
