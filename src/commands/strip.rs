@@ -6,7 +6,7 @@ use std::path::PathBuf;
 #[derive(Args)]
 pub struct Arguments {
     /// The spec file to strip specdown functions from
-    #[clap(parse(from_os_str))]
+    #[clap()]
     spec_file: PathBuf,
 }
 

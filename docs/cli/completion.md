@@ -74,18 +74,15 @@ specdown completion --help
 ### Non-Windows
 
 ```text,verify(script_name="run_help",target_os="!windows")
-specdown-completion 
 Output completion for a shell of your choice
 
-USAGE:
-    specdown completion <SHELL>
+Usage: specdown completion <SHELL>
 
-ARGS:
-    <SHELL>    The shell to generate completions for [possible values: bash, elvish, fig, fish,
-               powershell, zsh]
+Arguments:
+  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fig, fish, powershell, zsh]
 
-OPTIONS:
-    -h, --help    Print help information
+Options:
+  -h, --help  Print help information
 ```
 
 ### Windows

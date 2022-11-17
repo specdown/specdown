@@ -128,60 +128,54 @@ specdown -h
 Verify the output:
 
 ```text,verify(script_name="os_specific",target_os="windows")
-specdown 1.2.37
 A tool to test markdown files and drive development from documentation.
 
-USAGE:
-    specdown.exe [OPTIONS] <SUBCOMMAND>
+Usage: specdown.exe [OPTIONS] <COMMAND>
 
-OPTIONS:
-    -h, --help         Print help information
-        --no-colour    Disables coloured output
-    -V, --version      Print version information
+Commands:
+  completion  Output completion for a shell of your choice
+  run         Runs a given Markdown Specification
+  strip       Outputs a version of the markdown with all specdown functions removed
+  help        Print this message or the help of the given subcommand(s)
 
-SUBCOMMANDS:
-    completion    Output completion for a shell of your choice
-    help          Print this message or the help of the given subcommand(s)
-    run           Runs a given Markdown Specification
-    strip         Outputs a version of the markdown with all specdown functions removed
+Options:
+      --no-colour  Disables coloured output
+  -h, --help       Print help information
+  -V, --version    Print version information
 ```
 
 ```text,verify(script_name="os_specific",target_os="linux")
-specdown 1.2.37
 A tool to test markdown files and drive development from documentation.
 
-USAGE:
-    specdown [OPTIONS] <SUBCOMMAND>
+Usage: specdown [OPTIONS] <COMMAND>
 
-OPTIONS:
-    -h, --help         Print help information
-        --no-colour    Disables coloured output
-    -V, --version      Print version information
+Commands:
+  completion  Output completion for a shell of your choice
+  run         Runs a given Markdown Specification
+  strip       Outputs a version of the markdown with all specdown functions removed
+  help        Print this message or the help of the given subcommand(s)
 
-SUBCOMMANDS:
-    completion    Output completion for a shell of your choice
-    help          Print this message or the help of the given subcommand(s)
-    run           Runs a given Markdown Specification
-    strip         Outputs a version of the markdown with all specdown functions removed
+Options:
+      --no-colour  Disables coloured output
+  -h, --help       Print help information
+  -V, --version    Print version information
 ```
 
 ```text,verify(script_name="os_specific",target_os="macos")
-specdown 1.2.37
 A tool to test markdown files and drive development from documentation.
 
-USAGE:
-    specdown [OPTIONS] <SUBCOMMAND>
+Usage: specdown [OPTIONS] <COMMAND>
 
-OPTIONS:
-    -h, --help         Print help information
-        --no-colour    Disables coloured output
-    -V, --version      Print version information
+Commands:
+  completion  Output completion for a shell of your choice
+  run         Runs a given Markdown Specification
+  strip       Outputs a version of the markdown with all specdown functions removed
+  help        Print this message or the help of the given subcommand(s)
 
-SUBCOMMANDS:
-    completion    Output completion for a shell of your choice
-    help          Print this message or the help of the given subcommand(s)
-    run           Runs a given Markdown Specification
-    strip         Outputs a version of the markdown with all specdown functions removed
+Options:
+      --no-colour  Disables coloured output
+  -h, --help       Print help information
+  -V, --version    Print version information
 ```
 ~~~
 
@@ -218,41 +212,37 @@ specdown -h
 Verify the output:
 
 ```text,verify(script_name="os_specific_negation",target_os="!windows")
-specdown 1.2.37
 A tool to test markdown files and drive development from documentation.
 
-USAGE:
-    specdown [OPTIONS] <SUBCOMMAND>
+Usage: specdown [OPTIONS] <COMMAND>
 
-OPTIONS:
-    -h, --help         Print help information
-        --no-colour    Disables coloured output
-    -V, --version      Print version information
+Commands:
+  completion  Output completion for a shell of your choice
+  run         Runs a given Markdown Specification
+  strip       Outputs a version of the markdown with all specdown functions removed
+  help        Print this message or the help of the given subcommand(s)
 
-SUBCOMMANDS:
-    completion    Output completion for a shell of your choice
-    help          Print this message or the help of the given subcommand(s)
-    run           Runs a given Markdown Specification
-    strip         Outputs a version of the markdown with all specdown functions removed
+Options:
+      --no-colour  Disables coloured output
+  -h, --help       Print help information
+  -V, --version    Print version information
 ```
 
 ```text,verify(script_name="os_specific_negation",target_os="windows")
-specdown 1.2.37
 A tool to test markdown files and drive development from documentation.
 
-USAGE:
-    specdown.exe [OPTIONS] <SUBCOMMAND>
+Usage: specdown.exe [OPTIONS] <COMMAND>
 
-OPTIONS:
-    -h, --help         Print help information
-        --no-colour    Disables coloured output
-    -V, --version      Print version information
+Commands:
+  completion  Output completion for a shell of your choice
+  run         Runs a given Markdown Specification
+  strip       Outputs a version of the markdown with all specdown functions removed
+  help        Print this message or the help of the given subcommand(s)
 
-SUBCOMMANDS:
-    completion    Output completion for a shell of your choice
-    help          Print this message or the help of the given subcommand(s)
-    run           Runs a given Markdown Specification
-    strip         Outputs a version of the markdown with all specdown functions removed
+Options:
+      --no-colour  Disables coloured output
+  -h, --help       Print help information
+  -V, --version    Print version information
 ```
 ~~~
 
