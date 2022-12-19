@@ -12,41 +12,37 @@ specdown
 
 ## Non-Windows Output
 
-    specdown 1.2.36
     A tool to test markdown files and drive development from documentation.
     
-    USAGE:
-        specdown [OPTIONS] <SUBCOMMAND>
+    Usage: specdown [OPTIONS] <COMMAND>
     
-    OPTIONS:
-        -h, --help         Print help information
-            --no-colour    Disables coloured output
-        -V, --version      Print version information
+    Commands:
+      completion  Output completion for a shell of your choice
+      run         Runs a given Markdown Specification
+      strip       Outputs a version of the markdown with all specdown functions removed
+      help        Print this message or the help of the given subcommand(s)
     
-    SUBCOMMANDS:
-        completion    Output completion for a shell of your choice
-        help          Print this message or the help of the given subcommand(s)
-        run           Runs a given Markdown Specification
-        strip         Outputs a version of the markdown with all specdown functions removed
+    Options:
+          --no-colour  Disables coloured output
+      -h, --help       Print help information
+      -V, --version    Print version information
 
 ## Windows Output
 
-    specdown 1.2.36
     A tool to test markdown files and drive development from documentation.
     
-    USAGE:
-        specdown [OPTIONS] <SUBCOMMAND>
+    Usage: specdown [OPTIONS] <COMMAND>
     
-    OPTIONS:
-        -h, --help         Print help information
-            --no-colour    Disables coloured output
-        -V, --version      Print version information
-    
-    SUBCOMMANDS:
-        completion    Output completion for a shell of your choice
-        help          Print this message or the help of the given subcommand(s)
-        run           Runs a given Markdown Specification
-        strip         Outputs a version of the markdown with all specdown functions removed
+    Commands:
+      completion  Output completion for a shell of your choice
+      run         Runs a given Markdown Specification
+      strip       Outputs a version of the markdown with all specdown functions removed
+      help        Print this message or the help of the given subcommand(s)
+      
+    Options:
+          --no-colour  Disables coloured output
+      -h, --help       Print help information
+      -V, --version    Print version information
 
 ## Sub-commands
 
@@ -59,15 +55,13 @@ specdown strip --help
 
 Displays:
 
-    specdown-strip 
     Outputs a version of the markdown with all specdown functions removed
     
-    USAGE:
-        specdown strip <SPEC_FILE>
+    Usage: specdown strip <SPEC_FILE>
     
-    ARGS:
-        <SPEC_FILE>    The spec file to strip specdown functions from
+    Arguments:
+      <SPEC_FILE>  The spec file to strip specdown functions from
     
-    OPTIONS:
-        -h, --help    Print help information
+    Options:
+      -h, --help  Print help information
 

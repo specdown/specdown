@@ -47,17 +47,15 @@ specdown strip --help
 ### Non-Windows Output
 
 ``` text
-specdown-strip 
 Outputs a version of the markdown with all specdown functions removed
 
-USAGE:
-    specdown strip <SPEC_FILE>
+Usage: specdown strip <SPEC_FILE>
 
-ARGS:
-    <SPEC_FILE>    The spec file to strip specdown functions from
+Arguments:
+  <SPEC_FILE>  The spec file to strip specdown functions from
 
-OPTIONS:
-    -h, --help    Print help information
+Options:
+  -h, --help  Print help information
 ```
 
 ### Windows Output
