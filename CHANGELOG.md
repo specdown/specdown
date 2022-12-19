@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.38](https://github.com/specdown/specdown/releases/tag/v1.2.38) - 2022-12-19
+
+- [`7951925`](https://github.com/specdown/specdown/commit/79519254b5970fff49e9dd49dd8a74b760f4e02d) Merge pull request #224 from specdown/dependabot/cargo/indoc-1.0.8
+- [`9f0e064`](https://github.com/specdown/specdown/commit/9f0e064a92c30c42e2feb191b0be153e1cf5ca2d) fix: bump indoc from 1.0.7 to 1.0.8
+- [`ca30dc3`](https://github.com/specdown/specdown/commit/ca30dc34dd390acb88b63293035b9d87a472d58e) Merge pull request #220 from specdown/dependabot/cargo/clap-4.0.19
+- [`a685f9a`](https://github.com/specdown/specdown/commit/a685f9ad6b04f6a6dc450cba82e07cc0d2e903f6) fix: bump clap from 3.2.22 to 4.0.19
+- [`2494b31`](https://github.com/specdown/specdown/commit/2494b3112bb59871b9b862d441a2774023300e39) Merge pull request #219 from PurpleBooth/upgrade-clap
+- [`8ce18aa`](https://github.com/specdown/specdown/commit/8ce18aabea8e2a1dada8d82f2921d967f07a96a5) fix: Update clap
+- [`3e2b433`](https://github.com/specdown/specdown/commit/3e2b43365d9baee28cb9bd50764554d1749577cb) Merge pull request #222 from specdown/dependabot/github_actions/ncipollo/release-action-1.11.2
+- [`7c9d3a1`](https://github.com/specdown/specdown/commit/7c9d3a1a8e392cc5556be67db11c2f092f5d539a) ci: bump ncipollo/release-action from 1.10.0 to 1.11.2
+- [`16edbce`](https://github.com/specdown/specdown/commit/16edbce15c58d32e00a03b20c3b33f36b712781d) Merge pull request #211 from specdown/dependabot/github_actions/dlavrenuek/conventional-changelog-action-1.2.2
+- [`0ac5521`](https://github.com/specdown/specdown/commit/0ac5521ccfc564da1f1d57fe09d9e4d03a860180) Merge pull request #210 from specdown/dependabot/github_actions/actions/cache-3.0.11
+- [`0c9d52b`](https://github.com/specdown/specdown/commit/0c9d52b34ab2465f5b44a4a68b0084de0622e132) ci: bump actions/cache from 3.0.4 to 3.0.11
+- [`632175b`](https://github.com/specdown/specdown/commit/632175b49f5687b27da0ba1446a51c7e2b9185cc) ci: bump dlavrenuek/conventional-changelog-action from 1.2.1 to 1.2.2
+
 ## [v1.2.37](https://github.com/specdown/specdown/releases/tag/v1.2.37) - 2022-11-11
 
 - [`5fb087c`](https://github.com/specdown/specdown/commit/5fb087cbfbed97ea4a21dcd1bfd638e8f380dac3) Merge pull request #218 from PurpleBooth/follow-clippy-advice
