@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.39](https://github.com/specdown/specdown/releases/tag/v1.2.39) - 2023-01-16
+
+- [`df6b2a5`](https://github.com/specdown/specdown/commit/df6b2a5c6fb729936345ea591cb6edbf9fbb10c2) Merge pull request #230 from specdown/dependabot/cargo/nom-7.1.3
+- [`870a51c`](https://github.com/specdown/specdown/commit/870a51c4965377a6d4c5b6c854fadec7b8c6968c) fix: bump nom from 7.1.2 to 7.1.3
+- [`f54376e`](https://github.com/specdown/specdown/commit/f54376ec9778569ef86bcedd36fb1ab1306c2927) Merge pull request #228 from specdown/dependabot/cargo/nom-7.1.2
+- [`406a8c1`](https://github.com/specdown/specdown/commit/406a8c1a6f0f15b6afb5a7352eadc826a31b3a1a) fix: bump nom from 7.1.1 to 7.1.2
+
 ## [v1.2.38](https://github.com/specdown/specdown/releases/tag/v1.2.38) - 2022-12-19
 
 - [`7951925`](https://github.com/specdown/specdown/commit/79519254b5970fff49e9dd49dd8a74b760f4e02d) Merge pull request #224 from specdown/dependabot/cargo/indoc-1.0.8
