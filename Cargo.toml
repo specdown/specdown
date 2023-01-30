@@ -28,6 +28,6 @@ tempfile = "3.3.0"
 
 [dev-dependencies]
 assert_cmd = "2.0.5"
-indoc = "1.0.8"
+indoc = "2.0.0"
 maplit = "1.0.2"
 tempfile = "3.3.0"
