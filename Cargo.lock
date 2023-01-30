@@ -283,6 +283,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "crossterm"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77f67c7faacd4db07a939f55d66a983a5355358a1f17d32cc9a8d01d1266b9ce"
+dependencies = [
+ "bitflags",
+ "crossterm_winapi",
+ "libc",
+ "mio",
+ "parking_lot",
+ "signal-hook",
+ "signal-hook-mio",
+ "winapi",
+]
+
+[[package]]
 name = "crossterm_winapi"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -904,7 +920,7 @@ dependencies = [
  "clap_complete_command",
  "clap_derive",
  "comrak",
- "crossterm",
+ "crossterm 0.26.0",
  "indoc",
  "maplit",
  "nom",
@@ -998,7 +1014,7 @@ version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "421f9ea4b7e3ad63abb4eb07942ae77a2eb0f9f401a27212eb2de9361e883c3c"
 dependencies = [
- "crossterm",
+ "crossterm 0.25.0",
  "similar",
 ]
 
