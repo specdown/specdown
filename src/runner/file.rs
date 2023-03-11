@@ -39,11 +39,14 @@ mod tests {
 
         run(&action);
 
-        if let Ok(content) = fs::read_to_string(file_path) {
-            assert_eq!(content, "example content");
-        } else {
-            panic!("File could not be read");
-        }
+        fs::read_to_string(file_path).map_or_else(
+            |_| {
+                panic!("File could not be read");
+            },
+            |content| {
+                assert_eq!(content, "example content");
+            },
+        );
 
         fs::remove_file(file_path).expect("Failed to delete file");
     }

@@ -73,17 +73,14 @@ impl BasicPrinter {
                 missing_script_name,
             } => {
                 format!(
-                    "Failed to verify the output of '{}': No script with that name has been executed yet.",
-                    missing_script_name
+                    "Failed to verify the output of '{missing_script_name}': No script with that name has been executed yet."
                 )
             },
             Error::CommandFailed { command, message } => format!(
-                "Failed to run command: {} (Error: {})",
-                command, message
+                "Failed to run command: {command} (Error: {message})"
             ),
             Error::BadShellCommand { command, message } => format!(
-                "Invalid shell command provided: {} (Error: {})",
-                command, message
+                "Invalid shell command provided: {command} (Error: {message})"
             ),
             Error::RunFailed { message } => message.to_string(),
         });
@@ -199,8 +196,7 @@ impl BasicPrinter {
 
     fn disply_all_output(&mut self, stdout: &str, stderr: &str) {
         self.display(&format!(
-            "\n=== stdout:\n{}\n\n=== stderr:\n{}\n\n",
-            stdout, stderr
+            "\n=== stdout:\n{stdout}\n\n=== stderr:\n{stderr}\n\n"
         ));
     }
 

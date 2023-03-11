@@ -6,8 +6,8 @@ pub struct ExistingDir {
 }
 
 impl ExistingDir {
-    pub fn create(directory: PathBuf) -> Self {
-        ExistingDir { directory }
+    pub const fn create(directory: PathBuf) -> Self {
+        Self { directory }
     }
 }
 
