@@ -422,7 +422,7 @@ Options:
       --add-path <ADD_PATH>
           Adds the given directory to PATH
   -h, --help
-          Print help information
+          Print help
 ```
 
 ### Windows Output
@@ -453,6 +453,6 @@ Options:
       --add-path <ADD_PATH>
           Adds the given directory to PATH
   -h, --help
-          Print help information
+          Print help
 ```
 

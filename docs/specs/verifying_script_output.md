@@ -144,8 +144,8 @@ Commands:
 
 Options:
       --no-colour  Disables coloured output
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ```
 
 ```text,verify(script_name="os_specific",target_os="linux")
@@ -161,8 +161,8 @@ Commands:
 
 Options:
       --no-colour  Disables coloured output
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ```
 
 ```text,verify(script_name="os_specific",target_os="macos")
@@ -178,8 +178,8 @@ Commands:
 
 Options:
       --no-colour  Disables coloured output
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ```
 ````
 
@@ -228,8 +228,8 @@ Commands:
 
 Options:
       --no-colour  Disables coloured output
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ```
 
 ```text,verify(script_name="os_specific_negation",target_os="windows")
@@ -245,8 +245,8 @@ Commands:
 
 Options:
       --no-colour  Disables coloured output
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ```
 ````
 

@@ -82,10 +82,11 @@ Output completion for a shell of your choice
 Usage: specdown completion <SHELL>
 
 Arguments:
-  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fig, fish, powershell, zsh]
+  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fig, fish, nushell,
+           powershell, zsh]
 
 Options:
-  -h, --help  Print help information
+  -h, --help  Print help
 ```
 
 ### Windows
@@ -94,14 +95,13 @@ Options:
 specdown-completion 
 Output completion for a shell of your choice
 
-USAGE:
-    specdown completion <SHELL>
+Usage: specdown completion <SHELL>
 
-ARGS:
-    <SHELL>    The shell to generate completions for [possible values: bash, elvish, fig, fish,
-               powershell, zsh]
+Arguments:
+  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fig, fish, nushell,
+           powershell, zsh]
 
-OPTIONS:
-    -h, --help    Print help information
+Options:
+  -h, --help  Print help
 ```
 

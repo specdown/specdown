@@ -55,7 +55,7 @@ Arguments:
   <SPEC_FILE>  The spec file to strip specdown functions from
 
 Options:
-  -h, --help  Print help information
+  -h, --help  Print help
 ```
 
 ### Windows Output
@@ -71,6 +71,6 @@ ARGS:
     <SPEC_FILE>    The spec file to strip specdown functions from
 
 OPTIONS:
-    -h, --help    Print help information
+    -h, --help    Print help
 ```
 
