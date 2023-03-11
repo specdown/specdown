@@ -22,34 +22,32 @@ pub enum Error {
 
 impl From<function_string_parser::Error> for Error {
     fn from(error: function_string_parser::Error) -> Self {
-        Error::FunctionStringParser(error)
+        Self::FunctionStringParser(error)
     }
 }
 
 impl From<markdown::Error> for Error {
     fn from(error: markdown::Error) -> Self {
-        Error::MarkdownParser(error)
+        Self::MarkdownParser(error)
     }
 }
 
 impl ParseError<&str> for Error {
     fn from_error_kind(input: &str, kind: ErrorKind) -> Self {
-        Error::ParserFailed(format!(
-            "Failed parsing function from '{}' :: {:?}",
-            input, kind
+        Self::ParserFailed(format!(
+            "Failed parsing function from '{input}' :: {kind:?}"
         ))
     }
 
     fn append(input: &str, kind: ErrorKind, other: Self) -> Self {
-        Error::ParserFailed(format!(
-            "Failed parsing function from '{}' :: {:?} (follows: {}",
-            input, kind, other
+        Self::ParserFailed(format!(
+            "Failed parsing function from '{input}' :: {kind:?} (follows: {other}"
         ))
     }
 }
 
-impl FromExternalError<&str, Error> for Error {
-    fn from_external_error(_input: &str, _kind: ErrorKind, e: Error) -> Self {
+impl FromExternalError<&str, Self> for Error {
+    fn from_external_error(_input: &str, _kind: ErrorKind, e: Self) -> Self {
         e
     }
 }
@@ -78,8 +76,7 @@ impl fmt::Display for Error {
                 got,
             }) => write!(
                 f,
-                "Function {} requires argument {} to be a {}, got {}",
-                function, argument, expected, got
+                "Function {function} requires argument {argument} to be a {expected}, got {got}"
             ),
             Self::InvalidArgumentValue {
                 function,
@@ -88,8 +85,7 @@ impl fmt::Display for Error {
                 got,
             } => write!(
                 f,
-                "Argument {} for function {} must be {}, got {}",
-                argument, function, expected, got
+                "Argument {argument} for function {function} must be {expected}, got {got}"
             ),
         }
     }

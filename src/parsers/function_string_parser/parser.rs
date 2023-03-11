@@ -136,10 +136,12 @@ mod tests {
                     "",
                     Function {
                         name: "funcy".to_string(),
-                        arguments: [("arg".to_string(), ArgumentValue::String("hi".to_string()))]
-                            .iter()
-                            .cloned()
-                            .collect(),
+                        arguments: std::iter::once(&(
+                            "arg".to_string(),
+                            ArgumentValue::String("hi".to_string())
+                        ))
+                        .cloned()
+                        .collect(),
                     }
                 ))
             );
@@ -161,10 +163,12 @@ mod tests {
         fn succeeds_when_one_argument_is_provided() {
             let expected_fn = Function {
                 name: "fn".to_string(),
-                arguments: [("arg".to_string(), ArgumentValue::String("abc".to_string()))]
-                    .iter()
-                    .cloned()
-                    .collect(),
+                arguments: std::iter::once(&(
+                    "arg".to_string(),
+                    ArgumentValue::String("abc".to_string()),
+                ))
+                .cloned()
+                .collect(),
             };
 
             assert_eq!(

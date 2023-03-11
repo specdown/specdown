@@ -14,25 +14,25 @@ pub struct IncorrectArgumentType {
 impl ArgumentValue {
     pub fn integer(&self) -> Result<i32, IncorrectArgumentType> {
         match self {
-            ArgumentValue::Integer(num) => Ok(*num),
-            ArgumentValue::String(_) => Self::incorrect_argument_type_error("integer", "string"),
-            ArgumentValue::Token(_) => Self::incorrect_argument_type_error("integer", "token"),
+            Self::Integer(num) => Ok(*num),
+            Self::String(_) => Self::incorrect_argument_type_error("integer", "string"),
+            Self::Token(_) => Self::incorrect_argument_type_error("integer", "token"),
         }
     }
 
     pub fn string(&self) -> Result<String, IncorrectArgumentType> {
         match self {
-            ArgumentValue::String(s) => Ok(s.clone()),
-            ArgumentValue::Integer(_) => Self::incorrect_argument_type_error("string", "integer"),
-            ArgumentValue::Token(_) => Self::incorrect_argument_type_error("string", "token"),
+            Self::String(s) => Ok(s.clone()),
+            Self::Integer(_) => Self::incorrect_argument_type_error("string", "integer"),
+            Self::Token(_) => Self::incorrect_argument_type_error("string", "token"),
         }
     }
 
     pub fn token(&self) -> Result<String, IncorrectArgumentType> {
         match self {
-            ArgumentValue::Token(t) => Ok(t.clone()),
-            ArgumentValue::Integer(_) => Self::incorrect_argument_type_error("token", "integer"),
-            ArgumentValue::String(_) => Self::incorrect_argument_type_error("token", "string"),
+            Self::Token(t) => Ok(t.clone()),
+            Self::Integer(_) => Self::incorrect_argument_type_error("token", "integer"),
+            Self::String(_) => Self::incorrect_argument_type_error("token", "string"),
         }
     }
 

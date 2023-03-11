@@ -94,9 +94,9 @@ impl ActionResult {
 
     fn as_error_provider(&self) -> &dyn ActionErrorProvider {
         match self {
-            ActionResult::Script(result) => result,
-            ActionResult::Verify(result) => result,
-            ActionResult::CreateFile(result) => result,
+            Self::Script(result) => result,
+            Self::Verify(result) => result,
+            Self::CreateFile(result) => result,
         }
     }
 }

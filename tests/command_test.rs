@@ -199,8 +199,8 @@ fn test_displays_error_when_required_args_are_missing() {
 
             Options:
                   --no-colour  Disables coloured output
-              -h, --help       Print help information
-              -V, --version    Print version information
+              -h, --help       Print help
+              -V, --version    Print version
             ",
             BINARY_NAME
         ));

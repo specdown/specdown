@@ -21,8 +21,8 @@ Commands:
 
 Options:
       --no-colour  Disables coloured output
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ```
 
 ## Windows Output
@@ -40,8 +40,8 @@ Commands:
   
 Options:
       --no-colour  Disables coloured output
-  -h, --help       Print help information
-  -V, --version    Print version information
+  -h, --help       Print help
+  -V, --version    Print version
 ```
 
 ## Sub-commands
@@ -64,5 +64,5 @@ Arguments:
   <SPEC_FILE>  The spec file to strip specdown functions from
 
 Options:
-  -h, --help  Print help information
+  -h, --help  Print help
 ```

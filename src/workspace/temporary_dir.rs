@@ -6,8 +6,8 @@ pub struct TemporaryDirectory {
 }
 
 impl TemporaryDirectory {
-    pub fn create() -> Self {
-        TemporaryDirectory { directory: None }
+    pub const fn create() -> Self {
+        Self { directory: None }
     }
 }
 
