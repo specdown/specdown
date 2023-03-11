@@ -94,11 +94,11 @@ jobs:
       - name: Rename wsl bash
         if: runner.os == 'Windows'
         run: |
-          takeown /F C:\Windows\System32\bash.exe
-          icacls C:\Windows\System32\bash.exe /grant administrators:F
-          ren C:\Windows\System32\bash.exe wsl-bash.exe
+          takeown /F 'C:\Windows\System32\bash.exe'
+          icacls 'C:\Windows\System32\bash.exe' /grant administrators:F
+          ren 'C:\Windows\System32\bash.exe' wsl-bash.exe
       - run: cargo build
-      - run: echo "$PWD/target/debug" >> $GITHUB_PATH
+      - run: echo "$PWD/target/debug" >> "$GITHUB_PATH"
         shell: bash
       - run: cargo test --locked
         shell: bash
@@ -167,7 +167,7 @@ jobs:
 
       - name: Get previous version
         id: previous_version
-        run: echo ::set-output "name=previous_version::$( git tag | grep -P "^v[0-9]+\\.[0-9]+\\.[0-9]+" | sort -V | tail -n 1 )"
+        run: echo "name=previous_version::$( git tag | grep -P "^v[0-9]+\\.[0-9]+\\.[0-9]+" | sort -V | tail -n 1 )" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Get current version
@@ -177,11 +177,11 @@ jobs:
           uplift tag --next --dry-run 2> .release/tag.log
           git status
           cat .release/tag.log
-          CURRENT_VERSION="$(cat .release/tag.log | grep 'identified next tag' | sed 's/^.*tag=\(.*\)$/\1/')"
+          CURRENT_VERSION="$( grep 'identified next tag' .release/tag.log | sed 's/^.*tag=\(.*\)$/\1/')"
           if [ -z "$CURRENT_VERSION" ] ; then
-            echo ::set-output "name=current_version::$PREV"
+            echo "name=current_version::$PREV" >> "$GITHUB_OUTPUT"
           else
-            echo ::set-output "name=current_version::$CURRENT_VERSION"
+            echo "name=current_version::$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
           fi
         env:
           PREV: ${{ steps.previous_version.outputs.previous_version }}
@@ -209,7 +209,7 @@ jobs:
           GITHUB_USER: ${{ github.actor }}
       - run: |
           if [ "$CURR" != "$PREV" ] ; then
-            echo ::set-output "name=version_bump::true"
+            echo "name=version_bump::true" >> "$GITHUB_OUTPUT"
           fi
         id: version_bump
         shell: bash
@@ -255,15 +255,15 @@ jobs:
           command: build
       - id: get_repository_name
         name: Calculate repository name
-        run: echo ::set-output name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk
-          -F / '{print $2}' | sed -e "s/:refs//")
+        run: echo "name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk
+          -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
         shell: bash
       - name: Move binary to upload location
         env:
           TARGET: ${{ matrix.target }}
           EXTENSION: ${{ matrix.suffix }}
           REPOSITORY_NAME: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}
-        run: mv ./target/release/$REPOSITORY_NAME$EXTENSION ./$REPOSITORY_NAME-$TARGET$EXTENSION
+        run: mv "./target/release/$REPOSITORY_NAME$EXTENSION" "./$REPOSITORY_NAME-$TARGET$EXTENSION"
         shell: bash
       - uses: actions/upload-artifact@v3
         name: Store built binary version
@@ -318,8 +318,8 @@ jobs:
           toolchain: stable
       - id: get_repository_name
         name: Calculate repository name
-        run: echo ::set-output name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk
-          -F / '{print $2}' | sed -e "s/:refs//")
+        run: echo "name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk
+          -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
         shell: bash
       - uses: dlavrenuek/conventional-changelog-action@v1.2.2
         id: changelog
@@ -368,7 +368,7 @@ jobs:
           mkdir gh-pages/.bin
           curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu --output gh-pages/.bin/specdown
           chmod +x gh-pages/.bin/specdown
-          echo "$PWD/gh-pages/.bin" >> $GITHUB_PATH
+          echo "$PWD/gh-pages/.bin" >> "$GITHUB_PATH"
       - name: Copy docs to gh-pages
         shell: bash
         run: |
@@ -398,8 +398,8 @@ jobs:
     steps:
       - id: get_repository_name
         name: Work out repository name
-        run: echo ::set-output "name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" |
-          awk -F / '{print $2}' | sed -e "s/:refs//")"
+        run: echo "name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" |
+          awk -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
         shell: bash
       - uses: actions/checkout@v3
         name: Checkout this repository
@@ -415,8 +415,8 @@ jobs:
           ref: main
         name: Checkout the custom tap
       - run: |
-          sha256sum -b main-repo/README.md | awk '{ print $1 }' > hash
-          echo ::set-output "name=SHA256::$( cat hash )"
+          sha256sum -b main-repo/README.md | awk '{ print $1 }' > "./hash"
+          echo "name=SHA256::$( cat hash )" >> "$GITHUB_OUTPUT"
         id: readme
         shell: bash
         env:
@@ -425,8 +425,8 @@ jobs:
         name: Calculate the readme hash
       - run: |
           curl -Lo file.tar.gz "https://github.com/$GIT_REPO/archive/$GIT_TAG.tar.gz"
-          sha256sum -b file.tar.gz | awk '{ print $1 }' > hash
-          echo ::set-output "name=SHA256::$( cat hash )"
+          sha256sum -b file.tar.gz | awk '{ print $1 }' > "./hash"
+          echo "name=SHA256::$( cat hash )" >> "$GITHUB_OUTPUT"
         id: bundle
         shell: bash
         env:
@@ -446,7 +446,7 @@ jobs:
       - shell: bash
         name: Open a PR on the custom tap repository
         run: |
-          VERSION="$(echo $GIT_TAG | sed 's/^refs\/tags\///')"
+          VERSION="$(echo "$GIT_TAG" | sed 's/^refs\/tags\///')"
           git config --global user.email "noreply@specdown.io"
           git config --global user.name "Specdown"
           git -C homebrew-repo switch -c "$REPOSITORY_NAME-$VERSION"
