@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.40](https://github.com/specdown/specdown/releases/tag/v1.2.40) - 2023-03-11
+
+- [`2b90ec4`](https://github.com/specdown/specdown/commit/2b90ec4ccaf20b07940f28ec6e8cd9dbde25435f) Merge pull request #245 from PurpleBooth/fix-clippy-advice
+- [`e3c1f42`](https://github.com/specdown/specdown/commit/e3c1f42a0a0923ff10c40bfe5ba27e2c4ca74519) chore: Fix feedback from clippy and bump versions
+- [`8fec92c`](https://github.com/specdown/specdown/commit/8fec92c04c6670f53d5ba0ee8710d79e918cf490) Merge pull request #231 from specdown/dependabot/cargo/termdiff-3.1.1
+- [`c7c0a0f`](https://github.com/specdown/specdown/commit/c7c0a0fdcc36b6fffcd51a7002ff98a4da3d62c1) fix: bump termdiff from 3.1.0 to 3.1.1
+
 ## [v1.2.39](https://github.com/specdown/specdown/releases/tag/v1.2.39) - 2023-01-16
 
 - [`df6b2a5`](https://github.com/specdown/specdown/commit/df6b2a5c6fb729936345ea591cb6edbf9fbb10c2) Merge pull request #230 from specdown/dependabot/cargo/nom-7.1.3
