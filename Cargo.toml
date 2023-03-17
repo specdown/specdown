@@ -27,7 +27,7 @@ shell-words = "1.1.0"
 tempfile = "3.4.0"
 
 [dev-dependencies]
-assert_cmd = "2.0.9"
+assert_cmd = "2.0.10"
 indoc = "2.0.1"
 maplit = "1.0.2"
 tempfile = "3.4.0"
