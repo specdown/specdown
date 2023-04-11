@@ -6,6 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.41](https://github.com/specdown/specdown/releases/tag/v1.2.41) - 2023-04-11
+
+- [`e3e91f7`](https://github.com/specdown/specdown/commit/e3e91f77e47b41bfb56a899e94096a804a00149d) Merge pull request #254 from specdown/dependabot/github_actions/dlavrenuek/conventional-changelog-action-1.2.3
+- [`13ac922`](https://github.com/specdown/specdown/commit/13ac922fa87eb35193c0fbf246d864454daf2fd5) ci: bump dlavrenuek/conventional-changelog-action from 1.2.2 to 1.2.3
+- [`b00f84b`](https://github.com/specdown/specdown/commit/b00f84b51e26e50ce094d931b37e8c311b77b30d) ci: Fix GITHUB_OUTPUT format
+- [`2670c21`](https://github.com/specdown/specdown/commit/2670c2119f9b47b584785ab14340ed7f34b932a8) ci: Ignore ANSI colour code
+- [`93de8d5`](https://github.com/specdown/specdown/commit/93de8d59ab42976fcbdf3cc53e1dce90c24bf14c) Merge pull request #223 from specdown/dependabot/github_actions/ncipollo/release-action-1.12.0
+- [`56e9b0f`](https://github.com/specdown/specdown/commit/56e9b0ff14c3bd4f1d75901d67bcd82c8d1c9e78) Merge pull request #258 from specdown/dependabot/cargo/tempfile-3.5.0
+- [`98fe842`](https://github.com/specdown/specdown/commit/98fe842b14385a389249749cdb18a02560e89cfa) fix: bump tempfile from 3.4.0 to 3.5.0
+- [`27a9409`](https://github.com/specdown/specdown/commit/27a94091cfb6cc6ea2709140ecb4db444fb4e496) Merge pull request #257 from specdown/dependabot/cargo/clap-4.1.14
+- [`7a4e2c5`](https://github.com/specdown/specdown/commit/7a4e2c5c387f736eb7bf08eaee9ace0550fcff93) fix: bump clap from 4.1.13 to 4.1.14
+- [`99bbfeb`](https://github.com/specdown/specdown/commit/99bbfebc541d79161da0fe8bcc74e7ef9f8fcd96) Merge pull request #255 from specdown/dependabot/cargo/clap-4.1.13
+- [`c16ad24`](https://github.com/specdown/specdown/commit/c16ad24c53b83ce2df98cd720fe6089d85135204) fix: bump clap from 4.1.11 to 4.1.13
+- [`9200f70`](https://github.com/specdown/specdown/commit/9200f7005efcf64f395d2caabff37e8bcd04ebdd) Merge pull request #253 from specdown/dependabot/cargo/clap-4.1.11
+- [`1a3b677`](https://github.com/specdown/specdown/commit/1a3b67738104636c9941c13381c05b4d9ba4a2c7) fix: bump clap from 4.1.9 to 4.1.11
+- [`fe58564`](https://github.com/specdown/specdown/commit/fe58564f35137923a8365dd8909d5925b93bfdcf) Merge pull request #252 from specdown/dependabot/cargo/clap-4.1.9
+- [`288676e`](https://github.com/specdown/specdown/commit/288676ecc9e84953284a6340059aa3e2180cb73c) Merge branch master into dependabot/cargo/clap-4.1.9
+- [`078fa54`](https://github.com/specdown/specdown/commit/078fa54a41eab3b0d1b53f222fa4045468ccf932) Merge pull request #251 from specdown/dependabot/cargo/assert_cmd-2.0.10
+- [`3bb61e9`](https://github.com/specdown/specdown/commit/3bb61e9ec2b6e264ddd0e31e3e9442c719202265) fix: bump clap from 4.1.8 to 4.1.9
+- [`34f0070`](https://github.com/specdown/specdown/commit/34f0070ff8977908772745e87af26bfd8f5a4347) fix: bump assert_cmd from 2.0.9 to 2.0.10
+- [`2a4d536`](https://github.com/specdown/specdown/commit/2a4d5361d963f4bfbfa438965e78244dcc1b4431) Merge pull request #250 from specdown/dependabot/cargo/assert_cmd-2.0.9
+- [`a72448b`](https://github.com/specdown/specdown/commit/a72448b151d017390cad9493bc6e4ac869be6070) fix: bump assert_cmd from 2.0.8 to 2.0.9
+- [`7807282`](https://github.com/specdown/specdown/commit/780728221906e9720a5bd9b2c4dc1f14b9ab2e70) Merge pull request #248 from PurpleBooth/fix-formula
+- [`d15204a`](https://github.com/specdown/specdown/commit/d15204adafae11d6aaa99080fbf788d48c99f655) Merge pull request #247 from PurpleBooth/fix-actionlint-advice
+- [`1822a7c`](https://github.com/specdown/specdown/commit/1822a7c4d42fb052d7b1b6ed36721f794421c481) Merge pull request #246 from PurpleBooth/patch-2
+- [`18d1359`](https://github.com/specdown/specdown/commit/18d1359b5743ad8a143494e1c58b5877f9177ade) chore: Update homebrew formula to use new completion helper
+- [`7c71328`](https://github.com/specdown/specdown/commit/7c71328b4d5cdc98272c70cd7d0923234642a6e7) ci: Remove deprecated Mergify options
+- [`669ef1d`](https://github.com/specdown/specdown/commit/669ef1da53f99cfe14fbda15d9a31a6c3baec8a4) ci: Update to new form of outputs
+- [`0297f0a`](https://github.com/specdown/specdown/commit/0297f0a7ce2cf5b51bf861cff905180d2b5735ef) ci: bump ncipollo/release-action from 1.11.2 to 1.12.0
+
 ## [v1.2.40](https://github.com/specdown/specdown/releases/tag/v1.2.40) - 2023-03-11
 
 - [`2b90ec4`](https://github.com/specdown/specdown/commit/2b90ec4ccaf20b07940f28ec6e8cd9dbde25435f) Merge pull request #245 from PurpleBooth/fix-clippy-advice

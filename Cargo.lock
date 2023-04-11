@@ -987,7 +987,7 @@ checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
 
 [[package]]
 name = "specdown"
-version = "1.2.40"
+version = "1.2.41"
 dependencies = [
  "assert_cmd",
  "clap",
