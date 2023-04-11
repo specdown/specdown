@@ -167,7 +167,7 @@ jobs:
 
       - name: Get previous version
         id: previous_version
-        run: echo "name=previous_version::$( git tag | grep -P "^v[0-9]+\\.[0-9]+\\.[0-9]+" | sort -V | tail -n 1 )" >> "$GITHUB_OUTPUT"
+        run: echo "previous_version=$( git tag | grep -P "^v[0-9]+\\.[0-9]+\\.[0-9]+" | sort -V | tail -n 1 )" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Get current version
@@ -179,9 +179,9 @@ jobs:
           cat .release/tag.log
           CURRENT_VERSION="$( grep 'identified next tag' .release/tag.log | sed 's/^.*tag[^\s]*=\(.*\)$/\1/')"
           if [ -z "$CURRENT_VERSION" ] ; then
-            echo "name=current_version::$PREV" >> "$GITHUB_OUTPUT"
+            echo "current_version=$PREV" >> "$GITHUB_OUTPUT"
           else
-            echo "name=current_version::$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
           fi
         env:
           PREV: ${{ steps.previous_version.outputs.previous_version }}
@@ -209,7 +209,7 @@ jobs:
           GITHUB_USER: ${{ github.actor }}
       - run: |
           if [ "$CURR" != "$PREV" ] ; then
-            echo "name=version_bump::true" >> "$GITHUB_OUTPUT"
+            echo "version_bump=true" >> "$GITHUB_OUTPUT"
           fi
         id: version_bump
         shell: bash
@@ -255,7 +255,7 @@ jobs:
           command: build
       - id: get_repository_name
         name: Calculate repository name
-        run: echo "name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk
+        run: echo "REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk
           -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
         shell: bash
       - name: Move binary to upload location
@@ -318,7 +318,7 @@ jobs:
           toolchain: stable
       - id: get_repository_name
         name: Calculate repository name
-        run: echo "name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk
+        run: echo "REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk
           -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
         shell: bash
       - uses: dlavrenuek/conventional-changelog-action@v1.2.2
@@ -398,7 +398,7 @@ jobs:
     steps:
       - id: get_repository_name
         name: Work out repository name
-        run: echo "name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" |
+        run: echo "REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" |
           awk -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
         shell: bash
       - uses: actions/checkout@v3
@@ -416,7 +416,7 @@ jobs:
         name: Checkout the custom tap
       - run: |
           sha256sum -b main-repo/README.md | awk '{ print $1 }' > "./hash"
-          echo "name=SHA256::$( cat hash )" >> "$GITHUB_OUTPUT"
+          echo "SHA256=$( cat hash )" >> "$GITHUB_OUTPUT"
         id: readme
         shell: bash
         env:
@@ -426,7 +426,7 @@ jobs:
       - run: |
           curl -Lo file.tar.gz "https://github.com/$GIT_REPO/archive/$GIT_TAG.tar.gz"
           sha256sum -b file.tar.gz | awk '{ print $1 }' > "./hash"
-          echo "name=SHA256::$( cat hash )" >> "$GITHUB_OUTPUT"
+          echo "SHA256=$( cat hash )" >> "$GITHUB_OUTPUT"
         id: bundle
         shell: bash
         env:
