@@ -177,7 +177,7 @@ jobs:
           uplift tag --next --dry-run 2> .release/tag.log
           git status
           cat .release/tag.log
-          CURRENT_VERSION="$( grep 'identified next tag' .release/tag.log | sed 's/^.*tag=\(.*\)$/\1/')"
+          CURRENT_VERSION="$( grep 'identified next tag' .release/tag.log | sed 's/^.*tag[^\s]*=\(.*\)$/\1/')"
           if [ -z "$CURRENT_VERSION" ] ; then
             echo "name=current_version::$PREV" >> "$GITHUB_OUTPUT"
           else
