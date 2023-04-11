@@ -433,7 +433,7 @@ jobs:
           GIT_REPO: ${{ github.repository }}
           GIT_TAG: ${{ needs.release.outputs.current_version }}
         name: Calculate the binary hash
-      - uses: cuchi/jinja2-action@v1.2.0
+      - uses: cuchi/jinja2-action@v1.2.1
         with:
           template: main-repo/homebrew/formula.rb.j2
           output_file: formula.rb
