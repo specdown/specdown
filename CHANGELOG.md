@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.42](https://github.com/specdown/specdown/releases/tag/v1.2.42) - 2023-04-14
+
+- [`e62dbc9`](https://github.com/specdown/specdown/commit/e62dbc9c63a08cb0a94bb924af97d04aa418ae1c) Merge pull request #260 from specdown/dependabot/cargo/assert_cmd-2.0.11
+- [`f69ae19`](https://github.com/specdown/specdown/commit/f69ae1938aec39d4b92b7c5eb2971910c7af512c) fix: bump assert_cmd from 2.0.10 to 2.0.11
+- [`5225dc0`](https://github.com/specdown/specdown/commit/5225dc052f829978f1189d237d333002c1fef8fe) Merge pull request #232 from specdown/dependabot/github_actions/cuchi/jinja2-action-1.2.1
+- [`b9938a3`](https://github.com/specdown/specdown/commit/b9938a3e77929efe233a0e628c3b76490baa4072) Merge pull request #249 from specdown/dependabot/github_actions/actions/cache-3.3.1
+- [`b9bcc25`](https://github.com/specdown/specdown/commit/b9bcc255451a51fb6688e8d1bbf8ce5c8aa0073b) ci: bump actions/cache from 3.0.11 to 3.3.1
+- [`4d1fbcf`](https://github.com/specdown/specdown/commit/4d1fbcf16383f34e5c55595006bb74282b3d0ef8) ci: bump cuchi/jinja2-action from 1.2.0 to 1.2.1
+
 ## [v1.2.41](https://github.com/specdown/specdown/releases/tag/v1.2.41) - 2023-04-11
 
 - [`e3e91f7`](https://github.com/specdown/specdown/commit/e3e91f77e47b41bfb56a899e94096a804a00149d) Merge pull request #254 from specdown/dependabot/github_actions/dlavrenuek/conventional-changelog-action-1.2.3
