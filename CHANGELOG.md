@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.46](https://github.com/specdown/specdown/releases/tag/v1.2.46) - 2023-04-28
+
+- [`e0368cc`](https://github.com/specdown/specdown/commit/e0368cca726dfa0531f76d1dc0ac6b057f0f4188) Merge pull request #264 from specdown/dependabot/cargo/clap-4.2.5
+- [`d243526`](https://github.com/specdown/specdown/commit/d243526479b8f7826391943445cdd1b0948f5f12) fix: bump clap from 4.2.4 to 4.2.5
+
 ## [v1.2.45](https://github.com/specdown/specdown/releases/tag/v1.2.45) - 2023-04-20
 
 - [`1b5d480`](https://github.com/specdown/specdown/commit/1b5d480fc9a108588fe82422d0b6133ea0a84928) Merge pull request #263 from specdown/dependabot/cargo/clap-4.2.4
