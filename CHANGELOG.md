@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.48](https://github.com/specdown/specdown/releases/tag/v1.2.48) - 2023-05-12
+
+- [`08ed2c0`](https://github.com/specdown/specdown/commit/08ed2c013654d6d5b544efb0189be437ffd47e19) Merge pull request #266 from PurpleBooth/patch-3
+- [`42a7777`](https://github.com/specdown/specdown/commit/42a7777e2f7744ed17912cc5099911cfa33c7268) fix(homebrew): Correct the completion command
+
 ## [v1.2.47](https://github.com/specdown/specdown/releases/tag/v1.2.47) - 2023-05-03
 
 - [`3b49e57`](https://github.com/specdown/specdown/commit/3b49e579a76aeee880109f5788fbf490bd3e873e) Merge pull request #265 from specdown/dependabot/cargo/clap-4.2.7
