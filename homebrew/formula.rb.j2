@@ -15,7 +15,7 @@ class Specdown < Formula
   def install
     system "cargo", "install", "--locked", "--root", prefix, "--path", "."
 
-    generate_completions_from_executable(bin/"specdown", "--completion", shells: [
+    generate_completions_from_executable(bin/"specdown", "completion", shells: [
       :bash,
       :fish,
       :zsh,
