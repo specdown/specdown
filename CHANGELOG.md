@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.61](https://github.com/specdown/specdown/releases/tag/v1.2.61) - 2023-07-17
+
+- [`14a91fc`](https://github.com/specdown/specdown/commit/14a91fc3b129026622df0a4e2b87b90081d43981) Merge pull request #281 from specdown/dependabot/cargo/indoc-2.0.3
+- [`c354090`](https://github.com/specdown/specdown/commit/c35409042262fb3c860d283dd347753bc04c2e61) Merge branch master into dependabot/cargo/indoc-2.0.3
+- [`46e38fd`](https://github.com/specdown/specdown/commit/46e38fd961c3edd6d5f18ba70688a1cdac47ac62) Merge pull request #280 from specdown/dependabot/cargo/clap-4.3.12
+- [`254ac40`](https://github.com/specdown/specdown/commit/254ac4084ac645c180341994d4a78d9e0d079f05) Merge branch master into dependabot/cargo/clap-4.3.12
+- [`d944b98`](https://github.com/specdown/specdown/commit/d944b98656dc0a5d4e353ccfda9403078e03f137) Merge branch master into dependabot/cargo/clap-4.3.12
+- [`ecc5145`](https://github.com/specdown/specdown/commit/ecc5145ba0ed85b5a5945152d729e2ca19dd0242) fix: bump indoc from 2.0.2 to 2.0.3
+- [`73a879d`](https://github.com/specdown/specdown/commit/73a879dcca60d3674648aed25c6b6162f1ef730e) fix: bump clap from 4.3.11 to 4.3.12
+
 ## [v1.2.60](https://github.com/specdown/specdown/releases/tag/v1.2.60) - 2023-07-17
 
 - [`f0bd462`](https://github.com/specdown/specdown/commit/f0bd462b65a5919363a7c969300051d329a2b4b8) Merge pull request #279 from specdown/dependabot/cargo/assert_cmd-2.0.12
