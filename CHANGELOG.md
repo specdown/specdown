@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.60](https://github.com/specdown/specdown/releases/tag/v1.2.60) - 2023-07-17
+
+- [`f0bd462`](https://github.com/specdown/specdown/commit/f0bd462b65a5919363a7c969300051d329a2b4b8) Merge pull request #279 from specdown/dependabot/cargo/assert_cmd-2.0.12
+- [`1424364`](https://github.com/specdown/specdown/commit/1424364efd8eade2c7e46936c6efce4f2aa63da7) fix: bump assert_cmd from 2.0.11 to 2.0.12
+- [`8201cce`](https://github.com/specdown/specdown/commit/8201cce3655f28be031e5d50795e2fff585aa14a) Merge pull request #278 from specdown/dependabot/cargo/clap-4.3.11
+- [`cf644e1`](https://github.com/specdown/specdown/commit/cf644e15cc75d413788081cdbb6c35d005c2452e) fix: bump clap from 4.3.10 to 4.3.11
+
 ## [v1.2.59](https://github.com/specdown/specdown/releases/tag/v1.2.59) - 2023-07-04
 
 - [`475b06c`](https://github.com/specdown/specdown/commit/475b06cf1c94ed79f68191d1f40ddd19c8bd0c27) Merge pull request #277 from specdown/dependabot/cargo/indoc-2.0.2
