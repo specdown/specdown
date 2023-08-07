@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.68](https://github.com/specdown/specdown/releases/tag/v1.2.68) - 2023-08-07
+
+- [`fcad8f2`](https://github.com/specdown/specdown/commit/fcad8f2ae805926b8ba24a9983210597ed915e87) Merge pull request #288 from specdown/dependabot/cargo/crossterm-0.27.0
+- [`71d3168`](https://github.com/specdown/specdown/commit/71d3168e577134870d09a6acdc0585c5b5476391) Merge branch master into dependabot/cargo/crossterm-0.27.0
+- [`3bebd50`](https://github.com/specdown/specdown/commit/3bebd50c8becb89d316ee6aee8086a8bd4ecffa5) Merge branch master into dependabot/cargo/crossterm-0.27.0
+- [`859c8c7`](https://github.com/specdown/specdown/commit/859c8c7ce498d1487cb5248e07656d201f9b0839) fix: bump crossterm from 0.26.1 to 0.27.0
+
 ## [v1.2.67](https://github.com/specdown/specdown/releases/tag/v1.2.67) - 2023-08-07
 
 - [`8a81e7b`](https://github.com/specdown/specdown/commit/8a81e7be8851ad1c4925abe2356240f1d844b8e8) Merge pull request #287 from specdown/dependabot/cargo/tempfile-3.7.1
