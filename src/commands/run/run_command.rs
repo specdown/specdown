@@ -53,8 +53,8 @@ impl RunCommand {
 
         start_events
             .into_iter()
-            .chain(run_events.into_iter())
-            .chain(end_events.into_iter())
+            .chain(run_events)
+            .chain(end_events)
             .collect()
     }
 
