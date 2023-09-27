@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [v1.2.75](https://github.com/specdown/specdown/releases/tag/v1.2.75) - 2023-09-27
+
+- [`5dc0b3b`](https://github.com/specdown/specdown/commit/5dc0b3bae26dc28c38f7479743720a647f0fa464) Merge pull request #303 from specdown/dependabot/cargo/indoc-2.0.4
+- [`abe8ee9`](https://github.com/specdown/specdown/commit/abe8ee93d7226e8d07852a7a7972e986f502ad2c) Merge branch 'master' into dependabot/cargo/indoc-2.0.4
+- [`9e48791`](https://github.com/specdown/specdown/commit/9e48791b9ac046066b4f4f9e06ab0dfba70d83a6) Merge pull request #300 from specdown/dependabot/github_actions/actions/checkout-4
+- [`6a68bee`](https://github.com/specdown/specdown/commit/6a68bee89b28f3b11b4f45968b1c6521f2d77fdb) ci: bump actions/checkout from 3 to 4
+- [`4d60fcf`](https://github.com/specdown/specdown/commit/4d60fcf56646262525e3052911bb47f35a99549b) fix: bump indoc from 2.0.3 to 2.0.4
+- [`867ad82`](https://github.com/specdown/specdown/commit/867ad82ecafba4f42b0d1080c880fb737487ddff) ci(uplift): uplifted for version v1.2.74
+- [`f02571c`](https://github.com/specdown/specdown/commit/f02571cb785f806aff17da5022a6a87bc10d49f7) ci(uplift): uplifted for version v1.2.74
+
 ## [v1.2.74](https://github.com/specdown/specdown/releases/tag/v1.2.74) - 2023-09-27
 
 - [`dd05d8d`](https://github.com/specdown/specdown/commit/dd05d8d2fd5d64de8878c625548f6f8b731657c8) Merge pull request #305 from specdown/dependabot/cargo/clap-4.4.5
