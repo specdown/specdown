@@ -3,8 +3,8 @@ from_latest_tag = true
 ignore_merge_commits = true
 branch_whitelist = ["master"]
 pre_bump_hooks = [
-    '''sed 's/^version = "[^"]*"/version = "{{version}}"/' Cargo.toml >Cargo.toml.new''',
-    'mv Cargo.toml.new Cargo.toml'
+    # In the pipeline, this will be created by a preceding job
+    "mv ../bumped-files/* ."
 ]
 post_bump_hooks = [
     "git push",
