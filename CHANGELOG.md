@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.80](https://github.com/specdown/specdown/compare/v1.2.79..v1.2.80) - 2023-09-28
+#### Bug Fixes
+- Put correct bins path back in - ([301aa5e](https://github.com/specdown/specdown/commit/301aa5e0a42a33342335cb6af2ea8b54175b31c0)) - Tom Oram
+
+- - -
+
 ## [v1.2.79](https://github.com/specdown/specdown/compare/v1.2.78..v1.2.79) - 2023-09-28
 #### Bug Fixes
 - Try downloading artifacts after the checkout - ([42aaccb](https://github.com/specdown/specdown/commit/42aaccb6f9a8d75aac417c99c2f2e25a6f087da0)) - Tom Oram
