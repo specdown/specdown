@@ -79,7 +79,8 @@ jobs:
       - run: |
           pwd
           ls -la
-          ls ./bins/*
+          ls -la ..
+          ls ../bins/*
 
       - name: create-github-release
         uses: ncipollo/release-action@v1.13.0

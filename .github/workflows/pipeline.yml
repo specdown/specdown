@@ -123,7 +123,7 @@ jobs:
     uses: ./.github/workflows/tag-and-release.yml
     with:
       download-artifacts: true
-      release-artifacts: ./bins/*
+      release-artifacts: ../bins/*
 
   publish-website:
     needs:
