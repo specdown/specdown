@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.81](https://github.com/specdown/specdown/compare/v1.2.80..v1.2.81) - 2023-09-28
+#### Bug Fixes
+- Move back to the Armakuni workflow - ([b6eaf61](https://github.com/specdown/specdown/commit/b6eaf611ebec717c74fab0c3cdcd770851b824af)) - Tom Oram
+
+- - -
+
 ## [v1.2.80](https://github.com/specdown/specdown/compare/v1.2.79..v1.2.80) - 2023-09-28
 #### Bug Fixes
 - Put correct bins path back in - ([301aa5e](https://github.com/specdown/specdown/commit/301aa5e0a42a33342335cb6af2ea8b54175b31c0)) - Tom Oram
