@@ -133,7 +133,6 @@ jobs:
   generate-formula:
     needs:
       - tag-and-release
-    if: needs.tag-and-release.outputs.version-bump == 'true'
     name: Generate Homebrew homebrew
     runs-on: ubuntu-latest
     steps:
@@ -147,7 +146,7 @@ jobs:
         with:
           token: ${{ secrets.COMMITTER_TOKEN }}
           path: main-repo
-          ref: ${{ needs.release.outputs.current_version }}
+          ref: ${{ needs.tag-and-release.outputs.current-version }}
       - uses: actions/checkout@v4
         with:
           repository: specdown/homebrew-repo
@@ -162,7 +161,7 @@ jobs:
         shell: bash
         env:
           GIT_REPO: ${{ github.repository }}
-          GIT_TAG: ${{ needs.release.outputs.current_version }}
+          GIT_TAG: ${{ needs.tag-and-release.outputs.current-version }}
         name: Calculate the readme hash
       - run: |
           curl -Lo file.tar.gz "https://github.com/$GIT_REPO/archive/$GIT_TAG.tar.gz"
@@ -172,7 +171,7 @@ jobs:
         shell: bash
         env:
           GIT_REPO: ${{ github.repository }}
-          GIT_TAG: ${{ needs.release.outputs.current_version }}
+          GIT_TAG: ${{ needs.tag-and-release.outputs.current-version }}
         name: Calculate the binary hash
       - uses: cuchi/jinja2-action@v1.2.1
         with:
@@ -180,7 +179,7 @@ jobs:
           output_file: formula.rb
           variables: |
             github_repo=${{ github.repository }}
-            git_tag=${{ needs.release.outputs.current_version }}
+            git_tag=${{ needs.tag-and-release.outputs.current-version }}
             file_sha=${{ steps.bundle.outputs.SHA256 }}
             readme_sha=${{ steps.readme.outputs.SHA256 }}
         name: Generate the template
@@ -198,6 +197,6 @@ jobs:
           (cd homebrew-repo && gh pr create --label releases --base main --fill)
         env:
           REPOSITORY_NAME: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}
-          GIT_TAG: ${{ needs.release.outputs.current_version }}
+          GIT_TAG: ${{ needs.tag-and-release.outputs.current-version }}
           GITHUB_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
 
