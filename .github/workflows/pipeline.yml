@@ -10,7 +10,7 @@ jobs:
     uses: ./.github/workflows/run-tests.yml
 
   build-binaries:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     runs-on: ${{ matrix.os }}
     needs:
       - run-tests
