@@ -226,56 +226,10 @@ jobs:
           tag: ${{ needs.release.outputs.current_version }}
           artifacts: ./bins/*
 
-  publish_website:
+  publish-website:
     needs:
       - upload-release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout specdown
-        uses: actions/checkout@v4
-        with:
-          repository: specdown/specdown
-          path: specdown
-      - name: Checkout gh-pages
-        uses: actions/checkout@v4
-        with:
-          repository: specdown/specdown
-          ref: gh-pages
-          path: gh-pages
-          persist-credentials: false
-          fetch-depth: 0
-      - name: Configure git for gh-pages
-        shell: bash
-        run: |
-          cd gh-pages
-          git config user.name "GitHub"
-          git config user.email "noreply@github.com"
-      - name: Install the latest specdown
-        shell: bash
-        run: |
-          mkdir gh-pages/.bin
-          curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu --output gh-pages/.bin/specdown
-          chmod +x gh-pages/.bin/specdown
-          echo "$PWD/gh-pages/.bin" >> "$GITHUB_PATH"
-      - name: Copy docs to gh-pages
-        shell: bash
-        run: |
-          mkdir -p gh-pages/docs
-          rm -rf gh-pages/*.md gh-pages/docs/*
-          cd specdown
-          make ../gh-pages GH_PAGES_LOCATION=../gh-pages --always-make
-      - name: Commit changes to gh-pages
-        shell: bash
-        run: |
-          cd gh-pages
-          git add index.md docs logo
-          git commit -m "Update website" || true
-      - name: Push changes to gh-pages
-        uses: ad-m/github-push-action@master
-        with:
-          directory: gh-pages
-          branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/publish-website.yml
 
   generate-formula:
     needs:
