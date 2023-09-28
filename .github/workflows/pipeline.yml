@@ -80,7 +80,7 @@ jobs:
   tag-and-release:
     needs:
       - build-binaries
-    uses: ./.github/workflows/tag-and-release.yml@v0.12.0
+    uses: ./.github/workflows/tag-and-release.yml
     with:
       download-artifacts: true
       release-artifacts: ./bins/*
