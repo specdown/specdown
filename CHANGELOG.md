@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.78](https://github.com/specdown/specdown/compare/v1.2.77..v1.2.78) - 2023-09-28
+#### Bug Fixes
+- Try a different artifact path - ([bd41b19](https://github.com/specdown/specdown/commit/bd41b19555ec84f09a0788e908c10287bd9877ec)) - Tom Oram
+
+- - -
+
 ## [v1.2.77](https://github.com/specdown/specdown/compare/v1.2.76..v1.2.77) - 2023-09-28
 #### Bug Fixes
 - Strip the v from the version - ([e508bc0](https://github.com/specdown/specdown/commit/e508bc0fad150e85067e591856bcde2b61b1ae86)) - Tom Oram
