@@ -54,7 +54,7 @@ chmod +x /usr/local/bin/specdown
 Alternatively you can also use [brew](https://brew.sh/)
 
 ``` shell
-brew install specdown/repo/specdown
+brew install specdown/homebrew-repo/specdown
 ```
 
 ### Linux
