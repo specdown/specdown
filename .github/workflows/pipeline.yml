@@ -41,7 +41,9 @@ jobs:
       - name: Install cargo-edit
         run: cargo install cargo-edit
       - name: Set Cargo version
-        run: cargo set-version ${{ needs.run-tests.outputs.bump-version }}
+        run: cargo set-version "${NEW_VERSION#v}"
+        env:
+          NEW_VERSION: ${{ needs.run-tests.outputs.bump-version }}
       - name: Store updated Cargo files
         uses: actions/upload-artifact@v3
         with:
