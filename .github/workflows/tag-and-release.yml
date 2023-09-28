@@ -57,17 +57,17 @@ jobs:
       - tag-version
     if: ${{ needs.tag-version.outputs.version-was-bumped == 'true' }}
     steps:
-      - name: Download all workflow run artifacts
-        if: inputs.download-artifacts && inputs.release-artifacts
-        uses: actions/download-artifact@v3
-
-      - run: echo ${{ needs.tag-version.outputs.version-was-bumped }}
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # For the changelog
           fetch-tags: true # For the changelog
           ref: refs/tags/v${{ needs.tag-version.outputs.current-version }}
+
+      - name: Download all workflow run artifacts
+        if: inputs.download-artifacts && inputs.release-artifacts
+        uses: actions/download-artifact@v3
+
+      - run: echo ${{ needs.tag-version.outputs.version-was-bumped }}
 
       - uses: armakuni/github-actions/setup-cocogitto@v0.2.0
         with:
