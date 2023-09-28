@@ -9,108 +9,11 @@ jobs:
   run-tests:
     uses: ./.github/workflows/run-tests.yml
 
-  uplift-dry-run:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: gembaadvantage/uplift-action@v2
-        name: Install uplift
-        with:
-          version: latest
-          install-only: true
-          args: version
-
-      - name: Release dry run
-        shell: bash
-        run: |
-          uplift release --dry-run
-
-  release:
-    if: github.ref == 'refs/heads/master'
-    needs:
-      - uplift-dry-run
-      - run-tests
-    outputs:
-      version_bump: ${{ steps.version_bump.outputs.version_bump }}
-      current_version: ${{ steps.current_version.outputs.current_version }}
-      previous_version: ${{ steps.previous_version.outputs.previous_version }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - uses: gembaadvantage/uplift-action@v2
-        name: Install uplift
-        with:
-          version: latest
-          install-only: true
-          args: version
-
-      - name: Get previous version
-        id: previous_version
-        run: echo "previous_version=$( git tag | grep -P "^v[0-9]+\\.[0-9]+\\.[0-9]+" | sort -V | tail -n 1 )" >> "$GITHUB_OUTPUT"
-        shell: bash
-
-      - name: Get current version
-        id: current_version
-        run: |
-          mkdir -p .release
-          uplift tag --next --dry-run 2> .release/tag.log
-          git status
-          cat .release/tag.log
-          CURRENT_VERSION="$( grep 'identified next tag' .release/tag.log | sed 's/^.*tag[^\s]*=\(.*\)$/\1/')"
-          if [ -z "$CURRENT_VERSION" ] ; then
-            echo "current_version=$PREV" >> "$GITHUB_OUTPUT"
-          else
-            echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
-          fi
-        env:
-          PREV: ${{ steps.previous_version.outputs.previous_version }}
-        shell: bash
-
-      - name: Generate release
-        shell: bash
-        run: |
-          if [ "$PREV" != "$CURR" ] || [ -z "$PREV" ] ; then
-            uplift release --fetch-all --no-push
-            cargo fetch
-            git config user.name "$(git log -1 --pretty=format:"%an")"
-            git config user.email "$(git log -1 --pretty=format:'%ae')"
-            git add Cargo.lock
-            git commit --amend --no-edit
-            git tag -d "$CURR"
-            git tag "$CURR"
-            git push
-            git push --tags
-          fi
-        env:
-          CURR: ${{ steps.current_version.outputs.current_version }}
-          PREV: ${{ steps.previous_version.outputs.previous_version }}
-          GITHUB_TOKEN: ${{ github.token }}
-          GITHUB_USER: ${{ github.actor }}
-      - run: |
-          if [ "$CURR" != "$PREV" ] ; then
-            echo "version_bump=true" >> "$GITHUB_OUTPUT"
-          fi
-        id: version_bump
-        shell: bash
-        name: Did the version bump
-        env:
-          CURR: ${{ steps.current_version.outputs.current_version }}
-          PREV: ${{ steps.previous_version.outputs.previous_version }}
-
-  build-release:
-    if: needs.release.outputs.version_bump
+  build-binaries:
+    if: github.ref == 'refs/heads/main'
     runs-on: ${{ matrix.os }}
     needs:
-      - release
+      - run-tests
     steps:
       - run: ${{ matrix.install }}
         env:
@@ -174,66 +77,23 @@ jobs:
             target: x86_64-pc-windows-msvc
             install: ''
 
-  upload-release:
+  tag-and-release:
+    if: github.ref == 'refs/heads/main'
     needs:
-      - build-release
-      - release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        name: Checkout the repository
-        with:
-          lfs: true
-          fetch-depth: 0
-          ref: ${{ needs.release.outputs.current_version }}
-      - uses: actions/cache@v3.3.2
-        name: Cache cargo dependencies
-        with:
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          path: |
-            .cache
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-      - uses: actions/download-artifact@v3
-        name: Retrieve assets
-      - uses: actions-rs/toolchain@v1.0.7
-        name: Install rust toolchain
-        with:
-          default: true
-          profile: minimal
-          toolchain: stable
-      - id: get_repository_name
-        name: Calculate repository name
-        run: echo "REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk
-          -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
-        shell: bash
-      - uses: dlavrenuek/conventional-changelog-action@v1.2.3
-        id: changelog
-        with:
-          from: ${{ needs.release.outputs.previous_version }}
-          to: ${{ needs.release.outputs.current_version }}
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: create_release
-        uses: ncipollo/release-action@v1.13.0
-        with:
-          allowUpdates: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          body: ${{ steps.changelog.outputs.body }}
-          name: Release ${{ needs.release.outputs.current_version }}
-          tag: ${{ needs.release.outputs.current_version }}
-          artifacts: ./bins/*
+      - run-tests
+    uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.12.0
+    with:
+      download-artifacts: true
+      release-artifacts: ./bins/*
 
   publish-website:
     needs:
-      - upload-release
+      - tag-and-release
     uses: ./.github/workflows/publish-website.yml
 
   generate-formula:
     needs:
-      - release
+      - tag-and-release
     if: needs.release.outputs.version_bump
     name: Generate Homebrew homebrew
     runs-on: ubuntu-latest

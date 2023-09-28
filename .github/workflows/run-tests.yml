@@ -2,6 +2,9 @@ on:
   workflow_call:
 
 jobs:
+  check-conventional-commits:
+    uses: armakuni/github-actions/.github/workflows/check-conventional-commits.yml@v0.12.0
+
   cargo-audit:
     runs-on: ubuntu-latest
     steps:

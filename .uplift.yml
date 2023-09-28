@@ -1,6 +1,0 @@
-bumps:
-  - file: ./Cargo.toml
-    regex:
-      - pattern: "version = \"$VERSION\""
-        semver: true
-        count: 1
