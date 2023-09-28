@@ -78,9 +78,8 @@ jobs:
             install: ''
 
   tag-and-release:
-    if: github.ref == 'refs/heads/main'
     needs:
-      - run-tests
+      - build-binaries
     uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.12.0
     with:
       download-artifacts: true
@@ -94,7 +93,7 @@ jobs:
   generate-formula:
     needs:
       - tag-and-release
-    if: needs.release.outputs.version_bump
+    if: needs.tag-and-release.outputs.version-bump == 'true'
     name: Generate Homebrew homebrew
     runs-on: ubuntu-latest
     steps:

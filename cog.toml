@@ -1,9 +1,10 @@
 tag_prefix = "v"
-from_latest_tag = false
+from_latest_tag = true
 ignore_merge_commits = true
-branch_whitelist = ["main"]
+branch_whitelist = ["master"]
 pre_bump_hooks = [
-    "cargo bump {{version}}"
+    '''sed 's/^version = "[^"]*"/version = "{{version}}"/' Cargo.toml >Cargo.toml.new''',
+    'mv Cargo.toml.new Cargo.toml'
 ]
 post_bump_hooks = [
     "git push",
