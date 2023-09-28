@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.76](https://github.com/specdown/specdown/compare/v1.2.75..v1.2.76) - 2023-09-28
+#### Bug Fixes
+- Force version bump - ([074ff70](https://github.com/specdown/specdown/commit/074ff70881f566d626bdd4bf128dcde0e6c97da3)) - Tom Oram
+#### Continuous Integration
+- Fix branch name - ([6ab2068](https://github.com/specdown/specdown/commit/6ab2068c683bd8a228afae0a91a9c8fc3080d0d9)) - Tom Oram
+- Fix version for armakuni/github-actions - ([7f6322a](https://github.com/specdown/specdown/commit/7f6322aba0b6335e738e58ed3595608b79b91789)) - Tom Oram
+- Fix changelog generation - ([aebc486](https://github.com/specdown/specdown/commit/aebc4865a28cd2f500b405b0a09f22618a13c64b)) - Tom Oram
+- Use Armakuni's tag-and-release workflow - ([a1d051e](https://github.com/specdown/specdown/commit/a1d051eb68dfd7ecea0cb9211ac0468f83e6ee33)) - Tom Oram
+- Extract publish website into a workflow - ([f7e4cc8](https://github.com/specdown/specdown/commit/f7e4cc888ba4ed70a67342c0827362ba1b4e6714)) - Tom Oram
+- Remove reserved GITHUB_TOKEN secret - ([465af78](https://github.com/specdown/specdown/commit/465af78dc148682375ffa75701821e65c093321d)) - Tom Oram
+- Extract tests to a workflow - ([6ea0012](https://github.com/specdown/specdown/commit/6ea0012f24a5773d6e51988814e6c7f582462be4)) - Tom Oram
+- bump actions/cache from 3.3.1 to 3.3.2 - ([bed3a4f](https://github.com/specdown/specdown/commit/bed3a4f7edf503b0c2740de4084ce3ef557284d8)) - dependabot[bot]
+- bump ncipollo/release-action from 1.12.0 to 1.13.0 - ([3bbd232](https://github.com/specdown/specdown/commit/3bbd232b94ee9f550ee5b496173048851e42ed82)) - dependabot[bot]
+
+- - -
+
 
 ## [v1.2.74](https://github.com/specdown/specdown/releases/tag/v1.2.74) - 2023-09-27
 
