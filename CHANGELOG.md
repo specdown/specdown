@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.77](https://github.com/specdown/specdown/compare/v1.2.76..v1.2.77) - 2023-09-28
+#### Bug Fixes
+- Strip the v from the version - ([e508bc0](https://github.com/specdown/specdown/commit/e508bc0fad150e85067e591856bcde2b61b1ae86)) - Tom Oram
+- Bump version of check-conventional-commits - ([2e5b14c](https://github.com/specdown/specdown/commit/2e5b14c537ab8e62ed5a79862b72535675f5bf1b)) - Tom Oram
+- Bump version in the Cargo files - ([f2dc805](https://github.com/specdown/specdown/commit/f2dc80503b8922f83c0955d471c9088e9f5d8a4f)) - Tom Oram
+- Correct version in Cargo.lock - ([4905ab2](https://github.com/specdown/specdown/commit/4905ab21c734beaee29917484d80253647c8c4e1)) - Tom Oram
+- Add debug output to release pipeline - ([72cc0f2](https://github.com/specdown/specdown/commit/72cc0f22b40aa1e43385280a021b89cf5c7fdceb)) - Tom Oram
+#### Continuous Integration
+- Fix version number - ([306bb79](https://github.com/specdown/specdown/commit/306bb7929d3bd65dade1654bf02b6ebbd0b26336)) - Tom Oram
+
+- - -
+
 ## [v1.2.76](https://github.com/specdown/specdown/compare/v1.2.75..v1.2.76) - 2023-09-28
 #### Bug Fixes
 - Force version bump - ([074ff70](https://github.com/specdown/specdown/commit/074ff70881f566d626bdd4bf128dcde0e6c97da3)) - Tom Oram
