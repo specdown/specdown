@@ -146,7 +146,7 @@ jobs:
         name: Checkout this repository
         with:
           path: main-repo
-          ref: ${{ needs.tag-and-release.outputs.current-version }}
+          ref: v${{ needs.tag-and-release.outputs.current-version }}
 
       - uses: actions/checkout@v4
         with:
@@ -170,7 +170,7 @@ jobs:
         shell: bash
         env:
           GIT_REPO: ${{ github.repository }}
-          GIT_TAG: ${{ needs.tag-and-release.outputs.current-version }}
+          GIT_TAG: v${{ needs.tag-and-release.outputs.current-version }}
         name: Calculate the binary hash
 
       - uses: cuchi/jinja2-action@v1.2.1
@@ -179,7 +179,7 @@ jobs:
           output_file: formula.rb
           variables: |
             github_repo=${{ github.repository }}
-            git_tag=${{ needs.tag-and-release.outputs.current-version }}
+            git_tag=v${{ needs.tag-and-release.outputs.current-version }}
             file_sha=${{ steps.bundle.outputs.SHA256 }}
             readme_sha=${{ steps.readme.outputs.SHA256 }}
         name: Generate the template
@@ -202,6 +202,5 @@ jobs:
         working-directory: homebrew-repo
         env:
           REPOSITORY_NAME: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}
-          GIT_TAG: ${{ needs.tag-and-release.outputs.current-version }}
+          GIT_TAG: v${{ needs.tag-and-release.outputs.current-version }}
           GITHUB_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
-
