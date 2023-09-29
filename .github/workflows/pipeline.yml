@@ -191,13 +191,13 @@ jobs:
           git config --global user.name "Specdown"
           
           VERSION="${GIT_TAG#refs/tags/}"
-          git -C  switch -c "$REPOSITORY_NAME-$VERSION"
+          git switch -c "$REPOSITORY_NAME-$VERSION"
 
           cp ../formula.rb "Formula/$REPOSITORY_NAME.rb"
 
-          git -C  add "Formula/$REPOSITORY_NAME.rb"
-          git -C  commit -m "fix: Update $REPOSITORY_NAME to $VERSION"
-          git -C  push origin "$REPOSITORY_NAME-$VERSION"
+          git add "Formula/$REPOSITORY_NAME.rb"
+          git commit -m "fix: Update $REPOSITORY_NAME to $VERSION"
+          git push origin "$REPOSITORY_NAME-$VERSION"
           gh pr create --label releases --base main --fill
         working-directory: homebrew-repo
         env:
