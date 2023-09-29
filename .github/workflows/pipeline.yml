@@ -141,27 +141,27 @@ jobs:
         run: echo "REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" |
           awk -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
         shell: bash
+
       - uses: actions/checkout@v4
         name: Checkout this repository
         with:
-          token: ${{ secrets.COMMITTER_TOKEN }}
           path: main-repo
-          ref: ${{ needs.tag-and-release.outputs.current-version }}
+          ref: v${{ needs.tag-and-release.outputs.current-version }}
+
       - uses: actions/checkout@v4
         with:
           repository: specdown/homebrew-repo
-          token: ${{ secrets.COMMITTER_TOKEN }}
           path: homebrew-repo
           ref: main
+          token: ${{ secrets.COMMITTER_TOKEN }}
         name: Checkout the custom tap
+
       - run: |
           sha256sum -b main-repo/README.md | awk '{ print $1 }' > "./hash"
           echo "SHA256=$( cat hash )" >> "$GITHUB_OUTPUT"
         id: readme
         shell: bash
-        env:
-          GIT_REPO: ${{ github.repository }}
-          GIT_TAG: ${{ needs.tag-and-release.outputs.current-version }}
+
         name: Calculate the readme hash
       - run: |
           curl -Lo file.tar.gz "https://github.com/$GIT_REPO/archive/$GIT_TAG.tar.gz"
@@ -171,32 +171,37 @@ jobs:
         shell: bash
         env:
           GIT_REPO: ${{ github.repository }}
-          GIT_TAG: ${{ needs.tag-and-release.outputs.current-version }}
+          GIT_TAG: v${{ needs.tag-and-release.outputs.current-version }}
         name: Calculate the binary hash
+
       - uses: cuchi/jinja2-action@v1.2.1
         with:
           template: main-repo/homebrew/formula.rb.j2
           output_file: formula.rb
           variables: |
             github_repo=${{ github.repository }}
-            git_tag=${{ needs.tag-and-release.outputs.current-version }}
+            git_tag=v${{ needs.tag-and-release.outputs.current-version }}
             file_sha=${{ steps.bundle.outputs.SHA256 }}
             readme_sha=${{ steps.readme.outputs.SHA256 }}
         name: Generate the template
+
       - shell: bash
         name: Open a PR on the custom tap repository
         run: |
-          VERSION="$(echo "$GIT_TAG" | sed 's/^refs\/tags\///')"
           git config --global user.email "noreply@specdown.io"
           git config --global user.name "Specdown"
-          git -C homebrew-repo switch -c "$REPOSITORY_NAME-$VERSION"
-          cp formula.rb "homebrew-repo/Formula/$REPOSITORY_NAME.rb"
-          git -C homebrew-repo add "Formula/$REPOSITORY_NAME.rb"
-          git -C homebrew-repo commit -m "fix: Update $REPOSITORY_NAME to $VERSION"
-          git -C homebrew-repo push origin "$REPOSITORY_NAME-$VERSION"
-          (cd homebrew-repo && gh pr create --label releases --base main --fill)
+          
+          VERSION="${GIT_TAG#refs/tags/}"
+          git switch -c "$REPOSITORY_NAME-$VERSION"
+
+          cp ../formula.rb "Formula/$REPOSITORY_NAME.rb"
+
+          git add "Formula/$REPOSITORY_NAME.rb"
+          git commit -m "fix: Update $REPOSITORY_NAME to $VERSION"
+          git push origin "$REPOSITORY_NAME-$VERSION"
+          gh pr create --label releases --base main --fill
+        working-directory: homebrew-repo
         env:
           REPOSITORY_NAME: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}
-          GIT_TAG: ${{ needs.tag-and-release.outputs.current-version }}
+          GIT_TAG: v${{ needs.tag-and-release.outputs.current-version }}
           GITHUB_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
-
