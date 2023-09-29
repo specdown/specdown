@@ -153,6 +153,7 @@ jobs:
           repository: specdown/homebrew-repo
           path: homebrew-repo
           ref: main
+          token: ${{ secrets.COMMITTER_TOKEN }}
         name: Checkout the custom tap
 
       - run: |
