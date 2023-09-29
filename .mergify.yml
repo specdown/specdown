@@ -1,27 +1,33 @@
 queue_rules:
   - name: default
     conditions:
-      - status-success=lint (windows-latest)
-      - status-success=lint (ubuntu-latest)
-      - status-success=cargo-test (ubuntu-latest)
-      - status-success=cargo-test (macos-latest)
-      - status-success=cargo-test (windows-latest)
-      - status-success=cargo-audit
-      - status-success=cargo-check
+      - status-success=run-tests / check-conventional-commits / check-conventional-commits
+      - status-success=run-tests / cargo-audit
+      - status-success=run-tests / cargo-check
+      - status-success=run-tests / cargo-test (macos-latest)
+      - status-success=run-tests / cargo-test (ubuntu-latest)
+      - status-success=run-tests / cargo-test (windows-latest)
+      - status-success=run-tests / lint (ubuntu-latest)
+      - status-success=run-tests / lint (windows-latest)
 
 pull_request_rules:
   - name: automatic rebase for dependencies
     conditions:
-      - status-success=lint (windows-latest)
-      - status-success=lint (ubuntu-latest)
-      - status-success=cargo-test (ubuntu-latest)
-      - status-success=cargo-test (macos-latest)
-      - status-success=cargo-test (windows-latest)
-      - status-success=cargo-audit
-      - status-success=cargo-check
+      - status-success=run-tests / check-conventional-commits / check-conventional-commits
+      - status-success=run-tests / cargo-audit
+      - status-success=run-tests / cargo-check
+      - status-success=run-tests / cargo-test (macos-latest)
+      - status-success=run-tests / cargo-test (ubuntu-latest)
+      - status-success=run-tests / cargo-test (windows-latest)
+      - status-success=run-tests / lint (ubuntu-latest)
+      - status-success=run-tests / lint (windows-latest)
       - base=master
-      - author~=^dependabot(|-preview)\[bot\]$
+      - author=dependabot[bot]
     actions:
       queue:
         method: merge
         name: default
+
+
+
+
