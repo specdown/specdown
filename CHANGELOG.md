@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.83](https://github.com/specdown/specdown/compare/v1.2.82..v1.2.83) - 2023-09-29
+#### Bug Fixes
+- Update generate-formula job - ([2bc92b1](https://github.com/specdown/specdown/commit/2bc92b10c7be31a1d9ceff57a626b0e9f3f42bdb)) - Tom Oram
+
+- - -
+
 ## [v1.2.82](https://github.com/specdown/specdown/compare/v1.2.81..v1.2.82) - 2023-09-28
 #### Bug Fixes
 - Dependencies for generate-formula - ([fae6b31](https://github.com/specdown/specdown/commit/fae6b315d80a0afbb0c6c2b92eb10f2d4443e3a1)) - Tom Oram
