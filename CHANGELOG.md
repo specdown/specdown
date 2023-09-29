@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.85](https://github.com/specdown/specdown/compare/v1.2.84..v1.2.85) - 2023-09-29
+#### Bug Fixes
+- Removed -C flags which accidentally got left in - ([be50151](https://github.com/specdown/specdown/commit/be501510d69b2d19abb4f2b02679944446d72d36)) - Tom Oram
+
+- - -
+
 ## [v1.2.84](https://github.com/specdown/specdown/compare/v1.2.83..v1.2.84) - 2023-09-29
 #### Bug Fixes
 - Add v prefix to git tags - ([cf2accf](https://github.com/specdown/specdown/commit/cf2accf9dcb7332aa87e012476adf8347d713494)) - Tom Oram
