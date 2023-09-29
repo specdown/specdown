@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.87](https://github.com/specdown/specdown/compare/v1.2.86..v1.2.87) - 2023-09-29
+#### Bug Fixes
+- bump clap from 4.4.5 to 4.4.6 - ([556adc3](https://github.com/specdown/specdown/commit/556adc33eeade89a0d2a94abba19703f44946e3a)) - dependabot[bot]
+#### Continuous Integration
+- Update .mergify.yml - ([20b49a3](https://github.com/specdown/specdown/commit/20b49a3f17a085c7770c391dcbf055bb61ec14a3)) - Tom Oram
+- bump armakuni/github-actions from 0.14.1 to 0.14.2 - ([5a3c4e4](https://github.com/specdown/specdown/commit/5a3c4e44dbe9942d9a3d458ec111bb97cbda593e)) - dependabot[bot]
+
+- - -
+
 ## [v1.2.86](https://github.com/specdown/specdown/compare/v1.2.85..v1.2.86) - 2023-09-29
 #### Bug Fixes
 - Checkout repo with token - ([7d12107](https://github.com/specdown/specdown/commit/7d12107d1a732f82cb95eff107790bb1bf5a7e98)) - Tom Oram
