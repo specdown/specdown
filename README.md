@@ -22,7 +22,6 @@ Hello SpecDown
 
 - [Motivation](#motivation)
 - [Installation](#installation)
-- [Project Status](#project-status)
 - [How does it work?](#how-does-it-work)
 - [Full Documentation](#full-documentation)
 - [Projects Using Specdown](#projects-using-specdown)
