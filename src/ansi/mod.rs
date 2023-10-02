@@ -1,8 +1,5 @@
 pub fn strip_ansi_escape_chars(string: &str) -> String {
-    String::from_utf8_lossy(
-        &strip_ansi_escapes::strip(string).expect("ANSI code to be stripped from got"),
-    )
-    .to_string()
+    String::from_utf8_lossy(&strip_ansi_escapes::strip(string)).to_string()
 }
 
 #[cfg(test)]
