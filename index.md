@@ -24,34 +24,32 @@ It will then validate that the output from the above command matches the followi
 
 - [Motivation](#motivation)
 - [Installation](#installation)
-- [Project Status](#project-status)
 - [How does it work?](#how-does-it-work)
 - [Full Documentation](#full-documentation)
 - [Projects Using Specdown](#projects-using-specdown)
 
 ## Motivation
 
-The motivation for this project has from two key places, these are:
+The motivation for this project has come from two key places, these are:
 
-1.  Documentation on GitHub projects where the documented commands and output is out of date
+1.  Documentation on GitHub projects where the documented commands and output are out of date
 2.  Projects which use Cucumber but no one except the developers refer to the feature files
 
 ## Installation
 
-The installation process of specdown is still in early stages.
-Right now you two options are to download the compiled releases from GitHub, or clone the repository and build from source.
-The recommended what is to download the compiled releases, you can do this from by using the following commands.
+Currently, your three options are downloading the compiled releases from GitHub, using Homebrew, or cloning the repository and building from the source.
+The recommended way is to download the compiled releases; you can do this by using the following commands.
 
 ### Mac OS
 
-You can download the binary and add it to your path
+You can download the binary and add it to your path:
 
 ``` shell
 curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-apple-darwin -o /usr/local/bin/specdown
 chmod +x /usr/local/bin/specdown
 ```
 
-Alternatively you can also use [brew](https://brew.sh/)
+Alternatively, you can also use [brew](https://brew.sh/)
 
 ``` shell
 brew install specdown/homebrew-repo/specdown
@@ -59,7 +57,7 @@ brew install specdown/homebrew-repo/specdown
 
 ### Linux
 
-You can download the binary and add it to your path
+You can download the binary and add it to your path:
 
 ``` shell
 curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu -o /usr/local/bin/specdown
@@ -74,7 +72,7 @@ brew install specdown/repo/specdown
 
 ### Windows
 
-You can download the binary and add it to your path
+You can download the binary and add it to your path:
 
 ``` powershell
 Invoke-WebRequest -Uri "https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-pc-windows-msvc.exe" -OutFile "specdown.exe"
@@ -94,7 +92,7 @@ When SpecDown is run with this document, it will execute the following shell scr
 echo "Hello SpecDown"
 ```
 
-It will then validate that the output of the previous command matches the following codeblock.
+It will then validate that the previous command's output matches the following codeblock.
 
 ```,verify(script_name="hello-specdown", stream=stdout)
 Hello SpecDown
@@ -127,6 +125,9 @@ The documentation is written as executable specifications and can be read [here]
 
 *If your project is using specdown then feel free to add it to the list.*
 
+- [carbon-guard](https://github.com/armakuni/carbon-guard)
+  <br>
+  A unique and environmentally conscious GitHub Action & CLI App designed to help reduce the carbon footprint of your CI/CD pipelines.
 - [ed-system-search](https://github.com/PurpleBooth/ed-system-search)
   <br>
   A tool to find interesting systems in Elite: Dangerous.
