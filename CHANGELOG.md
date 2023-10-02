@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.88](https://github.com/specdown/specdown/compare/v1.2.87..v1.2.88) - 2023-10-02
+#### Bug Fixes
+- bump comrak from 0.16.0 to 0.18.0 - ([7252962](https://github.com/specdown/specdown/commit/7252962f776ef723fe9bfa408d389fcd36c4e037)) - Tom Oram
+- bump strip-ansi-escapes from 0.1.1 to 0.2.0 - ([7f937a2](https://github.com/specdown/specdown/commit/7f937a2ea6f84b8399550511e0eb5add6b6c80dd)) - Tom Oram
+#### Continuous Integration
+- bump gaurav-nelson/github-action-markdown-link-check - ([ae10683](https://github.com/specdown/specdown/commit/ae10683a79f0a45f50d6ce8408ed2643d4c2b9ed)) - dependabot[bot]
+- bump armakuni/github-actions from 0.14.2 to 0.14.4 - ([79b06bd](https://github.com/specdown/specdown/commit/79b06bde968caa3c00e0b20d4e81858fb82e221f)) - dependabot[bot]
+#### Documentation
+- Fix some typos - ([f765d1f](https://github.com/specdown/specdown/commit/f765d1f745b25a65d4ef1db32a8144c6bec817d7)) - Tom Oram
+- Add carbon-guard to project list - ([655eade](https://github.com/specdown/specdown/commit/655eadecf21bb7c6ac5bdb8c0d1a851cd2abe116)) - Tom Oram
+- Remove broken link to old section - ([38e08d1](https://github.com/specdown/specdown/commit/38e08d10ea996de32433ec1458afef7bd792d9fd)) - Tom Oram
+
+- - -
+
 ## [v1.2.87](https://github.com/specdown/specdown/compare/v1.2.86..v1.2.87) - 2023-09-29
 #### Bug Fixes
 - bump clap from 4.4.5 to 4.4.6 - ([556adc3](https://github.com/specdown/specdown/commit/556adc33eeade89a0d2a94abba19703f44946e3a)) - dependabot[bot]
