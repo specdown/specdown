@@ -58,9 +58,6 @@ impl fmt::Display for Error {
             Self::MarkdownParser(markdown::Error::RootMustBeDocument) => {
                 write!(f, "RootMustBeDocument :: This error should never occur")
             }
-            Self::MarkdownParser(markdown::Error::StringEncodingFailed(msg)) => {
-                write!(f, "Failed to encode string. Got error: {msg}")
-            }
             Self::ParserFailed(msg) => write!(f, "The parser failed: {msg}"),
             Self::UnknownFunction(name) => write!(f, "Unknown function: {name}"),
             Self::FunctionStringParser(function_string_parser::Error::MissingArgument {
@@ -103,17 +100,6 @@ mod tests {
                 Error::MarkdownParser(markdown::Error::RootMustBeDocument)
             ),
             "RootMustBeDocument :: This error should never occur"
-        );
-    }
-
-    #[test]
-    fn display_string_encoding_failed() {
-        assert_eq!(
-            format!(
-                "{}",
-                Error::MarkdownParser(markdown::Error::StringEncodingFailed("message".to_string()))
-            ),
-            "Failed to encode string. Got error: message"
         );
     }
 

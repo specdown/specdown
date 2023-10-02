@@ -14,11 +14,11 @@ pub fn strip(markdown: &str) -> String {
         if let NodeValue::CodeBlock(NodeCodeBlock { ref mut info, .. }) =
             &mut node.data.borrow_mut().value
         {
-            let info_string = String::from_utf8((*info).clone()).expect("UTF8 string");
+            let info_string = (*info).clone();
             let language = code_block_info::parse(&info_string)
                 .expect("To parse codeblock info")
                 .language;
-            *info = Vec::from(language);
+            *info = language;
         }
     });
 

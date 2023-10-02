@@ -1,10 +1,11 @@
-use comrak::nodes::{AstNode, NodeCodeBlock, NodeValue};
+use comrak::arena_tree::Children;
+use comrak::nodes::{Ast, AstNode, NodeCodeBlock, NodeValue};
 use comrak::{parse_document, Arena, ComrakOptions};
+use std::cell::RefCell;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum Error {
     RootMustBeDocument,
-    StringEncodingFailed(String),
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -19,17 +20,17 @@ pub fn parse(markdown: &str) -> Result<Vec<Element>, Error> {
 }
 
 fn extract_elements<'a>(root: &'a AstNode<'a>) -> Result<Vec<Element>, Error> {
-    let node_value = &root.data.borrow_mut().value;
-
-    match node_value {
-        NodeValue::Document => Ok(root.children()),
-        _ => Err(Error::RootMustBeDocument),
-    }?
-    .filter_map(to_element)
-    .collect()
+    Ok(get_root_children(root)?.filter_map(to_element).collect())
 }
 
-fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Result<Element, Error>> {
+fn get_root_children<'a>(root: &'a AstNode<'a>) -> Result<Children<'_, RefCell<Ast>>, Error> {
+    match &root.data.borrow_mut().value {
+        NodeValue::Document => Ok(root.children()),
+        _ => Err(Error::RootMustBeDocument),
+    }
+}
+
+fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Element> {
     match node.data.borrow().value.clone() {
         NodeValue::CodeBlock(block) => Some(block)
             .filter(|b| b.fenced)
@@ -38,24 +39,13 @@ fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Result<Element, Error>> {
     }
 }
 
-fn to_fenced_code_block_element(block: &NodeCodeBlock) -> Result<Element, Error> {
-    let (info, literal) = node_block_to_components(block)?;
-    let element = Element::FencedCodeBlock { info, literal };
-    Ok(element)
+fn to_fenced_code_block_element(block: &NodeCodeBlock) -> Element {
+    let (info, literal) = node_block_to_components(block);
+    Element::FencedCodeBlock { info, literal }
 }
 
-fn node_block_to_components(block: &NodeCodeBlock) -> Result<(String, String), Error> {
-    let info = char_vec_to_string(&block.info)?;
-    let literal = char_vec_to_string(&block.literal)?;
-
-    Ok((info, literal))
-}
-
-fn char_vec_to_string(chars: &[u8]) -> Result<String, Error> {
-    match String::from_utf8(chars.to_vec()) {
-        Ok(string) => Ok(string),
-        Err(err) => Err(Error::StringEncodingFailed(err.to_string())),
-    }
+fn node_block_to_components(block: &NodeCodeBlock) -> (String, String) {
+    (block.info.clone(), block.literal.clone())
 }
 
 #[cfg(test)]
@@ -74,11 +64,11 @@ mod tests {
     fn fenced_block_quotes_are_returned_when_the_exist_in_the_markdown() {
         let markdown = indoc!(
             "# This is markdown
-            
+
             ```info1
             literal1
             ```
-            
+
             content
 
             ```info2
