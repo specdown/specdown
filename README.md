@@ -125,6 +125,9 @@ The documentation is written as executable specifications and can be read [here]
 
 _If your project is using specdown then feel free to add it to the list._
 
+- [carbon-guard](https://github.com/armakuni/carbon-guard)
+  <br>
+  A unique and environmentally conscious GitHub Action & CLI App designed to help reduce the carbon footprint of your CI/CD pipelines. 
 - [ed-system-search](https://github.com/PurpleBooth/ed-system-search)
   <br>
   A tool to find interesting systems in Elite: Dangerous.
