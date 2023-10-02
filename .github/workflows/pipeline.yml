@@ -120,7 +120,7 @@ jobs:
     needs:
       - build-binaries
       - bump-cargo-version
-    uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.14.2
+    uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.14.4
     with:
       download-artifacts: true
       release-artifacts: ./bins/*
