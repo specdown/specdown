@@ -12,6 +12,8 @@ use error::Result;
 
 pub use strip::strip;
 
+pub use error::Error;
+
 pub fn parse(markdown: &str) -> Result<Vec<Action>> {
     markdown::parse(markdown)?
         .iter()

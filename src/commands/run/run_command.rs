@@ -41,9 +41,7 @@ impl RunCommand {
         let start_events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
         let contents = self.file_reader.read_file(spec_file);
         let run_events = parsers::parse(&contents)
-            .map_err(|err| Error::RunFailed {
-                message: err.to_string(),
-            })
+            .map_err(Error::RunFailed)
             .map(|action_list| runner.run(&action_list))
             .or_else::<Error, _>(|err| Ok(vec![RunEvent::ErrorOccurred(err)]))
             .unwrap();

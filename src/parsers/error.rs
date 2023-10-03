@@ -5,7 +5,7 @@ use nom::error::{ErrorKind, FromExternalError, ParseError};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug, Eq, thiserror::Error, PartialEq)]
+#[derive(Clone, Debug, Eq, thiserror::Error, PartialEq)]
 pub enum Error {
     #[error("{0}")]
     FunctionStringParser(#[from] function_string_parser::Error),

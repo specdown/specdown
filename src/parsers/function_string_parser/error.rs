@@ -1,4 +1,4 @@
-#[derive(Debug, Eq, thiserror::Error, PartialEq)]
+#[derive(Clone, Debug, Eq, thiserror::Error, PartialEq)]
 pub enum Error {
     #[error("Function {function} requires argument {argument}")]
     MissingArgument { function: String, argument: String },
