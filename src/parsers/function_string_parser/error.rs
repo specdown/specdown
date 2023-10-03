@@ -1,9 +1,8 @@
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, thiserror::Error, PartialEq)]
 pub enum Error {
-    MissingArgument {
-        function: String,
-        argument: String,
-    },
+    #[error("Function {function} requires argument {argument}")]
+    MissingArgument { function: String, argument: String },
+    #[error("Function {function} requires argument {argument} to be a {expected}, got {got}")]
     IncorrectArgumentType {
         function: String,
         argument: String,
