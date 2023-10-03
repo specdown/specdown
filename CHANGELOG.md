@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.89](https://github.com/specdown/specdown/compare/v1.2.88..v1.2.89) - 2023-10-03
+#### Bug Fixes
+- bump comrak from 0.18.0 to 0.19.0 - ([6d4252a](https://github.com/specdown/specdown/commit/6d4252a20db09bba1d9611682d8dccc4232cd73d)) - dependabot[bot]
+#### Continuous Integration
+- bump armakuni/github-actions from 0.14.4 to 0.14.5 - ([83f67d6](https://github.com/specdown/specdown/commit/83f67d60760a2e153c561aa8bc4cfcb372c3e19c)) - dependabot[bot]
+
+- - -
+
 ## [v1.2.88](https://github.com/specdown/specdown/compare/v1.2.87..v1.2.88) - 2023-10-02
 #### Bug Fixes
 - bump comrak from 0.16.0 to 0.18.0 - ([7252962](https://github.com/specdown/specdown/commit/7252962f776ef723fe9bfa408d389fcd36c4e037)) - Tom Oram
