@@ -3,7 +3,7 @@ use comrak::nodes::{Ast, AstNode, NodeCodeBlock, NodeValue};
 use comrak::{parse_document, Arena, ComrakOptions};
 use std::cell::RefCell;
 
-#[derive(Debug, Eq, thiserror::Error, PartialEq)]
+#[derive(Clone, Debug, Eq, thiserror::Error, PartialEq)]
 pub enum Error {
     #[error("RootMustBeDocument :: This error should never occur")]
     RootMustBeDocument,
