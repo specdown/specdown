@@ -68,22 +68,7 @@ impl BasicPrinter {
     }
 
     fn print_error(&self, error: &Error) {
-        self.display_error_item(&match error {
-            Error::ScriptOutputMissing {
-                missing_script_name,
-            } => {
-                format!(
-                    "Failed to verify the output of '{missing_script_name}': No script with that name has been executed yet."
-                )
-            },
-            Error::CommandFailed { command, message } => format!(
-                "Failed to run command: {command} (Error: {message})"
-            ),
-            Error::BadShellCommand { command, message } => format!(
-                "Invalid shell command provided: {command} (Error: {message})"
-            ),
-            Error::RunFailed { message } => message.to_string(),
-        });
+        self.display_error_item(&error.to_string());
     }
 
     fn print_summary(&self) {

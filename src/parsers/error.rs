@@ -2,34 +2,26 @@ use super::function_string_parser;
 use super::markdown;
 
 use nom::error::{ErrorKind, FromExternalError, ParseError};
-use std::fmt;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, thiserror::Error, PartialEq)]
 pub enum Error {
-    FunctionStringParser(function_string_parser::Error),
-    MarkdownParser(markdown::Error),
+    #[error("{0}")]
+    FunctionStringParser(#[from] function_string_parser::Error),
+    #[error("{0}")]
+    MarkdownParser(#[from] markdown::Error),
+    #[error("The parser failed: {0}")]
     ParserFailed(String),
+    #[error("Unknown function: {0}")]
     UnknownFunction(String),
+    #[error("Argument {argument} for function {function} must be {expected}, got {got}")]
     InvalidArgumentValue {
         function: String,
         argument: String,
         expected: String,
         got: String,
     },
-}
-
-impl From<function_string_parser::Error> for Error {
-    fn from(error: function_string_parser::Error) -> Self {
-        Self::FunctionStringParser(error)
-    }
-}
-
-impl From<markdown::Error> for Error {
-    fn from(error: markdown::Error) -> Self {
-        Self::MarkdownParser(error)
-    }
 }
 
 impl ParseError<&str> for Error {
@@ -49,42 +41,6 @@ impl ParseError<&str> for Error {
 impl FromExternalError<&str, Self> for Error {
     fn from_external_error(_input: &str, _kind: ErrorKind, e: Self) -> Self {
         e
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::MarkdownParser(markdown::Error::RootMustBeDocument) => {
-                write!(f, "RootMustBeDocument :: This error should never occur")
-            }
-            Self::ParserFailed(msg) => write!(f, "The parser failed: {msg}"),
-            Self::UnknownFunction(name) => write!(f, "Unknown function: {name}"),
-            Self::FunctionStringParser(function_string_parser::Error::MissingArgument {
-                function,
-                argument,
-            }) => {
-                write!(f, "Function {function} requires argument {argument}")
-            }
-            Self::FunctionStringParser(function_string_parser::Error::IncorrectArgumentType {
-                function,
-                argument,
-                expected,
-                got,
-            }) => write!(
-                f,
-                "Function {function} requires argument {argument} to be a {expected}, got {got}"
-            ),
-            Self::InvalidArgumentValue {
-                function,
-                argument,
-                expected,
-                got,
-            } => write!(
-                f,
-                "Argument {argument} for function {function} must be {expected}, got {got}"
-            ),
-        }
     }
 }
 
