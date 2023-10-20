@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.90](https://github.com/specdown/specdown/compare/v1.2.89..v1.2.90) - 2023-10-20
+#### Bug Fixes
+- bump thiserror from 1.0.49 to 1.0.50 - ([7bb8da2](https://github.com/specdown/specdown/commit/7bb8da24f3b629df2cdb3cb489233b7b3cdab0b7)) - dependabot[bot]
+#### Continuous Integration
+- bump armakuni/github-actions from 0.16.8 to 0.16.9 - ([99ac0b2](https://github.com/specdown/specdown/commit/99ac0b243876713dbc1d4298d552a8abef5da1cc)) - dependabot[bot]
+- bump armakuni/github-actions from 0.16.6 to 0.16.8 - ([461e6b7](https://github.com/specdown/specdown/commit/461e6b7b03c45cb4a40d2b0e10429db8426ae656)) - dependabot[bot]
+- bump armakuni/github-actions from 0.16.5 to 0.16.6 - ([b2d716d](https://github.com/specdown/specdown/commit/b2d716d5c4576e0af39959d329588dd95e019ec1)) - dependabot[bot]
+- bump armakuni/github-actions from 0.16.4 to 0.16.5 - ([7a3fe36](https://github.com/specdown/specdown/commit/7a3fe36820f0f0356ae84c5a075e5e3931264298)) - dependabot[bot]
+- bump armakuni/github-actions from 0.16.3 to 0.16.4 - ([1812fea](https://github.com/specdown/specdown/commit/1812fea63d8d095bdfb7e4e4090759bc32ad7852)) - dependabot[bot]
+- bump armakuni/github-actions from 0.16.2 to 0.16.3 - ([d5f1907](https://github.com/specdown/specdown/commit/d5f1907ff89b95225bab2fcf51702900cc9511ae)) - dependabot[bot]
+- bump armakuni/github-actions from 0.16.1 to 0.16.2 - ([b7aac5e](https://github.com/specdown/specdown/commit/b7aac5e150a182e6e12a86dda33d62880c187f1f)) - dependabot[bot]
+- bump armakuni/github-actions from 0.14.11 to 0.16.1 - ([04a8d03](https://github.com/specdown/specdown/commit/04a8d03f1bb506649d91e4c5b083977aa38fa46a)) - dependabot[bot]
+- bump armakuni/github-actions from 0.14.10 to 0.14.11 - ([a808e10](https://github.com/specdown/specdown/commit/a808e105c8f33d7695f8e2a2b0c2b3f3090da51f)) - dependabot[bot]
+- bump armakuni/github-actions from 0.14.6 to 0.14.10 - ([449d14b](https://github.com/specdown/specdown/commit/449d14b46b1e2a6451ab92eb2a1dcb7d9fd48218)) - dependabot[bot]
+- bump armakuni/github-actions from 0.14.5 to 0.14.6 - ([5998c9d](https://github.com/specdown/specdown/commit/5998c9ddf9c0d6ae01cf035874e7c6a651cb1201)) - dependabot[bot]
+#### Refactoring
+- Use #[from] parsers::Error in runner::Error::RunFailed - ([64a2f20](https://github.com/specdown/specdown/commit/64a2f20aef3f2022a387a5cb35987d3508acc52f)) - Tom Oram
+- Use the thiserror crate - ([8f91957](https://github.com/specdown/specdown/commit/8f919579a6d14f650f32b39a134d3e6955b762af)) - Tom Oram
+
+- - -
+
 ## [v1.2.89](https://github.com/specdown/specdown/compare/v1.2.88..v1.2.89) - 2023-10-03
 #### Bug Fixes
 - bump comrak from 0.18.0 to 0.19.0 - ([6d4252a](https://github.com/specdown/specdown/commit/6d4252a20db09bba1d9611682d8dccc4232cd73d)) - dependabot[bot]
