@@ -6,38 +6,19 @@ on:
   pull_request:
 
 jobs:
+  check-conventional-commits:
+    uses: armakuni/github-actions/.github/workflows/check-conventional-commits.yml@v0.18.1
+
   run-tests:
     uses: ./.github/workflows/run-tests.yml
 
   bump-cargo-version:
     runs-on: ubuntu-latest
     needs:
-      - run-tests
+      - check-conventional-commits
     if: github.ref == 'refs/heads/master' && needs.run-tests.outputs.will-bump == 'true'
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout the repository
-      - uses: actions/cache@v3.3.2
-        name: Cache cargo dependencies
-        with:
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          path: |
-            .cache
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-      - uses: actions-rs/toolchain@v1.0.7
-        name: Install rust toolchain
-        with:
-          default: true
-          profile: minimal
-          toolchain: stable
-      - uses: actions-rs/cargo@v1.0.3
-        name: Build release version
-        with:
-          args: --release --locked
-          command: build
+      - uses: tomphp/github-actions/checkout-rust-project@v0.2.0
       - name: Install cargo-edit
         run: cargo install cargo-edit
       - name: Set Cargo version
@@ -54,72 +35,43 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ${{ matrix.os }}
     needs:
+      - bump-cargo-version
       - run-tests
     steps:
-      - run: ${{ matrix.install }}
+      - uses: tomphp/github-actions/checkout-rust-project@v0.2.0
+      - uses: actions/download-artifact@v3
+      - run: mv bumped-files/Cargo.* .
+        shell: bash
+      - uses: tomphp/github-actions/determine-binary-name@v0.5.0
+        id: get-binary-name
+        with:
+          name: specdown
+      - name: Build release version
+        run: make "$BINARY_NAME"
         env:
-          DEBIAN_FRONTEND: noninteractive
-        name: Install additional dependencies
-      - uses: actions/checkout@v4
-        name: Checkout the repository
-      - uses: actions/cache@v3.3.2
-        name: Cache cargo dependencies
-        with:
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          path: |
-            .cache
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-      - uses: actions-rs/toolchain@v1.0.7
-        name: Install rust toolchain
-        with:
-          default: true
-          profile: minimal
-          toolchain: stable
-      - uses: actions-rs/cargo@v1.0.3
-        name: Build release version
-        with:
-          args: --release --locked
-          command: build
-      - id: get_repository_name
-        name: Calculate repository name
-        run: echo "REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk
-          -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
+          BINARY_NAME: ${{ steps.get-binary-name.outputs.name }}
         shell: bash
       - name: Move binary to upload location
         env:
-          TARGET: ${{ matrix.target }}
-          EXTENSION: ${{ matrix.suffix }}
-          REPOSITORY_NAME: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}
-        run: mv "./target/release/$REPOSITORY_NAME$EXTENSION" "./$REPOSITORY_NAME-$TARGET$EXTENSION"
+          BINARY_NAME: ${{ steps.get-binary-name.outputs.name }}
+          BINARY_NAME_WITH_ARCH: ${{ steps.get-binary-name.outputs.name-with-arch }}
+        run: mv "$BINARY_NAME" "$BINARY_NAME_WITH_ARCH"
         shell: bash
       - uses: actions/upload-artifact@v3
         name: Store built binary version
         with:
           name: bins
-          path: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-${{ matrix.target }}${{ matrix.suffix }}
+          path: ${{ steps.get-binary-name.outputs.name-with-arch }}
     strategy:
       matrix:
         include:
           - os: macos-latest
-            suffix: ''
-            target: x86_64-apple-darwin
-            install: ''
           - os: ubuntu-latest
-            suffix: ''
-            target: x86_64-unknown-linux-gnu
-            install: ''
           - os: windows-latest
-            suffix: .exe
-            target: x86_64-pc-windows-msvc
-            install: ''
 
   tag-and-release:
     needs:
       - build-binaries
-      - bump-cargo-version
     uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.18.1
     with:
       download-artifacts: true

@@ -13,44 +13,11 @@ jobs:
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout the repository
-      - uses: actions/cache@v3.3.2
-        name: Cache cargo
-        with:
-          path: |
-            .cache
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: tomphp/github-actions/checkout-rust-project@v0.2.0
       - uses: actions-rs/audit-check@v1.2.0
         name: Audit check cargo packages
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
-  cargo-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v3.3.2
-        with:
-          path: |
-            .cache
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1.0.7
-        with:
-          profile: minimal
-          toolchain: stable
-          default: true
-      - uses: actions-rs/cargo@v1.0.3
-        with:
-          command: check
 
   cargo-test:
     runs-on: ${{ matrix.os }}
@@ -61,31 +28,14 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v3.3.2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          default: true
+      - uses: tomphp/github-actions/checkout-rust-project@v0.2.0
       - name: Rename wsl bash
         if: runner.os == 'Windows'
         run: |
           takeown /F 'C:\Windows\System32\bash.exe'
           icacls 'C:\Windows\System32\bash.exe' /grant administrators:F
           ren 'C:\Windows\System32\bash.exe' wsl-bash.exe
-      - run: cargo build
-      - run: echo "$PWD/target/debug" >> "$GITHUB_PATH"
-        shell: bash
-      - run: cargo test --locked
-        shell: bash
+      - run: make test
 
   lint:
     runs-on: ${{ matrix.os }}
@@ -95,30 +45,11 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v3.3.2
+      - uses: tomphp/github-actions/checkout-rust-project@v0.2.0
         with:
-          path: |
-            .cache
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1.0.7
-        with:
-          profile: minimal
-          toolchain: stable
-          default: true
-          components: rustfmt, clippy
-      - uses: actions-rs/cargo@v1.0.3
-        with:
-          command: fmt
-          args: --all -- --check
-      - uses: actions-rs/cargo@v1.0.3
-        with:
-          command: clippy
-          args: --all-targets --all-features -- -D warnings -Dclippy::all -D clippy::pedantic
-            -D clippy::cargo -A clippy::multiple-crate-versions
-      - uses: gaurav-nelson/github-action-markdown-link-check@1.0.15
+          rust-components: rustfmt, clippy
+      - name: Run tests
+        run: make test
+      - name: Check markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@1.0.15
         if: matrix.os == 'ubuntu-latest'
