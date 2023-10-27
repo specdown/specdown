@@ -1,5 +1,6 @@
 /target
-/dist
+/specdown
+/spedown.exe
 /gh-pages
 **/*.rs.bk
 *.bak

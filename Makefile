@@ -15,12 +15,12 @@ DOC_FILES = $(shell find docs -type f)
 GH_PAGES_FILES = $(patsubst %, $(GH_PAGES_LOCATION)/%, $(DOC_FILES))
 
 .PHONY=build
-build: check test dist/$(TARGET)
+build: check test $(TARGET)
 
 .PHONY=clean
 clean:
 	rm -rf target
-	rm -rf dist
+	rm -rf $(TARGET)
 	rm -rf gh-pages
 
 .PHONY=check
@@ -38,16 +38,13 @@ format:
 test: target/release/$(TARGET)
 	export PATH="$$(pwd)/$<:$$PATH"; cargo test -- --nocapture
 
-dist:
-	mkdir -p dist
-
 target/debug/$(TARGET): Cargo.toml Cargo.lock $(SOURCE_FILES)
 	cargo build
 
 target/release/$(TARGET): Cargo.toml Cargo.lock $(SOURCE_FILES)
 	cargo build --release
 
-dist/$(TARGET): target/release/$(TARGET) dist
+$(TARGET): target/release/$(TARGET)
 	cp -f "$<" "$@"
 
 $(GH_PAGES_LOCATION): $(GH_PAGES_LOCATION)/index.md $(GH_PAGES_LOCATION)/logo/logo.png $(GH_PAGES_FILES)
