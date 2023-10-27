@@ -35,8 +35,8 @@ format:
 	cargo fmt --all
 
 .PHONY=test
-test:
-	export PATH="$$(pwd)/target/debug:$$PATH"; cargo test -- --nocapture
+test: target/release/$(TARGET)
+	export PATH="$$(pwd)/$<:$$PATH"; cargo test -- --nocapture
 
 dist:
 	mkdir -p dist
