@@ -48,8 +48,8 @@ jobs:
       - uses: tomphp/github-actions/checkout-rust-project@v0.2.0
         with:
           rust-components: rustfmt, clippy
-      - name: Run tests
-        run: make test
+      - name: Run checks
+        run: make lint
       - name: Check markdown links
         uses: gaurav-nelson/github-action-markdown-link-check@1.0.15
         if: matrix.os == 'ubuntu-latest'

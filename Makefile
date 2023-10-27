@@ -36,7 +36,7 @@ format:
 
 .PHONY=test
 test: target/release/$(TARGET)
-	export PATH="$$(pwd)/$<:$$PATH"; cargo test -- --nocapture
+	export PATH="$$(pwd)/$(dir $<):$$PATH"; cargo test -- --nocapture
 
 target/debug/$(TARGET): Cargo.toml Cargo.lock $(SOURCE_FILES)
 	cargo build
