@@ -49,7 +49,7 @@ jobs:
         with:
           rust-components: rustfmt, clippy
       - name: Run checks
-        run: make lint
+        run: make check
       - name: Check markdown links
         uses: gaurav-nelson/github-action-markdown-link-check@1.0.15
         if: matrix.os == 'ubuntu-latest'
