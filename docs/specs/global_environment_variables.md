@@ -60,7 +60,7 @@ test "$(pwd)" -ef "$SPECDOWN_WORKING_DIR"
 ```
 ~~~
 
-When runnig with `--working-dir` set:
+When running with `--working-dir` set:
 
 ```shell,script(name="specdown_working_dir_with_workspace_dir", expected_exit_code=0)
 mkdir -p workspace/specific_working_dir
