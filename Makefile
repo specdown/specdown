@@ -1,11 +1,21 @@
 .DEFAULT_GOAL := build
 
+SOURCE_FILES := $(shell find src -type f)
+
+ifeq ($(OS),Windows_NT)
+	TARGET_EXTENSION := .exe
+else
+	TARGET_EXTENSION :=
+endif
+
+TARGET := specdown$(TARGET_EXTENSION)
+
 GH_PAGES_LOCATION?=gh-pages
 DOC_FILES = $(shell find docs -type f)
 GH_PAGES_FILES = $(patsubst %, $(GH_PAGES_LOCATION)/%, $(DOC_FILES))
 
 .PHONY=build
-build: dist/specdown
+build: check test dist/$(TARGET)
 
 .PHONY=clean
 clean:
@@ -25,15 +35,20 @@ format:
 	cargo fmt --all
 
 .PHONY=test
-test: check
+test:
 	export PATH="$$(pwd)/target/debug:$$PATH"; cargo test -- --nocapture
 
 dist:
 	mkdir -p dist
 
-dist/specdown: dist test
+target/debug/$(TARGET): Cargo.toml Cargo.lock $(SOURCE_FILES)
+	cargo build
+
+target/release/$(TARGET): Cargo.toml Cargo.lock $(SOURCE_FILES)
 	cargo build --release
-	cp target/release/specdown dist
+
+dist/$(TARGET): target/release/$(TARGET) dist
+	cp -f "$<" "$@"
 
 $(GH_PAGES_LOCATION): $(GH_PAGES_LOCATION)/index.md $(GH_PAGES_LOCATION)/logo/logo.png $(GH_PAGES_FILES)
 
