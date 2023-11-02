@@ -3,7 +3,6 @@ queue_rules:
     conditions:
       - status-success=run-tests / check-conventional-commits / check-conventional-commits
       - status-success=run-tests / cargo-audit
-      - status-success=run-tests / cargo-check
       - status-success=run-tests / cargo-test (macos-latest)
       - status-success=run-tests / cargo-test (ubuntu-latest)
       - status-success=run-tests / cargo-test (windows-latest)
@@ -15,7 +14,6 @@ pull_request_rules:
     conditions:
       - status-success=run-tests / check-conventional-commits / check-conventional-commits
       - status-success=run-tests / cargo-audit
-      - status-success=run-tests / cargo-check
       - status-success=run-tests / cargo-test (macos-latest)
       - status-success=run-tests / cargo-test (ubuntu-latest)
       - status-success=run-tests / cargo-test (windows-latest)
