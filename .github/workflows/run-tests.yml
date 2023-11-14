@@ -8,7 +8,7 @@ on:
 
 jobs:
   check-conventional-commits:
-    uses: armakuni/github-actions/.github/workflows/check-conventional-commits.yml@v0.18.2
+    uses: armakuni/github-actions/.github/workflows/check-conventional-commits.yml@v0.19.0
 
   cargo-audit:
     runs-on: ubuntu-latest
