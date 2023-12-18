@@ -25,7 +25,7 @@ termdiff = "3.1.2"
 strip-ansi-escapes = "0.2.0"
 shell-words = "1.1.0"
 tempfile = "3.8.1"
-thiserror = "1.0.50"
+thiserror = "1.0.51"
 
 [dev-dependencies]
 assert_cmd = "2.0.12"
