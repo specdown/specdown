@@ -28,7 +28,7 @@ tempfile = "3.8.1"
 thiserror = "1.0.50"
 
 [dev-dependencies]
-assert_cmd = "2.0.12"
+assert_cmd = "2.0.13"
 indoc = "2.0.4"
 maplit = "1.0.2"
 tempfile = "3.8.1"
