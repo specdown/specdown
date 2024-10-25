@@ -65,7 +65,7 @@ chmod +x /usr/local/bin/specdown
 You can also use [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) to install the application
 
 ```shell,skip()
-brew install specdown/repo/specdown
+brew install specdown/homebrew-repo/specdown
 ```
 
 ### Windows
