@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-conventional-commits:
-    uses: armakuni/github-actions/.github/workflows/check-conventional-commits.yml@v0.19.1
+    uses: armakuni/github-actions/.github/workflows/check-conventional-commits.yml@v0.19.4
 
   run-tests:
     uses: ./.github/workflows/run-tests.yml
@@ -18,7 +18,7 @@ jobs:
       - check-conventional-commits
     if: github.ref == 'refs/heads/master' && needs.run-tests.outputs.will-bump == 'true'
     steps:
-      - uses: tomphp/github-actions/checkout-rust-project@v0.5.3
+      - uses: tomphp/github-actions/checkout-rust-project@v0.5.5
       - name: Install cargo-edit
         run: cargo install cargo-edit
       - name: Set Cargo version
@@ -26,7 +26,7 @@ jobs:
         env:
           NEW_VERSION: ${{ needs.run-tests.outputs.bump-version }}
       - name: Store updated Cargo files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bumped-files
           path: Cargo.*
@@ -38,11 +38,11 @@ jobs:
       - bump-cargo-version
       - run-tests
     steps:
-      - uses: tomphp/github-actions/checkout-rust-project@v0.5.3
+      - uses: tomphp/github-actions/checkout-rust-project@v0.5.5
       - uses: actions/download-artifact@v3
       - run: mv bumped-files/Cargo.* .
         shell: bash
-      - uses: tomphp/github-actions/determine-binary-name@v0.5.3
+      - uses: tomphp/github-actions/determine-binary-name@v0.5.5
         id: get-binary-name
         with:
           name: specdown
@@ -57,7 +57,7 @@ jobs:
           BINARY_NAME_WITH_ARCH: ${{ steps.get-binary-name.outputs.name-with-arch }}
         run: mv "$BINARY_NAME" "$BINARY_NAME_WITH_ARCH"
         shell: bash
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Store built binary version
         with:
           name: bins
@@ -72,7 +72,7 @@ jobs:
   tag-and-release:
     needs:
       - build-binaries
-    uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.19.1
+    uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.19.4
     with:
       download-artifacts: true
       release-artifacts: ./bins/*
