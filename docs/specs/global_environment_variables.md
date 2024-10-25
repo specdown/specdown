@@ -64,7 +64,7 @@ test "$(pwd)" -ef "$SPECDOWN_WORKING_DIR"
 ```
 ````
 
-When runnig with `--working-dir` set:
+When running with `--working-dir` set:
 
 ``` shell
 mkdir -p workspace/specific_working_dir
