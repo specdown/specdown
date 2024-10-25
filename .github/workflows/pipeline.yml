@@ -26,7 +26,7 @@ jobs:
         env:
           NEW_VERSION: ${{ needs.run-tests.outputs.bump-version }}
       - name: Store updated Cargo files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bumped-files
           path: Cargo.*
@@ -57,7 +57,7 @@ jobs:
           BINARY_NAME_WITH_ARCH: ${{ steps.get-binary-name.outputs.name-with-arch }}
         run: mv "$BINARY_NAME" "$BINARY_NAME_WITH_ARCH"
         shell: bash
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Store built binary version
         with:
           name: bins
