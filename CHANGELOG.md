@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.94](https://github.com/specdown/specdown/compare/v1.2.93..v1.2.94) - 2024-10-25
+#### Bug Fixes
+- Fix URLs used by homebrew - ([3f01535](https://github.com/specdown/specdown/commit/3f0153513821c6f52e4c897d724720ac5b8a93e1)) - Tom Oram
+#### Documentation
+- Fix homebrew repo name - ([286445d](https://github.com/specdown/specdown/commit/286445d81f6ffd6d8854a1e0ea5aa0ed85832d7f)) - Tom Oram
+
+- - -
+
 ## [v1.2.93](https://github.com/specdown/specdown/compare/v1.2.92..v1.2.93) - 2024-10-25
 #### Bug Fixes
 - bump indoc from 2.0.4 to 2.0.5 - ([313bbbd](https://github.com/specdown/specdown/commit/313bbbd056c7e54933d4b6dd29a571c5261e3dd1)) - dependabot[bot]
