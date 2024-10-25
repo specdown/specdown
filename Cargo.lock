@@ -277,29 +277,13 @@ dependencies = [
 
 [[package]]
 name = "crossterm"
-version = "0.26.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a84cda67535339806297f1b331d6dd6320470d2a0fe65381e79ee9e156dd3d13"
-dependencies = [
- "bitflags 1.3.2",
- "crossterm_winapi",
- "libc",
- "mio 0.8.11",
- "parking_lot",
- "signal-hook",
- "signal-hook-mio",
- "winapi",
-]
-
-[[package]]
-name = "crossterm"
 version = "0.28.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "829d955a0bb380ef178a640b91779e3987da38c9aea133b20614cfed8cdea9c6"
 dependencies = [
  "bitflags 2.4.1",
  "crossterm_winapi",
- "mio 1.0.2",
+ "mio",
  "parking_lot",
  "rustix",
  "signal-hook",
@@ -599,18 +583,6 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "0.8.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4a650543ca06a924e8b371db273b2756685faae30f8487da1b56505a8f78b0c"
-dependencies = [
- "libc",
- "log",
- "wasi",
- "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "mio"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80e04d1dcff3aae0704555fe5fee3bcfaf3d1fdf8a7e521d5b9d2b42acb52cec"
@@ -896,8 +868,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34db1a06d485c9142248b7a054f034b349b212551f3dfd19c94d45a754a217cd"
 dependencies = [
  "libc",
- "mio 0.8.11",
- "mio 1.0.2",
+ "mio",
  "signal-hook",
 ]
 
@@ -912,9 +883,9 @@ dependencies = [
 
 [[package]]
 name = "similar"
-version = "2.2.1"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "420acb44afdae038210c99e69aae24109f32f15500aa708e81d46c9f29d55fcf"
+checksum = "1de1d4f81173b03af4c0cbed3c898f6bff5b870e4a7f5d6f4057d62a7a4b686e"
 
 [[package]]
 name = "slug"
@@ -940,7 +911,7 @@ dependencies = [
  "clap_complete_command",
  "clap_derive",
  "comrak",
- "crossterm 0.28.1",
+ "crossterm",
  "indoc",
  "maplit",
  "nom",
@@ -1017,11 +988,11 @@ dependencies = [
 
 [[package]]
 name = "termdiff"
-version = "3.1.2"
+version = "3.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "071165671f928a20a8a88dbaca9f30357af596554969c856413ce1c49533af3d"
+checksum = "5d514804dae8518311a634433041b5e30a89c1ce0c6fde8a82ae1b155519f4d0"
 dependencies = [
- "crossterm 0.26.1",
+ "crossterm",
  "similar",
 ]
 
