@@ -26,6 +26,7 @@ pub struct Arguments {
     #[clap(long, default_value_t = String::from("bash -c"))]
     pub shell_command: String,
 
+    #[allow(clippy::doc_markdown)]
     /// Set an environment variable (format: 'VAR_NAME=value')
     // todo: Add validator
     #[clap(long)]
