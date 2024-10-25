@@ -60,7 +60,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: Store built binary version
         with:
-          name: bins
+          name: bins-${{ matrix.os }}
           path: ${{ steps.get-binary-name.outputs.name-with-arch }}
     strategy:
       matrix:
@@ -75,7 +75,7 @@ jobs:
     uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.19.4
     with:
       download-artifacts: true
-      release-artifacts: ./bins/*
+      release-artifacts: ./bins-*/*
 
   publish-website:
     needs:
