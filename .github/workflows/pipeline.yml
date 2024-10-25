@@ -116,7 +116,7 @@ jobs:
 
         name: Calculate the readme hash
       - run: |
-          curl -Lo file.tar.gz "https://github.com/$GIT_REPO/archive/$GIT_TAG.tar.gz"
+          curl -Lo file.tar.gz "https://github.com/$GIT_REPO/archive/refs/tags/$GIT_TAG.tar.gz"
           sha256sum -b file.tar.gz | awk '{ print $1 }' > "./hash"
           echo "SHA256=$( cat hash )" >> "$GITHUB_OUTPUT"
         id: bundle
