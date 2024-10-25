@@ -1,5 +1,6 @@
 queue_rules:
   - name: default
+    merge_method: merge
     conditions:
       - status-success=run-tests / check-conventional-commits / check-conventional-commits
       - status-success=run-tests / cargo-audit
@@ -23,7 +24,6 @@ pull_request_rules:
       - author=dependabot[bot]
     actions:
       queue:
-        method: merge
         name: default
 
 
