@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.93](https://github.com/specdown/specdown/compare/v1.2.92..v1.2.93) - 2024-10-25
+#### Bug Fixes
+- bump indoc from 2.0.4 to 2.0.5 - ([313bbbd](https://github.com/specdown/specdown/commit/313bbbd056c7e54933d4b6dd29a571c5261e3dd1)) - dependabot[bot]
+- bump thiserror from 1.0.59 to 1.0.65 - ([41d4015](https://github.com/specdown/specdown/commit/41d401514248a4908b17dedad2a12e972f7289a8)) - dependabot[bot]
+- bump termdiff from 3.1.2 to 3.1.4 - ([292ff0b](https://github.com/specdown/specdown/commit/292ff0b8e0d5b2941f9371eb08b020a3c9b56d9e)) - dependabot[bot]
+- bump assert_cmd from 2.0.13 to 2.0.16 - ([0654b5a](https://github.com/specdown/specdown/commit/0654b5ac851b1bb134ac8004050634ef4a5d7060)) - dependabot[bot]
+- bump clap from 4.5.3 to 4.5.13 - ([9d00323](https://github.com/specdown/specdown/commit/9d00323b0a93a041a2b55473d81b714e33414015)) - dependabot[bot]
+- bump mio from 0.8.6 to 0.8.11 - ([3544885](https://github.com/specdown/specdown/commit/354488520d40aa3bd6478e6773909e4dd86514b3)) - dependabot[bot]
+- bump tempfile from 3.8.1 to 3.11.0 - ([b3e5805](https://github.com/specdown/specdown/commit/b3e580562dfef22b08c0b45a96039548d6503ded)) - dependabot[bot]
+- bump comrak from 0.20.0 to 0.23.0 - ([00d0a7e](https://github.com/specdown/specdown/commit/00d0a7ebf3a7e45c993c7183b1976145a95b1e3d)) - dependabot[bot]
+- bump thiserror from 1.0.50 to 1.0.59 - ([040cb1a](https://github.com/specdown/specdown/commit/040cb1a3249fa24000f5630d246624a53b5c1b7a)) - dependabot[bot]
+- bump clap from 4.4.11 to 4.5.3 - ([d9bd9c8](https://github.com/specdown/specdown/commit/d9bd9c85d81a53d92aa980f0a81340801d766221)) - dependabot[bot]
+- bump assert_cmd from 2.0.12 to 2.0.13 - ([3611447](https://github.com/specdown/specdown/commit/36114472adb6813c95b35543328ebd5f4097c320)) - dependabot[bot]
+- bump clap from 4.4.10 to 4.4.11 - ([1428bfe](https://github.com/specdown/specdown/commit/1428bfe1250fc3f1c3c8bbbc54477bb10bf8e2b7)) - dependabot[bot]
+- bump comrak from 0.19.0 to 0.20.0 - ([c0ac09d](https://github.com/specdown/specdown/commit/c0ac09db2c513681be424053179f47b82d1f65f9)) - dependabot[bot]
+- bump clap from 4.4.8 to 4.4.10 - ([b627e1a](https://github.com/specdown/specdown/commit/b627e1a514f48cacb623dbb173232802cc32c1b6)) - dependabot[bot]
+- bump clap from 4.4.7 to 4.4.8 - ([fccfb94](https://github.com/specdown/specdown/commit/fccfb94a96ae9796a1a145393a68e57a7a6b371a)) - dependabot[bot]
+#### Build system
+- Update mergify config - ([caefbbb](https://github.com/specdown/specdown/commit/caefbbbd0a87f548ea0443c03f192cd5c779d676)) - Tom Oram
+- Update Rust version - ([174df07](https://github.com/specdown/specdown/commit/174df07bfe84bc7f9bb7f8e2b40219f625a37efb)) - Tom Oram
+- Move dist release to the repository root - ([e8fe6d1](https://github.com/specdown/specdown/commit/e8fe6d1e0dbdad4c7a8871a0036bffa5bb4f8ad7)) - Tom Oram
+- Make the release binary a dependency of test - ([b607cf5](https://github.com/specdown/specdown/commit/b607cf530b4004654410b569db373971acee9ff9)) - Tom Oram
+- Make Makefile cross platform - ([803eaec](https://github.com/specdown/specdown/commit/803eaecbef62b5898a898fbeaf21864f5d774079)) - Tom Oram
+#### Continuous Integration
+- Use separate artifacts for each OS - ([7622237](https://github.com/specdown/specdown/commit/76222377121c3c53a34cd8e4080a7d3d3465b8f9)) - Tom Oram
+- Update download-artifact to v4 - ([e605700](https://github.com/specdown/specdown/commit/e6057006e63befbda758d3f7fffb98bd6c22ca06)) - Tom Oram
+- Fix conventional commits - ([d0c4bd9](https://github.com/specdown/specdown/commit/d0c4bd921ad8e97f44c212cf364017466ce230a2)) - Tom Oram
+- bump actions/upload-artifact from 3 to 4 - ([3b0000b](https://github.com/specdown/specdown/commit/3b0000bb3f01fa21365455265683c27de718933a)) - dependabot[bot]
+- bump tomphp/github-actions from 0.5.3 to 0.5.5 - ([9e5262d](https://github.com/specdown/specdown/commit/9e5262d1c14a1ff17f982bfe832d8739bfd32ed6)) - dependabot[bot]
+- bump armakuni/github-actions from 0.19.1 to 0.19.4 - ([e9a5ff1](https://github.com/specdown/specdown/commit/e9a5ff11f5b037bdce59e64283f5c71444fda947)) - dependabot[bot]
+- bump tomphp/github-actions from 0.5.2 to 0.5.3 - ([64fb42e](https://github.com/specdown/specdown/commit/64fb42e1e0733eb7d8031d7fecd6f6a187b75094)) - dependabot[bot]
+- bump tomphp/github-actions from 0.5.1 to 0.5.2 - ([98bd471](https://github.com/specdown/specdown/commit/98bd47157d0a929da68bdcc104d75121b7ef2cf0)) - dependabot[bot]
+- bump armakuni/github-actions from 0.19.0 to 0.19.1 - ([3b0acb2](https://github.com/specdown/specdown/commit/3b0acb261adffdb4e83262caf439382eaf263525)) - dependabot[bot]
+- bump armakuni/github-actions from 0.18.2 to 0.19.0 - ([0ebb5d0](https://github.com/specdown/specdown/commit/0ebb5d02232b6a92f13dfd570c6e13a8eed507e4)) - dependabot[bot]
+- bump cuchi/jinja2-action from 1.2.1 to 1.2.2 - ([2dcca1d](https://github.com/specdown/specdown/commit/2dcca1d9564b3f11c20af20932b455f9a66aed4f)) - dependabot[bot]
+- Remove cargo-check from Mergify requirements - ([8d13572](https://github.com/specdown/specdown/commit/8d135724e2997ff4f4569fac7e5b7153b74a3fb0)) - Tom Oram
+- bump tomphp/github-actions from 0.2.0 to 0.5.1 - ([3918c98](https://github.com/specdown/specdown/commit/3918c98c9e0b58e06cf2a1ba374087222ade58a6)) - dependabot[bot]
+- bump armakuni/github-actions from 0.18.1 to 0.18.2 - ([b77b914](https://github.com/specdown/specdown/commit/b77b914f9260e284418cffbd740e904f95939822)) - dependabot[bot]
+- Correct name of check target - ([02dead5](https://github.com/specdown/specdown/commit/02dead5d81d91ff6fd6d19ba67d93b9ecfd869dd)) - Tom Oram
+- Fix lint and test jobs - ([24ac9d9](https://github.com/specdown/specdown/commit/24ac9d9a24baf7107d2a84253ed4cfd12793d8bf)) - Tom Oram
+- Use tomphp actions - ([6b113d8](https://github.com/specdown/specdown/commit/6b113d89832c40f2d5d29e6605a0671ee8902c76)) - Tom Oram
+#### Documentation
+- Fix typo - ([c10c69d](https://github.com/specdown/specdown/commit/c10c69dd5073938a27bfe400777e3032cc58faca)) - Tom Oram
+
+- - -
+
 ## [v1.2.92](https://github.com/specdown/specdown/compare/v1.2.91..v1.2.92) - 2023-10-27
 #### Bug Fixes
 - bump tempfile from 3.8.0 to 3.8.1 - ([606b48f](https://github.com/specdown/specdown/commit/606b48f60503a8502c7bae05cf8ced96052c93fd)) - dependabot[bot]
