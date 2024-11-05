@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.99](https://github.com/specdown/specdown/compare/v1.2.98..v1.2.99) - 2024-11-05
+#### Bug Fixes
+- bump thiserror from 1.0.67 to 1.0.68 - ([e8f149b](https://github.com/specdown/specdown/commit/e8f149b691e082d1e13be78e8ac1c0cc63def62d)) - dependabot[bot]
+
+- - -
+
 ## [v1.2.98](https://github.com/specdown/specdown/compare/v1.2.97..v1.2.98) - 2024-11-04
 #### Bug Fixes
 - bump thiserror from 1.0.66 to 1.0.67 - ([c1af134](https://github.com/specdown/specdown/commit/c1af13497729ed12f9b2988d34ed8e1900c6553d)) - dependabot[bot]
