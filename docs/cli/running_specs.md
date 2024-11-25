@@ -91,12 +91,12 @@ Running tests for example-file2.md:
 
 There are three directories that you need to know about when running specdown:
 
-1.  The **start directory**: The current working directory when specdown was run
-    (e.g. this might be the root of your repository).
-2.  The **workspace directory**: A directory with context which is required to
-    run the scripts. This defaults to the **start directory**.
-3.  The **working directory**: A sub-directory of the workspace directory where
-    script actions will be run. This defaults to the **workspace directory**.
+1. The **start directory**: The current working directory when specdown was run
+   (e.g. this might be the root of your repository).
+2. The **workspace directory**: A directory with context which is required to
+   run the scripts. This defaults to the **start directory**.
+3. The **working directory**: A sub-directory of the workspace directory where
+   script actions will be run. This defaults to the **workspace directory**.
 
 ### Setting a Specific Working Directory: `--workspace-dir`
 

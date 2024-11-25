@@ -32,8 +32,8 @@ It will then validate that the output from the above command matches the followi
 
 The motivation for this project has come from two key places, these are:
 
-1.  Documentation on GitHub projects where the documented commands and output are out of date
-2.  Projects which use Cucumber but no one except the developers refer to the feature files
+1. Documentation on GitHub projects where the documented commands and output are out of date
+2. Projects which use Cucumber but no one except the developers refer to the feature files
 
 ## Installation
 
