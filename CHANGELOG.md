@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.105](https://github.com/specdown/specdown/compare/v1.2.104..v1.2.105) - 2024-11-27
+#### Bug Fixes
+- bump comrak from 0.30.0 to 0.31.0 - ([bcf5768](https://github.com/specdown/specdown/commit/bcf576817f18e67bbf5715fc69d7f2f1d70532d6)) - dependabot[bot]
+
+- - -
+
 ## [v1.2.104](https://github.com/specdown/specdown/compare/v1.2.103..v1.2.104) - 2024-11-25
 #### Bug Fixes
 - bump comrak from 0.29.0 to 0.30.0 - ([058dad1](https://github.com/specdown/specdown/commit/058dad1dee4420863da3cade33c3fa8d168aff21)) - dependabot[bot]
