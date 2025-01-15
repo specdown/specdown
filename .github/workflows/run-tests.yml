@@ -13,7 +13,7 @@ jobs:
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: tomphp/github-actions/checkout-rust-project@v0.5.5
+      - uses: tomphp/github-actions/checkout-rust-project@v0.5.6
       - uses: actions-rs/audit-check@v1.2.0
         name: Audit check cargo packages
         with:
@@ -28,7 +28,7 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
-      - uses: tomphp/github-actions/checkout-rust-project@v0.5.5
+      - uses: tomphp/github-actions/checkout-rust-project@v0.5.6
       - name: Rename wsl bash
         if: runner.os == 'Windows'
         run: |
@@ -45,7 +45,7 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
-      - uses: tomphp/github-actions/checkout-rust-project@v0.5.5
+      - uses: tomphp/github-actions/checkout-rust-project@v0.5.6
         with:
           rust-components: rustfmt, clippy
       - name: Run checks
