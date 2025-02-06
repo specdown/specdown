@@ -24,7 +24,7 @@ fn extract_elements<'a>(root: &'a AstNode<'a>) -> Result<Vec<Element>, Error> {
     Ok(get_root_children(root)?.filter_map(to_element).collect())
 }
 
-fn get_root_children<'a>(root: &'a AstNode<'a>) -> Result<Children<'_, RefCell<Ast>>, Error> {
+fn get_root_children<'a>(root: &'a AstNode<'a>) -> Result<Children<'a, RefCell<Ast>>, Error> {
     match &root.data.borrow_mut().value {
         NodeValue::Document => Ok(root.children()),
         _ => Err(Error::RootMustBeDocument),
