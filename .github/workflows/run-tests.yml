@@ -51,5 +51,5 @@ jobs:
       - name: Run checks
         run: make check
       - name: Check markdown links
-        uses: gaurav-nelson/github-action-markdown-link-check@1.0.15
+        uses: gaurav-nelson/github-action-markdown-link-check@1.0.16
         if: matrix.os == 'ubuntu-latest'
