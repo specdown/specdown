@@ -15,7 +15,7 @@ categories = [
 keywords = [ "markdown", "testing", "bdd", "tdd", "documentation" ]
 
 [dependencies]
-clap = { version = "4.5.21", features = ["derive"] }
+clap = { version = "4.5.28", features = ["derive"] }
 clap_derive = "4.1.8"
 clap_complete_command = "0.6.1"
 crossterm = "0.28.1"
@@ -26,7 +26,7 @@ strip-ansi-escapes = "0.2.0"
 shell-words = "1.1.0"
 tempfile = "3.16.0"
 thiserror = "2.0.3"
-time = "0.3.36"
+time = "0.3.37"
 
 [dev-dependencies]
 assert_cmd = "2.0.16"
