@@ -40,7 +40,7 @@ fn list_of_args_to_hash_map(arguments: &[Argument<'_>]) -> HashMap<String, Argum
         .collect()
 }
 
-fn argument<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Argument<'_>, E> {
+fn argument<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Argument<'a>, E> {
     let p = tuple((
         argument_name,
         tuple((space0, tag("="), space0)),
@@ -49,7 +49,7 @@ fn argument<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Argu
     map(p, |(name, _, value)| (name, value))(input)
 }
 
-fn argument_name<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
+fn argument_name<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &'a str, E> {
     let mut p = tuple((alpha1, many0(alt((alphanumeric1, tag("_"))))));
     let (remainder, (start, parts)) = p(input)?;
     let length = start.len() + parts.join("").len();
