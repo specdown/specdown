@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.106](https://github.com/specdown/specdown/compare/v1.2.105..v1.2.106) - 2025-02-07
+#### Bug Fixes
+- bump thiserror from 2.0.3 to 2.0.11 - ([229e97c](https://github.com/specdown/specdown/commit/229e97c5678623612a32b455f9d31bf2461d9e28)) - dependabot[bot]
+- bump comrak from 0.31.0 to 0.35.0 - ([57963d2](https://github.com/specdown/specdown/commit/57963d2e8b108f0bf95f5aa5c053b8ee77cbb199)) - dependabot[bot]
+- bump tempfile from 3.14.0 to 3.16.0 - ([ec3feec](https://github.com/specdown/specdown/commit/ec3feec14301ad3592c17634013c4f1b3a3b1bb0)) - dependabot[bot]
+- bump clap from 4.5.21 to 4.5.28 - ([b65c7d4](https://github.com/specdown/specdown/commit/b65c7d456e17b4622a3bced09f01858d6256985b)) - dependabot[bot]
+- bump time from 0.3.36 to 0.3.37 - ([222f4ae](https://github.com/specdown/specdown/commit/222f4ae063f12392faff92efba1357cbff821e70)) - dependabot[bot]
+- resolve lifetimes in function signatures warnings - ([ea9ca62](https://github.com/specdown/specdown/commit/ea9ca62414f26bc919303fd8222c85242e350e7e)) - Billie Thompson
+
+- - -
+
 ## [v1.2.105](https://github.com/specdown/specdown/compare/v1.2.104..v1.2.105) - 2024-11-27
 #### Bug Fixes
 - bump comrak from 0.30.0 to 0.31.0 - ([bcf5768](https://github.com/specdown/specdown/commit/bcf576817f18e67bbf5715fc69d7f2f1d70532d6)) - dependabot[bot]
