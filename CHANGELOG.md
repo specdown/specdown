@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.111](https://github.com/specdown/specdown/compare/v1.2.110..v1.2.111) - 2025-02-28
+#### Bug Fixes
+- bump comrak from 0.35.0 to 0.36.0 - ([dae51af](https://github.com/specdown/specdown/commit/dae51af3cb18d5cb85f92e8410e2feb92550cca2)) - dependabot[bot]
+#### Continuous Integration
+- bump tomphp/github-actions from 0.5.5 to 0.5.7 - ([fdf1a0b](https://github.com/specdown/specdown/commit/fdf1a0b4d184439cad1d153c0daa6280f101ed21)) - dependabot[bot]
+- bump armakuni/github-actions from 0.19.4 to 0.19.6 - ([d74ff5f](https://github.com/specdown/specdown/commit/d74ff5fcb0b49515b0aa41558aa95093d738a9b0)) - dependabot[bot]
+
+- - -
+
 ## [v1.2.110](https://github.com/specdown/specdown/compare/v1.2.109..v1.2.110) - 2025-02-25
 #### Bug Fixes
 - bump clap from 4.5.30 to 4.5.31 - ([1ea6978](https://github.com/specdown/specdown/commit/1ea697894168751010ded7f4cf79be353a925b66)) - dependabot[bot]
