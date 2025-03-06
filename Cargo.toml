@@ -30,6 +30,6 @@ time = "0.3.37"
 
 [dev-dependencies]
 assert_cmd = "2.0.16"
-indoc = "2.0.5"
+indoc = "2.0.6"
 maplit = "1.0.2"
 tempfile = "3.17.1"
