@@ -6,12 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout specdown
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: specdown/specdown
           path: specdown
       - name: Checkout gh-pages
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: specdown/specdown
           ref: gh-pages

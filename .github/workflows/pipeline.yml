@@ -94,13 +94,13 @@ jobs:
           awk -F / '{print $2}' | sed -e "s/:refs//")" >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         name: Checkout this repository
         with:
           path: main-repo
           ref: v${{ needs.tag-and-release.outputs.current-version }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: specdown/homebrew-repo
           path: homebrew-repo
