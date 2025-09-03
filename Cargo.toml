@@ -26,7 +26,7 @@ strip-ansi-escapes = "0.2.0"
 shell-words = "1.1.0"
 tempfile = "3.17.1"
 thiserror = "2.0.12"
-time = "0.3.37"
+time = "0.3.43"
 
 [dev-dependencies]
 assert_cmd = "2.0.16"
