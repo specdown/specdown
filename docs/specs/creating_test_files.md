@@ -10,7 +10,7 @@ These files exist temporarily while the tests run.
 You create a file using the `file` function.
 Let's look at this by creating a `writing_file_example.md` spec:
 
-```` markdown
+````markdown
 ```text,file(path="example.txt")
 Example file content
 ```
@@ -30,13 +30,13 @@ Example file content
 
 We can now run this with:
 
-``` shell
+```shell
 specdown run writing_file_example.md
 ```
 
 And we'll see
 
-``` text
+```text
 Running tests for writing_file_example.md:
 
   ✓ creating file example.txt succeeded
@@ -51,13 +51,13 @@ Running tests for writing_file_example.md:
 
 UTF-8 characters are supported:
 
-``` shell
+```shell
 echo "✓"
 ```
 
 Can be verified as:
 
-``` text
+```text
 ✓
 ```
 

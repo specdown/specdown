@@ -9,7 +9,7 @@ if you want specdown to skip a codeblock then use the function `skip()`.
 
 Given the following markdown file `skip_example.md`:
 
-```` markdown
+````markdown
 # Skipping Code Blocks Example
 
 ```test,skip()
@@ -19,13 +19,13 @@ This codeblock is not executed
 
 When running:
 
-``` shell
+```shell
 specdown run skip_example.md
 ```
 
 Then you should see the following:
 
-``` text
+```text
 Running tests for skip_example.md:
 
 

@@ -16,7 +16,7 @@ unexpected output. Valid values for `expected_output` are:
 
 Given the file `output_expectation_any.md`:
 
-```` markdown
+````markdown
 # Any Example
 
 Run a script which outputs some stdout and stderr.
@@ -29,13 +29,13 @@ echo "Good stderr" 1>&2
 
 When you run the following:
 
-``` shell
+```shell
 specdown run output_expectation_any.md
 ```
 
 Then you will see the following output:
 
-``` text
+```text
 Running tests for output_expectation_any.md:
 
   ✓ running script 'stdout_and_stderr' succeeded
@@ -48,7 +48,7 @@ Running tests for output_expectation_any.md:
 
 Given the file `output_expectation_stdout.md`:
 
-```` markdown
+````markdown
 # StdOut Example
 
 Run a script which outputs some stdout and stderr.
@@ -65,13 +65,13 @@ echo "Bad stderr" 1>&2
 
 When you run the following:
 
-``` shell
+```shell
 specdown run output_expectation_stdout.md
 ```
 
 Then you will see the following output:
 
-``` text
+```text
 Running tests for output_expectation_stdout.md:
 
   ✓ running script 'stdout' succeeded
@@ -95,7 +95,7 @@ Bad stderr
 
 Given the file `output_expectation_stderr.md`:
 
-```` markdown
+````markdown
 # StdErr Example
 
 Run a script which outputs some stdout and stderr.
@@ -112,13 +112,13 @@ echo "More good stderr" 1>&2
 
 When you run the following:
 
-``` shell
+```shell
 specdown run output_expectation_stderr.md
 ```
 
 Then you will see the following output:
 
-``` text
+```text
 Running tests for output_expectation_stderr.md:
 
   ✓ running script 'stderr' succeeded
@@ -142,7 +142,7 @@ More good stderr
 
 Given the file `output_expectation_none.md`:
 
-```` markdown
+````markdown
 # None Example
 
 Run a script which outputs some stdout and stderr.
@@ -162,13 +162,13 @@ echo "Bad stderr" 1>&2
 
 When you run the following:
 
-``` shell
+```shell
 specdown run output_expectation_none.md
 ```
 
 Then you will see the following output:
 
-``` text
+```text
 Running tests for output_expectation_none.md:
 
   ✓ running script 'no_output' succeeded

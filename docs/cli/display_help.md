@@ -6,7 +6,7 @@ layout: page
 
 You can run SpecDown with no sub-commands and it will display the help.
 
-``` shell
+```shell
 specdown
 ```
 
@@ -49,7 +49,7 @@ specdown
 You can also run a specific sub-command with the `--help` argument for help on that sub-command.
 For example:
 
-``` shell
+```shell
 specdown strip --help
 ```
 

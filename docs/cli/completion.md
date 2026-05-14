@@ -14,55 +14,55 @@ We support assorted shells
 
 ### Bash
 
-``` shell
+```shell
 specdown completion bash
 ```
 
 To load it run
 
-``` shell
+```shell
 source <(specdown completion bash)
 ```
 
 ### Zsh
 
-``` shell
+```shell
 specdown completion zsh
 ```
 
 To load it run
 
-``` shell
+```shell
 source <(specdown completion zsh)
 ```
 
 ### Fish
 
-``` shell
+```shell
 specdown completion fish
 ```
 
 To load it run
 
-``` shell
+```shell
 specdown completion fish > ~/.config/fish/completions/specdown.fish
 ```
 
 ### PowerShell
 
-``` shell
+```shell
 specdown completion powershell
 ```
 
 To load it run
 
-``` shell
+```shell
 . <(specdown completion powershell)
 ```
 
 ### Elvish
 
-``` shell
+```shell
 specdown completion elvish
 ```
 
@@ -70,20 +70,19 @@ specdown completion elvish
 
 You can display all the options available by using `--help` on the `completion` sub-command.
 
-``` shell
+```shell
 specdown completion --help
 ```
 
 ### Non-Windows
 
-``` text
+```text
 Output completion for a shell of your choice
 
 Usage: specdown completion <SHELL>
 
 Arguments:
-  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fish, nushell,
-           powershell, zsh]
+  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fish, nushell, powershell, zsh]
 
 Options:
   -h, --help  Print help
@@ -91,15 +90,14 @@ Options:
 
 ### Windows
 
-``` text
+```text
 specdown-completion 
 Output completion for a shell of your choice
 
 Usage: specdown completion <SHELL>
 
 Arguments:
-  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fish, nushell,
-           powershell, zsh]
+  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fish, nushell, powershell, zsh]
 
 Options:
   -h, --help  Print help

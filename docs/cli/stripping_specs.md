@@ -11,7 +11,7 @@ The syntax used by specdown upsets some markdown parses, so the `strip` command 
 
 Give a markdown spec called `strip_example.md`:
 
-```` markdown
+````markdown
 # Strip Example
 
 ```shell,script(name="hello_world")
@@ -21,16 +21,16 @@ echo "Hello world"
 
 You can run:
 
-``` shell
+```shell
 specdown strip strip_example.md
 ```
 
 And you'll get get following output:
 
-```` markdown
+````markdown
 # Strip Example
 
-``` shell
+```shell
 echo "Hello world"
 ```
 
@@ -40,13 +40,13 @@ echo "Hello world"
 
 You can display all the options available by using `--help` on the `strip` sub-command.
 
-``` shell
+```shell
 specdown strip --help
 ```
 
 ### Non-Windows Output
 
-``` text
+```text
 Outputs a version of the markdown with all specdown functions removed
 
 Usage: specdown strip <SPEC_FILE>
@@ -60,7 +60,7 @@ Options:
 
 ### Windows Output
 
-``` text
+```text
 specdown-strip 
 Outputs a version of the markdown with all specdown functions removed
 

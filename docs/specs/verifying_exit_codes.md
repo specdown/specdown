@@ -8,7 +8,7 @@ You can add an `expected_exit_code` option to a `script()` function if you want 
 
 Given the file `exit_example.md`:
 
-```` markdown
+````markdown
 # Example of testing exit codes
 
 The following will success:
@@ -26,13 +26,13 @@ exit 1
 
 When you run:
 
-``` shell
+```shell
 specdown run exit_example.md
 ```
 
 Then you'll see:
 
-``` text
+```text
 Running tests for exit_example.md:
 
   ✓ running script 'command_1' succeeded

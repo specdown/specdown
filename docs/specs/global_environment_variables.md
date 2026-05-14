@@ -14,7 +14,7 @@ context directory exists.
 
 This can be demonstrated with the following spec:
 
-```` markdown
+````markdown
 # Check Workspace Directory
 
 Verify that `SPECDOWN_WORKSPACE_DIR` is set the current workspace directory.
@@ -28,20 +28,20 @@ test "$(pwd)" -ef "$SPECDOWN_WORKSPACE_DIR"
 
 Works with current workspace dir:
 
-``` shell
+```shell
 specdown run check_workspace_dir.md
 ```
 
 Works with `--workspace-dir`:
 
-``` shell
+```shell
 mkdir specific_workspace_dir
 specdown run --workspace-dir specific_workspace_dir check_workspace_dir.md
 ```
 
 Works with `--temporary-workspace-dir`:
 
-``` shell
+```shell
 specdown run --temporary-workspace-dir check_workspace_dir.md
 ```
 
@@ -52,7 +52,7 @@ running `script` actions.
 
 This can be demonstrated with the following spec:
 
-```` markdown
+````markdown
 # Check Running Directory
 
 Verify that `SPECDOWN_WORKING_DIR` is set the current workspace directory.
@@ -66,7 +66,7 @@ test "$(pwd)" -ef "$SPECDOWN_WORKING_DIR"
 
 When running with `--working-dir` set:
 
-``` shell
+```shell
 mkdir -p workspace/specific_working_dir
 specdown run --workspace-dir workspace --working-dir specific_working_dir check_working_dir.md
 ```
@@ -79,13 +79,13 @@ have changed running directory.
 
 To demonstrate this, we can create a file called `file_in_start_dir.md`:
 
-``` markdown
+```markdown
 This file is in the start dir
 ```
 
 And a spec file which checks the content of that file:
 
-```` markdown
+````markdown
 # Check File Contents
 
 ```shell,script(name="check_workspace_directory")
@@ -100,11 +100,11 @@ This file is in the start dir
 We can now run that spec file in a temporary running directory and see that it
 passes:
 
-``` shell
+```shell
 specdown run --temporary-workspace-dir check_file_in_start_dir.md
 ```
 
-``` text
+```text
 Running tests for check_file_in_start_dir.md:
 
   ✓ running script 'check_workspace_directory' succeeded

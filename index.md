@@ -12,7 +12,7 @@ layout: page
 
 When SpecDown is run with **this** document, it will execute the following shell command:
 
-``` shell
+```shell
 echo "Hello SpecDown"
 ```
 
@@ -44,14 +44,14 @@ The recommended way is to download the compiled releases; you can do this by usi
 
 You can download the binary and add it to your path:
 
-``` shell
+```shell
 curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-apple-darwin -o /usr/local/bin/specdown
 chmod +x /usr/local/bin/specdown
 ```
 
 Alternatively, you can also use [brew](https://brew.sh/)
 
-``` shell
+```shell
 brew install specdown/homebrew-repo/specdown
 ```
 
@@ -59,14 +59,14 @@ brew install specdown/homebrew-repo/specdown
 
 You can download the binary and add it to your path:
 
-``` shell
+```shell
 curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-unknown-linux-gnu -o /usr/local/bin/specdown
 chmod +x /usr/local/bin/specdown
 ```
 
 You can also use [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) to install the application
 
-``` shell
+```shell
 brew install specdown/homebrew-repo/specdown
 ```
 
@@ -74,7 +74,7 @@ brew install specdown/homebrew-repo/specdown
 
 You can download the binary and add it to your path:
 
-``` powershell
+```powershell
 Invoke-WebRequest -Uri "https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-pc-windows-msvc.exe" -OutFile "specdown.exe"
 ```
 
@@ -83,7 +83,7 @@ Invoke-WebRequest -Uri "https://github.com/specdown/specdown/releases/latest/dow
 The markdown for the example at the beginning of this document looks like this.
 Let's save it to a file called `example.md`:
 
-```` markdown
+````markdown
 ## This document is an executable specification
 
 When SpecDown is run with this document, it will execute the following shell script.
@@ -101,13 +101,13 @@ Hello SpecDown
 
 You can run this markdown specification by using the following command:
 
-``` shell
+```shell
 specdown run example.md
 ```
 
 This will produce the following output:
 
-``` text
+```text
 Running tests for example.md:
 
   ✓ running script 'hello-specdown' succeeded

@@ -13,7 +13,7 @@ some invalid content.
 
 Given `unknown_function_example.md`:
 
-```` markdown
+````markdown
 # Unknown Function Example
 
 ```shell,function()
@@ -23,13 +23,13 @@ echo "This script is annotated with an unknown function"
 
 Running the following command will fail:
 
-``` shell
+```shell
 specdown run unknown_function_example.md
 ```
 
 With the following error message:
 
-``` text
+```text
 Running tests for unknown_function_example.md:
 
   ✗ Unknown function: function
@@ -42,7 +42,7 @@ Running tests for unknown_function_example.md:
 
 Given `missing_function_argument_example.md`:
 
-```` markdown
+````markdown
 # Unknown Function Example
 
 ```shell,file()
@@ -52,13 +52,13 @@ This file has no path!
 
 Running the following command will fail:
 
-``` shell
+```shell
 specdown run missing_function_argument_example.md
 ```
 
 With the following error message:
 
-``` text
+```text
 Running tests for missing_function_argument_example.md:
 
   ✗ Function file requires argument path
@@ -71,7 +71,7 @@ Running tests for missing_function_argument_example.md:
 
 Given `invalid_argument_value_example.md`:
 
-```` markdown
+````markdown
 # Unknown Function Example
 
 ```shell,script(name=123)
@@ -81,13 +81,13 @@ echo "This script has an integer name"
 
 Running the following command will fail:
 
-``` shell
+```shell
 specdown run invalid_argument_value_example.md
 ```
 
 With the following error message:
 
-``` text
+```text
 Running tests for invalid_argument_value_example.md:
 
   ✗ Function script requires argument name to be a string, got integer
@@ -100,7 +100,7 @@ Running tests for invalid_argument_value_example.md:
 
 Given `invalid_token_option_example.md`:
 
-```` markdown
+````markdown
 # Unknown Function Example
 
 ```shell,script(name="script")
@@ -114,13 +114,13 @@ unknown is not a valid stream
 
 Running the following command will fail:
 
-``` shell
+```shell
 specdown run invalid_token_option_example.md
 ```
 
 With the following error message:
 
-``` text
+```text
 Running tests for invalid_token_option_example.md:
 
   ✗ Argument stream for function verify must be output, stdout or stderr, got unknown
@@ -133,7 +133,7 @@ Running tests for invalid_token_option_example.md:
 
 Given `verify_unknown_script_example.md`:
 
-```` markdown
+````markdown
 # Verify Unknown Script Example
 
 ```text,verify(script_name="unknown")
@@ -143,13 +143,13 @@ This doesn't matter
 
 Running the following command will fail:
 
-``` shell
+```shell
 specdown run verify_unknown_script_example.md
 ```
 
 With the following error message:
 
-``` text
+```text
 Running tests for verify_unknown_script_example.md:
 
   ✗ Failed to verify the output of 'unknown': No script with that name has been executed yet.
@@ -164,19 +164,19 @@ Running tests for verify_unknown_script_example.md:
 
 Given `empty_spec.md`:
 
-``` markdown
+```markdown
 # Nothing to see here
 ```
 
 Running the following command will fail:
 
-``` shell
+```shell
 specdown run --workspace-dir dirname --temporary-workspace-dir empty_shell_command_example.md
 ```
 
 With the following error message:
 
-``` text
+```text
   ✗ --workspace-dir and --temporary-workspace-dir cannot be specified at the same time
 ```
 
@@ -186,19 +186,19 @@ With the following error message:
 
 Given `empty_shell_command_example.md`:
 
-``` markdown
+```markdown
 # Nothing to see here
 ```
 
 Running the following command will fail:
 
-``` shell
+```shell
 specdown run --shell-command '' empty_shell_command_example.md
 ```
 
 With the following error message:
 
-``` text
+```text
   ✗ Invalid shell command provided:  (Error: Command is empty)
 ```
 
@@ -206,19 +206,19 @@ With the following error message:
 
 Given `invalid_shell_command_example.md`:
 
-``` markdown
+```markdown
 # Nothing to see here
 ```
 
 Running the following command will fail:
 
-``` shell
+```shell
 specdown run --shell-command 'invalid " command' invalid_shell_command_example.md
 ```
 
 With the following error message:
 
-``` text
+```text
   ✗ Invalid shell command provided: invalid " command (Error: Parse error : missing closing quote)
 ```
 
@@ -226,7 +226,7 @@ With the following error message:
 
 Given `missing_shell_example.md`:
 
-```` markdown
+````markdown
 # Hello World
 
 ```shell,script(name="test")
@@ -236,13 +236,13 @@ echo "Hello world"
 
 Running the following command will fail:
 
-``` shell
+```shell
 specdown run --shell-command 'does-not-exist' missing_shell_example.md
 ```
 
 With the following error message:
 
-``` text
+```text
 Running tests for missing_shell_example.md:
 
   ✗ Failed to run command: does-not-exist [] (Error: program not found)

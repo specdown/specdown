@@ -12,7 +12,7 @@ If no `stream` argument is provided then `stdout` is used.
 
 Given the file `verify_example.md`:
 
-```` markdown
+````markdown
 # Verify Example
 
 Run a script which outputs some stdout and stderr.
@@ -37,13 +37,13 @@ Good stderr
 
 When you run the following:
 
-``` shell
+```shell
 specdown run verify_example.md
 ```
 
 Then you will see the following output:
 
-``` text
+```text
 Running tests for verify_example.md:
 
   ✓ running script 'stdout_and_stderr' succeeded
@@ -68,7 +68,7 @@ the `name` argument on `script` if you don't intent to reference it.
 
 Given the file `omit_name_example.md`:
 
-```` markdown
+````markdown
 # Omitting The Script Name Example
 
 Run a script with no name:
@@ -96,13 +96,13 @@ Script with name!
 
 When you run the following:
 
-``` shell
+```shell
 specdown run omit_name_example.md
 ```
 
 Then you will see the following output:
 
-``` text
+```text
 Running tests for omit_name_example.md:
 
   ✓ running script '<unnamed>' succeeded
@@ -120,7 +120,7 @@ An operating system can be specified for the verification to apply to. This is l
 
 Given the file `os_specific.md`:
 
-```` markdown
+````markdown
 # OS Specific verifiction
 
 Run a script with no name:
@@ -185,13 +185,13 @@ Options:
 
 When you run the following:
 
-``` shell
+```shell
 specdown run os_specific.md
 ```
 
 Then you will see the following output:
 
-``` text
+```text
 Running tests for os_specific.md:
 
   ✓ running script 'os_specific' succeeded
@@ -204,7 +204,7 @@ Running tests for os_specific.md:
 You may also negate the target os
 Given the file `os_specific_negation.md`:
 
-```` markdown
+````markdown
 # OS Specific nagative verifiction
 
 Run a script with no name:
@@ -252,13 +252,13 @@ Options:
 
 When you run the following:
 
-``` shell
+```shell
 specdown run os_specific_negation.md
 ```
 
 Then you will see the following output:
 
-``` text
+```text
 Running tests for os_specific_negation.md:
 
   ✓ running script 'os_specific_negation' succeeded
