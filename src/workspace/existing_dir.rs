@@ -16,7 +16,7 @@ impl Workspace for ExistingDir {
         std::fs::create_dir_all(&self.directory).expect("Failed to create workspace directory");
 
         self.directory = std::fs::canonicalize(&self.directory)
-            .unwrap_or_else(|_| panic!("Failed to canonicalize {:?}", &self.directory));
+            .unwrap_or_else(|_| panic!("Failed to canonicalize {}", self.directory.display()));
     }
 
     fn dir(&self) -> &PathBuf {

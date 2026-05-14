@@ -6,10 +6,8 @@ pub fn from_events(events: &[RunEvent]) -> ExitCode {
 
     for event in events {
         match event {
-            RunEvent::SpecFileCompleted { success: false } => {
-                if exit_code == ExitCode::Success {
-                    exit_code = ExitCode::TestFailed;
-                }
+            RunEvent::SpecFileCompleted { success: false } if exit_code == ExitCode::Success => {
+                exit_code = ExitCode::TestFailed;
             }
             RunEvent::ErrorOccurred(error) => {
                 return match error {

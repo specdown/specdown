@@ -103,9 +103,9 @@ fn verify_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
         None
     };
     let stream = to_stream(&stream_name).ok_or_else(|| Error::InvalidArgumentValue {
-        function: f.name.to_string(),
+        function: f.name.clone(),
         argument: "stream".to_string(),
-        got: stream_name.to_string(),
+        got: stream_name.clone(),
         expected: "output, stdout or stderr".to_string(),
     })?;
     Ok(CodeBlockType::Verify(VerifyCodeBlock {
