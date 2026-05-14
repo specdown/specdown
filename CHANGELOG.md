@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.114](https://github.com/specdown/specdown/compare/v1.2.113..v1.2.114) - 2026-05-14
+#### Bug Fixes
+- **(ci)** add cargo shim self-healing to build-binaries job - ([854cb65](https://github.com/specdown/specdown/commit/854cb65c8ca70cdd20449d80b226af31927a34c7)) - Tom Oram
+- **(ci)** check rustc as well as cargo and replace all toolchain binaries - ([33efcaa](https://github.com/specdown/specdown/commit/33efcaaf3b9957cda6f99462de5212e60fc330e8)) - Tom Oram
+- **(ci)** explicitly specify artifact name and path for download - ([2b7e594](https://github.com/specdown/specdown/commit/2b7e594ddbe0b034f10c3bbaf0d36f784fa9e5d2)) - Tom Oram
+- **(ci)** symlink real cargo binary when proxy shim is broken - ([26836d6](https://github.com/specdown/specdown/commit/26836d6132e927967090c9ea1ee7df8474c5904a)) - Tom Oram
+- **(ci)** use rustup update to recreate cargo proxy after cache poisoning - ([a88e456](https://github.com/specdown/specdown/commit/a88e4567cff251f67136d8ef163fb6c268f714b3)) - Tom Oram
+- **(ci)** check cargo version output to detect broken shim - ([6c5ea61](https://github.com/specdown/specdown/commit/6c5ea616dbeef0e2447d8e4b6573dc97e2d8abc2)) - Tom Oram
+- **(ci)** self-heal broken cargo shim after stale cache restore - ([c67b152](https://github.com/specdown/specdown/commit/c67b152f4ef8c403fec7237c31c42351f5c8e5ab)) - Tom Oram
+- bump assert_cmd from 2.0.16 to 2.2.2 - ([3b0544d](https://github.com/specdown/specdown/commit/3b0544d00257aeb76458e9e6ef7b42b6e4524f07)) - dependabot[bot]
+- migrate parsers to nom 8 API - ([ee23cde](https://github.com/specdown/specdown/commit/ee23cde62d0661098969a05bb20cc9a82d236bf0)) - Tom Oram
+- bump nom from 7.1.3 to 8.0.0 - ([96e1da7](https://github.com/specdown/specdown/commit/96e1da7fd6ef1462e6546c406e42af611a5d26e4)) - dependabot[bot]
+- bump thiserror from 2.0.12 to 2.0.18 - ([7f619ab](https://github.com/specdown/specdown/commit/7f619abe2d9fcba17f4f2a87ae283af4284487eb)) - dependabot[bot]
+- bump termdiff from 3.1.4 to 4.1.1 - ([e638b10](https://github.com/specdown/specdown/commit/e638b1053cfdc4a09375c805b9f8e988c1f80719)) - dependabot[bot]
+#### Continuous Integration
+- bump armakuni/github-actions/.github/workflows/check-conventional-commits.yml - ([65ebf12](https://github.com/specdown/specdown/commit/65ebf1273e615c2267d5be5f3577947563e87d5e)) - dependabot[bot]
+- bump actions/checkout from 4 to 6 - ([bb7138a](https://github.com/specdown/specdown/commit/bb7138a35e281c2fd62f7a111b27b9e6e74926d7)) - dependabot[bot]
+- bump actions/upload-artifact from 4 to 7 - ([c021c81](https://github.com/specdown/specdown/commit/c021c81b7709e762f3a4b7b7cbeb3d753fa86ccb)) - dependabot[bot]
+- trigger workflow run - ([e75a918](https://github.com/specdown/specdown/commit/e75a91891026dc153863408fb324e4379e52c9e6)) - Tom Oram
+- bump cuchi/jinja2-action from 1.2.2 to 1.3.0 - ([0945d57](https://github.com/specdown/specdown/commit/0945d57f84628b3f219117ff2213844f513afe54)) - dependabot[bot]
+- bump gaurav-nelson/github-action-markdown-link-check - ([985e8fc](https://github.com/specdown/specdown/commit/985e8fc874ce848954461a9fe604b6881995aabe)) - dependabot[bot]
+- bump actions/download-artifact from 4 to 8 - ([844d3c9](https://github.com/specdown/specdown/commit/844d3c90dfcffe0f41b0e0cb790e9029ae68a402)) - dependabot[bot]
+#### Documentation
+- restore doc fixtures to match current binary output - ([a361aa1](https://github.com/specdown/specdown/commit/a361aa18f1a704894594f8a21991e5bda2752376)) - Tom Oram
+
+- - -
+
 ## [v1.2.113](https://github.com/specdown/specdown/compare/v1.2.112..v1.2.113) - 2026-05-14
 #### Bug Fixes
 - **(ci)** bump cache key to v2 to clear poisoned macOS cache - ([d7307de](https://github.com/specdown/specdown/commit/d7307de958ff7fc37aa8b410dcecce7e7bac3e7b)) - Tom Oram
