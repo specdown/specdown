@@ -48,7 +48,7 @@ impl ShellExecutor {
     {
         let (command, args) = words.split_at(1);
         Self {
-            command: command.first().unwrap().to_string(),
+            command: command.first().unwrap().clone(),
             args: Vec::from(args),
             env: env.iter().cloned().collect(),
             unset_env: unset_env.to_vec(),

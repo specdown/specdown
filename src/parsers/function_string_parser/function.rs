@@ -54,7 +54,7 @@ impl Function {
         IncorrectArgumentType { expected, got }: IncorrectArgumentType,
     ) -> Error {
         Error::IncorrectArgumentType {
-            function: self.name.to_string(),
+            function: self.name.clone(),
             argument: argument.to_string(),
             expected,
             got,
