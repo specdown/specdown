@@ -79,8 +79,7 @@ Output completion for a shell of your choice
 Usage: specdown completion <SHELL>
 
 Arguments:
-  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fish, nushell,
-           powershell, zsh]
+  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fish, nushell, powershell, zsh]
 
 Options:
   -h, --help  Print help
@@ -95,8 +94,7 @@ Output completion for a shell of your choice
 Usage: specdown completion <SHELL>
 
 Arguments:
-  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fish, nushell,
-           powershell, zsh]
+  <SHELL>  The shell to generate completions for [possible values: bash, elvish, fish, nushell, powershell, zsh]
 
 Options:
   -h, --help  Print help
