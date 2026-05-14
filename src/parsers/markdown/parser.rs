@@ -1,6 +1,6 @@
 use comrak::arena_tree::Children;
 use comrak::nodes::{Ast, AstNode, NodeCodeBlock, NodeValue};
-use comrak::{parse_document, Arena, ComrakOptions};
+use comrak::{parse_document, Arena, Options};
 use std::cell::RefCell;
 
 #[derive(Clone, Debug, Eq, thiserror::Error, PartialEq)]
@@ -16,7 +16,7 @@ pub enum Element {
 
 pub fn parse(markdown: &str) -> Result<Vec<Element>, Error> {
     let arena = Arena::new();
-    let root = parse_document(&arena, markdown, &ComrakOptions::default());
+    let root = parse_document(&arena, markdown, &Options::default());
     extract_elements(root)
 }
 

@@ -1,30 +1,26 @@
-use self::comrak::nodes::NodeCodeBlock;
-use comrak;
 use comrak::nodes::{AstNode, NodeValue};
-use comrak::{format_commonmark, parse_document, Arena, ComrakOptions};
+use comrak::{format_commonmark, parse_document, Arena, Options};
 
 use super::code_block_info;
 
 pub fn strip(markdown: &str) -> String {
     let arena = Arena::new();
 
-    let root = parse_document(&arena, markdown, &ComrakOptions::default());
+    let root = parse_document(&arena, markdown, &Options::default());
 
     iter_nodes(root, &|node| {
-        if let NodeValue::CodeBlock(NodeCodeBlock { ref mut info, .. }) =
-            &mut node.data.borrow_mut().value
-        {
-            let info_string = (*info).clone();
+        if let NodeValue::CodeBlock(ref mut block) = node.data.borrow_mut().value {
+            let info_string = block.info.clone();
             let language = code_block_info::parse(&info_string)
                 .expect("To parse codeblock info")
                 .language;
-            *info = language;
+            block.info = language;
         }
     });
 
-    let mut result = vec![];
-    format_commonmark(root, &ComrakOptions::default(), &mut result).unwrap();
-    String::from_utf8(result).unwrap()
+    let mut result = String::new();
+    format_commonmark(root, &Options::default(), &mut result).unwrap();
+    result
 }
 
 fn iter_nodes<'a, F>(node: &'a AstNode<'a>, f: &F)
