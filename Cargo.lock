@@ -667,9 +667,9 @@ dependencies = [
 
 [[package]]
 name = "similar"
-version = "2.6.0"
+version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1de1d4f81173b03af4c0cbed3c898f6bff5b870e4a7f5d6f4057d62a7a4b686e"
+checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
 
 [[package]]
 name = "siphasher"
@@ -746,9 +746,9 @@ dependencies = [
 
 [[package]]
 name = "termdiff"
-version = "3.1.4"
+version = "4.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d514804dae8518311a634433041b5e30a89c1ce0c6fde8a82ae1b155519f4d0"
+checksum = "074c7980a51b162cdfc113c6ae24a801efeba9b97582f00f298d337c5286afbb"
 dependencies = [
  "crossterm",
  "similar",
