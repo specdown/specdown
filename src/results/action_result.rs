@@ -57,7 +57,10 @@ pub struct VerifyResult {
 
 impl ActionErrorProvider for VerifyResult {
     fn error(&self) -> Option<ActionError> {
-        if self.action.expected_value == VerifyValue(self.got.clone()) {
+        let normalize = |s: &str| s.replace('\r', "");
+        let expected = normalize(&String::from(self.action.expected_value.clone()));
+        let got = normalize(&self.got);
+        if expected == got {
             None
         } else {
             Some(ActionError::OutputDoesNotMatch(self.clone()))
