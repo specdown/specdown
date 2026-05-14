@@ -37,7 +37,7 @@ jobs:
           cache-key: v2
       - name: Fix cargo shim if broken by stale cache
         if: runner.os != 'Windows'
-        run: cargo --version 2>&1 | grep -q '^cargo ' || (rm -f ~/.cargo/bin/cargo && rustup default stable)
+        run: cargo --version 2>&1 | grep -q '^cargo ' || ln -sf "$(rustup which cargo)" ~/.cargo/bin/cargo
       - name: Rename wsl bash
         if: runner.os == 'Windows'
         run: |
