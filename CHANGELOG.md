@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.113](https://github.com/specdown/specdown/compare/v1.2.112..v1.2.113) - 2026-05-14
+#### Bug Fixes
+- **(ci)** bump cache key to v2 to clear poisoned macOS cache - ([d7307de](https://github.com/specdown/specdown/commit/d7307de958ff7fc37aa8b410dcecce7e7bac3e7b)) - Tom Oram
+- **(fmt)** collapse single-line import to satisfy cargo fmt - ([90b6337](https://github.com/specdown/specdown/commit/90b6337c0f9ac09642778e9d254cee90df90dd05)) - Tom Oram
+- **(lint)** remove unused VerifyValue import after CR normalization - ([43e1aea](https://github.com/specdown/specdown/commit/43e1aea68c11bf6c08ed2563ee23e006b8779c4f)) - Tom Oram
+- **(verify)** normalize CR when comparing expected and actual output - ([02076f0](https://github.com/specdown/specdown/commit/02076f03767bd8f0d399efd3b37eb81a22887dd1)) - Tom Oram
+- resolve remaining audit advisories and test failure - ([9cb546f](https://github.com/specdown/specdown/commit/9cb546f8dedca49378bcd8267a6ca12a1c32acd9)) - Tom Oram
+- update comrak to 0.52.0 and fix fmt formatting - ([cfeee79](https://github.com/specdown/specdown/commit/cfeee79337e6e76ffd1c324cc55ea038e8d4af74)) - Tom Oram
+- resolve clippy lints introduced in Rust 1.95.0 - ([60b88e1](https://github.com/specdown/specdown/commit/60b88e10e39310063e97833a83a7c29f7ac28d95)) - Tom Oram
+#### Continuous Integration
+- **(mergify)** upgrade configuration to current format - ([d99aa0a](https://github.com/specdown/specdown/commit/d99aa0a3cebba861df62449d5b7137445f7093a8)) - mergify[bot]
+- revert trailing newline added to trigger CI - ([dd22edc](https://github.com/specdown/specdown/commit/dd22edc83d4376deefb549300466f2f9915ba6a5)) - Tom Oram
+- inline checkout and toolchain setup steps - ([2636d9d](https://github.com/specdown/specdown/commit/2636d9dd515cb7fa423e68875e1bc70ec0a6743b)) - Tom Oram
+- fix deprecated actions breaking CI pipeline - ([d8268e6](https://github.com/specdown/specdown/commit/d8268e67e1209465edd0fa97b911ebdeb6ebbedb)) - Tom Oram
+- trigger CI pipeline to observe failures - ([6234df9](https://github.com/specdown/specdown/commit/6234df967cd1c2875b7906cd859b85f234fb1d18)) - Tom Oram
+#### Documentation
+- update expected outputs for comrak 0.52.0 and clap changes - ([6422bb8](https://github.com/specdown/specdown/commit/6422bb841506f7c58e002a249ac56c59608e86ac)) - Tom Oram
+
+- - -
+
 ## [v1.2.112](https://github.com/specdown/specdown/compare/v1.2.111..v1.2.112) - 2025-03-03
 #### Bug Fixes
 - bump thiserror from 2.0.11 to 2.0.12 - ([5c0b286](https://github.com/specdown/specdown/commit/5c0b28643c2df30c5eec96e255f8e71ee883ee82)) - dependabot[bot]
