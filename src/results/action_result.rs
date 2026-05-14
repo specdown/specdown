@@ -1,5 +1,5 @@
 use crate::types::{
-    CreateFileAction, ExitCode, OutputExpectation, ScriptAction, VerifyAction, VerifyValue,
+    CreateFileAction, ExitCode, OutputExpectation, ScriptAction, VerifyAction,
 };
 
 #[derive(Debug, Eq, PartialEq)]
