@@ -1,7 +1,7 @@
 queue_rules:
   - name: default
     merge_method: merge
-    conditions:
+    merge_conditions:
       - status-success=run-tests / check-conventional-commits / check-conventional-commits
       - status-success=run-tests / cargo-audit
       - status-success=run-tests / cargo-test (macos-latest)
