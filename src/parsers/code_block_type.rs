@@ -3,7 +3,7 @@ use crate::parsers::function_string_parser;
 use crate::parsers::function_string_parser::Function;
 use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream, TargetOs};
 use nom::combinator::map_res;
-use nom::IResult;
+use nom::{IResult, Parser};
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct ScriptCodeBlock {
@@ -27,7 +27,7 @@ pub enum CodeBlockType {
 }
 
 pub fn parse(input: &str) -> IResult<&str, CodeBlockType, Error> {
-    map_res(function_string_parser::parse, from_function)(input)
+    map_res(function_string_parser::parse, from_function).parse(input)
 }
 
 fn from_function(f: Function) -> Result<CodeBlockType> {
