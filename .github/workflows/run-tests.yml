@@ -35,6 +35,9 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           cache-key: v2
+      - name: Fix cargo shim if broken by stale cache
+        if: runner.os != 'Windows'
+        run: cargo --version >/dev/null 2>&1 || (rm -f ~/.cargo/bin/cargo && rustup default stable)
       - name: Rename wsl bash
         if: runner.os == 'Windows'
         run: |
