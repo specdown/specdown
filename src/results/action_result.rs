@@ -1,6 +1,4 @@
-use crate::types::{
-    CreateFileAction, ExitCode, OutputExpectation, ScriptAction, VerifyAction,
-};
+use crate::types::{CreateFileAction, ExitCode, OutputExpectation, ScriptAction, VerifyAction};
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum ActionError {
