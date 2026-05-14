@@ -57,7 +57,7 @@ mod tests {
                 "
                 # Header
 
-                ``` shell
+                ```shell
                 run
                 ```
                 "
