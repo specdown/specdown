@@ -7,8 +7,8 @@ use nom::{
     character::streaming::{alpha1, alphanumeric1, digit1, space0},
     combinator::map,
     multi::{many0, separated_list0},
-    sequence::{delimited, tuple},
-    IResult,
+    sequence::delimited,
+    IResult, Parser,
 };
 
 use super::argument_value::ArgumentValue;
@@ -17,20 +17,20 @@ use super::function::Function;
 pub type Argument<'a> = (&'a str, ArgumentValue);
 
 pub fn parse<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Function, E> {
-    let p = tuple((space0, alpha1, space0, argument_list));
-    map(p, |(_, name, _, arguments)| Function::new(name, arguments))(input)
+    let p = (space0, alpha1, space0, argument_list);
+    map(p, |(_, name, _, arguments)| Function::new(name, arguments)).parse(input)
 }
 
 fn argument_list<'a, E: ParseError<&'a str>>(
     input: &'a str,
 ) -> IResult<&'a str, HashMap<String, ArgumentValue>, E> {
     let p = delimited(
-        tuple((tag("("), space0)),
-        separated_list0(tuple((space0, tag(","), space0)), argument),
-        tuple((space0, tag(")"))),
+        (tag("("), space0),
+        separated_list0((space0, tag(","), space0), argument),
+        (space0, tag(")")),
     );
 
-    map(p, |args| list_of_args_to_hash_map(&args))(input)
+    map(p, |args| list_of_args_to_hash_map(&args)).parse(input)
 }
 
 fn list_of_args_to_hash_map(arguments: &[Argument<'_>]) -> HashMap<String, ArgumentValue> {
@@ -41,17 +41,13 @@ fn list_of_args_to_hash_map(arguments: &[Argument<'_>]) -> HashMap<String, Argum
 }
 
 fn argument<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Argument<'a>, E> {
-    let p = tuple((
-        argument_name,
-        tuple((space0, tag("="), space0)),
-        argument_value,
-    ));
-    map(p, |(name, _, value)| (name, value))(input)
+    let p = (argument_name, (space0, tag("="), space0), argument_value);
+    map(p, |(name, _, value)| (name, value)).parse(input)
 }
 
 fn argument_name<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &'a str, E> {
-    let mut p = tuple((alpha1, many0(alt((alphanumeric1, tag("_"))))));
-    let (remainder, (start, parts)) = p(input)?;
+    let mut p = (alpha1, many0(alt((alphanumeric1, tag("_")))));
+    let (remainder, (start, parts)) = p.parse(input)?;
     let length = start.len() + parts.join("").len();
     Ok((remainder, &input[0..length]))
 }
@@ -59,23 +55,24 @@ fn argument_name<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str,
 fn argument_value<'a, E: ParseError<&'a str>>(
     input: &'a str,
 ) -> IResult<&'a str, ArgumentValue, E> {
-    alt((integer_value, string_value, token_value))(input)
+    alt((integer_value, string_value, token_value)).parse(input)
 }
 
 fn integer_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
     let p = digit1;
-    map(p, |s: &'a str| ArgumentValue::Integer(s.parse().unwrap()))(input)
+    map(p, |s: &'a str| ArgumentValue::Integer(s.parse().unwrap())).parse(input)
 }
 
 fn string_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
     let p = delimited(tag("\""), take_until("\""), tag("\""));
-    map(p, |s: &'a str| ArgumentValue::String(s.to_string()))(input)
+    map(p, |s: &'a str| ArgumentValue::String(s.to_string())).parse(input)
 }
 
 fn token_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
     map(alpha1, |token: &'a str| {
         ArgumentValue::Token(token.to_string())
-    })(input)
+    })
+    .parse(input)
 }
 
 #[cfg(test)]
