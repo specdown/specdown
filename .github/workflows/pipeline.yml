@@ -74,7 +74,7 @@ jobs:
   tag-and-release:
     needs:
       - build-binaries
-    uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.19.6
+    uses: armakuni/github-actions/.github/workflows/tag-and-release.yml@v0.19.14
     with:
       download-artifacts: true
       release-artifacts: ./bins-*/*
