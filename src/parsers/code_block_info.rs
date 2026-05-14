@@ -1,5 +1,5 @@
 use crate::parsers::code_block_type;
-use nom::Err;
+use nom::{Err, Parser};
 
 use super::code_block_type::CodeBlockType;
 use super::error::Result;
@@ -7,7 +7,7 @@ use super::markdown::code_block_info::CodeBlockInfo;
 use crate::parsers::markdown::code_block_info;
 
 pub fn parse(input: &str) -> Result<CodeBlockInfo<CodeBlockType>> {
-    match code_block_info::parse(code_block_type::parse)(input) {
+    match code_block_info::parse(code_block_type::parse).parse(input) {
         Ok((_, result)) => Ok(result),
         Err(err) => match err {
             Err::Incomplete(_) => panic!("code_block_info parser returned an Incomplete error"),

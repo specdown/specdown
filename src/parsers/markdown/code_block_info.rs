@@ -2,7 +2,7 @@ use nom::bytes::streaming::{tag, take_until};
 use nom::combinator::map;
 use nom::error::ParseError;
 use nom::sequence::separated_pair;
-use nom::{IResult, Parser};
+use nom::Parser;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct CodeBlockInfo<Extra> {
@@ -12,9 +12,9 @@ pub struct CodeBlockInfo<Extra> {
 
 pub fn parse<'a, Output, Error: ParseError<&'a str>, ExtraInfoParser>(
     extra_info_parser: ExtraInfoParser,
-) -> impl FnMut(&'a str) -> IResult<&'a str, CodeBlockInfo<Output>, Error>
+) -> impl Parser<&'a str, Output = CodeBlockInfo<Output>, Error = Error>
 where
-    ExtraInfoParser: Parser<&'a str, Output, Error>,
+    ExtraInfoParser: Parser<&'a str, Output = Output, Error = Error>,
 {
     map(
         separated_pair(take_until(","), tag(","), extra_info_parser),
@@ -34,12 +34,12 @@ mod tests {
         use nom::bytes::complete::tag;
         use nom::combinator::rest;
         use nom::error::ErrorKind::Tag;
-        use nom::IResult;
+        use nom::{IResult, Parser};
 
         #[test]
         fn successful_parsing_with_a_rest_parser() {
             let result: IResult<&str, CodeBlockInfo<&str>, nom::error::Error<&str>> =
-                parse(rest)("rust,remaining");
+                parse(rest).parse("rust,remaining");
             assert_eq!(
                 result,
                 Ok((
@@ -55,14 +55,14 @@ mod tests {
         #[test]
         fn failing_parsing_when_no_comma() {
             let result: IResult<&str, CodeBlockInfo<&str>, nom::error::Error<&str>> =
-                parse(rest)("rust");
+                parse(rest).parse("rust");
             assert_eq!(result, Err(nom::Err::Incomplete(nom::Needed::Unknown)));
         }
 
         #[test]
         fn failing_extra_info_parser_fails() {
             let result: IResult<&str, CodeBlockInfo<&str>, nom::error::Error<&str>> =
-                parse(tag("x"))("rust,y");
+                parse(tag("x")).parse("rust,y");
             assert_eq!(
                 result,
                 Err(nom::Err::Error(nom::error::Error {

@@ -26,7 +26,7 @@ And you'll get get following output:
 ~~~markdown, verify(script_name="strip_example")
 # Strip Example
 
-```shell
+``` shell
 echo "Hello world"
 ```
 
