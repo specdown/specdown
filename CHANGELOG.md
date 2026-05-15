@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.116](https://github.com/specdown/specdown/compare/v1.2.115..v1.2.116) - 2026-05-15
+#### Bug Fixes
+- bump shell-words from 1.1.0 to 1.1.1 - ([081e708](https://github.com/specdown/specdown/commit/081e708514b0d71e3404d784b502c9ad85bde0ac)) - dependabot[bot]
+
+- - -
+
 ## [v1.2.115](https://github.com/specdown/specdown/compare/v1.2.114..v1.2.115) - 2026-05-15
 #### Bug Fixes
 - bump strip-ansi-escapes from 0.2.0 to 0.2.1 - ([55bbc57](https://github.com/specdown/specdown/commit/55bbc5759720a4e45f0cf2fde55f921885df33cb)) - dependabot[bot]
