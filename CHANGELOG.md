@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.2.115](https://github.com/specdown/specdown/compare/v1.2.114..v1.2.115) - 2026-05-15
+#### Bug Fixes
+- bump strip-ansi-escapes from 0.2.0 to 0.2.1 - ([55bbc57](https://github.com/specdown/specdown/commit/55bbc5759720a4e45f0cf2fde55f921885df33cb)) - dependabot[bot]
+#### Continuous Integration
+- bump tomphp/github-actions from 0.5.8 to 0.5.9 - ([913ae03](https://github.com/specdown/specdown/commit/913ae03673e018b99fac6e9707bd152e7c9bc99b)) - dependabot[bot]
+- bump armakuni/github-actions/.github/workflows/tag-and-release.yml - ([bfd638f](https://github.com/specdown/specdown/commit/bfd638f42444432d5e771c7ed3918d7c057105bd)) - dependabot[bot]
+
+- - -
+
 ## [v1.2.114](https://github.com/specdown/specdown/compare/v1.2.113..v1.2.114) - 2026-05-14
 #### Bug Fixes
 - **(ci)** add cargo shim self-healing to build-binaries job - ([854cb65](https://github.com/specdown/specdown/commit/854cb65c8ca70cdd20449d80b226af31927a34c7)) - Tom Oram
