@@ -54,7 +54,7 @@ jobs:
           path: bumped-files
       - run: mv bumped-files/Cargo.* .
         shell: bash
-      - uses: tomphp/github-actions/determine-binary-name@v0.5.9
+      - uses: tomphp/github-actions/determine-binary-name@v0.7.0
         id: get-binary-name
         with:
           name: specdown
