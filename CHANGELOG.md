@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.3.0](https://github.com/specdown/specdown/compare/v1.2.116..v1.3.0) - 2026-05-19
+#### Continuous Integration
+- fix macos-26-intel rustup PATH workaround - ([230add2](https://github.com/specdown/specdown/commit/230add2844c92d08fa0ae3ee7b85c422cd86d66f)) - Tom Oram
+- workaround on intel runner - ([307e249](https://github.com/specdown/specdown/commit/307e249c5eaa6a2ee0f972cb5140ed6d6cfeeb4a)) - Tom Oram
+- fix rustfmt name - ([a369550](https://github.com/specdown/specdown/commit/a36955050668e68893b62a5dc103dcf4970a29da)) - Tom Oram
+- bump actions version - ([cd359a0](https://github.com/specdown/specdown/commit/cd359a010581f1303cea4dccaddde336d8c6ab17)) - Tom Oram
+- use correct intel runner - ([01c1509](https://github.com/specdown/specdown/commit/01c1509529eadece077fb27a3165ab9975294d2e)) - Tom Oram
+- switch back to tomphp actions - ([9007671](https://github.com/specdown/specdown/commit/900767124b37952a9bee3b302f4ced522ef9bc80)) - Tom Oram
+- bump tomphp/github-actions from 0.5.9 to 0.7.0 - ([4bd369d](https://github.com/specdown/specdown/commit/4bd369dd21a1275d0ec883037a498f5d8f6b162d)) - dependabot[bot]
+#### Features
+- build MacOS ARM version - ([6085587](https://github.com/specdown/specdown/commit/6085587d761df4543188c7608f7136aa0fccd5f8)) - Tom Oram
+
+- - -
+
 ## [v1.2.116](https://github.com/specdown/specdown/compare/v1.2.115..v1.2.116) - 2026-05-15
 #### Bug Fixes
 - bump shell-words from 1.1.0 to 1.1.1 - ([081e708](https://github.com/specdown/specdown/commit/081e708514b0d71e3404d784b502c9ad85bde0ac)) - dependabot[bot]
