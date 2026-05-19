@@ -38,9 +38,12 @@ jobs:
       - bump-cargo-version
       - run-tests
     steps:
-      - name: "workaround: Add cargo bin to PATH"
+      - name: "workaround: Add rustup bin to PATH"
+        if: runner.os == 'macOS'
         shell: bash
-        run: echo "${CARGO_HOME:-$HOME/.cargo}/bin" >> $GITHUB_PATH
+        run: |
+          echo "${CARGO_HOME:-$HOME/.cargo}/bin" >> $GITHUB_PATH
+          brew --prefix rustup 2>/dev/null && echo "$(brew --prefix rustup)/bin" >> $GITHUB_PATH || true
       - uses: tomphp/github-actions/checkout-rust-project@v0.7.1
       - uses: actions/download-artifact@v8
         with:
