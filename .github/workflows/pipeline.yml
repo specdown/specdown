@@ -78,6 +78,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
+          - os: macos-26-latest
           - os: ubuntu-latest
           - os: windows-latest
 

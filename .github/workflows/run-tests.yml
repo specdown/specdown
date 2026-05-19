@@ -28,6 +28,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
+          - os: macos-26-intel
           - os: ubuntu-latest
           - os: windows-latest
     steps:
