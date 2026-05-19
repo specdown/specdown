@@ -18,7 +18,7 @@ jobs:
       - check-conventional-commits
     if: github.ref == 'refs/heads/master' && needs.check-conventional-commits.outputs.will-bump == 'true'
     steps:
-      - uses: tomphp/github-actions/checkout-rust-project@v0.7.0
+      - uses: tomphp/github-actions/checkout-rust-project@v0.7.1
       - name: Install cargo-edit
         run: cargo install cargo-edit
       - name: Set Cargo version
@@ -38,14 +38,14 @@ jobs:
       - bump-cargo-version
       - run-tests
     steps:
-      - uses: tomphp/github-actions/checkout-rust-project@v0.7.0
+      - uses: tomphp/github-actions/checkout-rust-project@v0.7.1
       - uses: actions/download-artifact@v8
         with:
           name: bumped-files
           path: bumped-files
       - run: mv bumped-files/Cargo.* .
         shell: bash
-      - uses: tomphp/github-actions/determine-binary-name@v0.7.0
+      - uses: tomphp/github-actions/determine-binary-name@v0.7.1
         id: get-binary-name
         with:
           name: specdown
