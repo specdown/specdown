@@ -13,10 +13,7 @@ jobs:
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          cache-key: v2
+      - uses: tomphp/github-actions/checkout-rust-project@v0.7.0
       - name: Install cargo-audit
         run: cargo install cargo-audit
       - name: Audit check cargo packages
@@ -28,21 +25,10 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-          - os: macos-26-intel
           - os: ubuntu-latest
           - os: windows-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          cache-key: v2
-      - name: Fix cargo shim if broken by stale cache
-        if: runner.os != 'Windows'
-        run: |
-          (cargo --version 2>&1 | grep -q '^cargo ' && rustc -vV 2>&1 | grep -q '^host:') || {
-            toolchain_bin="$(rustup which cargo | xargs dirname)"
-            for f in "$toolchain_bin"/*; do ln -sf "$f" ~/.cargo/bin/"$(basename "$f")"; done
-          }
+      - uses: tomphp/github-actions/checkout-rust-project@v0.7.0
       - name: Rename wsl bash
         if: runner.os == 'Windows'
         run: |
@@ -59,11 +45,9 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: tomphp/github-actions/checkout-rust-project@v0.7.0
         with:
-          cache-key: v2
-          components: rustfmt,clippy
+          rust-components: rust-fmt, clippy
       - name: Run checks
         run: make check
       - name: Check markdown links
