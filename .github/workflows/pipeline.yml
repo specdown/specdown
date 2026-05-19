@@ -38,6 +38,9 @@ jobs:
       - bump-cargo-version
       - run-tests
     steps:
+      - name: "workaround: Add cargo bin to PATH"
+        shell: bash
+        run: echo "${CARGO_HOME:-$HOME/.cargo}/bin" >> $GITHUB_PATH
       - uses: tomphp/github-actions/checkout-rust-project@v0.7.1
       - uses: actions/download-artifact@v8
         with:

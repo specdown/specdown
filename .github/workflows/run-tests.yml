@@ -29,6 +29,9 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
+      - name: "workaround: Add cargo bin to PATH"
+        shell: bash
+        run: echo "${CARGO_HOME:-$HOME/.cargo}/bin" >> $GITHUB_PATH
       - uses: tomphp/github-actions/checkout-rust-project@v0.7.1
       - name: Rename wsl bash
         if: runner.os == 'Windows'
