@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: tomphp/github-actions/checkout-rust-project@v0.7.1
         with:
-          rust-components: rust-fmt, clippy
+          rust-components: rustfmt, clippy
       - name: Run checks
         run: make check
       - name: Check markdown links
