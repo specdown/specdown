@@ -27,6 +27,7 @@ jobs:
           - os: macos-latest
           - os: macos-26-intel
           - os: ubuntu-latest
+          - os: ubuntu-24.04-arm
           - os: windows-latest
     steps:
       - name: "workaround: Add rustup bin to PATH"

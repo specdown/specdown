@@ -77,6 +77,7 @@ jobs:
           - os: macos-latest
           - os: macos-26-intel
           - os: ubuntu-latest
+          - os: ubuntu-24.04-arm
           - os: windows-latest
 
   tag-and-release:
@@ -123,18 +124,47 @@ jobs:
           echo "SHA256=$( cat hash )" >> "$GITHUB_OUTPUT"
         id: readme
         shell: bash
-
         name: Calculate the readme hash
-      - run: |
-          curl -Lo file.tar.gz "https://github.com/$GIT_REPO/archive/refs/tags/$GIT_TAG.tar.gz"
-          sha256sum -b file.tar.gz | awk '{ print $1 }' > "./hash"
-          echo "SHA256=$( cat hash )" >> "$GITHUB_OUTPUT"
-        id: bundle
+
+      - name: Calculate macOS ARM binary hash
+        id: macos_arm
         shell: bash
         env:
           GIT_REPO: ${{ github.repository }}
           GIT_TAG: v${{ needs.tag-and-release.outputs.current-version }}
-        name: Calculate the binary hash
+        run: |
+          curl -Lo binary "https://github.com/$GIT_REPO/releases/download/$GIT_TAG/specdown-aarch64-apple-darwin"
+          echo "SHA256=$(sha256sum -b binary | awk '{ print $1 }')" >> "$GITHUB_OUTPUT"
+
+      - name: Calculate macOS Intel binary hash
+        id: macos_x86
+        shell: bash
+        env:
+          GIT_REPO: ${{ github.repository }}
+          GIT_TAG: v${{ needs.tag-and-release.outputs.current-version }}
+        run: |
+          curl -Lo binary "https://github.com/$GIT_REPO/releases/download/$GIT_TAG/specdown-x86_64-apple-darwin"
+          echo "SHA256=$(sha256sum -b binary | awk '{ print $1 }')" >> "$GITHUB_OUTPUT"
+
+      - name: Calculate Linux x86_64 binary hash
+        id: linux_x86
+        shell: bash
+        env:
+          GIT_REPO: ${{ github.repository }}
+          GIT_TAG: v${{ needs.tag-and-release.outputs.current-version }}
+        run: |
+          curl -Lo binary "https://github.com/$GIT_REPO/releases/download/$GIT_TAG/specdown-x86_64-unknown-linux-gnu"
+          echo "SHA256=$(sha256sum -b binary | awk '{ print $1 }')" >> "$GITHUB_OUTPUT"
+
+      - name: Calculate Linux ARM binary hash
+        id: linux_arm
+        shell: bash
+        env:
+          GIT_REPO: ${{ github.repository }}
+          GIT_TAG: v${{ needs.tag-and-release.outputs.current-version }}
+        run: |
+          curl -Lo binary "https://github.com/$GIT_REPO/releases/download/$GIT_TAG/specdown-aarch64-unknown-linux-gnu"
+          echo "SHA256=$(sha256sum -b binary | awk '{ print $1 }')" >> "$GITHUB_OUTPUT"
 
       - uses: cuchi/jinja2-action@v1.3.0
         with:
@@ -143,7 +173,11 @@ jobs:
           variables: |
             github_repo=${{ github.repository }}
             git_tag=v${{ needs.tag-and-release.outputs.current-version }}
-            file_sha=${{ steps.bundle.outputs.SHA256 }}
+            version=${{ needs.tag-and-release.outputs.current-version }}
+            macos_arm_sha=${{ steps.macos_arm.outputs.SHA256 }}
+            macos_x86_sha=${{ steps.macos_x86.outputs.SHA256 }}
+            linux_x86_sha=${{ steps.linux_x86.outputs.SHA256 }}
+            linux_arm_sha=${{ steps.linux_arm.outputs.SHA256 }}
             readme_sha=${{ steps.readme.outputs.SHA256 }}
         name: Generate the template
 
