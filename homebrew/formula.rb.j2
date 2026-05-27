@@ -3,6 +3,7 @@ class Specdown < Formula
   homepage "https://github.com/{{ github_repo }}"
   version "{{ version }}"
   license "Apache-2.0"
+  depends_on "help2man" => :build
 
   on_macos do
     on_arm do
@@ -26,27 +27,22 @@ class Specdown < Formula
     end
   end
 
-  depends_on "help2man" => :build
-
   resource("testdata") do
     url "https://raw.githubusercontent.com/{{ github_repo }}/{{ git_tag }}/README.md"
     sha256 "{{ readme_sha }}"
   end
 
   def install
-    on_macos do
-      on_arm do
+    if OS.mac?
+      if Hardware::CPU.arm?
         bin.install "specdown-aarch64-apple-darwin" => "specdown"
-      end
-      on_intel do
+      elsif Hardware::CPU.intel?
         bin.install "specdown-x86_64-apple-darwin" => "specdown"
       end
-    end
-    on_linux do
-      on_intel do
+    elsif OS.linux?
+      if Hardware::CPU.intel?
         bin.install "specdown-x86_64-unknown-linux-gnu" => "specdown"
-      end
-      on_arm do
+      elsif Hardware::CPU.arm?
         bin.install "specdown-aarch64-unknown-linux-gnu" => "specdown"
       end
     end
