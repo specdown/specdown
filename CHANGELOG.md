@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.3.1](https://github.com/specdown/specdown/compare/v1.3.0..v1.3.1) - 2026-05-27
+#### Bug Fixes
+- add all binaries to homebrew - ([c12fd9d](https://github.com/specdown/specdown/commit/c12fd9d46ea67fd9b1135f6825e391281d7f1a5d)) - Tom Oram
+#### Continuous Integration
+- fix rust path on aarch64 linux - ([0b4a852](https://github.com/specdown/specdown/commit/0b4a8520f7ae9cbbe369c2ee6a3393591b0d856f)) - Tom Oram
+
+- - -
+
 ## [v1.3.0](https://github.com/specdown/specdown/compare/v1.2.116..v1.3.0) - 2026-05-19
 #### Continuous Integration
 - fix macos-26-intel rustup PATH workaround - ([230add2](https://github.com/specdown/specdown/commit/230add2844c92d08fa0ae3ee7b85c422cd86d66f)) - Tom Oram
