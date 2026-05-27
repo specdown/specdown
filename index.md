@@ -42,7 +42,16 @@ The recommended way is to download the compiled releases; you can do this by usi
 
 ### Mac OS
 
-You can download the binary and add it to your path:
+You can download the binary and add it to your path.
+
+#### Apple Silicon (ARM64)
+
+```shell
+curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-aarch64-apple-darwin -o /usr/local/bin/specdown
+chmod +x /usr/local/bin/specdown
+```
+
+#### Intel (x86\_64)
 
 ```shell
 curl -L https://github.com/specdown/specdown/releases/latest/download/specdown-x86_64-apple-darwin -o /usr/local/bin/specdown
