@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.3.4](https://github.com/specdown/specdown/compare/v1.3.3..v1.3.4) - 2026-05-30
+#### Bug Fixes
+- remove homebrew version - ([635d1b2](https://github.com/specdown/specdown/commit/635d1b296fe262bd3170cffd42925ed116793f52)) - Tom Oram
+
+- - -
+
 ## [v1.3.3](https://github.com/specdown/specdown/compare/v1.3.2..v1.3.3) - 2026-05-27
 #### Bug Fixes
 - **(brew)** formula template - ([bad979d](https://github.com/specdown/specdown/commit/bad979d220436e62118f03cec059eed1cf3a0d67)) - Tom Oram
