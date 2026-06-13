@@ -254,13 +254,58 @@ mod tests {
         #[cfg(not(windows))]
         #[test]
         fn with_added_paths() {
-            let shell = ShellExecutor::new("bash -c", &[], &[], &["my/bin", "other/bin"])
-                .expect("shell to be created");
-            let path = env::var("PATH").expect("PATH environment variable must be set");
-            let output = shell
-                .execute(&ScriptCode("echo -n $PATH".to_string()))
-                .expect("success");
-            assert_eq!(format!("my/bin:other/bin:{path}"), output.stdout);
+            use std::os::unix::fs::PermissionsExt;
+
+            let bin_dir = tempfile::tempdir().expect("failed to create temp dir");
+
+            let greet = bin_dir.path().join("greet");
+            std::fs::write(&greet, "#!/bin/sh\necho hello\n").expect("failed to write greet");
+            std::fs::set_permissions(&greet, std::fs::Permissions::from_mode(0o755))
+                .expect("failed to set permissions on greet");
+
+            let wave = bin_dir.path().join("wave");
+            std::fs::write(&wave, "#!/bin/sh\necho wave\n").expect("failed to write wave");
+            std::fs::set_permissions(&wave, std::fs::Permissions::from_mode(0o755))
+                .expect("failed to set permissions on wave");
+
+            let path = bin_dir.path().to_str().expect("temp path is valid UTF-8");
+            let shell =
+                ShellExecutor::new("bash -c", &[], &[], &[path]).expect("shell to be created");
+
+            let greet_output = shell
+                .execute(&ScriptCode("greet".to_string()))
+                .expect("greet should succeed");
+            assert_eq!(greet_output.stdout, "hello\n");
+
+            let wave_output = shell
+                .execute(&ScriptCode("wave".to_string()))
+                .expect("wave should succeed");
+            assert_eq!(wave_output.stdout, "wave\n");
+        }
+
+        #[cfg(windows)]
+        #[test]
+        fn with_added_paths() {
+            let bin_dir = tempfile::tempdir().expect("failed to create temp dir");
+
+            std::fs::write(bin_dir.path().join("greet.cmd"), "@echo hello\r\n")
+                .expect("failed to write greet.cmd");
+            std::fs::write(bin_dir.path().join("wave.cmd"), "@echo wave\r\n")
+                .expect("failed to write wave.cmd");
+
+            let path = bin_dir.path().to_str().expect("temp path is valid UTF-8");
+            let shell =
+                ShellExecutor::new("cmd.exe /c", &[], &[], &[path]).expect("shell to be created");
+
+            let greet_output = shell
+                .execute(&ScriptCode("greet".to_string()))
+                .expect("greet should succeed");
+            assert_eq!(greet_output.stdout, "hello\r\n");
+
+            let wave_output = shell
+                .execute(&ScriptCode("wave".to_string()))
+                .expect("wave should succeed");
+            assert_eq!(wave_output.stdout, "wave\r\n");
         }
     }
 }
