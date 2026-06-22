@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.3.6](https://github.com/specdown/specdown/compare/v1.3.5..v1.3.6) - 2026-06-22
+#### Bug Fixes
+- bump time from 0.3.49 to 0.3.50 - ([e1c529b](https://github.com/specdown/specdown/commit/e1c529be8cd00854c604571cbd8138d9d10cda30)) - dependabot[bot]
+#### Continuous Integration
+- bump tomphp/github-actions from 0.8.0 to 0.8.1 - ([f220e3b](https://github.com/specdown/specdown/commit/f220e3be9e419adb715cb11c2f12ec30e7f7bb17)) - dependabot[bot]
+- bump actions/checkout from 6 to 7 - ([214abd9](https://github.com/specdown/specdown/commit/214abd9ca25955e70287eb5c4cd9395c8742dc97)) - dependabot[bot]
+
+- - -
+
 ## [v1.3.5](https://github.com/specdown/specdown/compare/v1.3.4..v1.3.5) - 2026-06-15
 #### Bug Fixes
 - bump time from 0.3.47 to 0.3.49 - ([63bbc6e](https://github.com/specdown/specdown/commit/63bbc6e4d17127a7dd5bb4d4b6c2f5400b1e5a13)) - dependabot[bot]
