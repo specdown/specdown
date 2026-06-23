@@ -48,7 +48,7 @@ fn argument<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Argu
 fn argument_name<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &'a str, E> {
     let mut p = (alpha1, many0(alt((alphanumeric1, tag("_")))));
     let (remainder, (start, parts)) = p.parse(input)?;
-    let length = start.len() + parts.join("").len();
+    let length = start.len() + parts.iter().map(|p| (*p).len()).sum::<usize>();
     Ok((remainder, &input[0..length]))
 }
 

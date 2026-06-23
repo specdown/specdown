@@ -72,7 +72,11 @@ fn target_os_matches_current(target_os: &str) -> bool {
         return true;
     }
 
-    target_os.starts_with('!') && target_os != format!("!{OS}")
+    let Some(negated) = target_os.strip_prefix('!') else {
+        return false;
+    };
+
+    negated != OS
 }
 
 #[cfg(test)]
