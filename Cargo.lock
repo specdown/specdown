@@ -765,9 +765,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.50"
+version = "0.3.51"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e3cd1bb2f84f20374ba5900f0fa59f9125e23a6f1537b7ea87696972b04a80a"
+checksum = "85c17d80feb7334b40c484e45ed1a5273dfd8bfda537c3be2e74a06a6686f327"
 dependencies = [
  "deranged",
  "num-conv",
