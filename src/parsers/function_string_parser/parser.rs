@@ -419,4 +419,53 @@ mod tests {
             // }
         }
     }
+
+    mod quickcheck_properties {
+        use std::convert::TryFrom;
+
+        use quickcheck::TestResult;
+        use quickcheck_macros::quickcheck;
+
+        use super::{parse, ArgumentValue};
+
+        /// A valid in-range integer argument round-trips to the expected value;
+        /// an out-of-range integer is rejected without panicking.
+        #[quickcheck]
+        fn round_trips_a_valid_integer_argument(value: u32) -> TestResult {
+            let input = format!("fn(n={value})");
+            match i32::try_from(value) {
+                Ok(expected) => match parse::<nom::error::Error<&str>>(&input) {
+                    Ok((_, f)) => TestResult::from_bool(
+                        f.arguments.get("n") == Some(&ArgumentValue::Integer(expected)),
+                    ),
+                    Err(_) => TestResult::failed(),
+                },
+                Err(_) => TestResult::from_bool(parse::<nom::error::Error<&str>>(&input).is_err()),
+            }
+        }
+    }
+
+    mod adversarial_inputs {
+        use super::parse;
+
+        /// Adversarial inputs that previously caused panics or crashes.
+        /// Every info string flows through this parser, so none may abort the process.
+        #[test]
+        fn never_panics_on_known_bad_inputs() {
+            let bad_inputs = [
+                "99999999999999999999)",
+                "\u{0}",
+                "",
+                "\"",
+                "fn(n=\"unterminated",
+                "(((((",
+                "a=b=c=d=e=f=g",
+                "fn(=)",
+                "fn(=123)",
+            ];
+            for input in bad_inputs {
+                let _ = parse::<nom::error::Error<&str>>(input);
+            }
+        }
+    }
 }
