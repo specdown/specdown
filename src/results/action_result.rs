@@ -35,11 +35,9 @@ impl ActionErrorProvider for ScriptResult {
             return Some(ActionError::UnexpectedOutputIsPresent(self.clone()));
         }
 
-        if self.action.expected_output == OutputExpectation::None && !self.stdout.is_empty() {
-            return Some(ActionError::UnexpectedOutputIsPresent(self.clone()));
-        }
-
-        if self.action.expected_output == OutputExpectation::None && !self.stderr.is_empty() {
+        if self.action.expected_output == OutputExpectation::None
+            && (!self.stdout.is_empty() || !self.stderr.is_empty())
+        {
             return Some(ActionError::UnexpectedOutputIsPresent(self.clone()));
         }
 
