@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.3.8](https://github.com/specdown/specdown/compare/v1.3.7..v1.3.8) - 2026-06-24
+#### Bug Fixes
+- skip non-specdown fenced code blocks instead of crashing - ([58492fa](https://github.com/specdown/specdown/commit/58492fac31b614d1cfac72f19289251154b42b83)) - Billie Thompson
+- use nom complete parsers for finite string input - ([d5eccfc](https://github.com/specdown/specdown/commit/d5eccfc8a09d4c294f2dbe64ee48b2cffdb1d053)) - Billie Thompson
+
+- - -
+
 ## [v1.3.7](https://github.com/specdown/specdown/compare/v1.3.6..v1.3.7) - 2026-06-23
 #### Bug Fixes
 - bump time from 0.3.50 to 0.3.51 - ([7312b74](https://github.com/specdown/specdown/commit/7312b74158ca3afd1d7d1d602a4c85bd4f0f8ff9)) - dependabot[bot]
