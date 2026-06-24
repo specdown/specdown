@@ -57,7 +57,7 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
         current_dir
             .into_os_string()
             .into_string()
-            .expect("failed to convert start dir dir into a string"),
+            .expect("failed to convert start dir into a string"),
     ));
 
     env.push((
