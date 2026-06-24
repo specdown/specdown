@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use nom::error::ParseError;
 use nom::{
     branch::alt,
-    bytes::streaming::{tag, take_until},
-    character::streaming::{alpha1, alphanumeric1, digit1, space0},
+    bytes::complete::{tag, take_until},
+    character::complete::{alpha1, alphanumeric1, digit1, space0},
     combinator::map,
     multi::{many0, separated_list0},
     sequence::delimited,
@@ -368,7 +368,6 @@ mod tests {
 
         mod string_value {
             use super::{argument_value, ArgumentValue};
-            use nom::Needed::Unknown;
 
             #[test]
             fn succeeds_when_there_is_a_remainder() {
@@ -393,7 +392,10 @@ mod tests {
             fn fails_when_there_is_no_closing_quote() {
                 assert_eq!(
                     argument_value::<nom::error::Error<&str>>("\"arg_value2"),
-                    Err(nom::Err::Incomplete(Unknown))
+                    Err(nom::Err::Error(nom::error::Error {
+                        input: "\"arg_value2",
+                        code: nom::error::ErrorKind::Alpha
+                    }))
                 );
             }
         }

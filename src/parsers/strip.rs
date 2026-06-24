@@ -11,10 +11,9 @@ pub fn strip(markdown: &str) -> String {
     iter_nodes(root, &|node| {
         if let NodeValue::CodeBlock(ref mut block) = node.data.borrow_mut().value {
             let info_string = block.info.clone();
-            let language = code_block_info::parse(&info_string)
-                .expect("To parse codeblock info")
-                .language;
-            block.info = language;
+            if let Ok(parsed) = code_block_info::parse(&info_string) {
+                block.info = parsed.language;
+            }
         }
     });
 
@@ -64,6 +63,24 @@ mod tests {
             );
 
             assert_eq!(strip(markdown), expected.to_string());
+        }
+
+        #[test]
+        fn does_not_crash_when_a_code_block_has_no_specdown_function() {
+            let markdown = indoc! {r"
+                # Title
+
+                ```specdown
+                just a plain code block
+                ```
+            "};
+
+            let result = std::panic::catch_unwind(|| strip(markdown));
+            assert!(
+                result.is_ok(),
+                "strip panicked on a code block without a specdown function: {:?}",
+                result
+            );
         }
     }
 }

@@ -9,10 +9,10 @@ use crate::parsers::markdown::code_block_info;
 pub fn parse(input: &str) -> Result<CodeBlockInfo<CodeBlockType>> {
     match code_block_info::parse(code_block_type::parse).parse(input) {
         Ok((_, result)) => Ok(result),
-        Err(err) => match err {
-            Err::Incomplete(_) => panic!("code_block_info parser returned an Incomplete error"),
-            Err::Error(e) | Err::Failure(e) => Err(e),
-        },
+        Err(Err::Error(e) | Err::Failure(e)) => Err(e),
+        Err(Err::Incomplete(_)) => {
+            unreachable!("complete parsers never return Incomplete on finite &str input")
+        }
     }
 }
 
@@ -270,6 +270,19 @@ mod tests {
                         }
                     ))
                 );
+            }
+        }
+
+        mod no_specdown_function {
+            use crate::parsers::error::Error;
+
+            use super::parse;
+
+            #[test]
+            fn returns_an_error_when_there_is_no_comma_in_the_info_string() {
+                let result = parse("specdown");
+                assert!(result.is_err());
+                assert!(matches!(result, Err(Error::ParserFailed(_))));
             }
         }
 

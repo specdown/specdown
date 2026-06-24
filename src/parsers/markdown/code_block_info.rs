@@ -1,4 +1,4 @@
-use nom::bytes::streaming::{tag, take_until};
+use nom::bytes::complete::{tag, take_until};
 use nom::combinator::map;
 use nom::error::ParseError;
 use nom::sequence::separated_pair;
@@ -56,7 +56,13 @@ mod tests {
         fn failing_parsing_when_no_comma() {
             let result: IResult<&str, CodeBlockInfo<&str>, nom::error::Error<&str>> =
                 parse(rest).parse("rust");
-            assert_eq!(result, Err(nom::Err::Incomplete(nom::Needed::Unknown)));
+            assert_eq!(
+                result,
+                Err(nom::Err::Error(nom::error::Error {
+                    input: "rust",
+                    code: nom::error::ErrorKind::TakeUntil
+                }))
+            );
         }
 
         #[test]
