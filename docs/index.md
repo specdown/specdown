@@ -21,5 +21,6 @@ All documentation is written as SpecDown tests and form part of the test suite.
   - [Global Environment Variables](specs/global_environment_variables.md)
   - [Skipping Code Blocks](specs/skipping_code_blocks.md)
   - [Creating Test Files](specs/creating_test_files.md)
+  - [Background Scripts](specs/background_scripts.md)
 - [Errors](errors.md)
 
