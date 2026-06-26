@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use nom::error::ParseError;
+use nom::error::{ErrorKind, ParseError};
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_until},
@@ -59,8 +59,15 @@ fn argument_value<'a, E: ParseError<&'a str>>(
 }
 
 fn integer_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
-    let p = digit1;
-    map(p, |s: &'a str| ArgumentValue::Integer(s.parse().unwrap())).parse(input)
+    let (remainder, digits) = digit1::<&'a str, E>.parse(input)?;
+
+    match digits.parse::<i32>() {
+        Ok(value) => Ok((remainder, ArgumentValue::Integer(value))),
+        Err(_) => Err(nom::Err::Error(E::from_error_kind(
+            input,
+            ErrorKind::MapRes,
+        ))),
+    }
 }
 
 fn string_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
