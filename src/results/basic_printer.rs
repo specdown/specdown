@@ -258,7 +258,7 @@ mod tests {
     use std::path::PathBuf;
     use std::rc::Rc;
 
-    /// Helper that creates a BasicPrinter with no colour and captures
+    /// Helper that creates a `BasicPrinter` with no colour and captures
     /// everything written via the display function into a shared `String`.
     fn create_capture_printer() -> (BasicPrinter, Rc<RefCell<String>>) {
         let captured = Rc::new(RefCell::new(String::new()));
