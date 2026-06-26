@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use nom::error::ParseError;
+use nom::error::{ErrorKind, ParseError};
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_until},
@@ -59,8 +59,15 @@ fn argument_value<'a, E: ParseError<&'a str>>(
 }
 
 fn integer_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
-    let p = digit1;
-    map(p, |s: &'a str| ArgumentValue::Integer(s.parse().unwrap())).parse(input)
+    let (remainder, digits) = digit1::<&'a str, E>.parse(input)?;
+
+    match digits.parse::<i32>() {
+        Ok(value) => Ok((remainder, ArgumentValue::Integer(value))),
+        Err(_) => Err(nom::Err::Error(E::from_error_kind(
+            input,
+            ErrorKind::MapRes,
+        ))),
+    }
 }
 
 fn string_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
@@ -417,6 +424,55 @@ mod tests {
             //     let result = argument_value("stderr");
             //     assert_eq!(result, Ok(("", ArgumentValue::Token("stderr"))));
             // }
+        }
+    }
+
+    mod quickcheck_properties {
+        use std::convert::TryFrom;
+
+        use quickcheck::TestResult;
+        use quickcheck_macros::quickcheck;
+
+        use super::{parse, ArgumentValue};
+
+        /// A valid in-range integer argument round-trips to the expected value;
+        /// an out-of-range integer is rejected without panicking.
+        #[quickcheck]
+        fn round_trips_a_valid_integer_argument(value: u32) -> TestResult {
+            let input = format!("fn(n={value})");
+            match i32::try_from(value) {
+                Ok(expected) => match parse::<nom::error::Error<&str>>(&input) {
+                    Ok((_, f)) => TestResult::from_bool(
+                        f.arguments.get("n") == Some(&ArgumentValue::Integer(expected)),
+                    ),
+                    Err(_) => TestResult::failed(),
+                },
+                Err(_) => TestResult::from_bool(parse::<nom::error::Error<&str>>(&input).is_err()),
+            }
+        }
+    }
+
+    mod adversarial_inputs {
+        use super::parse;
+
+        /// Adversarial inputs that previously caused panics or crashes.
+        /// Every info string flows through this parser, so none may abort the process.
+        #[test]
+        fn never_panics_on_known_bad_inputs() {
+            let bad_inputs = [
+                "99999999999999999999)",
+                "\u{0}",
+                "",
+                "\"",
+                "fn(n=\"unterminated",
+                "(((((",
+                "a=b=c=d=e=f=g",
+                "fn(=)",
+                "fn(=123)",
+            ];
+            for input in bad_inputs {
+                let _ = parse::<nom::error::Error<&str>>(input);
+            }
         }
     }
 }
