@@ -134,10 +134,17 @@ mod tests {
 
         // The mutant replaces run() with empty Vec, so we must assert:
         // 1. The Vec is non-empty
-        assert!(!events.is_empty(), "run() should return events for each action");
+        assert!(
+            !events.is_empty(),
+            "run() should return events for each action"
+        );
 
         // 2. The Vec has the same length as the input actions
-        assert_eq!(events.len(), actions.len(), "run() should return one event per action");
+        assert_eq!(
+            events.len(),
+            actions.len(),
+            "run() should return one event per action"
+        );
 
         // 3. The events contain the correct variants
         match &events[0] {
@@ -177,12 +184,17 @@ mod tests {
 
         let events = runner.run(&actions);
 
-        assert_eq!(events.len(), 1, "run() should return one event for one action");
+        assert_eq!(
+            events.len(),
+            1,
+            "run() should return one event for one action"
+        );
         match &events[0] {
             RunEvent::ErrorOccurred(error) => {
                 assert!(
                     matches!(error, Error::CommandFailed { .. }),
-                    "expected CommandFailed error, got: {error:?}"
+                    "expected CommandFailed error, got: {:?}",
+                    error
                 );
             }
             RunEvent::TestCompleted(_) => panic!("expected error event, got TestCompleted"),
@@ -197,7 +209,10 @@ mod tests {
         let mut runner = Runner::create(&mock, &mut state);
 
         let events = runner.run(&[]);
-        assert!(events.is_empty(), "run() with no actions should return empty Vec");
+        assert!(
+            events.is_empty(),
+            "run() with no actions should return empty Vec"
+        );
     }
 
     #[test]
@@ -216,6 +231,9 @@ mod tests {
         runner.run(&actions);
 
         // After running, the state should have recorded the result
-        assert!(state.is_success(), "state should be success after a passing script");
+        assert!(
+            state.is_success(),
+            "state should be success after a passing script"
+        );
     }
 }

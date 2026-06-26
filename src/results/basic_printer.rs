@@ -354,7 +354,8 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("nonexistent"),
-            "print_error should display the error text containing the script name, got: {output:?}"
+            "print_error should display the error text containing the script name, got: {:?}",
+            output
         );
     }
 
@@ -370,10 +371,7 @@ mod tests {
 
     #[test]
     fn exit_code_to_string_returns_none_for_none() {
-        assert_eq!(
-            BasicPrinter::exit_code_to_string(None),
-            "None".to_string()
-        );
+        assert_eq!(BasicPrinter::exit_code_to_string(None), "None".to_string());
     }
 
     // ---- display_action_error (covers mutants at line 180) ----
@@ -396,11 +394,13 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("my-stdout"),
-            "display_action_error should show stdout, got: {output:?}"
+            "display_action_error should show stdout, got: {:?}",
+            output
         );
         assert!(
             output.contains("my-stderr"),
-            "display_action_error should show stderr, got: {output:?}"
+            "display_action_error should show stderr, got: {:?}",
+            output
         );
     }
 
@@ -422,11 +422,13 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("extra-out"),
-            "display_action_error should show stdout for unexpected output, got: {output:?}"
+            "display_action_error should show stdout for unexpected output, got: {:?}",
+            output
         );
         assert!(
             output.contains("extra-err"),
-            "display_action_error should show stderr for unexpected output, got: {output:?}"
+            "display_action_error should show stderr for unexpected output, got: {:?}",
+            output
         );
     }
 
@@ -439,7 +441,8 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("==="),
-            "display_diff should produce diff output with === separators, got: {output:?}"
+            "display_diff should produce diff output with === separators, got: {:?}",
+            output
         );
     }
 
@@ -452,19 +455,23 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("stdout:"),
-            "disply_all_output should contain 'stdout:' header, got: {output:?}"
+            "disply_all_output should contain 'stdout:' header, got: {:?}",
+            output
         );
         assert!(
             output.contains("the-stdout"),
-            "disply_all_output should contain the stdout content, got: {output:?}"
+            "disply_all_output should contain the stdout content, got: {:?}",
+            output
         );
         assert!(
             output.contains("stderr:"),
-            "disply_all_output should contain 'stderr:' header, got: {output:?}"
+            "disply_all_output should contain 'stderr:' header, got: {:?}",
+            output
         );
         assert!(
             output.contains("the-stderr"),
-            "disply_all_output should contain the stderr content, got: {output:?}"
+            "disply_all_output should contain the stderr content, got: {:?}",
+            output
         );
     }
 
@@ -478,11 +485,13 @@ mod tests {
         // The cross mark ✓ is \u{2717}
         assert!(
             output.contains("\u{2717}"),
-            "display_error_item should contain the cross mark, got: {output:?}"
+            "display_error_item should contain the cross mark, got: {:?}",
+            output
         );
         assert!(
             output.contains("something went wrong"),
-            "display_error_item should contain the text, got: {output:?}"
+            "display_error_item should contain the text, got: {:?}",
+            output
         );
     }
 
@@ -496,7 +505,8 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("failure message"),
-            "display_error should contain the message text, got: {output:?}"
+            "display_error should contain the message text, got: {:?}",
+            output
         );
     }
 
@@ -508,11 +518,13 @@ mod tests {
         let msg = BasicPrinter::action_result_message(&failed_exit_code_result());
         assert!(
             msg.contains("0"),
-            "action_result_message should show expected exit code, got: {msg:?}"
+            "action_result_message should show expected exit code, got: {:?}",
+            msg
         );
         assert!(
             msg.contains("1"),
-            "action_result_message should show actual exit code, got: {msg:?}"
+            "action_result_message should show actual exit code, got: {:?}",
+            msg
         );
     }
 
@@ -523,7 +535,8 @@ mod tests {
         let title = BasicPrinter::action_title(&successful_script_result());
         assert!(
             title.contains("my_script"),
-            "action_title for script should contain the script name, got: {title:?}"
+            "action_title for script should contain the script name, got: {:?}",
+            title
         );
     }
 
@@ -541,11 +554,13 @@ mod tests {
         }));
         assert!(
             title.contains("v_script"),
-            "action_title for verify should contain the script name, got: {title:?}"
+            "action_title for verify should contain the script name, got: {:?}",
+            title
         );
         assert!(
             title.contains("stdout"),
-            "action_title for verify should contain stream name, got: {title:?}"
+            "action_title for verify should contain stream name, got: {:?}",
+            title
         );
     }
 
@@ -554,7 +569,8 @@ mod tests {
         let title = BasicPrinter::action_title(&create_file_result());
         assert!(
             title.contains("test.txt"),
-            "action_title for create file should contain the file path, got: {title:?}"
+            "action_title for create file should contain the file path, got: {:?}",
+            title
         );
     }
 
@@ -569,11 +585,13 @@ mod tests {
         // display_success_item (check mark) or display_error_item (cross mark)
         assert!(
             output.contains("my_script"),
-            "display_action should output the script name, got: {}", output.replace('\x1b', "\\x1b")
+            "display_action should output the script name, got: {}",
+            output.replace('\x1b', "\\x1b")
         );
         assert!(
             output.contains("succeeded"),
-            "display_action should output 'succeeded' for a passing result, got: {}", output.replace('\x1b', "\\x1b")
+            "display_action should output 'succeeded' for a passing result, got: {}",
+            output.replace('\x1b', "\\x1b")
         );
     }
 
@@ -584,11 +602,13 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("bad_script"),
-            "display_action should output the script name, got: {}", output.replace('\x1b', "\\x1b")
+            "display_action should output the script name, got: {}",
+            output.replace('\x1b', "\\x1b")
         );
         assert!(
             output.contains("failed"),
-            "display_action should output 'failed' for a failing result, got: {}", output.replace('\x1b', "\\x1b")
+            "display_action should output 'failed' for a failing result, got: {}",
+            output.replace('\x1b', "\\x1b")
         );
     }
 
@@ -605,7 +625,8 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("test.md"),
-            "print should show the file path, got: {output:?}"
+            "print should show the file path, got: {:?}",
+            output
         );
     }
 
@@ -623,11 +644,13 @@ mod tests {
         let output = captured2.borrow();
         assert!(
             output.contains("1 succeeded"),
-            "summary should say 1 succeeded, got: {output:?}"
+            "summary should say 1 succeeded, got: {:?}",
+            output
         );
         assert!(
             output.contains("0 failed"),
-            "summary should say 0 failed, got: {output:?}"
+            "summary should say 0 failed, got: {:?}",
+            output
         );
     }
 
@@ -640,11 +663,13 @@ mod tests {
         // The result is a failure, so it should display error details with stdout/stderr
         assert!(
             output.contains("stdout:"),
-            "failed script result should trigger display of stdout, got: {output:?}"
+            "failed script result should trigger display of stdout, got: {:?}",
+            output
         );
         assert!(
             output.contains("stderr:"),
-            "failed script result should trigger display of stderr, got: {output:?}"
+            "failed script result should trigger display of stderr, got: {:?}",
+            output
         );
     }
 
@@ -656,7 +681,8 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("==="),
-            "failed verify result should trigger diff display, got: {output:?}"
+            "failed verify result should trigger diff display, got: {:?}",
+            output
         );
     }
 
@@ -671,15 +697,18 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("2 functions run"),
-            "summary should say 2 functions run, got: {output:?}"
+            "summary should say 2 functions run, got: {:?}",
+            output
         );
         assert!(
             output.contains("1 succeeded"),
-            "summary should say 1 succeeded, got: {output:?}"
+            "summary should say 1 succeeded, got: {:?}",
+            output
         );
         assert!(
             output.contains("1 failed"),
-            "summary should say 1 failed, got: {output:?}"
+            "summary should say 1 failed, got: {:?}",
+            output
         );
     }
 
@@ -691,11 +720,13 @@ mod tests {
         let output = captured.borrow();
         assert!(
             output.contains("stdout:"),
-            "unexpected output error should show stdout section, got: {output:?}"
+            "unexpected output error should show stdout section, got: {:?}",
+            output
         );
         assert!(
             output.contains("stderr:"),
-            "unexpected output error should show stderr section, got: {output:?}"
+            "unexpected output error should show stderr section, got: {:?}",
+            output
         );
     }
 
@@ -741,7 +772,8 @@ mod tests {
         let title = BasicPrinter::action_title(&result);
         assert!(
             title.contains("<unnamed>"),
-            "unnamed script should show '<unnamed>' in title, got: {title:?}"
+            "unnamed script should show '<unnamed>' in title, got: {:?}",
+            title
         );
     }
 
@@ -760,11 +792,13 @@ mod tests {
         let title = BasicPrinter::action_title(&result);
         assert!(
             title.contains("stderr"),
-            "verify with StdErr should show 'stderr' in title, got: {title:?}"
+            "verify with StdErr should show 'stderr' in title, got: {:?}",
+            title
         );
         assert!(
             title.contains("<unnamed>"),
-            "unnamed verify should show '<unnamed>' in title, got: {title:?}"
+            "unnamed verify should show '<unnamed>' in title, got: {:?}",
+            title
         );
     }
 
@@ -776,11 +810,13 @@ mod tests {
         // The check mark ✓ is \u{2713}
         assert!(
             output.contains("\u{2713}"),
-            "display_success_item should contain the check mark, got: {output:?}"
+            "display_success_item should contain the check mark, got: {:?}",
+            output
         );
         assert!(
             output.contains("all good"),
-            "display_success_item should contain the text, got: {output:?}"
+            "display_success_item should contain the text, got: {:?}",
+            output
         );
     }
 }
