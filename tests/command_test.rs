@@ -175,6 +175,24 @@ fn test_doc_stripping_specs() {
 }
 
 #[test]
+fn test_doc_background_scripts() {
+    let bin_dir = std::env::current_dir()
+        .unwrap()
+        .join("target")
+        .join("debug");
+    let result = Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--temporary-workspace-dir")
+        .arg("--add-path")
+        .arg(bin_dir.to_str().unwrap())
+        .arg("docs/specs/background_scripts.md")
+        .ok();
+
+    assert_ok(&result);
+}
+
+#[test]
 fn test_displays_error_when_required_args_are_missing() {
     #[cfg(windows)]
     const BINARY_NAME: &str = "specdown.exe";

@@ -113,11 +113,18 @@ pub struct CreateFileAction {
     pub file_content: FileContent,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct BackgroundAction {
+    pub script_name: Option<ScriptName>,
+    pub script_code: ScriptCode,
+}
+
 #[derive(Debug, Eq, PartialEq)]
 pub enum Action {
     Script(ScriptAction),
     Verify(VerifyAction),
     CreateFile(CreateFileAction),
+    Background(BackgroundAction),
 }
 
 #[cfg(test)]

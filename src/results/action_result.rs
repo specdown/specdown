@@ -1,4 +1,7 @@
-use crate::types::{CreateFileAction, ExitCode, OutputExpectation, ScriptAction, VerifyAction};
+use crate::types::{
+    BackgroundAction, CreateFileAction, ExitCode, OutputExpectation, ScriptAction, ScriptName,
+    VerifyAction,
+};
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum ActionError {
@@ -78,10 +81,34 @@ impl ActionErrorProvider for CreateFileResult {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub struct BackgroundStartResult {
+    pub action: BackgroundAction,
+}
+
+impl ActionErrorProvider for BackgroundStartResult {
+    fn error(&self) -> Option<ActionError> {
+        None
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct BackgroundStopResult {
+    pub script_name: Option<ScriptName>,
+}
+
+impl ActionErrorProvider for BackgroundStopResult {
+    fn error(&self) -> Option<ActionError> {
+        None
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ActionResult {
     Script(ScriptResult),
     Verify(VerifyResult),
     CreateFile(CreateFileResult),
+    BackgroundStart(BackgroundStartResult),
+    BackgroundStop(BackgroundStopResult),
 }
 
 impl ActionResult {
@@ -98,6 +125,8 @@ impl ActionResult {
             Self::Script(result) => result,
             Self::Verify(result) => result,
             Self::CreateFile(result) => result,
+            Self::BackgroundStart(result) => result,
+            Self::BackgroundStop(result) => result,
         }
     }
 }

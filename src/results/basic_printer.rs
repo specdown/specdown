@@ -9,7 +9,10 @@ use crate::runner::RunEvent;
 use crate::types::{ExitCode, OutputExpectation, Stream, VerifyAction};
 
 use super::action_result::ActionResult;
-use super::action_result::{ActionError, CreateFileResult, ScriptResult, VerifyResult};
+use super::action_result::{
+    ActionError, BackgroundStartResult, BackgroundStopResult, CreateFileResult, ScriptResult,
+    VerifyResult,
+};
 use super::printer::Printer;
 
 struct Summary {
@@ -113,6 +116,23 @@ impl BasicPrinter {
             ),
             ActionResult::CreateFile(CreateFileResult { action, .. }) => {
                 format!("creating file {}", String::from(action.file_path.clone()))
+            }
+            ActionResult::BackgroundStart(BackgroundStartResult { action, .. }) => {
+                format!(
+                    "starting background script '{}'",
+                    action
+                        .script_name
+                        .clone()
+                        .map_or("<unnamed>".to_string(), Into::into)
+                )
+            }
+            ActionResult::BackgroundStop(BackgroundStopResult { script_name, .. }) => {
+                format!(
+                    "stopping background script '{}'",
+                    script_name
+                        .clone()
+                        .map_or("<unnamed>".to_string(), Into::into)
+                )
             }
         }
     }

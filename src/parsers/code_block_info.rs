@@ -318,5 +318,38 @@ mod tests {
                 );
             }
         }
+
+        mod background {
+            use crate::parsers::code_block_type::BackgroundCodeBlock;
+            use crate::types::ScriptName;
+
+            use super::{parse, CodeBlockInfo, CodeBlockType};
+
+            #[test]
+            fn succeeds_when_function_is_background_with_a_name() {
+                let result = parse("shell,background(name=\"server\")");
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        extra: CodeBlockType::Background(BackgroundCodeBlock {
+                            script_name: Some(ScriptName("server".to_string())),
+                        }),
+                    })
+                );
+            }
+
+            #[test]
+            fn succeeds_when_function_is_background_without_a_name() {
+                let result = parse("shell,background()");
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        extra: CodeBlockType::Background(BackgroundCodeBlock { script_name: None }),
+                    })
+                );
+            }
+        }
     }
 }

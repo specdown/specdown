@@ -1,5 +1,5 @@
 use crate::results::ActionResult;
-use crate::types::{Action, CreateFileAction, ScriptAction, VerifyAction};
+use crate::types::{Action, BackgroundAction, CreateFileAction, ScriptAction, VerifyAction};
 
 use super::{error, file, script, verify, Error, Executor, State};
 
@@ -8,6 +8,7 @@ pub fn to_runnable(action: &Action) -> &dyn RunnableAction {
         Action::Script(a) => a,
         Action::Verify(a) => a,
         Action::CreateFile(a) => a,
+        Action::Background(a) => a,
     }
 }
 
@@ -30,5 +31,14 @@ impl RunnableAction for VerifyAction {
 impl RunnableAction for CreateFileAction {
     fn run(&self, _state: &State, _executor: &dyn Executor) -> Result<ActionResult, Error> {
         Ok(file::run(self))
+    }
+}
+
+impl RunnableAction for BackgroundAction {
+    fn run(&self, _state: &State, _executor: &dyn Executor) -> Result<ActionResult, Error> {
+        // Background actions are handled specially by the Runner,
+        // not through the normal RunnableAction trait.
+        // This implementation should not be reached.
+        Err(Error::BackgroundNotSupported)
     }
 }
