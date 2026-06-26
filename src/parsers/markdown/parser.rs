@@ -96,7 +96,7 @@ mod tests {
     }
 
     #[test]
-    fn it_does_not_return_an_element_when_a_code_bloc_is_not_fenced() {
+    fn it_does_not_return_an_element_when_a_code_block_is_not_fenced() {
         let markdown = "# Non-fenced\n    this code block is not fenced";
 
         assert_eq!(parse(markdown), Ok(vec![]));
