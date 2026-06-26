@@ -13,11 +13,17 @@ jobs:
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
-      - name: "workaround: Clear cached wrong-arch rustup bin"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: rm -f "${CARGO_HOME:-$HOME/.cargo}/bin/rustup" || true
-      - uses: tomphp/github-actions/checkout-rust-project@v0.8.1
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v5
+        name: Cache cargo dependencies
+        with:
+          key: ${{ runner.os }}-${{ runner.arch }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            .cache
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Install cargo-audit
         run: cargo install cargo-audit --force
       - name: Audit check cargo packages
@@ -40,17 +46,17 @@ jobs:
         run: |
           echo "${CARGO_HOME:-$HOME/.cargo}/bin" >> $GITHUB_PATH
           brew --prefix rustup 2>/dev/null && echo "$(brew --prefix rustup)/bin" >> $GITHUB_PATH || true
-      - name: "workaround: Remove cached x86_64 rustup from PATH on ARM Linux"
-        if: runner.arch == 'ARM64' && runner.os == 'Linux'
-        shell: bash
-        run: |
-          CLEAN_PATH=$(echo "$PATH" | tr ':' '\n' | grep -v '\.cargo/bin' | tr '\n' ':' | sed 's/:$//')
-          echo "PATH=$CLEAN_PATH" >> $GITHUB_ENV
-      - name: "workaround: Clear cached wrong-arch rustup bin"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: rm -f "${CARGO_HOME:-$HOME/.cargo}/bin/rustup" || true
-      - uses: tomphp/github-actions/checkout-rust-project@v0.8.1
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v5
+        name: Cache cargo dependencies
+        with:
+          key: ${{ runner.os }}-${{ runner.arch }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            .cache
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Rename wsl bash
         if: runner.os == 'Windows'
         run: |
@@ -67,13 +73,19 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
-      - name: "workaround: Clear cached wrong-arch rustup bin"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: rm -f "${CARGO_HOME:-$HOME/.cargo}/bin/rustup" || true
-      - uses: tomphp/github-actions/checkout-rust-project@v0.8.1
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v5
+        name: Cache cargo dependencies
         with:
-          rust-components: rustfmt, clippy
+          key: ${{ runner.os }}-${{ runner.arch }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            .cache
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt, clippy
       - name: Run checks
         run: make check
       - name: Check markdown links
