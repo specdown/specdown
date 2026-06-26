@@ -10,8 +10,8 @@ use crate::types::{ExitCode, OutputExpectation, Stream, VerifyAction};
 
 use super::action_result::ActionResult;
 use super::action_result::{
-    ActionError, BackgroundStartResult, BackgroundStopResult, CreateFileResult, ScriptResult,
-    VerifyResult,
+    ActionError, BackgroundExitStatus, BackgroundStartResult, BackgroundStopResult,
+    CreateFileResult, ScriptResult, VerifyResult,
 };
 use super::printer::Printer;
 
@@ -166,6 +166,12 @@ impl BasicPrinter {
                 )
             }
             Some(ActionError::OutputDoesNotMatch(_)) => "failed".to_string(),
+            Some(ActionError::BackgroundExitedWithError(result)) => match result.exit_status {
+                BackgroundExitStatus::Exited(code) => {
+                    format!("failed (exited with code {})", i32::from(code))
+                }
+                BackgroundExitStatus::Killed => "succeeded".to_string(),
+            },
             None => "succeeded".to_string(),
         }
     }
@@ -189,6 +195,7 @@ impl BasicPrinter {
             }) => {
                 self.display_diff(&String::from(expected_value.clone()), got);
             }
+            ActionError::BackgroundExitedWithError(_) => {}
         }
     }
 

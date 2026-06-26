@@ -119,3 +119,114 @@ Running tests for background_unnamed.md:
   2 functions run (2 succeeded / 0 failed)
 
 ```
+
+## Background script that exits before the spec file ends
+
+If a background script exits on its own (with a zero exit code) before the spec
+file ends, specdown detects the early exit and reports it as succeeded. The
+process is not killed because it has already exited.
+
+Given the file `background_exits.md`:
+
+~~~markdown,file(path="background_exits.md")
+# Background Exits Example
+
+```shell,background(name="quick_exit")
+echo "done"
+```
+
+```shell,script(name="check_exit")
+sleep 1
+```
+~~~
+
+When you run the following:
+
+```shell,script(name="background_exits", expected_exit_code=0)
+specdown run background_exits.md
+```
+
+Then you will see the following output:
+
+```text,verify(script_name="background_exits")
+Running tests for background_exits.md:
+
+  ✓ starting background script 'quick_exit' succeeded
+  ✓ running script 'check_exit' succeeded
+  ✓ stopping background script 'quick_exit' succeeded
+
+  3 functions run (3 succeeded / 0 failed)
+
+```
+
+## Background script that exits with a non-zero exit code
+
+If a background script exits on its own with a non-zero exit code before the
+spec file ends, specdown detects the crash and reports the stop as failed.
+
+Given the file `background_crash.md`:
+
+~~~markdown,file(path="background_crash.md")
+# Background Crash Example
+
+```shell,background(name="crashing")
+exit 1
+```
+
+```shell,script(name="check_crash")
+sleep 1
+```
+~~~
+
+When you run the following:
+
+```shell,script(name="background_crash", expected_exit_code=1)
+specdown run background_crash.md
+```
+
+Then you will see the following output:
+
+```text,verify(script_name="background_crash")
+Running tests for background_crash.md:
+
+  ✓ starting background script 'crashing' succeeded
+  ✓ running script 'check_crash' succeeded
+  ✗ stopping background script 'crashing' failed (exited with code 1)
+
+  3 functions run (2 succeeded / 1 failed)
+
+```
+
+## Background script that is still running at spec end
+
+If a background script is still running when the spec file ends, specdown kills
+the process and reports the stop as succeeded. This is the expected behavior for
+long-running processes like servers.
+
+Given the file `background_killed.md`:
+
+~~~markdown,file(path="background_killed.md")
+# Background Killed Example
+
+```shell,background(name="long_running")
+sleep 60
+```
+~~~
+
+When you run the following:
+
+```shell,script(name="background_killed", expected_exit_code=0)
+specdown run background_killed.md
+```
+
+Then you will see the following output:
+
+```text,verify(script_name="background_killed")
+Running tests for background_killed.md:
+
+  ✓ starting background script 'long_running' succeeded
+  ✓ stopping background script 'long_running' succeeded
+
+  2 functions run (2 succeeded / 0 failed)
+
+```

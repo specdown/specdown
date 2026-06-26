@@ -8,6 +8,7 @@ pub enum ActionError {
     ExitCodeIsIncorrect(ScriptResult),
     UnexpectedOutputIsPresent(ScriptResult),
     OutputDoesNotMatch(VerifyResult),
+    BackgroundExitedWithError(BackgroundStopResult),
 }
 
 trait ActionErrorProvider {
@@ -94,12 +95,27 @@ impl ActionErrorProvider for BackgroundStartResult {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BackgroundStopResult {
     pub script_name: Option<ScriptName>,
+    pub exit_status: BackgroundExitStatus,
 }
 
 impl ActionErrorProvider for BackgroundStopResult {
     fn error(&self) -> Option<ActionError> {
-        None
+        match self.exit_status {
+            BackgroundExitStatus::Exited(code) if i32::from(code) != 0 => {
+                Some(ActionError::BackgroundExitedWithError(self.clone()))
+            }
+            _ => None,
+        }
     }
+}
+
+/// How a background process ended.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum BackgroundExitStatus {
+    /// The process was still running and specdown killed it.
+    Killed,
+    /// The process exited on its own with the given exit code.
+    Exited(ExitCode),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -133,10 +149,16 @@ impl ActionResult {
 
 #[cfg(test)]
 mod tests {
-    use super::{ActionError, ActionResult, CreateFileResult, ScriptResult, VerifyResult};
+    use super::{
+        ActionError, ActionResult, BackgroundExitStatus, BackgroundStopResult, CreateFileResult,
+        ScriptResult, VerifyResult,
+    };
 
     mod success {
-        use super::{ActionError, ActionResult, CreateFileResult, ScriptResult, VerifyResult};
+        use super::{
+            ActionError, ActionResult, BackgroundExitStatus, BackgroundStopResult,
+            CreateFileResult, ScriptResult, VerifyResult,
+        };
 
         mod error {
             use super::{ActionError, ActionResult, ScriptResult};
@@ -340,6 +362,59 @@ mod tests {
                     },
                 });
                 assert!(result.success());
+            }
+        }
+
+        mod background_stop {
+            use super::{ActionError, ActionResult, BackgroundExitStatus, BackgroundStopResult};
+            use crate::types::{ExitCode, ScriptName};
+
+            #[test]
+            fn returns_none_when_process_was_killed() {
+                let result = ActionResult::BackgroundStop(BackgroundStopResult {
+                    script_name: Some(ScriptName("server".to_string())),
+                    exit_status: BackgroundExitStatus::Killed,
+                });
+                assert_eq!(result.error(), None);
+                assert!(result.success());
+            }
+
+            #[test]
+            fn returns_none_when_process_exited_with_zero() {
+                let result = ActionResult::BackgroundStop(BackgroundStopResult {
+                    script_name: Some(ScriptName("server".to_string())),
+                    exit_status: BackgroundExitStatus::Exited(ExitCode(0)),
+                });
+                assert_eq!(result.error(), None);
+                assert!(result.success());
+            }
+
+            #[test]
+            fn returns_error_when_process_exited_with_non_zero() {
+                let stop_result = BackgroundStopResult {
+                    script_name: Some(ScriptName("server".to_string())),
+                    exit_status: BackgroundExitStatus::Exited(ExitCode(1)),
+                };
+                let result = ActionResult::BackgroundStop(stop_result.clone());
+                assert_eq!(
+                    result.error(),
+                    Some(ActionError::BackgroundExitedWithError(stop_result))
+                );
+                assert!(!result.success());
+            }
+
+            #[test]
+            fn returns_error_when_process_exited_with_signal_code() {
+                let stop_result = BackgroundStopResult {
+                    script_name: None,
+                    exit_status: BackgroundExitStatus::Exited(ExitCode(134)),
+                };
+                let result = ActionResult::BackgroundStop(stop_result.clone());
+                assert_eq!(
+                    result.error(),
+                    Some(ActionError::BackgroundExitedWithError(stop_result))
+                );
+                assert!(!result.success());
             }
         }
     }
