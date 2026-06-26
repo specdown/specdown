@@ -18,4 +18,5 @@ All documentation is written as SpecDown tests and form part of the test suite.
     - [Skipping Code Blocks](specs/skipping_code_blocks.md)
     - [Creating Test Files](specs/creating_test_files.md)
     - [Background Scripts](specs/background_scripts.md)
+    - [Escaped Quotes in String Arguments](specs/escaped_quotes_in_string_arguments.md)
 - [Errors](errors.md)

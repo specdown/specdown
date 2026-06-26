@@ -138,6 +138,24 @@ fn test_doc_errors() {
 }
 
 #[test]
+fn test_doc_escaped_quotes_in_string_arguments() {
+    let bin_dir = std::env::current_dir()
+        .unwrap()
+        .join("target")
+        .join("debug");
+    let result = Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--temporary-workspace-dir")
+        .arg("--add-path")
+        .arg(bin_dir.to_str().unwrap())
+        .arg("docs/specs/escaped_quotes_in_string_arguments.md")
+        .ok();
+
+    assert_ok(&result);
+}
+
+#[test]
 fn test_doc_skipping_code_blocks() {
     let result = Command::cargo_bin("specdown")
         .unwrap()
