@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 pub use arguments::Arguments;
+use arguments::ExecutorKind;
 use file_reader::FileReader;
 use run_command::RunCommand;
 
@@ -100,7 +101,29 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
         jobs,
     };
 
-    ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths).map(new_command)
+    match args.executor_config.executor {
+        ExecutorKind::Shell => {
+            ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths).map(new_command)
+        }
+        ExecutorKind::Container => {
+            #[cfg(feature = "container")]
+            {
+                let image = args
+                    .executor_config
+                    .container_image
+                    .clone()
+                    .unwrap_or_else(|| "bash:5".to_string());
+                crate::runner::container_executor::ContainerExecutor::new::<String>(
+                    &image, &shell_cmd, &env, &unset_env, &paths,
+                )
+                .map(new_command)
+            }
+            #[cfg(not(feature = "container"))]
+            {
+                Err(Error::ContainerFeatureNotEnabled)
+            }
+        }
+    }
 }
 
 fn create_workspace(
