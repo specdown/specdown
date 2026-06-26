@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.5.1](https://github.com/specdown/specdown/compare/v1.5.0..v1.5.1) - 2026-06-26
+#### Bug Fixes
+- **(runner)** fix malformed placeholder and duplicate word in error messages - ([460a821](https://github.com/specdown/specdown/commit/460a8219c93f0a738f1d49131f204fcf08507353)) - Billie Thompson
+- add backticks around BasicPrinter in doc comment - ([c8b67f6](https://github.com/specdown/specdown/commit/c8b67f68baf7e691f61671393bee80df4272c7ae)) - PurpleBooth
+- resolve clippy lints for single-char patterns and doc backticks - ([29a5218](https://github.com/specdown/specdown/commit/29a521828990200c2e432ffdfea8c2f484cb1adc)) - PurpleBooth
+- resolve clippy non-fmt-panics warnings in test assertions - ([d2dddeb](https://github.com/specdown/specdown/commit/d2dddeb750cb629a861d862a26ce35e957185eae)) - PurpleBooth
+- apply safe integer parsing from upstream to fix quickcheck overflow - ([2571a6d](https://github.com/specdown/specdown/commit/2571a6dccdb821c827ff92dd6ab0f9e5ca33b196)) - PurpleBooth
+#### Continuous Integration
+- force reinstall cargo-audit to handle pre-installed runner image - ([9eabc56](https://github.com/specdown/specdown/commit/9eabc56ead3e4959aadb086c1169acfd1d45578f)) - PurpleBooth
+#### Documentation
+- **(parser)** fix typo in test name (code_bloc -> code_block) - ([2c73422](https://github.com/specdown/specdown/commit/2c7342257c4c7acb0b32cdc9e8da958a3311a84c)) - Billie Thompson
+#### Miscellaneous Chores
+- remove accidentally committed log files - ([ee76337](https://github.com/specdown/specdown/commit/ee76337d2b84ec0ecead523b47f54c1a8ced4e30)) - PurpleBooth
+- trigger CI re-run - ([5c6d42f](https://github.com/specdown/specdown/commit/5c6d42f1e88a0c442c8864fd200fa9c9a8f45ae3)) - PurpleBooth
+#### Performance Improvements
+- **(parser)** avoid heap allocations in hot parser paths - ([f5ea003](https://github.com/specdown/specdown/commit/f5ea00305dc6a8dc161ea6541a4c085dd659ee16)) - Billie Thompson
+#### Tests
+- **(parser)** add quickcheck property and adversarial-input tests - ([a73ee1d](https://github.com/specdown/specdown/commit/a73ee1d284e8f240cb947420bd53346beab5be40)) - Billie Thompson
+- add mutation test coverage for basic_printer and runner - ([4fab0ea](https://github.com/specdown/specdown/commit/4fab0ea0226cfdd43aeb7f484b44caf90cd70f57)) - PurpleBooth
+
+- - -
+
 ## [v1.5.0](https://github.com/specdown/specdown/compare/v1.4.0..v1.5.0) - 2026-06-26
 #### Features
 - detect background script exit codes and report crashes - ([5861b42](https://github.com/specdown/specdown/commit/5861b42f10d686b7aac3b6c41da5c996b5b94bed)) - PurpleBooth
