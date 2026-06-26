@@ -1,7 +1,9 @@
-use crate::parsers::code_block_type::{BackgroundCodeBlock, CodeBlockType, ScriptCodeBlock, VerifyCodeBlock};
+use crate::parsers::code_block_type::{
+    BackgroundCodeBlock, CodeBlockType, ScriptCodeBlock, VerifyCodeBlock,
+};
 use crate::types::{
-    Action, BackgroundAction, CreateFileAction, FileContent, ScriptAction, ScriptCode, TargetOs, VerifyAction,
-    VerifyValue,
+    Action, BackgroundAction, CreateFileAction, FileContent, ScriptAction, ScriptCode, TargetOs,
+    VerifyAction, VerifyValue,
 };
 use std::env::consts::OS;
 
@@ -17,9 +19,9 @@ pub fn create_action(code_block_type: &CodeBlockType, literal: String) -> Option
             file_path: file_path.clone(),
             file_content: FileContent(literal),
         })),
-        CodeBlockType::Background(background_code_block) => {
-            Some(Action::Background(to_background_action(background_code_block, literal)))
-        }
+        CodeBlockType::Background(background_code_block) => Some(Action::Background(
+            to_background_action(background_code_block, literal),
+        )),
         CodeBlockType::Skip() => None,
     }
 }
@@ -78,9 +80,9 @@ mod tests {
     use super::{
         create_action, Action, CodeBlockType, FileContent, ScriptCode, ScriptCodeBlock, VerifyValue,
     };
-    use crate::types::BackgroundAction;
-    use crate::parsers::code_block_type::VerifyCodeBlock;
     use crate::parsers::code_block_type::BackgroundCodeBlock;
+    use crate::parsers::code_block_type::VerifyCodeBlock;
+    use crate::types::BackgroundAction;
     use crate::types::{
         CreateFileAction, FilePath, OutputExpectation, ScriptAction, ScriptName, Source, Stream,
         TargetOs, VerifyAction,
@@ -203,9 +205,7 @@ mod tests {
     fn create_action_for_background_without_name() {
         assert_eq!(
             create_action(
-                &CodeBlockType::Background(BackgroundCodeBlock {
-                    script_name: None,
-                }),
+                &CodeBlockType::Background(BackgroundCodeBlock { script_name: None }),
                 "code".to_string(),
             ),
             Some(Action::Background(BackgroundAction {

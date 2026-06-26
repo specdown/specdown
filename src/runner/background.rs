@@ -11,8 +11,14 @@ pub struct BackgroundProcess {
     pub script_name: Option<crate::types::ScriptName>,
 }
 
-pub fn start(action: &BackgroundAction, executor: &dyn Executor) -> Result<(ActionResult, BackgroundProcess), Error> {
-    let BackgroundAction { script_name, script_code } = action;
+pub fn start(
+    action: &BackgroundAction,
+    executor: &dyn Executor,
+) -> Result<(ActionResult, BackgroundProcess), Error> {
+    let BackgroundAction {
+        script_name,
+        script_code,
+    } = action;
 
     let child = executor.spawn(script_code)?;
 
@@ -20,10 +26,13 @@ pub fn start(action: &BackgroundAction, executor: &dyn Executor) -> Result<(Acti
         action: action.clone(),
     });
 
-    Ok((result, BackgroundProcess {
-        child,
-        script_name: script_name.clone(),
-    }))
+    Ok((
+        result,
+        BackgroundProcess {
+            child,
+            script_name: script_name.clone(),
+        },
+    ))
 }
 
 pub fn stop(mut bg: BackgroundProcess) -> ActionResult {

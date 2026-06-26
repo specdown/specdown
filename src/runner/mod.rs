@@ -50,26 +50,22 @@ impl<'a> Runner<'a> {
 
     fn run_action(&mut self, action: &Action) -> RunEvent {
         match action {
-            Action::Background(bg_action) => {
-                match background::start(bg_action, self.executor) {
-                    Ok((result, bg_process)) => {
-                        self.state.add_result(&result);
-                        self.background_processes.push(bg_process);
-                        RunEvent::TestCompleted(result)
-                    }
-                    Err(error) => RunEvent::ErrorOccurred(error),
+            Action::Background(bg_action) => match background::start(bg_action, self.executor) {
+                Ok((result, bg_process)) => {
+                    self.state.add_result(&result);
+                    self.background_processes.push(bg_process);
+                    RunEvent::TestCompleted(result)
                 }
-            }
-            _ => {
-                to_runnable(action)
-                    .run(self.state, self.executor)
-                    .map(|result| {
-                        self.state.add_result(&result);
-                        RunEvent::TestCompleted(result)
-                    })
-                    .or_else::<Error, _>(|error| Ok(RunEvent::ErrorOccurred(error)))
-                    .unwrap()
-            }
+                Err(error) => RunEvent::ErrorOccurred(error),
+            },
+            _ => to_runnable(action)
+                .run(self.state, self.executor)
+                .map(|result| {
+                    self.state.add_result(&result);
+                    RunEvent::TestCompleted(result)
+                })
+                .or_else::<Error, _>(|error| Ok(RunEvent::ErrorOccurred(error)))
+                .unwrap(),
         }
     }
 }

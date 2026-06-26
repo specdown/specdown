@@ -9,7 +9,10 @@ use crate::runner::RunEvent;
 use crate::types::{ExitCode, OutputExpectation, Stream, VerifyAction};
 
 use super::action_result::ActionResult;
-use super::action_result::{ActionError, BackgroundStartResult, BackgroundStopResult, CreateFileResult, ScriptResult, VerifyResult};
+use super::action_result::{
+    ActionError, BackgroundStartResult, BackgroundStopResult, CreateFileResult, ScriptResult,
+    VerifyResult,
+};
 use super::printer::Printer;
 
 struct Summary {

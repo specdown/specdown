@@ -346,9 +346,7 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "shell".to_string(),
-                        extra: CodeBlockType::Background(BackgroundCodeBlock {
-                            script_name: None,
-                        }),
+                        extra: CodeBlockType::Background(BackgroundCodeBlock { script_name: None }),
                     })
                 );
             }
