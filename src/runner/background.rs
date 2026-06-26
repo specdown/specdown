@@ -1,16 +1,15 @@
-use std::process::Child;
-
 use crate::results::{
     ActionResult, BackgroundExitStatus, BackgroundStartResult, BackgroundStopResult,
 };
 use crate::types::BackgroundAction;
 use crate::types::ExitCode;
 
+use super::background_handle::BackgroundHandle;
 use super::executor::Executor;
 use super::Error;
 
 pub struct BackgroundProcess {
-    pub child: Child,
+    pub handle: Box<dyn BackgroundHandle>,
     pub script_name: Option<crate::types::ScriptName>,
 }
 
@@ -23,7 +22,7 @@ pub fn start(
         script_code,
     } = action;
 
-    let child = executor.spawn(script_code)?;
+    let handle = executor.spawn(script_code)?;
 
     let result = ActionResult::BackgroundStart(BackgroundStartResult {
         action: action.clone(),
@@ -32,7 +31,7 @@ pub fn start(
     Ok((
         result,
         BackgroundProcess {
-            child,
+            handle,
             script_name: script_name.clone(),
         },
     ))
@@ -40,32 +39,19 @@ pub fn start(
 
 pub fn stop(mut bg: BackgroundProcess) -> ActionResult {
     // Check if the process has already exited on its own.
-    match bg.child.try_wait() {
-        Ok(Some(status)) => {
-            // The process exited before we could kill it.
-            let exit_code = status.code().unwrap_or(-1);
-            ActionResult::BackgroundStop(BackgroundStopResult {
-                script_name: bg.script_name,
-                exit_status: BackgroundExitStatus::Exited(ExitCode(exit_code)),
-            })
-        }
-        Ok(None) => {
-            // The process is still running — kill it and wait for it to exit.
-            let _ = bg.child.kill();
-            let _ = bg.child.wait();
-            ActionResult::BackgroundStop(BackgroundStopResult {
-                script_name: bg.script_name,
-                exit_status: BackgroundExitStatus::Killed,
-            })
-        }
-        Err(_) => {
-            // Could not determine the process status — kill it as a fallback.
-            let _ = bg.child.kill();
-            let _ = bg.child.wait();
-            ActionResult::BackgroundStop(BackgroundStopResult {
-                script_name: bg.script_name,
-                exit_status: BackgroundExitStatus::Killed,
-            })
-        }
+    if let Some(exit_code) = bg.handle.try_wait() {
+        // The process exited before we could kill it.
+        ActionResult::BackgroundStop(BackgroundStopResult {
+            script_name: bg.script_name,
+            exit_status: BackgroundExitStatus::Exited(ExitCode(exit_code)),
+        })
+    } else {
+        // The process is still running — kill it and wait for it to exit.
+        bg.handle.kill();
+        let _ = bg.handle.wait();
+        ActionResult::BackgroundStop(BackgroundStopResult {
+            script_name: bg.script_name,
+            exit_status: BackgroundExitStatus::Killed,
+        })
     }
 }

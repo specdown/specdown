@@ -54,10 +54,16 @@ fn test_doc_display_help() {
 #[cfg(not(windows))]
 #[test]
 fn test_doc_running_specs() {
+    let bin_dir = std::env::current_dir()
+        .unwrap()
+        .join("target")
+        .join("debug");
     let result = Command::cargo_bin("specdown")
         .unwrap()
         .arg("run")
         .arg("--temporary-workspace-dir")
+        .arg("--add-path")
+        .arg(bin_dir.to_str().unwrap())
         .arg("docs/cli/running_specs.md")
         .ok();
 
@@ -187,6 +193,24 @@ fn test_doc_background_scripts() {
         .arg("--add-path")
         .arg(bin_dir.to_str().unwrap())
         .arg("docs/specs/background_scripts.md")
+        .ok();
+
+    assert_ok(&result);
+}
+
+#[test]
+fn test_doc_container_executor() {
+    let bin_dir = std::env::current_dir()
+        .unwrap()
+        .join("target")
+        .join("debug");
+    let result = Command::cargo_bin("specdown")
+        .unwrap()
+        .arg("run")
+        .arg("--temporary-workspace-dir")
+        .arg("--add-path")
+        .arg(bin_dir.to_str().unwrap())
+        .arg("docs/specs/container_executor.md")
         .ok();
 
     assert_ok(&result);

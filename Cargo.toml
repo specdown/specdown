@@ -14,6 +14,13 @@ categories = [
 ]
 keywords = [ "markdown", "testing", "bdd", "tdd", "documentation" ]
 
+[features]
+default = []
+# Enables the container executor, which runs spec scripts inside a Docker
+# container via the Docker Engine API (socket).  When this feature is off,
+# specdown builds and runs without any Docker dependency.
+container = ["dep:bollard", "dep:tokio", "dep:futures-util"]
+
 [dependencies]
 clap = { version = "4.5.31", features = ["derive"] }
 clap_derive = "4.1.8"
@@ -27,6 +34,12 @@ shell-words = "1.1.1"
 tempfile = "3.17.1"
 thiserror = "2.0.18"
 time = "0.3.37"
+
+# Container executor support (Docker socket API) — optional, behind the
+# `container` feature so the default build has no Docker dependency.
+bollard = { version = "0.18", default-features = false, features = ["http", "pipe"], optional = true }
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "process", "io-util", "macros"], optional = true }
+futures-util = { version = "0.3", optional = true }
 
 [dev-dependencies]
 assert_cmd = "2.2.2"

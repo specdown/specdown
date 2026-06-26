@@ -13,6 +13,10 @@ jobs:
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
+      - name: "workaround: Clear cached wrong-arch rustup bin"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: rm -f "${CARGO_HOME:-$HOME/.cargo}/bin/rustup" || true
       - uses: tomphp/github-actions/checkout-rust-project@v0.8.1
       - name: Install cargo-audit
         run: cargo install cargo-audit --force
@@ -42,6 +46,10 @@ jobs:
         run: |
           CLEAN_PATH=$(echo "$PATH" | tr ':' '\n' | grep -v '\.cargo/bin' | tr '\n' ':' | sed 's/:$//')
           echo "PATH=$CLEAN_PATH" >> $GITHUB_ENV
+      - name: "workaround: Clear cached wrong-arch rustup bin"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: rm -f "${CARGO_HOME:-$HOME/.cargo}/bin/rustup" || true
       - uses: tomphp/github-actions/checkout-rust-project@v0.8.1
       - name: Rename wsl bash
         if: runner.os == 'Windows'
@@ -59,6 +67,10 @@ jobs:
           - os: ubuntu-latest
           - os: windows-latest
     steps:
+      - name: "workaround: Clear cached wrong-arch rustup bin"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: rm -f "${CARGO_HOME:-$HOME/.cargo}/bin/rustup" || true
       - uses: tomphp/github-actions/checkout-rust-project@v0.8.1
         with:
           rust-components: rustfmt, clippy

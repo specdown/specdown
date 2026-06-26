@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 pub use arguments::Arguments;
+use arguments::ExecutorKind;
 use file_reader::FileReader;
 use run_command::RunCommand;
 
@@ -79,15 +80,41 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
             .expect("failed to convert working dir into a string"),
     ));
 
-    let new_command = |e| RunCommand {
-        spec_files: args.spec_files.clone(),
-        executor: Box::new(e),
-        working_dir: actual_working_dir,
-        workspace_init_command,
-        file_reader,
-    };
-
-    ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths).map(new_command)
+    match args.executor_config.executor {
+        ExecutorKind::Shell => {
+            ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths).map(|e| RunCommand {
+                spec_files: args.spec_files.clone(),
+                executor: Box::new(e),
+                working_dir: actual_working_dir,
+                workspace_init_command,
+                file_reader,
+            })
+        }
+        ExecutorKind::Container => {
+            #[cfg(feature = "container")]
+            {
+                let image = args
+                    .executor_config
+                    .container_image
+                    .clone()
+                    .unwrap_or_else(|| "bash:5".to_string());
+                crate::runner::container_executor::ContainerExecutor::new::<String>(
+                    &image, &shell_cmd, &env, &unset_env, &paths,
+                )
+                .map(|e| RunCommand {
+                    spec_files: args.spec_files.clone(),
+                    executor: Box::new(e),
+                    working_dir: actual_working_dir,
+                    workspace_init_command,
+                    file_reader,
+                })
+            }
+            #[cfg(not(feature = "container"))]
+            {
+                Err(Error::ContainerFeatureNotEnabled)
+            }
+        }
+    }
 }
 
 fn create_workspace(

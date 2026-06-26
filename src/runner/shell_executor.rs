@@ -5,6 +5,7 @@ use shell_words::ParseError;
 
 use crate::types::ScriptCode;
 
+use super::background_handle::BackgroundHandle;
 use super::executor::Output;
 use super::{Error, Executor};
 use std::env;
@@ -120,16 +121,19 @@ impl Executor for ShellExecutor {
             })
     }
 
-    fn spawn(&self, script: &ScriptCode) -> Result<std::process::Child, Error> {
+    fn spawn(&self, script: &ScriptCode) -> Result<Box<dyn BackgroundHandle>, Error> {
         let ScriptCode(code_string) = script;
 
         let mut command = self.build_command(code_string);
         command.stdout(std::process::Stdio::null());
         command.stderr(std::process::Stdio::null());
 
-        command.spawn().map_err(|err| Error::SpawnFailed {
-            message: err.to_string(),
-        })
+        command
+            .spawn()
+            .map(|child| Box::new(child) as Box<dyn BackgroundHandle>)
+            .map_err(|err| Error::SpawnFailed {
+                message: err.to_string(),
+            })
     }
 }
 
