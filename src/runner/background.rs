@@ -1,10 +1,3 @@
-//! Background script support for specdown.
-//!
-//! This is the first step towards having HTTP request testing in specdown.
-//! Background scripts allow starting a server or service that subsequent
-//! script blocks can interact with (e.g. via curl). Future work could
-//! build on this to provide first-class HTTP request/response assertions.
-
 use std::process::Child;
 
 use crate::results::{ActionResult, BackgroundStartResult};
