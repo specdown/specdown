@@ -39,22 +39,19 @@ pub fn start(
 
 pub fn stop(mut bg: BackgroundProcess) -> ActionResult {
     // Check if the process has already exited on its own.
-    match bg.handle.try_wait() {
-        Some(exit_code) => {
-            // The process exited before we could kill it.
-            ActionResult::BackgroundStop(BackgroundStopResult {
-                script_name: bg.script_name,
-                exit_status: BackgroundExitStatus::Exited(ExitCode(exit_code)),
-            })
-        }
-        None => {
-            // The process is still running — kill it and wait for it to exit.
-            bg.handle.kill();
-            let _ = bg.handle.wait();
-            ActionResult::BackgroundStop(BackgroundStopResult {
-                script_name: bg.script_name,
-                exit_status: BackgroundExitStatus::Killed,
-            })
-        }
+    if let Some(exit_code) = bg.handle.try_wait() {
+        // The process exited before we could kill it.
+        ActionResult::BackgroundStop(BackgroundStopResult {
+            script_name: bg.script_name,
+            exit_status: BackgroundExitStatus::Exited(ExitCode(exit_code)),
+        })
+    } else {
+        // The process is still running — kill it and wait for it to exit.
+        bg.handle.kill();
+        let _ = bg.handle.wait();
+        ActionResult::BackgroundStop(BackgroundStopResult {
+            script_name: bg.script_name,
+            exit_status: BackgroundExitStatus::Killed,
+        })
     }
 }

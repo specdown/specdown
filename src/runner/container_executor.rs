@@ -19,6 +19,8 @@ use crate::types::ScriptCode;
 use super::background_handle::BackgroundHandle;
 use super::executor::Output;
 use super::{Error, Executor};
+use futures_util::StreamExt;
+use std::convert::TryFrom;
 
 /// An executor that runs scripts inside a Docker container, communicating
 /// with the Docker daemon over its socket API.
@@ -218,7 +220,6 @@ impl Executor for ContainerExecutor {
             let mut stdout = String::new();
             let mut stderr = String::new();
 
-            use futures_util::StreamExt;
             let mut output = output;
             while let Some(msg) = output.next().await {
                 match msg {
@@ -230,7 +231,9 @@ impl Executor for ContainerExecutor {
                     }
                     Ok(_) => {}
                     Err(err) => {
-                        stderr.push_str(&format!("Error reading container output: {err}\n"));
+                        stderr.push_str("Error reading container output: ");
+                        stderr.push_str(&err.to_string());
+                        stderr.push('\n');
                     }
                 }
             }
@@ -245,7 +248,7 @@ impl Executor for ContainerExecutor {
                 let mut code = None;
                 while let Some(msg) = wait_stream.next().await {
                     if let Ok(response) = msg {
-                        code = Some(response.status_code as i32);
+                        code = Some(i32::try_from(response.status_code).unwrap_or(0));
                         break;
                     }
                 }
@@ -348,8 +351,8 @@ impl BackgroundHandle for ContainerBackgroundHandle {
             stream
                 .next()
                 .await
-                .and_then(|r| r.ok())
-                .map(|r| r.status_code as i32)
+                .and_then(std::result::Result::ok)
+                .map(|r| i32::try_from(r.status_code).unwrap_or(0))
         })
         // Container may have already been removed; return None
     }
@@ -364,7 +367,7 @@ impl BackgroundHandle for ContainerBackgroundHandle {
                     let state = info.state?;
                     match state.status {
                         Some(bollard::models::ContainerStateStatusEnum::EXITED) => {
-                            state.exit_code.map(|c| c as i32)
+                            state.exit_code.map(|c| i32::try_from(c).unwrap_or(0))
                         }
                         _ => None,
                     }
