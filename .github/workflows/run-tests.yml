@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: tomphp/github-actions/checkout-rust-project@v0.8.1
       - name: Install cargo-audit
-        run: cargo install cargo-audit
+        run: cargo install cargo-audit --force
       - name: Audit check cargo packages
         run: cargo audit
 
