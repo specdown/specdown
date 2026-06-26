@@ -259,7 +259,7 @@ mod tests {
     use std::rc::Rc;
 
     /// Helper that creates a BasicPrinter with no colour and captures
-    /// everything written via the display function into a shared String.
+    /// everything written via the display function into a shared `String`.
     fn create_capture_printer() -> (BasicPrinter, Rc<RefCell<String>>) {
         let captured = Rc::new(RefCell::new(String::new()));
         let captured_clone = captured.clone();
@@ -517,12 +517,12 @@ mod tests {
         // This exercises exit_code_to_string through action_result_message
         let msg = BasicPrinter::action_result_message(&failed_exit_code_result());
         assert!(
-            msg.contains("0"),
+            msg.contains('0'),
             "action_result_message should show expected exit code, got: {:?}",
             msg
         );
         assert!(
-            msg.contains("1"),
+            msg.contains('1'),
             "action_result_message should show actual exit code, got: {:?}",
             msg
         );
