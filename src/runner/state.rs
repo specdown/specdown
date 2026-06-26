@@ -32,7 +32,7 @@ impl State {
                 .action
                 .script_name
                 .clone()
-                .map_or("<unknown-script-value".to_string(), Into::into);
+                .map_or("<unknown-script-value>".to_string(), Into::into);
             self.script_results
                 .insert(script_name, script_result.clone());
             self.last_script_result = Some(script_result.clone());
@@ -240,5 +240,30 @@ mod tests {
         let mut state = State::new();
         state.add_result(&ActionResult::Script(script_result.clone()));
         assert_eq!(Some(&script_result), state.get_last_result());
+    }
+
+    #[test]
+    fn unnamed_script_result_is_stored_with_a_well_formed_placeholder_name() {
+        let action = ScriptAction {
+            script_name: None,
+            script_code: ScriptCode(String::new()),
+            expected_exit_code: None,
+            expected_output: OutputExpectation::Any,
+        };
+        let script_result = ScriptResult {
+            action,
+            exit_code: Some(ExitCode(0)),
+            stdout: String::new(),
+            stderr: String::new(),
+        };
+        let mut state = State::new();
+        state.add_result(&ActionResult::Script(script_result));
+
+        // The placeholder must be a well-formed angle-bracketed name,
+        // not a malformed string like "<unknown-script-value".
+        assert!(
+            state.get_result("<unknown-script-value>").is_some(),
+            "the placeholder for unnamed scripts must have a closing '>'"
+        );
     }
 }
