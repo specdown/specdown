@@ -1,4 +1,7 @@
-pub use action_result::{ActionResult, CreateFileResult, ScriptResult, VerifyResult};
+pub use action_result::{
+    ActionResult, BackgroundStartResult, BackgroundStopResult, CreateFileResult, ScriptResult,
+    VerifyResult,
+};
 pub use printer::Printer;
 
 mod action_result;

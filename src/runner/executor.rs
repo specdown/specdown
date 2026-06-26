@@ -1,3 +1,5 @@
+use std::process::Child;
+
 use crate::types::ScriptCode;
 
 use super::Error;
@@ -24,4 +26,9 @@ impl From<std::process::Output> for Output {
 
 pub trait Executor {
     fn execute(&self, script: &ScriptCode) -> Result<Output, Error>;
+
+    fn spawn(&self, script: &ScriptCode) -> Result<Child, Error> {
+        let _ = script;
+        Err(Error::BackgroundNotSupported)
+    }
 }
