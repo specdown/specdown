@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.4.0](https://github.com/specdown/specdown/compare/v1.3.8..v1.4.0) - 2026-06-26
+#### Documentation
+- move HTTP request testing roadmap comment to PR - ([c74886a](https://github.com/specdown/specdown/commit/c74886a78666b98efb39232a0fd8dfdf9c3e6a86)) - PurpleBooth
+- add module comment about HTTP request testing roadmap - ([e79d7fb](https://github.com/specdown/specdown/commit/e79d7fb5289ed3217b87528ff1f34645d6949c98)) - PurpleBooth
+#### Features
+- add background scripts that are stopped at end of spec file - ([0625d6c](https://github.com/specdown/specdown/commit/0625d6cd560996f652058792817d2c47f92d6958)) - PurpleBooth
+#### Style
+- apply cargo fmt formatting - ([60a06bb](https://github.com/specdown/specdown/commit/60a06bbb5da893932acaeb57018ecd7d653376a7)) - PurpleBooth
+
+- - -
+
 ## [v1.3.8](https://github.com/specdown/specdown/compare/v1.3.7..v1.3.8) - 2026-06-24
 #### Bug Fixes
 - skip non-specdown fenced code blocks instead of crashing - ([58492fa](https://github.com/specdown/specdown/commit/58492fac31b614d1cfac72f19289251154b42b83)) - Billie Thompson
