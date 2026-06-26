@@ -1,6 +1,6 @@
-use crate::parsers::code_block_type::{CodeBlockType, ScriptCodeBlock, VerifyCodeBlock};
+use crate::parsers::code_block_type::{BackgroundCodeBlock, CodeBlockType, ScriptCodeBlock, VerifyCodeBlock};
 use crate::types::{
-    Action, CreateFileAction, FileContent, ScriptAction, ScriptCode, TargetOs, VerifyAction,
+    Action, BackgroundAction, CreateFileAction, FileContent, ScriptAction, ScriptCode, TargetOs, VerifyAction,
     VerifyValue,
 };
 use std::env::consts::OS;
@@ -17,6 +17,9 @@ pub fn create_action(code_block_type: &CodeBlockType, literal: String) -> Option
             file_path: file_path.clone(),
             file_content: FileContent(literal),
         })),
+        CodeBlockType::Background(background_code_block) => {
+            Some(Action::Background(to_background_action(background_code_block, literal)))
+        }
         CodeBlockType::Skip() => None,
     }
 }
@@ -33,6 +36,15 @@ fn to_script_action(code_block: &ScriptCodeBlock, literal: String) -> ScriptActi
         script_code: ScriptCode(literal),
         expected_exit_code: *expected_exit_code,
         expected_output: expected_output.clone(),
+    }
+}
+
+fn to_background_action(code_block: &BackgroundCodeBlock, literal: String) -> BackgroundAction {
+    let BackgroundCodeBlock { script_name } = code_block;
+
+    BackgroundAction {
+        script_name: script_name.clone(),
+        script_code: ScriptCode(literal),
     }
 }
 
@@ -66,7 +78,9 @@ mod tests {
     use super::{
         create_action, Action, CodeBlockType, FileContent, ScriptCode, ScriptCodeBlock, VerifyValue,
     };
+    use crate::types::BackgroundAction;
     use crate::parsers::code_block_type::VerifyCodeBlock;
+    use crate::parsers::code_block_type::BackgroundCodeBlock;
     use crate::types::{
         CreateFileAction, FilePath, OutputExpectation, ScriptAction, ScriptName, Source, Stream,
         TargetOs, VerifyAction,
@@ -165,6 +179,38 @@ mod tests {
             Some(Action::CreateFile(CreateFileAction {
                 file_path: FilePath("file.txt".to_string()),
                 file_content: FileContent("content".to_string()),
+            }))
+        );
+    }
+
+    #[test]
+    fn create_action_for_background() {
+        assert_eq!(
+            create_action(
+                &CodeBlockType::Background(BackgroundCodeBlock {
+                    script_name: Some(ScriptName("bg-script".to_string())),
+                }),
+                "code".to_string(),
+            ),
+            Some(Action::Background(BackgroundAction {
+                script_name: Some(ScriptName("bg-script".to_string())),
+                script_code: ScriptCode("code".to_string()),
+            }))
+        );
+    }
+
+    #[test]
+    fn create_action_for_background_without_name() {
+        assert_eq!(
+            create_action(
+                &CodeBlockType::Background(BackgroundCodeBlock {
+                    script_name: None,
+                }),
+                "code".to_string(),
+            ),
+            Some(Action::Background(BackgroundAction {
+                script_name: None,
+                script_code: ScriptCode("code".to_string()),
             }))
         );
     }

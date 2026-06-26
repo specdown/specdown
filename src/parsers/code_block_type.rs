@@ -19,10 +19,16 @@ pub struct VerifyCodeBlock {
 }
 
 #[derive(Debug, Eq, PartialEq)]
+pub struct BackgroundCodeBlock {
+    pub script_name: Option<ScriptName>,
+}
+
+#[derive(Debug, Eq, PartialEq)]
 pub enum CodeBlockType {
     Script(ScriptCodeBlock),
     Verify(VerifyCodeBlock),
     CreateFile(FilePath),
+    Background(BackgroundCodeBlock),
     Skip(),
 }
 
@@ -35,6 +41,7 @@ fn from_function(f: Function) -> Result<CodeBlockType> {
         "script" => script_to_code_block_type(&f),
         "verify" => verify_to_code_block_type(&f),
         "file" => file_to_code_block_type(&f),
+        "background" => background_to_code_block_type(&f),
         "skip" => Ok(skip_to_code_block_type(&f)),
         _ => Err(Error::UnknownFunction(f.name)),
     }
@@ -80,6 +87,17 @@ fn to_expected_output(s: &str) -> Result<OutputExpectation> {
 fn file_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     let path = f.get_string_argument("path")?;
     Ok(CodeBlockType::CreateFile(FilePath(path)))
+}
+
+fn background_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
+    let name = if f.has_argument("name") {
+        Some(ScriptName(f.get_string_argument("name")?))
+    } else {
+        None
+    };
+    Ok(CodeBlockType::Background(BackgroundCodeBlock {
+        script_name: name,
+    }))
 }
 
 const fn skip_to_code_block_type(_f: &Function) -> CodeBlockType {

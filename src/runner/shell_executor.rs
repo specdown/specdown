@@ -84,25 +84,31 @@ impl ShellExecutor {
 
         env::join_paths(paths)
     }
-}
 
-impl Executor for ShellExecutor {
-    fn execute(&self, script: &ScriptCode) -> Result<Output, Error> {
-        let ScriptCode(code_string) = script;
-
+    pub fn build_command(&self, code: &str) -> Command {
         let path = self.path_env_var();
 
         let mut command = Command::new(&self.command);
 
         command
             .args(&self.args)
-            .arg(code_string)
+            .arg(code)
             .envs(&self.env)
             .env("PATH", path.expect("Failed to construct PATH"));
 
         for name in &self.unset_env {
             command.env_remove(name);
         }
+
+        command
+    }
+}
+
+impl Executor for ShellExecutor {
+    fn execute(&self, script: &ScriptCode) -> Result<Output, Error> {
+        let ScriptCode(code_string) = script;
+
+        let mut command = self.build_command(code_string);
 
         let output = command.output();
 
@@ -112,6 +118,18 @@ impl Executor for ShellExecutor {
                 command: format!("{} {:?}", self.command, self.args),
                 message: err.to_string(),
             })
+    }
+
+    fn spawn(&self, script: &ScriptCode) -> Result<std::process::Child, Error> {
+        let ScriptCode(code_string) = script;
+
+        let mut command = self.build_command(code_string);
+        command.stdout(std::process::Stdio::null());
+        command.stderr(std::process::Stdio::null());
+
+        command.spawn().map_err(|err| Error::SpawnFailed {
+            message: err.to_string(),
+        })
     }
 }
 

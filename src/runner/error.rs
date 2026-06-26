@@ -10,4 +10,8 @@ pub enum Error {
     ScriptOutputMissing { missing_script_name: String },
     #[error("Invalid shell command provided: {command} (Error: {message})")]
     BadShellCommand { command: String, message: String },
+    #[error("Background scripts are not supported with this executor")]
+    BackgroundNotSupported,
+    #[error("Failed to spawn background process: {message}")]
+    SpawnFailed { message: String },
 }
