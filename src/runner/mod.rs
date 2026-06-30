@@ -7,6 +7,9 @@ pub use state::State;
 use crate::types::Action;
 
 mod background;
+mod background_handle;
+#[cfg(feature = "container")]
+pub(crate) mod container_executor;
 mod error;
 mod executor;
 mod file;
