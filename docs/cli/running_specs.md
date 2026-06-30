@@ -444,6 +444,13 @@ Options:
           
           Ignored when the shell executor is used.
 
+      --container-volume <HOST:CONTAINER[:OPTIONS]>
+          Mount a host directory into the container (repeatable).
+          
+          Uses Docker CLI bind-mount syntax: `<host_path>:<container_path>[:options]`. For example, `--container-volume /host/data:/data` mounts the host directory `/host/data` at `/data` inside the container. Append `:ro` for a read-only mount.
+          
+          Only effective with `--executor container`.
+
   -h, --help
           Print help (see a summary with '-h')
 ```
@@ -501,6 +508,13 @@ Options:
           The Docker image to use when `--executor container` is selected.
           
           Ignored when the shell executor is used.
+
+      --container-volume <HOST:CONTAINER[:OPTIONS]>
+          Mount a host directory into the container (repeatable).
+          
+          Uses Docker CLI bind-mount syntax: `<host_path>:<container_path>[:options]`. For example, `--container-volume /host/data:/data` mounts the host directory `/host/data` at `/data` inside the container. Append `:ro` for a read-only mount.
+          
+          Only effective with `--executor container`.
 
   -h, --help
           Print help (see a summary with '-h')
