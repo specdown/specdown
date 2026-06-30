@@ -114,7 +114,12 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
                     .clone()
                     .unwrap_or_else(|| "bash:5".to_string());
                 crate::runner::container_executor::ContainerExecutor::new::<String>(
-                    &image, &shell_cmd, &env, &unset_env, &paths,
+                    &image,
+                    &shell_cmd,
+                    &env,
+                    &unset_env,
+                    &paths,
+                    &args.executor_config.container_volumes,
                 )
                 .map(new_command)
             }
