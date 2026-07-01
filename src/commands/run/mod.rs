@@ -39,6 +39,13 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
     let shell_cmd = args.shell_command.clone();
     let mut env = parse_environment_variables(&args.env);
 
+    // Resolve jobs: 0 means "run all in parallel" — map to CPU count.
+    let jobs = if args.jobs == 0 {
+        num_cpus::get()
+    } else {
+        args.jobs as usize
+    };
+
     let unset_env = args.unset_env.clone();
     let paths = args.add_path.clone();
     let current_dir = std::env::current_dir().expect("Failed to get current workspace directory");
@@ -85,6 +92,7 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
         working_dir: actual_working_dir,
         workspace_init_command,
         file_reader,
+        jobs,
     };
 
     ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths).map(new_command)

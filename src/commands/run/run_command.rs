@@ -12,6 +12,13 @@ pub struct RunCommand {
     pub working_dir: PathBuf,
     pub workspace_init_command: Option<String>,
     pub file_reader: FileReader,
+    /// The number of parallel jobs to use when running specs.
+    ///
+    /// A value of 0 has already been resolved to the CPU count by the CLI layer.
+    /// The parallel execution logic is not implemented yet; the value is plumbed
+    /// through so a follow-up can use it.
+    #[allow(dead_code)]
+    pub jobs: usize,
 }
 
 impl RunCommand {
