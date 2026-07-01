@@ -1,7 +1,6 @@
-use std::process::Child;
-
 use crate::types::ScriptCode;
 
+use super::background_handle::BackgroundHandle;
 use super::Error;
 
 pub struct Output {
@@ -27,7 +26,7 @@ impl From<std::process::Output> for Output {
 pub trait Executor {
     fn execute(&self, script: &ScriptCode) -> Result<Output, Error>;
 
-    fn spawn(&self, script: &ScriptCode) -> Result<Child, Error> {
+    fn spawn(&self, script: &ScriptCode) -> Result<Box<dyn BackgroundHandle>, Error> {
         let _ = script;
         Err(Error::BackgroundNotSupported)
     }

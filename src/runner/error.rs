@@ -14,4 +14,10 @@ pub enum Error {
     BackgroundNotSupported,
     #[error("Failed to spawn background process: {message}")]
     SpawnFailed { message: String },
+    #[cfg(feature = "container")]
+    #[error("The container executor requires Docker, but it is not available: {message}")]
+    DockerNotAvailable { message: String },
+    #[cfg(not(feature = "container"))]
+    #[error("The container executor feature is not enabled. Rebuild specdown with `--features container`")]
+    ContainerFeatureNotEnabled,
 }

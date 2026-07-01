@@ -41,7 +41,7 @@ enum Commands {
     Completion(commands::completion::Arguments),
 
     /// Runs a given Markdown Specification
-    Run(commands::run::Arguments),
+    Run(Box<commands::run::Arguments>),
 
     /// Outputs a version of the markdown with all specdown functions removed
     Strip(commands::strip::Arguments),
