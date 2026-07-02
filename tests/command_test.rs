@@ -5,13 +5,32 @@ use indoc::formatdoc;
 fn assert_ok(result: &OutputResult) {
     let output = match result {
         Ok(out) => out,
-        Err(err) => err.as_output().unwrap(),
+        Err(err) => err.as_output().expect("failed to get output from error"),
     };
 
     println!("Output:\n{}", String::from_utf8_lossy(&output.stdout));
     println!("Error:\n{}", String::from_utf8_lossy(&output.stderr));
 
     assert!(result.is_ok());
+}
+
+/// Build a `specdown run` command with `--add-path` pointing at the debug binary
+/// so integration tests can find the freshly-built specdown binary.
+fn specdown_run_with_path() -> Command {
+    let bin_dir = std::env::current_dir()
+        .expect("failed to get current directory")
+        .join("target")
+        .join("debug");
+    let mut cmd = Command::cargo_bin("specdown").expect("failed to find specdown cargo binary");
+    cmd.arg("run")
+        .arg("--temporary-workspace-dir")
+        .arg("--add-path")
+        .arg(
+            bin_dir
+                .to_str()
+                .expect("failed to convert bin_dir to UTF-8 string"),
+        );
+    cmd
 }
 
 #[test]
@@ -54,16 +73,7 @@ fn test_doc_display_help() {
 #[cfg(not(windows))]
 #[test]
 fn test_doc_running_specs() {
-    let bin_dir = std::env::current_dir()
-        .unwrap()
-        .join("target")
-        .join("debug");
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
-        .arg("--add-path")
-        .arg(bin_dir.to_str().unwrap())
+    let result = specdown_run_with_path()
         .arg("docs/cli/running_specs.md")
         .ok();
 
@@ -200,16 +210,7 @@ fn test_doc_stripping_specs() {
 
 #[test]
 fn test_doc_background_scripts() {
-    let bin_dir = std::env::current_dir()
-        .unwrap()
-        .join("target")
-        .join("debug");
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
-        .arg("--add-path")
-        .arg(bin_dir.to_str().unwrap())
+    let result = specdown_run_with_path()
         .arg("docs/specs/background_scripts.md")
         .ok();
 
@@ -218,16 +219,7 @@ fn test_doc_background_scripts() {
 
 #[test]
 fn test_doc_container_executor() {
-    let bin_dir = std::env::current_dir()
-        .unwrap()
-        .join("target")
-        .join("debug");
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
-        .arg("--add-path")
-        .arg(bin_dir.to_str().unwrap())
+    let result = specdown_run_with_path()
         .arg("docs/specs/container_executor.md")
         .ok();
 
@@ -256,7 +248,7 @@ fn test_displays_error_when_required_args_are_missing() {
               run         Runs a given Markdown Specification
               strip       Outputs a version of the markdown with all specdown functions removed
               help        Print this message or the help of the given subcommand(s)
-
+            
             Options:
                   --no-colour  Disables coloured output
               -h, --help       Print help
