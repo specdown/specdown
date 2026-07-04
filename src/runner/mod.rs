@@ -1,5 +1,7 @@
 pub use error::Error;
 pub use executor::Executor;
+#[allow(unused_imports)]
+pub use executor::Output;
 pub use run_event::RunEvent;
 pub use runnable_action::to_runnable;
 pub use state::State;
@@ -78,16 +80,16 @@ mod tests {
         CreateFileAction, FileContent, FilePath, OutputExpectation, ScriptAction, ScriptCode,
         ScriptName,
     };
-    use std::cell::RefCell;
+    use std::sync::Mutex;
 
     struct MockExecutor {
-        output: RefCell<Option<Result<Output, Error>>>,
+        output: Mutex<Option<Result<Output, Error>>>,
     }
 
     impl MockExecutor {
         fn with_success(exit_code: Option<i32>, stdout: &str, stderr: &str) -> Self {
             Self {
-                output: RefCell::new(Some(Ok(Output {
+                output: Mutex::new(Some(Ok(Output {
                     stdout: stdout.to_string(),
                     stderr: stderr.to_string(),
                     exit_code,
@@ -97,7 +99,7 @@ mod tests {
 
         fn with_error(error: Error) -> Self {
             Self {
-                output: RefCell::new(Some(Err(error))),
+                output: Mutex::new(Some(Err(error))),
             }
         }
     }
@@ -105,7 +107,8 @@ mod tests {
     impl Executor for MockExecutor {
         fn execute(&self, _script: &ScriptCode) -> Result<Output, Error> {
             self.output
-                .borrow_mut()
+                .lock()
+                .expect("mock executor mutex poisoned")
                 .take()
                 .expect("mock executor called more times than expected")
         }

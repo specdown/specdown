@@ -24,7 +24,7 @@ impl From<std::process::Output> for Output {
     }
 }
 
-pub trait Executor {
+pub trait Executor: Send + Sync {
     fn execute(&self, script: &ScriptCode) -> Result<Output, Error>;
 
     fn spawn(&self, script: &ScriptCode) -> Result<Child, Error> {
