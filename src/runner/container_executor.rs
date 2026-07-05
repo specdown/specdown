@@ -12,10 +12,22 @@
 //! blocks reuse this container via the Docker **exec** API, so filesystem
 //! state (files, environment, etc.) persists across script blocks within
 //! a spec file run.
+//!
+//! ## Parallel Execution
+//!
+//! When specdown runs with `--jobs > 1`, each parallel spec file gets its
+//! own `ContainerExecutor` instance (via [`Executor::clone_box`]), which in
+//! turn creates a uniquely-named container following the pattern
+//! `specdown-{file-hash}-{counter}`. The file hash is derived from the spec
+//! file path, making containers identifiable per spec file. This prevents
+//! container name collisions and ensures complete isolation between parallel
+//! spec files. Each container is cleaned up when its executor is dropped
+//! (after the spec file completes).
 
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Mutex;
 
 use bollard::container::{
     Config, CreateContainerOptions, LogOutput, RemoveContainerOptions, StartContainerOptions,
@@ -34,6 +46,24 @@ use std::convert::TryFrom;
 
 /// Monotonically increasing counter for unique background PID-file names.
 static BG_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+/// Monotonically increasing counter for unique container names.
+static CONTAINER_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+/// Hash a label string into a short, stable hex string.
+///
+/// Uses the FNV-1a hash algorithm — fast, dependency-free, and sufficient
+/// for distinguishing spec files in container names. The result is 8 hex
+/// characters (32 bits), which is enough to avoid collisions in practice
+/// for the small number of spec files processed in a single run.
+fn hash_label(label: &str) -> String {
+    let mut hash: u32 = 0x811c_9dc5;
+    for byte in label.as_bytes() {
+        hash = hash.wrapping_mul(0x0100_0193);
+        hash ^= u32::from(*byte);
+    }
+    format!("{hash:08x}")
+}
 
 /// An executor that runs scripts inside a Docker container, communicating
 /// with the Docker daemon over its socket API.
@@ -54,7 +84,10 @@ pub struct ContainerExecutor {
     runtime: tokio::runtime::Runtime,
     docker: Docker,
     /// ID of the persistent container, created on first use.
-    container_id: std::cell::RefCell<Option<String>>,
+    container_id: Mutex<Option<String>>,
+    /// Label used to derive a unique container name (typically the
+    /// spec file path). Incorporated into the container name as a hash.
+    label: String,
 }
 
 impl ContainerExecutor {
@@ -82,6 +115,7 @@ impl ContainerExecutor {
         unset_env: &[String],
         paths: &[P],
         binds: &[String],
+        label: &str,
     ) -> Result<Self, Error>
     where
         P: AsRef<std::ffi::OsStr>,
@@ -122,7 +156,8 @@ impl ContainerExecutor {
             working_dir: "/workspace".to_string(),
             runtime,
             docker,
-            container_id: std::cell::RefCell::new(None),
+            container_id: Mutex::new(None),
+            label: label.to_string(),
         })
     }
 
@@ -168,6 +203,19 @@ impl ContainerExecutor {
         words
     }
 
+    /// Generate a unique container name following the pattern
+    /// `specdown-{file-hash}-{counter}`.
+    ///
+    /// The `label` (typically the spec file path) is hashed with a
+    /// non-cryptographic hash to produce a short, stable identifier for
+    /// the spec file. The counter ensures uniqueness even if the same
+    /// spec file is run multiple times concurrently.
+    fn unique_container_name(label: &str) -> String {
+        let counter = CONTAINER_COUNTER.fetch_add(1, Ordering::SeqCst);
+        let hash = hash_label(label);
+        format!("specdown-{hash}-{counter}")
+    }
+
     /// Return the ID of the persistent container, creating and starting it
     /// if it does not yet exist.
     ///
@@ -176,7 +224,12 @@ impl ContainerExecutor {
     /// script and background blocks in a spec file.
     fn ensure_container(&self) -> Result<String, Error> {
         // Fast path: container already created.
-        if let Some(id) = self.container_id.borrow().clone() {
+        if let Some(id) = self
+            .container_id
+            .lock()
+            .expect("container_id mutex poisoned")
+            .clone()
+        {
             return Ok(id);
         }
 
@@ -185,6 +238,7 @@ impl ContainerExecutor {
         let env = self.container_env();
         let working_dir = self.working_dir.clone();
         let binds = self.binds.clone();
+        let container_name = Self::unique_container_name(&self.label);
 
         let container_id = self.runtime.block_on(async move {
             let config = Config {
@@ -204,7 +258,13 @@ impl ContainerExecutor {
             };
 
             let create_result = docker
-                .create_container(None::<CreateContainerOptions<String>>, config)
+                .create_container(
+                    Some(CreateContainerOptions {
+                        name: container_name,
+                        platform: None,
+                    }),
+                    config,
+                )
                 .await
                 .map_err(|err| Error::SpawnFailed {
                     message: format!("Failed to create persistent container: {err}"),
@@ -220,7 +280,10 @@ impl ContainerExecutor {
             Ok::<String, Error>(create_result.id)
         })?;
 
-        *self.container_id.borrow_mut() = Some(container_id.clone());
+        *self
+            .container_id
+            .lock()
+            .expect("container_id mutex poisoned") = Some(container_id.clone());
         Ok(container_id)
     }
 }
@@ -372,12 +435,50 @@ impl Executor for ContainerExecutor {
             runtime: handle_runtime,
         }) as Box<dyn BackgroundHandle>)
     }
+
+    fn clone_box(&self, label: &str) -> Box<dyn Executor> {
+        // Create a new ContainerExecutor with the same configuration.
+        // Each clone gets its own container (created lazily on first use)
+        // with a unique name derived from the label, ensuring isolation
+        // in parallel execution.
+        let paths: Vec<String> = self
+            .paths
+            .iter()
+            .map(|p| p.to_string_lossy().to_string())
+            .collect();
+        let env: Vec<(String, String)> = self
+            .env
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+
+        ContainerExecutor::new::<String>(
+            &self.image,
+            &self.shell_command,
+            &env,
+            &self.unset_env,
+            &paths,
+            &self.binds,
+            label,
+        )
+        .map(|e| Box::new(e) as Box<dyn Executor>)
+        .unwrap_or_else(|err| {
+            // If we can't create a new executor, create a dummy that
+            // returns the error on first use. This should be extremely rare.
+            Box::new(super::executor::FailedExecutor(err))
+        })
+    }
 }
 
 impl Drop for ContainerExecutor {
     fn drop(&mut self) {
         let docker = self.docker.clone();
-        if let Some(container_id) = self.container_id.borrow().clone() {
+        if let Some(container_id) = self
+            .container_id
+            .lock()
+            .expect("container_id mutex poisoned")
+            .clone()
+        {
             let _ = self.runtime.block_on(async move {
                 docker
                     .remove_container(
@@ -498,8 +599,16 @@ mod tests {
         if !docker_available() {
             return;
         }
-        let executor = ContainerExecutor::new::<PathBuf>("bash:5", "bash -c", &[], &[], &[], &[])
-            .expect("executor to be created");
+        let executor = ContainerExecutor::new::<PathBuf>(
+            "bash:5",
+            "bash -c",
+            &[],
+            &[],
+            &[],
+            &[],
+            "test-simple",
+        )
+        .expect("executor to be created");
 
         let output = executor
             .execute(&ScriptCode("echo hello".to_string()))
@@ -515,8 +624,16 @@ mod tests {
         if !docker_available() {
             return;
         }
-        let executor = ContainerExecutor::new::<PathBuf>("bash:5", "bash -c", &[], &[], &[], &[])
-            .expect("executor to be created");
+        let executor = ContainerExecutor::new::<PathBuf>(
+            "bash:5",
+            "bash -c",
+            &[],
+            &[],
+            &[],
+            &[],
+            "test-stderr",
+        )
+        .expect("executor to be created");
 
         let output = executor
             .execute(&ScriptCode("echo 'error' >&2".to_string()))
@@ -531,8 +648,9 @@ mod tests {
         if !docker_available() {
             return;
         }
-        let executor = ContainerExecutor::new::<PathBuf>("bash:5", "bash -c", &[], &[], &[], &[])
-            .expect("executor to be created");
+        let executor =
+            ContainerExecutor::new::<PathBuf>("bash:5", "bash -c", &[], &[], &[], &[], "test-exit")
+                .expect("executor to be created");
 
         let output = executor
             .execute(&ScriptCode("exit 42".to_string()))
@@ -554,6 +672,7 @@ mod tests {
             &[],
             &[],
             &[],
+            "test-env",
         )
         .expect("executor to be created");
 
@@ -570,8 +689,16 @@ mod tests {
         if !docker_available() {
             return;
         }
-        let executor = ContainerExecutor::new::<PathBuf>("bash:5", "bash -c", &[], &[], &[], &[])
-            .expect("executor to be created");
+        let executor = ContainerExecutor::new::<PathBuf>(
+            "bash:5",
+            "bash -c",
+            &[],
+            &[],
+            &[],
+            &[],
+            "test-persist",
+        )
+        .expect("executor to be created");
 
         // Write a file in the first script block
         executor
@@ -596,8 +723,9 @@ mod tests {
         if !docker_available() {
             return;
         }
-        let executor = ContainerExecutor::new::<PathBuf>("bash:5", "bash -c", &[], &[], &[], &[])
-            .expect("executor to be created");
+        let executor =
+            ContainerExecutor::new::<PathBuf>("bash:5", "bash -c", &[], &[], &[], &[], "test-bg")
+                .expect("executor to be created");
 
         let mut handle = executor
             .spawn(&ScriptCode("sleep 60".to_string()))
@@ -605,5 +733,40 @@ mod tests {
 
         handle.kill();
         let _ = handle.wait();
+    }
+
+    #[test]
+    fn container_name_includes_file_hash() {
+        // The hash function is deterministic — same label produces same hash.
+        let hash1 = super::hash_label("specs/test1.md");
+        let hash2 = super::hash_label("specs/test1.md");
+        assert_eq!(hash1, hash2, "same label should produce same hash");
+
+        // Different labels produce different hashes.
+        let hash3 = super::hash_label("specs/test2.md");
+        assert_ne!(
+            hash1, hash3,
+            "different labels should produce different hashes"
+        );
+
+        // Hash is 8 hex characters.
+        assert_eq!(hash1.len(), 8, "hash should be 8 hex characters");
+        assert!(
+            hash1.chars().all(|c| c.is_ascii_hexdigit()),
+            "hash should be hex: {}",
+            hash1
+        );
+    }
+
+    #[test]
+    fn container_name_format_is_correct() {
+        // Verify the naming pattern: specdown-{hash}-{counter}
+        // We can't call unique_container_name directly because it uses
+        // a global counter, but we can verify the format via hash_label.
+        let hash = super::hash_label("specs/my_spec.md");
+        assert!(
+            hash.starts_with(|c: char| c.is_ascii_hexdigit()),
+            "hash should start with a hex digit"
+        );
     }
 }

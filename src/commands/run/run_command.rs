@@ -50,7 +50,17 @@ impl RunCommand {
         let results: Vec<Vec<RunEvent>> = pool.install(|| {
             self.spec_files
                 .par_iter()
-                .map(|spec_file| self.run_spec_file(spec_file))
+                .map(|spec_file| {
+                    // Clone the executor for each spec file so that
+                    // stateful executors (e.g. ContainerExecutor) get
+                    // their own isolated container/instance. The spec file
+                    // path is passed as a label so the container executor
+                    // can incorporate a file-hash into the container name.
+                    let executor = self
+                        .executor
+                        .clone_box(spec_file.to_str().unwrap_or("unknown"));
+                    self.run_spec_file_with_executor(spec_file, &*executor)
+                })
                 .collect()
         });
 
@@ -66,8 +76,21 @@ impl RunCommand {
     }
 
     fn run_spec_file(&self, spec_file: &Path) -> Vec<RunEvent> {
+        self.run_spec_file_with_executor(spec_file, &*self.executor)
+    }
+
+    /// Run a single spec file using the given executor.
+    ///
+    /// This is used by parallel execution to pass a cloned executor
+    /// (via `Executor::clone_box`) so each spec file gets its own
+    /// isolated state (e.g. its own Docker container).
+    fn run_spec_file_with_executor(
+        &self,
+        spec_file: &Path,
+        executor: &dyn Executor,
+    ) -> Vec<RunEvent> {
         let mut state = State::new();
-        let mut runner = Runner::create(&*self.executor, &mut state);
+        let mut runner = Runner::create(executor, &mut state);
 
         let start_events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
         let contents = self.file_reader.read_file(spec_file);
