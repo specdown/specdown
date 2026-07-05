@@ -1,6 +1,6 @@
 [package]
 name = "specdown"
-version = "1.5.2"
+version = "1.5.3"
 description = "A tool to test markdown files and drive development from documentation."
 repository = "https://github.com/specdown/specdown"
 readme = "README.md"
@@ -14,12 +14,19 @@ categories = [
 ]
 keywords = [ "markdown", "testing", "bdd", "tdd", "documentation" ]
 
+[features]
+default = []
+# Enables the container executor, which runs spec scripts inside a Docker
+# container via the Docker Engine API (socket).  When this feature is off,
+# specdown builds and runs without any Docker dependency.
+container = ["dep:bollard", "dep:tokio", "dep:futures-util"]
+
 [dependencies]
 clap = { version = "4.5.31", features = ["derive"] }
 clap_derive = "4.1.8"
 clap_complete_command = "0.6.1"
 crossterm = "0.28.1"
-comrak = { version = "0.52.0", default-features = false }
+comrak = { version = "0.53.0", default-features = false }
 nom = "8.0.0"
 termdiff = "4.1.1"
 strip-ansi-escapes = "0.2.1"
@@ -29,6 +36,13 @@ thiserror = "2.0.18"
 time = "0.3.37"
 num_cpus = "1.16"
 rayon = "1.10"
+
+# Container executor support (Docker socket API) — optional, behind the
+# `container` feature so the default build has no Docker dependency.
+bollard = { version = "0.18", default-features = false, features = ["http", "pipe"], optional = true }
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "process", "io-util", "macros"], optional = true }
+futures-util = { version = "0.3", optional = true }
+
 [dev-dependencies]
 assert_cmd = "2.2.2"
 indoc = "2.0.5"

@@ -398,29 +398,63 @@ Runs a given Markdown Specification
 Usage: specdown run [OPTIONS] [SPEC_FILES]...
 
 Arguments:
-  [SPEC_FILES]...  The spec files to run
+  [SPEC_FILES]...
+          The spec files to run
 
 Options:
       --workspace-dir <WORKSPACE_DIR>
           Set the workspace directory
+
       --temporary-workspace-dir
           Create a temporary workspace directory
+
       --working-dir <WORKING_DIR>
           The directory where commands will be executed. This is relative to the workspace dir
+
       --workspace-init-command <WORKSPACE_INIT_COMMAND>
           A command to run in the workspace before running the specs
+
       --shell-command <SHELL_COMMAND>
-          The shell command used to execute script blocks [default: "bash -c"]
+          The shell command used to execute script blocks
+          
+          [default: "bash -c"]
+
       --env <ENV>
           Set an environment variable (format: 'VAR_NAME=value')
+
       --unset-env <UNSET_ENV>
           Unset an environment variable
+
       --add-path <ADD_PATH>
           Adds the given directory to PATH
   -j, --jobs <JOBS>
           Number of parallel jobs to run (0 = all CPUs, default = 1 for backward compatibility) [default: 1]
+
+      --executor <EXECUTOR>
+          The executor to use for running scripts.
+          
+          `shell` (default) runs scripts directly in the host shell. `container` runs scripts inside a Docker container via the Docker Engine socket API. Requires specdown to be built with the `container` feature.
+          
+          [default: shell]
+
+          Possible values:
+          - shell:     Run scripts directly in the host shell (default)
+          - container: Run scripts inside a Docker container via the Docker socket API
+
+      --container-image <CONTAINER_IMAGE>
+          The Docker image to use when `--executor container` is selected.
+          
+          Ignored when the shell executor is used.
+
+      --container-volume <HOST:CONTAINER[:OPTIONS]>
+          Mount a host directory into the container (repeatable).
+          
+          Uses Docker CLI bind-mount syntax: `<host_path>:<container_path>[:options]`. For example, `--container-volume /host/data:/data` mounts the host directory `/host/data` at `/data` inside the container. Append `:ro` for a read-only mount.
+          
+          Only effective with `--executor container`.
+
   -h, --help
-          Print help
+          Print help (see a summary with '-h')
 ```
 
 ### Windows Output
@@ -431,28 +465,62 @@ Runs a given Markdown Specification
 Usage: specdown run [OPTIONS] [SPEC_FILES]...
 
 Arguments:
-  [SPEC_FILES]...  The spec files to run
+  [SPEC_FILES]...
+          The spec files to run
 
 Options:
       --workspace-dir <WORKSPACE_DIR>
           Set the workspace directory
+
       --temporary-workspace-dir
           Create a temporary workspace directory
+
       --working-dir <WORKING_DIR>
           The directory where commands will be executed. This is relative to the workspace dir
+
       --workspace-init-command <WORKSPACE_INIT_COMMAND>
           A command to run in the workspace before running the specs
+
       --shell-command <SHELL_COMMAND>
-          The shell command used to execute script blocks [default: "bash -c"]
+          The shell command used to execute script blocks
+          
+          [default: "bash -c"]
+
       --env <ENV>
           Set an environment variable (format: 'VAR_NAME=value')
+
       --unset-env <UNSET_ENV>
           Unset an environment variable
+
       --add-path <ADD_PATH>
           Adds the given directory to PATH
   -j, --jobs <JOBS>
           Number of parallel jobs to run (0 = all CPUs, default = 1 for backward compatibility) [default: 1]
+
+      --executor <EXECUTOR>
+          The executor to use for running scripts.
+          
+          `shell` (default) runs scripts directly in the host shell. `container` runs scripts inside a Docker container via the Docker Engine socket API. Requires specdown to be built with the `container` feature.
+          
+          [default: shell]
+
+          Possible values:
+          - shell:     Run scripts directly in the host shell (default)
+          - container: Run scripts inside a Docker container via the Docker socket API
+
+      --container-image <CONTAINER_IMAGE>
+          The Docker image to use when `--executor container` is selected.
+          
+          Ignored when the shell executor is used.
+
+      --container-volume <HOST:CONTAINER[:OPTIONS]>
+          Mount a host directory into the container (repeatable).
+          
+          Uses Docker CLI bind-mount syntax: `<host_path>:<container_path>[:options]`. For example, `--container-volume /host/data:/data` mounts the host directory `/host/data` at `/data` inside the container. Append `:ro` for a read-only mount.
+          
+          Only effective with `--executor container`.
+
   -h, --help
-          Print help
+          Print help (see a summary with '-h')
 ```
 
