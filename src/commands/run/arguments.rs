@@ -40,10 +40,7 @@ pub struct Arguments {
     #[clap(long)]
     pub add_path: Vec<String>,
 
-    /// Number of parallel jobs to run.
-    ///
-    /// Set to 0 to run all specs in parallel (uses the number of CPUs).
-    /// Defaults to 1 (sequential execution) for backward compatibility.
+    /// Number of parallel jobs to run (0 = all CPUs, default = 1 for backward compatibility)
     #[clap(short = 'j', long = "jobs", default_value_t = 1, allow_hyphen_values = true, value_parser = clap::value_parser!(u32).range(0..))]
     pub jobs: u32,
 }
