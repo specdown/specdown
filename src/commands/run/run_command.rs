@@ -159,13 +159,13 @@ mod tests {
                     guard.push_str(&format!("START: {}\n", path.display()));
                 }
                 RunEvent::SpecFileCompleted { success } => {
-                    guard.push_str(&format!("END: success={}\n", success));
+                    guard.push_str(&format!("END: success={success}\n"));
                 }
                 RunEvent::TestCompleted(result) => {
                     guard.push_str(&format!("TEST: success={}\n", result.success()));
                 }
                 RunEvent::ErrorOccurred(error) => {
-                    guard.push_str(&format!("ERROR: {}\n", error));
+                    guard.push_str(&format!("ERROR: {error}\n"));
                 }
             }
         }
@@ -432,7 +432,7 @@ mod tests {
         // is no other START line (no interleaving).
 
         for file_name in &["first.md", "second.md", "third.md"] {
-            let start_marker = format!("START: {}", file_name);
+            let start_marker = format!("START: {file_name}");
             let start_pos = captured_str
                 .find(file_name)
                 .unwrap_or_else(|| panic!("should find START for {}", file_name));
