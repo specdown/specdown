@@ -22,7 +22,14 @@ pub fn execute(config: &Config, args: &Arguments) {
         std::sync::Mutex::new(Box::new(printer) as Box<dyn crate::results::Printer>);
 
     let events = create_run_command(args).map_or_else(
-        |err| vec![RunEvent::ErrorOccurred(err)],
+        |err| {
+            let events = vec![RunEvent::ErrorOccurred(err)];
+            let mut guard = printer_mutex.lock().expect("printer mutex poisoned");
+            for event in &events {
+                guard.print(event);
+            }
+            events
+        },
         |command| command.execute_with_printer(&printer_mutex),
     );
 

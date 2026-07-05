@@ -124,6 +124,7 @@ mod tests {
     use super::*;
     use crate::commands::run::exit_code;
     use crate::runner::Output;
+    use std::fmt::Write;
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::{Arc, Mutex};
     use tempfile::tempdir;
@@ -156,16 +157,16 @@ mod tests {
             let mut guard = self.output.lock().expect("capture mutex poisoned");
             match event {
                 RunEvent::SpecFileStarted(path) => {
-                    guard.push_str(&format!("START: {}\n", path.display()));
+                    let _ = writeln!(guard, "START: {}", path.display());
                 }
                 RunEvent::SpecFileCompleted { success } => {
-                    guard.push_str(&format!("END: success={success}\n"));
+                    let _ = writeln!(guard, "END: success={success}");
                 }
                 RunEvent::TestCompleted(result) => {
-                    guard.push_str(&format!("TEST: success={}\n", result.success()));
+                    let _ = writeln!(guard, "TEST: success={}", result.success());
                 }
                 RunEvent::ErrorOccurred(error) => {
-                    guard.push_str(&format!("ERROR: {error}\n"));
+                    let _ = writeln!(guard, "ERROR: {error}");
                 }
             }
         }
