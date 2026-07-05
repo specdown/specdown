@@ -95,6 +95,7 @@ impl RunCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::commands::run::exit_code;
     use crate::runner::Output;
     use std::sync::atomic::{AtomicUsize, Ordering};
     use tempfile::tempdir;
@@ -261,9 +262,6 @@ mod tests {
         );
         let events = with_saved_cwd(|| cmd.execute());
 
-        // The failing executor causes ErrorOccurred events, which the exit_code
-        // module treats as errors (returns ErrorOccurred exit code).
-        use crate::commands::run::exit_code;
         let exit_code = exit_code::from_events(&events);
         assert_ne!(
             exit_code as i32, 0,
