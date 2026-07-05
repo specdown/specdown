@@ -98,7 +98,13 @@ mod tests {
     use crate::commands::run::exit_code;
     use crate::runner::Output;
     use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Mutex;
     use tempfile::tempdir;
+
+    /// A mutex to serialize tests that change the process-wide CWD
+    /// (`RunCommand::execute()` calls `std::env::set_current_dir`).
+    /// Without this, parallel test execution causes data races on the CWD.
+    static CWD_MUTEX: Mutex<()> = Mutex::new(());
 
     /// A mock executor that always succeeds.
     struct CountingExecutor {
@@ -162,9 +168,10 @@ mod tests {
         }
     }
 
-    /// Helper to run a closure with the CWD saved and restored,
-    /// since `RunCommand::execute()` calls `std::env::set_current_dir`.
+    /// Run a closure while holding the CWD mutex, saving and restoring the
+    /// process-wide working directory around it.
     fn with_saved_cwd<F: FnOnce() -> Vec<RunEvent>>(f: F) -> Vec<RunEvent> {
+        let _guard = CWD_MUTEX.lock().expect("CWD mutex poisoned");
         let original_dir = std::env::current_dir().expect("Failed to get current directory");
         let events = f();
         std::env::set_current_dir(&original_dir).expect("Failed to restore current directory");
