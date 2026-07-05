@@ -1,8 +1,10 @@
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 
 use rayon::prelude::*;
 
 use crate::parsers;
+use crate::results::Printer;
 use crate::runner::{Error, Executor, RunEvent, Runner, State};
 use crate::types::ScriptCode;
 
@@ -22,26 +24,40 @@ pub struct RunCommand {
 }
 
 impl RunCommand {
-    pub fn execute(&self) -> Vec<RunEvent> {
+    /// Execute specs and print output via `printer` as results arrive.
+    ///
+    /// In parallel mode (`--jobs > 1`), each spec file's complete output is
+    /// printed atomically under a mutex lock as soon as that file finishes,
+    /// so output from different files never interleaves. A clear file header
+    /// introduces each spec file's results. The events are also returned in
+    /// original file order for exit-code computation.
+    pub fn execute_with_printer(&self, printer: &Mutex<Box<dyn Printer>>) -> Vec<RunEvent> {
         self.change_to_working_directory();
 
         self.initialise_workspace();
 
         if self.jobs > 1 {
-            self.execute_parallel()
+            self.execute_parallel_with_printer(printer)
         } else {
-            self.execute_sequential()
+            self.execute_sequential_with_printer(printer)
         }
     }
 
-    fn execute_sequential(&self) -> Vec<RunEvent> {
-        self.spec_files
-            .iter()
-            .flat_map(|spec_file| self.run_spec_file(spec_file))
-            .collect()
+    fn execute_sequential_with_printer(&self, printer: &Mutex<Box<dyn Printer>>) -> Vec<RunEvent> {
+        let mut all_events = Vec::new();
+        for spec_file in &self.spec_files {
+            let events = self.run_spec_file(spec_file);
+            let mut guard = printer.lock().expect("printer mutex poisoned");
+            for event in &events {
+                guard.print(event);
+            }
+            drop(guard);
+            all_events.extend(events);
+        }
+        all_events
     }
 
-    fn execute_parallel(&self) -> Vec<RunEvent> {
+    fn execute_parallel_with_printer(&self, printer: &Mutex<Box<dyn Printer>>) -> Vec<RunEvent> {
         let pool = rayon::ThreadPoolBuilder::new()
             .num_threads(self.jobs)
             .build()
@@ -50,10 +66,21 @@ impl RunCommand {
         let results: Vec<Vec<RunEvent>> = pool.install(|| {
             self.spec_files
                 .par_iter()
-                .map(|spec_file| self.run_spec_file(spec_file))
+                .map(|spec_file| {
+                    let events = self.run_spec_file(spec_file);
+                    // Lock the printer so output from this spec file is printed
+                    // atomically and never interleaves with output from another.
+                    let mut guard = printer.lock().expect("printer mutex poisoned");
+                    for event in &events {
+                        guard.print(event);
+                    }
+                    events
+                })
                 .collect()
         });
 
+        // `par_iter().collect()` preserves original order, so flattening
+        // yields events in the original spec-file order.
         results.into_iter().flatten().collect()
     }
 
@@ -98,11 +125,58 @@ mod tests {
     use crate::commands::run::exit_code;
     use crate::runner::Output;
     use std::sync::atomic::{AtomicUsize, Ordering};
-    use std::sync::Mutex;
+    use std::sync::{Arc, Mutex};
     use tempfile::tempdir;
 
+    /// A `Printer` that does nothing — used in tests that only need the
+    /// returned `Vec<RunEvent>` and don't care about printed output.
+    struct NullPrinter;
+
+    impl Printer for NullPrinter {
+        fn print(&mut self, _event: &RunEvent) {}
+    }
+
+    /// A `Printer` that captures all output into a string for assertions.
+    struct CapturingPrinter {
+        output: Arc<Mutex<String>>,
+    }
+
+    impl CapturingPrinter {
+        fn new_pair() -> (Self, Arc<Mutex<String>>) {
+            let output = Arc::new(Mutex::new(String::new()));
+            let printer = Self {
+                output: Arc::clone(&output),
+            };
+            (printer, output)
+        }
+    }
+
+    impl Printer for CapturingPrinter {
+        fn print(&mut self, event: &RunEvent) {
+            let mut guard = self.output.lock().expect("capture mutex poisoned");
+            match event {
+                RunEvent::SpecFileStarted(path) => {
+                    guard.push_str(&format!("START: {}\n", path.display()));
+                }
+                RunEvent::SpecFileCompleted { success } => {
+                    guard.push_str(&format!("END: success={}\n", success));
+                }
+                RunEvent::TestCompleted(result) => {
+                    guard.push_str(&format!("TEST: success={}\n", result.success()));
+                }
+                RunEvent::ErrorOccurred(error) => {
+                    guard.push_str(&format!("ERROR: {}\n", error));
+                }
+            }
+        }
+    }
+
+    fn null_printer() -> Mutex<Box<dyn Printer>> {
+        Mutex::new(Box::new(NullPrinter))
+    }
+
     /// A mutex to serialize tests that change the process-wide CWD
-    /// (`RunCommand::execute()` calls `std::env::set_current_dir`).
+    /// (`RunCommand::execute_with_printer()` calls `std::env::set_current_dir`).
     /// Without this, parallel test execution causes data races on the CWD.
     static CWD_MUTEX: Mutex<()> = Mutex::new(());
 
@@ -193,7 +267,8 @@ mod tests {
             file_reader,
             1,
         );
-        let events = with_saved_cwd(|| cmd.execute());
+        let printer = null_printer();
+        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
 
         // Each spec file produces: SpecFileStarted, TestCompleted(s), SpecFileCompleted
         assert!(
@@ -235,7 +310,8 @@ mod tests {
             file_reader,
             4,
         );
-        let events = with_saved_cwd(|| cmd.execute());
+        let printer = null_printer();
+        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
 
         // Collect the SpecFileStarted events in order
         let started_paths: Vec<_> = events
@@ -267,7 +343,8 @@ mod tests {
             file_reader,
             2,
         );
-        let events = with_saved_cwd(|| cmd.execute());
+        let printer = null_printer();
+        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
 
         let exit_code = exit_code::from_events(&events);
         assert_ne!(
@@ -289,7 +366,8 @@ mod tests {
             file_reader,
             4,
         );
-        let events = with_saved_cwd(|| cmd.execute());
+        let printer = null_printer();
+        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
 
         assert!(
             events
@@ -316,7 +394,131 @@ mod tests {
             file_reader,
             4,
         );
-        let events = with_saved_cwd(|| cmd.execute());
+        let printer = null_printer();
+        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
         assert!(events.is_empty(), "No spec files should produce no events");
+    }
+
+    #[test]
+    fn parallel_output_does_not_interleave_between_files() {
+        let dir = tempdir().expect("Failed to create temp dir");
+        let spec1 = write_spec_file(dir.path(), "first.md", SIMPLE_SPEC);
+        let spec2 = write_spec_file(dir.path(), "second.md", SIMPLE_SPEC);
+        let spec3 = write_spec_file(dir.path(), "third.md", SIMPLE_SPEC);
+
+        let file_reader = FileReader::new(dir.path().to_path_buf());
+        let cmd = make_run_command(
+            vec![spec1, spec2, spec3],
+            Box::new(CountingExecutor::new()),
+            dir.path().to_path_buf(),
+            file_reader,
+            4,
+        );
+        let (printer, output) = CapturingPrinter::new_pair();
+        let printer_mutex = Mutex::new(Box::new(printer) as Box<dyn Printer>);
+        let _events = with_saved_cwd(|| cmd.execute_with_printer(&printer_mutex));
+
+        let captured = output.lock().expect("capture mutex poisoned");
+        let captured_str = captured.as_str();
+
+        // Each file's output block should be contiguous — no interleaving.
+        // We check that "START: first" appears before any "START: second"
+        // or "START: third" is NOT guaranteed (files complete in arbitrary
+        // order), but each START..END block must be contiguous.
+        //
+        // Instead of asserting order (parallel completion order is
+        // nondeterministic), we verify that each file's START and END
+        // appear and that between a START and its corresponding END there
+        // is no other START line (no interleaving).
+
+        for file_name in &["first.md", "second.md", "third.md"] {
+            let start_marker = format!("START: {}", file_name);
+            let start_pos = captured_str
+                .find(file_name)
+                .unwrap_or_else(|| panic!("should find START for {}", file_name));
+
+            // Find the next START after this one
+            let rest_after_start = &captured_str[start_pos + start_marker.len()..];
+            let next_start = rest_after_start.find("START:");
+            // Find the END for this file — it's the first END after START
+            let end_pos = rest_after_start
+                .find("END:")
+                .unwrap_or_else(|| panic!("should find END after START for {}", file_name));
+
+            // The END must come before any other START (no interleaving)
+            if let Some(ns) = next_start {
+                assert!(
+                    end_pos < ns,
+                    "Output for {} interleaves with another file's START",
+                    file_name
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn parallel_output_includes_file_headers() {
+        let dir = tempdir().expect("Failed to create temp dir");
+        let spec1 = write_spec_file(dir.path(), "alpha.md", SIMPLE_SPEC);
+        let spec2 = write_spec_file(dir.path(), "beta.md", SIMPLE_SPEC);
+
+        let file_reader = FileReader::new(dir.path().to_path_buf());
+        let cmd = make_run_command(
+            vec![spec1, spec2],
+            Box::new(CountingExecutor::new()),
+            dir.path().to_path_buf(),
+            file_reader,
+            4,
+        );
+        let (printer, output) = CapturingPrinter::new_pair();
+        let printer_mutex = Mutex::new(Box::new(printer) as Box<dyn Printer>);
+        let _events = with_saved_cwd(|| cmd.execute_with_printer(&printer_mutex));
+
+        let captured = output.lock().expect("capture mutex poisoned");
+
+        // Both files should have their file paths in the output
+        assert!(
+            captured.contains("alpha.md"),
+            "Output should contain alpha.md file header, got: {:?}",
+            captured
+        );
+        assert!(
+            captured.contains("beta.md"),
+            "Output should contain beta.md file header, got: {:?}",
+            captured
+        );
+    }
+
+    #[test]
+    fn sequential_output_with_printer_prints_all_events() {
+        let dir = tempdir().expect("Failed to create temp dir");
+        let spec1 = write_spec_file(dir.path(), "seq1.md", SIMPLE_SPEC);
+        let spec2 = write_spec_file(dir.path(), "seq2.md", SIMPLE_SPEC);
+
+        let file_reader = FileReader::new(dir.path().to_path_buf());
+        let cmd = make_run_command(
+            vec![spec1, spec2],
+            Box::new(CountingExecutor::new()),
+            dir.path().to_path_buf(),
+            file_reader,
+            1,
+        );
+        let (printer, output) = CapturingPrinter::new_pair();
+        let printer_mutex = Mutex::new(Box::new(printer) as Box<dyn Printer>);
+        let _events = with_saved_cwd(|| cmd.execute_with_printer(&printer_mutex));
+
+        let captured = output.lock().expect("capture mutex poisoned");
+
+        // Sequential mode should print in order
+        let seq1_pos = captured
+            .find("seq1.md")
+            .expect("should find START for seq1");
+        let seq2_pos = captured
+            .find("seq2.md")
+            .expect("should find START for seq2");
+        assert!(
+            seq1_pos < seq2_pos,
+            "Sequential output should print seq1 before seq2"
+        );
     }
 }

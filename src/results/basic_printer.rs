@@ -21,7 +21,7 @@ struct Summary {
 }
 
 pub struct BasicPrinter {
-    display_function: Box<dyn Fn(&str)>,
+    display_function: Box<dyn Fn(&str) + Send + Sync>,
     summary: Summary,
     colour: bool,
 }
@@ -254,19 +254,19 @@ mod tests {
         CreateFileAction, ExitCode, FileContent, FilePath, OutputExpectation, ScriptAction,
         ScriptCode, ScriptName, Source, Stream, VerifyAction, VerifyValue,
     };
-    use std::cell::RefCell;
     use std::path::PathBuf;
-    use std::rc::Rc;
+    use std::sync::{Arc, Mutex};
 
     /// Helper that creates a `BasicPrinter` with no colour and captures
     /// everything written via the display function into a shared `String`.
-    fn create_capture_printer() -> (BasicPrinter, Rc<RefCell<String>>) {
-        let captured = Rc::new(RefCell::new(String::new()));
-        let captured_clone = captured.clone();
+    fn create_capture_printer() -> (BasicPrinter, Arc<Mutex<String>>) {
+        let captured = Arc::new(Mutex::new(String::new()));
+        let captured_clone = Arc::clone(&captured);
         let printer = BasicPrinter {
             display_function: Box::new(move |line: &str| {
-                captured_clone.borrow_mut().push_str(line);
-                captured_clone.borrow_mut().push('\n');
+                let mut guard = captured_clone.lock().expect("capture mutex poisoned");
+                guard.push_str(line);
+                guard.push('\n');
             }),
             summary: Summary {
                 number_succeeded: 0,
@@ -351,7 +351,7 @@ mod tests {
         };
         let event = RunEvent::ErrorOccurred(error);
         printer.print(&event);
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("nonexistent"),
             "print_error should display the error text containing the script name, got: {:?}",
@@ -391,7 +391,7 @@ mod tests {
             stderr: "my-stderr".to_string(),
         });
         printer.display_action_error(&error);
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("my-stdout"),
             "display_action_error should show stdout, got: {:?}",
@@ -419,7 +419,7 @@ mod tests {
             stderr: "extra-err".to_string(),
         });
         printer.display_action_error(&error);
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("extra-out"),
             "display_action_error should show stdout for unexpected output, got: {:?}",
@@ -438,7 +438,7 @@ mod tests {
     fn display_diff_shows_expected_vs_actual() {
         let (mut printer, captured) = create_capture_printer();
         printer.display_diff("expected line", "actual line");
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("==="),
             "display_diff should produce diff output with === separators, got: {:?}",
@@ -452,7 +452,7 @@ mod tests {
     fn disply_all_output_shows_stdout_and_stderr_sections() {
         let (mut printer, captured) = create_capture_printer();
         printer.disply_all_output("the-stdout", "the-stderr");
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("stdout:"),
             "disply_all_output should contain 'stdout:' header, got: {:?}",
@@ -481,7 +481,7 @@ mod tests {
     fn display_error_item_formats_with_cross_mark() {
         let (printer, captured) = create_capture_printer();
         printer.display_error_item("something went wrong");
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         // The cross mark ✓ is \u{2717}
         assert!(
             output.contains("\u{2717}"),
@@ -502,7 +502,7 @@ mod tests {
         let (printer, captured) = create_capture_printer();
         // In no-colour mode, the red ANSI codes are stripped
         printer.display_error("failure message");
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("failure message"),
             "display_error should contain the message text, got: {:?}",
@@ -580,7 +580,7 @@ mod tests {
     fn display_action_outputs_title_and_result_for_success() {
         let (mut printer, captured) = create_capture_printer();
         printer.display_action(&successful_script_result());
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         // display_action generates "{title} {result_message}" and wraps it in
         // display_success_item (check mark) or display_error_item (cross mark)
         assert!(
@@ -599,7 +599,7 @@ mod tests {
     fn display_action_outputs_title_and_result_for_failure() {
         let (mut printer, captured) = create_capture_printer();
         printer.display_action(&failed_exit_code_result());
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("bad_script"),
             "display_action should output the script name, got: {}",
@@ -622,7 +622,7 @@ mod tests {
         // Now start a new spec file — should reset
         let event = RunEvent::SpecFileStarted(PathBuf::from("test.md"));
         printer.print(&event);
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("test.md"),
             "print should show the file path, got: {:?}",
@@ -641,7 +641,7 @@ mod tests {
         printer2.count_action(&successful_script_result());
         let summary_event = RunEvent::SpecFileCompleted { success: true };
         printer2.print(&summary_event);
-        let output = captured2.borrow();
+        let output = captured2.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("1 succeeded"),
             "summary should say 1 succeeded, got: {:?}",
@@ -659,7 +659,7 @@ mod tests {
         let (mut printer, captured) = create_capture_printer();
         let event = RunEvent::TestCompleted(failed_exit_code_result());
         printer.print(&event);
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         // The result is a failure, so it should display error details with stdout/stderr
         assert!(
             output.contains("stdout:"),
@@ -678,7 +678,7 @@ mod tests {
         let (mut printer, captured) = create_capture_printer();
         let event = RunEvent::TestCompleted(failed_verify_result());
         printer.print(&event);
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("==="),
             "failed verify result should trigger diff display, got: {:?}",
@@ -694,7 +694,7 @@ mod tests {
         printer.count_action(&failed_exit_code_result());
         let event = RunEvent::SpecFileCompleted { success: false };
         printer.print(&event);
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("2 functions run"),
             "summary should say 2 functions run, got: {:?}",
@@ -717,7 +717,7 @@ mod tests {
         let (mut printer, captured) = create_capture_printer();
         let event = RunEvent::TestCompleted(failed_unexpected_output_result());
         printer.print(&event);
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         assert!(
             output.contains("stdout:"),
             "unexpected output error should show stdout section, got: {:?}",
@@ -732,11 +732,12 @@ mod tests {
 
     #[test]
     fn colour_mode_strips_ansi_escape_codes() {
-        let captured = Rc::new(RefCell::new(String::new()));
-        let captured_clone = captured.clone();
+        let captured = Arc::new(Mutex::new(String::new()));
+        let captured_clone = Arc::clone(&captured);
         let mut printer = BasicPrinter {
             display_function: Box::new(move |line: &str| {
-                captured_clone.borrow_mut().push_str(line);
+                let mut guard = captured_clone.lock().expect("capture mutex poisoned");
+                guard.push_str(line);
             }),
             summary: Summary {
                 number_succeeded: 0,
@@ -746,7 +747,7 @@ mod tests {
         };
         let event = RunEvent::TestCompleted(successful_script_result());
         printer.print(&event);
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         // In no-colour mode, crossterm's .green() / .red() / .blue() ANSI codes
         // are stripped, so there should be no ESC sequences
         assert!(
@@ -806,7 +807,7 @@ mod tests {
     fn display_success_item_formats_with_check_mark() {
         let (printer, captured) = create_capture_printer();
         printer.display_success_item("all good");
-        let output = captured.borrow();
+        let output = captured.lock().expect("capture mutex poisoned");
         // The check mark ✓ is \u{2713}
         assert!(
             output.contains("\u{2713}"),

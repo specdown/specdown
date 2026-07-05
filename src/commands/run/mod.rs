@@ -7,7 +7,6 @@ use run_command::RunCommand;
 use crate::config::Config;
 use crate::exit_codes::ExitCode;
 use crate::results::basic_printer::BasicPrinter;
-use crate::results::Printer;
 use crate::runner::shell_executor::ShellExecutor;
 use crate::runner::{Error, RunEvent};
 use crate::workspace::{ExistingDir, TemporaryDirectory, Workspace};
@@ -18,15 +17,14 @@ mod file_reader;
 mod run_command;
 
 pub fn execute(config: &Config, args: &Arguments) {
+    let printer = BasicPrinter::new(config.colour);
+    let printer_mutex =
+        std::sync::Mutex::new(Box::new(printer) as Box<dyn crate::results::Printer>);
+
     let events = create_run_command(args).map_or_else(
         |err| vec![RunEvent::ErrorOccurred(err)],
-        |command| command.execute(),
+        |command| command.execute_with_printer(&printer_mutex),
     );
-
-    let mut printer = BasicPrinter::new(config.colour);
-    for event in &events {
-        printer.print(event);
-    }
 
     let exit_code = exit_code::from_events(&events);
 
