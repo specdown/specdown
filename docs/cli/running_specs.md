@@ -417,6 +417,8 @@ Options:
           Unset an environment variable
       --add-path <ADD_PATH>
           Adds the given directory to PATH
+  -j, --jobs <JOBS>
+          Number of parallel jobs to run (0 = all CPUs, default = 1 for backward compatibility) [default: 1]
   -h, --help
           Print help
 ```
@@ -448,6 +450,8 @@ Options:
           Unset an environment variable
       --add-path <ADD_PATH>
           Adds the given directory to PATH
+  -j, --jobs <JOBS>
+          Number of parallel jobs to run (0 = all CPUs, default = 1 for backward compatibility) [default: 1]
   -h, --help
           Print help
 ```

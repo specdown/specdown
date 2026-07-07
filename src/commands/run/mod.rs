@@ -7,7 +7,6 @@ use run_command::RunCommand;
 use crate::config::Config;
 use crate::exit_codes::ExitCode;
 use crate::results::basic_printer::BasicPrinter;
-use crate::results::Printer;
 use crate::runner::shell_executor::ShellExecutor;
 use crate::runner::{Error, RunEvent};
 use crate::workspace::{ExistingDir, TemporaryDirectory, Workspace};
@@ -18,15 +17,21 @@ mod file_reader;
 mod run_command;
 
 pub fn execute(config: &Config, args: &Arguments) {
-    let events = create_run_command(args).map_or_else(
-        |err| vec![RunEvent::ErrorOccurred(err)],
-        |command| command.execute(),
-    );
+    let printer = BasicPrinter::new(config.colour);
+    let printer_mutex =
+        std::sync::Mutex::new(Box::new(printer) as Box<dyn crate::results::Printer>);
 
-    let mut printer = BasicPrinter::new(config.colour);
-    for event in &events {
-        printer.print(event);
-    }
+    let events = create_run_command(args).map_or_else(
+        |err| {
+            let events = vec![RunEvent::ErrorOccurred(err)];
+            let mut guard = printer_mutex.lock().expect("printer mutex poisoned");
+            for event in &events {
+                guard.print(event);
+            }
+            events
+        },
+        |command| command.execute_with_printer(&printer_mutex),
+    );
 
     let exit_code = exit_code::from_events(&events);
 
@@ -38,6 +43,13 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
     let workspace_init_command = args.workspace_init_command.clone();
     let shell_cmd = args.shell_command.clone();
     let mut env = parse_environment_variables(&args.env);
+
+    // Resolve jobs: 0 means "run all in parallel" — map to CPU count.
+    let jobs = if args.jobs == 0 {
+        num_cpus::get()
+    } else {
+        args.jobs as usize
+    };
 
     let unset_env = args.unset_env.clone();
     let paths = args.add_path.clone();
@@ -85,6 +97,7 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
         working_dir: actual_working_dir,
         workspace_init_command,
         file_reader,
+        jobs,
     };
 
     ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths).map(new_command)

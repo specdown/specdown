@@ -39,4 +39,8 @@ pub struct Arguments {
     /// Adds the given directory to PATH
     #[clap(long)]
     pub add_path: Vec<String>,
+
+    /// Number of parallel jobs to run (0 = all CPUs, default = 1 for backward compatibility)
+    #[clap(short = 'j', long = "jobs", default_value_t = 1, allow_hyphen_values = true, value_parser = clap::value_parser!(u32).range(0..))]
+    pub jobs: u32,
 }
