@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use nom::error::{ErrorKind, ParseError};
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_until},
-    character::complete::{alpha1, alphanumeric1, digit1, space0},
+    bytes::streaming::{escaped, tag},
+    character::streaming::{alpha1, alphanumeric1, digit1, none_of, space0},
     combinator::map,
     multi::{many0, separated_list0},
     sequence::delimited,
@@ -71,8 +71,30 @@ fn integer_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str,
 }
 
 fn string_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
-    let p = delimited(tag("\""), take_until("\""), tag("\""));
-    map(p, |s: &'a str| ArgumentValue::String(s.to_string())).parse(input)
+    let parser = delimited(
+        tag("\""),
+        escaped(none_of("\\\""), '\\', alt((tag("\""), tag("\\")))),
+        tag("\""),
+    );
+    map(parser, |s: &'a str| {
+        ArgumentValue::String(unescape_string(s))
+    })
+    .parse(input)
+}
+
+fn unescape_string(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut chars = s.chars();
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            if let Some(next) = chars.next() {
+                result.push(next);
+            }
+        } else {
+            result.push(c);
+        }
+    }
+    result
 }
 
 fn token_value<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ArgumentValue, E> {
@@ -397,12 +419,70 @@ mod tests {
 
             #[test]
             fn fails_when_there_is_no_closing_quote() {
+                // The streaming-based escaped-quote parser returns Incomplete
+                // for an unterminated string, which is still an error.
+                assert!(
+                    argument_value::<nom::error::Error<&str>>("\"arg_value2").is_err(),
+                    "an unterminated string should produce an error"
+                );
+            }
+
+            #[test]
+            fn succeeds_with_single_escaped_quote() {
                 assert_eq!(
-                    argument_value::<nom::error::Error<&str>>("\"arg_value2"),
-                    Err(nom::Err::Error(nom::error::Error {
-                        input: "\"arg_value2",
-                        code: nom::error::ErrorKind::Alpha
-                    }))
+                    argument_value::<nom::error::Error<&str>>(r#""my \"quoted\" script""#),
+                    Ok((
+                        "",
+                        ArgumentValue::String("my \"quoted\" script".to_string())
+                    ))
+                );
+            }
+
+            #[test]
+            fn succeeds_with_multiple_escaped_quotes() {
+                assert_eq!(
+                    argument_value::<nom::error::Error<&str>>(r#""a \"b\" c \"d\" e""#),
+                    Ok(("", ArgumentValue::String("a \"b\" c \"d\" e".to_string())))
+                );
+            }
+
+            #[test]
+            fn succeeds_with_escaped_quote_at_start() {
+                assert_eq!(
+                    argument_value::<nom::error::Error<&str>>(r#""\"hello""#),
+                    Ok(("", ArgumentValue::String("\"hello".to_string())))
+                );
+            }
+
+            #[test]
+            fn succeeds_with_escaped_quote_at_end() {
+                assert_eq!(
+                    argument_value::<nom::error::Error<&str>>(r#""hello\"""#),
+                    Ok(("", ArgumentValue::String("hello\"".to_string())))
+                );
+            }
+
+            #[test]
+            fn succeeds_with_only_escaped_quotes() {
+                assert_eq!(
+                    argument_value::<nom::error::Error<&str>>(r#""\"\"""#),
+                    Ok(("", ArgumentValue::String("\"\"".to_string())))
+                );
+            }
+
+            #[test]
+            fn succeeds_with_no_escaped_quotes_backward_compat() {
+                assert_eq!(
+                    argument_value::<nom::error::Error<&str>>("\"plain string\" rest"),
+                    Ok((" rest", ArgumentValue::String("plain string".to_string())))
+                );
+            }
+
+            #[test]
+            fn succeeds_with_escaped_backslash() {
+                assert_eq!(
+                    argument_value::<nom::error::Error<&str>>(r#""a \\ b""#),
+                    Ok(("", ArgumentValue::String("a \\ b".to_string())))
                 );
             }
         }
