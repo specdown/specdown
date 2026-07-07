@@ -135,6 +135,32 @@ impl Executor for ShellExecutor {
                 message: err.to_string(),
             })
     }
+
+    fn clone_box(&self, _label: &str) -> Box<dyn Executor> {
+        // ShellExecutor is stateless (each execute() spawns a fresh process),
+        // so cloning just creates a new instance with the same configuration.
+        // The label is not used since the shell executor has no persistent state
+        // to namespace.
+        let env: Vec<(String, String)> = self
+            .env
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+        let paths: Vec<String> = self
+            .paths
+            .iter()
+            .map(|p| p.to_string_lossy().to_string())
+            .collect();
+        let shell_cmd = if self.args.is_empty() {
+            self.command.clone()
+        } else {
+            format!("{} {}", self.command, self.args.join(" "))
+        };
+
+        ShellExecutor::new::<String>(&shell_cmd, &env, &self.unset_env, &paths)
+            .map(|e| Box::new(e) as Box<dyn Executor>)
+            .unwrap_or_else(|err| Box::new(super::executor::FailedExecutor(err)))
+    }
 }
 
 #[cfg(test)]
