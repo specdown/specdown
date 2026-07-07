@@ -143,10 +143,21 @@ fn test_doc_output_expectations() {
 #[cfg(not(windows))]
 #[test]
 fn test_doc_errors() {
+    let bin_dir = std::env::current_dir()
+        .expect("failed to get current directory")
+        .join("target")
+        .join("debug");
     let result = Command::cargo_bin("specdown")
         .unwrap()
+        .arg("--no-colour")
         .arg("run")
         .arg("--temporary-workspace-dir")
+        .arg("--add-path")
+        .arg(
+            bin_dir
+                .to_str()
+                .expect("failed to convert bin_dir to UTF-8 string"),
+        )
         .arg("docs/errors.md")
         .ok();
 
