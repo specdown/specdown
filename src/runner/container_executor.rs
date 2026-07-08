@@ -461,12 +461,14 @@ impl Executor for ContainerExecutor {
             &self.binds,
             label,
         )
-        .map(|e| Box::new(e) as Box<dyn Executor>)
-        .unwrap_or_else(|err| {
-            // If we can't create a new executor, create a dummy that
-            // returns the error on first use. This should be extremely rare.
-            Box::new(super::executor::FailedExecutor(err))
-        })
+        .map_or_else(
+            |err| {
+                // If we can't create a new executor, create a dummy that
+                // returns the error on first use. This should be extremely rare.
+                Box::new(super::executor::FailedExecutor(err)) as Box<dyn Executor>
+            },
+            |e| Box::new(e) as Box<dyn Executor>,
+        )
     }
 }
 
