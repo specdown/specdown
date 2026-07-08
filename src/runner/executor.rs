@@ -47,8 +47,8 @@ pub trait Executor: Send + Sync {
     /// The default implementation returns a `FailedExecutor` that produces
     /// a `BackgroundNotSupported` error on first use. Executors that support
     /// parallel execution should override this.
-    fn clone_box(&self, _label: &str) -> Box<dyn Executor> {
-        let _ = _label;
+    fn clone_box(&self, label: &str) -> Box<dyn Executor> {
+        let _ = label;
         Box::new(FailedExecutor(Error::BackgroundNotSupported))
     }
 }

@@ -16,7 +16,24 @@ use std::fmt::Debug;
 ///   wrapping a Docker container managed via the socket API
 ///   (only available with the `container` feature)
 pub trait BackgroundHandle: Debug + Send {
-    /// Signal the process to terminate (SIGTERM equivalent).
+    /// Signal the process to terminate gracefully (SIGTERM equivalent).
+    ///
+    /// This is the *first* signal sent during graceful shutdown. The runner
+    /// waits a short grace period for the process to exit; if it is still
+    /// alive after that, [`kill`](Self::kill) (SIGKILL) is sent as a last
+    /// resort.
+    ///
+    /// The default implementation delegates to [`kill`](Self::kill) for
+    /// backwards compatibility with executors that do not distinguish
+    /// between graceful and forceful termination.
+    fn terminate(&mut self) {
+        self.kill();
+    }
+
+    /// Forcefully kill the process (SIGKILL equivalent).
+    ///
+    /// This is the *escalation* signal used when [`terminate`](Self::terminate)
+    /// did not stop the process within the grace period.
     fn kill(&mut self);
 
     /// Wait for the process to exit and return its exit code.
@@ -30,9 +47,45 @@ pub trait BackgroundHandle: Debug + Send {
     /// Returns `Some(exit_code)` if the process has exited, or `None` if it
     /// is still running.
     fn try_wait(&mut self) -> Option<i32>;
+
+    /// The OS process identifier, for signal delivery.
+    ///
+    /// Returns `None` on executors that do not expose a PID (e.g. the
+    /// container executor tracks a PID inside the container instead). The
+    /// shell [`BackgroundHandle`] impl for [`std::process::Child`] returns
+    /// `Some(child.id())`.
+    ///
+    /// Currently only used by the Unix `terminate` implementation to deliver
+    /// SIGTERM; on platforms that do not use it the method is still part of
+    /// the trait surface for future executors.
+    #[allow(dead_code)]
+    fn pid(&self) -> Option<i32> {
+        None
+    }
 }
 
 impl BackgroundHandle for std::process::Child {
+    fn terminate(&mut self) {
+        // On Unix, send SIGTERM so the process can shut down gracefully.
+        // On Windows there is no SIGTERM equivalent, so fall back to the
+        // std `kill` (TerminateProcess).
+        #[cfg(not(windows))]
+        {
+            if let Some(pid) = self.pid() {
+                // SAFETY: the PID comes from `Child::id()` which is the
+                // child's real OS PID; SIGTERM (15) is a valid signal.
+                // `kill(2)` with a real PID and a valid signal is safe.
+                unsafe {
+                    libc::kill(pid, libc::SIGTERM);
+                }
+            }
+        }
+        #[cfg(windows)]
+        {
+            let _ = std::process::Child::kill(self);
+        }
+    }
+
     fn kill(&mut self) {
         let _ = std::process::Child::kill(self);
     }
@@ -47,5 +100,12 @@ impl BackgroundHandle for std::process::Child {
         std::process::Child::try_wait(self)
             .ok()
             .and_then(|status| status?.code())
+    }
+
+    fn pid(&self) -> Option<i32> {
+        // `Child::id()` returns `u32`; the trait returns `i32`. PIDs are
+        // always positive and fit in i32 on all real platforms.
+        #[allow(clippy::cast_possible_wrap)]
+        Some(self.id() as i32)
     }
 }

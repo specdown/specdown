@@ -321,7 +321,7 @@ mod tests {
 
         mod background {
             use crate::parsers::code_block_type::BackgroundCodeBlock;
-            use crate::types::ScriptName;
+            use crate::types::{FilePath, ReadyWhen, ScriptName};
 
             use super::{parse, CodeBlockInfo, CodeBlockType};
 
@@ -334,6 +334,8 @@ mod tests {
                         language: "shell".to_string(),
                         extra: CodeBlockType::Background(BackgroundCodeBlock {
                             script_name: Some(ScriptName("server".to_string())),
+                            ready_when: None,
+                            timeout_secs: None,
                         }),
                     })
                 );
@@ -346,7 +348,102 @@ mod tests {
                     result,
                     Ok(CodeBlockInfo {
                         language: "shell".to_string(),
-                        extra: CodeBlockType::Background(BackgroundCodeBlock { script_name: None }),
+                        extra: CodeBlockType::Background(BackgroundCodeBlock {
+                            script_name: None,
+                            ready_when: None,
+                            timeout_secs: None,
+                        }),
+                    })
+                );
+            }
+
+            #[test]
+            fn succeeds_when_function_is_background_with_ready_when_file() {
+                let result =
+                    parse("shell,background(name=\"server\",ready_when=\"file:/tmp/ready\")");
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        extra: CodeBlockType::Background(BackgroundCodeBlock {
+                            script_name: Some(ScriptName("server".to_string())),
+                            ready_when: Some(ReadyWhen::FileExists(FilePath(
+                                "/tmp/ready".to_string()
+                            ))),
+                            timeout_secs: None,
+                        }),
+                    })
+                );
+            }
+
+            #[test]
+            fn succeeds_when_function_is_background_with_ready_when_port() {
+                let result = parse("shell,background(name=\"server\",ready_when=\"port:8080\")");
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        extra: CodeBlockType::Background(BackgroundCodeBlock {
+                            script_name: Some(ScriptName("server".to_string())),
+                            ready_when: Some(ReadyWhen::PortOpen(8080)),
+                            timeout_secs: None,
+                        }),
+                    })
+                );
+            }
+
+            #[test]
+            fn succeeds_when_function_is_background_with_ready_when_exit() {
+                let result = parse(
+                    "shell,background(name=\"server\",ready_when=\"exit:curl -sf localhost\")",
+                );
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        extra: CodeBlockType::Background(BackgroundCodeBlock {
+                            script_name: Some(ScriptName("server".to_string())),
+                            ready_when: Some(ReadyWhen::CheckExitZero(crate::types::ScriptCode(
+                                "curl -sf localhost".to_string()
+                            ))),
+                            timeout_secs: None,
+                        }),
+                    })
+                );
+            }
+
+            #[test]
+            fn succeeds_when_function_is_background_with_timeout_secs() {
+                let result = parse(
+                    "shell,background(name=\"server\",ready_when=\"port:8080\",timeout_secs=5)",
+                );
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        extra: CodeBlockType::Background(BackgroundCodeBlock {
+                            script_name: Some(ScriptName("server".to_string())),
+                            ready_when: Some(ReadyWhen::PortOpen(8080)),
+                            timeout_secs: Some(5),
+                        }),
+                    })
+                );
+            }
+
+            #[test]
+            fn succeeds_when_function_is_background_with_timeout_secs_and_no_ready_when() {
+                // timeout_secs without ready_when is allowed by the parser
+                // (it simply has no effect at runtime).
+                let result = parse("shell,background(name=\"server\",timeout_secs=10)");
+                assert_eq!(
+                    result,
+                    Ok(CodeBlockInfo {
+                        language: "shell".to_string(),
+                        extra: CodeBlockType::Background(BackgroundCodeBlock {
+                            script_name: Some(ScriptName("server".to_string())),
+                            ready_when: None,
+                            timeout_secs: Some(10),
+                        }),
                     })
                 );
             }

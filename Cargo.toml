@@ -42,6 +42,13 @@ rayon = "1.10"
 bollard = { version = "0.18", default-features = false, features = ["http", "pipe"], optional = true }
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "process", "io-util", "macros"], optional = true }
 futures-util = { version = "0.3", optional = true }
+
+# Unix signal support for graceful (SIGTERM-then-SIGKILL) background shutdown.
+# Only needed on Unix; on Windows the std `Child::kill` (TerminateProcess) path
+# is used instead.
+[target.'cfg(not(windows))'.dependencies]
+libc = "0.2"
+
 [dev-dependencies]
 assert_cmd = "2.2.2"
 indoc = "2.0.5"

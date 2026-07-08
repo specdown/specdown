@@ -230,3 +230,145 @@ Running tests for background_killed.md:
   2 functions run (2 succeeded / 0 failed)
 
 ```
+
+## Waiting for a background script to be ready with `ready_when`
+
+The `background` block accepts an optional `ready_when` argument. When set,
+specdown spawns the script in the background (non-blocking) and then **blocks**
+until the readiness condition is met before proceeding to the next action. This
+replaces the fragile `sleep 1` pattern where a test author has to guess how long
+a server takes to start.
+
+Supported `ready_when` forms:
+
+- `ready_when="file:<path>"` — ready when the file at `<path>` exists.
+- `ready_when="port:<port>"` — ready when a TCP connection to `127.0.0.1:<port>`
+  succeeds.
+- `ready_when="exit:<command>"` — ready when `<command>` exits with code 0.
+
+An optional `timeout_secs` argument controls how long to wait (default 30
+seconds). If the condition is not met in time, the spec fails.
+
+### Example: `ready_when` with a file
+
+The background script writes a `ready` file once it is ready; specdown waits for
+that file to appear before running the check script.
+
+Given the file `background_ready_file.md`:
+
+~~~markdown,file(path="background_ready_file.md")
+# Background Ready (file) Example
+
+```shell,background(name="server",ready_when="file:ready.flag")
+touch ready.flag
+sleep 60
+```
+
+```shell,script(name="check_server")
+test -f ready.flag
+```
+~~~
+
+When you run the following:
+
+```shell,script(name="background_ready_file", expected_exit_code=0)
+specdown run background_ready_file.md
+```
+
+Then you will see the following output:
+
+```text,verify(script_name="background_ready_file")
+Running tests for background_ready_file.md:
+
+  ✓ starting background script 'server' succeeded
+  ✓ running script 'check_server' succeeded
+  ✓ stopping background script 'server' succeeded
+
+  3 functions run (3 succeeded / 0 failed)
+
+```
+
+### Example: `ready_when` with a port
+
+The background script opens a TCP port; specdown waits until the port accepts
+connections before proceeding.
+
+Given the file `background_ready_port.md`:
+
+~~~markdown,file(path="background_ready_port.md")
+# Background Ready (port) Example
+
+```shell,background(name="server",ready_when="port:18080",timeout_secs=10)
+python3 -c "
+import socket, time
+s = socket.socket()
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind(('127.0.0.1', 18080))
+s.listen(1)
+while True:
+    time.sleep(1)
+"
+```
+
+```shell,script(name="check_server")
+echo "port is open"
+```
+~~~
+
+When you run the following:
+
+```shell,script(name="background_ready_port", expected_exit_code=0)
+specdown run background_ready_port.md
+```
+
+Then you will see the following output:
+
+```text,verify(script_name="background_ready_port")
+Running tests for background_ready_port.md:
+
+  ✓ starting background script 'server' succeeded
+  ✓ running script 'check_server' succeeded
+  ✓ stopping background script 'server' succeeded
+
+  3 functions run (3 succeeded / 0 failed)
+
+```
+
+### Example: `ready_when` with an exit check
+
+The `exit:` form runs a command repeatedly until it exits 0. This is useful when
+the readiness signal is an HTTP endpoint returning 200.
+
+Given the file `background_ready_exit.md`:
+
+~~~markdown,file(path="background_ready_exit.md")
+# Background Ready (exit) Example
+
+```shell,background(name="server",ready_when="exit:test -f ready.flag",timeout_secs=10)
+touch ready.flag
+sleep 60
+```
+
+```shell,script(name="check_server")
+test -f ready.flag
+```
+~~~
+
+When you run the following:
+
+```shell,script(name="background_ready_exit", expected_exit_code=0)
+specdown run background_ready_exit.md
+```
+
+Then you will see the following output:
+
+```text,verify(script_name="background_ready_exit")
+Running tests for background_ready_exit.md:
+
+  ✓ starting background script 'server' succeeded
+  ✓ running script 'check_server' succeeded
+  ✓ stopping background script 'server' succeeded
+
+  3 functions run (3 succeeded / 0 failed)
+
+```

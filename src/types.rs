@@ -113,10 +113,48 @@ pub struct CreateFileAction {
     pub file_content: FileContent,
 }
 
+/// A readiness condition for a `background` block's `ready_when` argument.
+///
+/// When set, the runner spawns the background script (non-blocking) and then
+/// polls this condition until it is satisfied before proceeding to the next
+/// action. This replaces the fragile `sleep 1` pattern where a test author
+/// has to guess how long a server takes to bind a port or write a readiness
+/// file.
+///
+/// The condition string is parsed from the `ready_when` argument. Supported
+/// forms:
+/// - `file:<path>` - succeeds when the given path exists on disk.
+/// - `port:<n>` - succeeds when a TCP connection to `127.0.0.1:<n>` succeeds.
+/// - `exit:<shell command>` - succeeds when the shell command exits with
+///   code 0.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ReadyWhen {
+    /// Succeeds when the file at the given path exists.
+    FileExists(FilePath),
+    /// Succeeds when a TCP connection to `127.0.0.1:<port>` can be opened.
+    PortOpen(u16),
+    /// Succeeds when the given shell command exits with code 0.
+    CheckExitZero(ScriptCode),
+}
+
+/// How many seconds to wait for a `ready_when` condition before failing.
+///
+/// This is the default timeout used when a `ready_when` condition is set but
+/// no explicit `timeout_secs` argument is provided.
+pub const DEFAULT_READY_WHEN_TIMEOUT_SECS: u32 = 30;
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BackgroundAction {
     pub script_name: Option<ScriptName>,
     pub script_code: ScriptCode,
+    /// When set, the runner polls this condition after spawning and blocks
+    /// until it is satisfied (or `timeout_secs` elapses). When `None`, the
+    /// block behaves exactly as before - spawn and proceed immediately.
+    pub ready_when: Option<ReadyWhen>,
+    /// Readiness timeout in seconds. Defaults to
+    /// [`DEFAULT_READY_WHEN_TIMEOUT_SECS`] when `ready_when` is set and this
+    /// is `None`.
+    pub timeout_secs: Option<u32>,
 }
 
 #[derive(Debug, Eq, PartialEq)]
