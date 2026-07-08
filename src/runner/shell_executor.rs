@@ -157,9 +157,10 @@ impl Executor for ShellExecutor {
             format!("{} {}", self.command, self.args.join(" "))
         };
 
-        ShellExecutor::new::<String>(&shell_cmd, &env, &self.unset_env, &paths)
-            .map(|e| Box::new(e) as Box<dyn Executor>)
-            .unwrap_or_else(|err| Box::new(super::executor::FailedExecutor(err)))
+        ShellExecutor::new::<String>(&shell_cmd, &env, &self.unset_env, &paths).map_or_else(
+            |err| Box::new(super::executor::FailedExecutor(err)) as Box<dyn Executor>,
+            |e| Box::new(e) as Box<dyn Executor>,
+        )
     }
 }
 

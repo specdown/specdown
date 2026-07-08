@@ -2,8 +2,9 @@ use crate::parsers::code_block_type::{
     BackgroundCodeBlock, CodeBlockType, ScriptCodeBlock, VerifyCodeBlock,
 };
 use crate::types::{
-    Action, BackgroundAction, CreateFileAction, FileContent, ScriptAction, ScriptCode, TargetOs,
-    VerifyAction, VerifyValue,
+    Action, BackgroundAction, CreateFileAction, FileContent, ResponseAction, ResponseBody,
+    ResponseCodeBlock, ResponseHeader, ScriptAction, ScriptCode, TargetOs, VerifyAction,
+    VerifyValue,
 };
 use std::env::consts::OS;
 
@@ -22,6 +23,10 @@ pub fn create_action(code_block_type: &CodeBlockType, literal: String) -> Option
         CodeBlockType::Background(background_code_block) => Some(Action::Background(
             to_background_action(background_code_block, literal),
         )),
+        CodeBlockType::Response(response_code_block) => Some(Action::Response(to_response_action(
+            response_code_block,
+            literal,
+        ))),
         CodeBlockType::Skip() => None,
     }
 }
@@ -48,6 +53,62 @@ fn to_background_action(code_block: &BackgroundCodeBlock, literal: String) -> Ba
         script_name: script_name.clone(),
         script_code: ScriptCode(literal),
     }
+}
+
+fn to_response_action(code_block: &ResponseCodeBlock, literal: String) -> ResponseAction {
+    let ResponseCodeBlock {
+        name,
+        status,
+        headers,
+        content_type,
+        delay,
+        body: _,
+    } = code_block;
+
+    let mut decoded_headers = headers
+        .as_deref()
+        .map(decode_response_headers)
+        .unwrap_or_default();
+
+    if let Some(ct) = content_type {
+        let has_content_type = decoded_headers.iter().any(|h| h.name == "content-type");
+        if !has_content_type {
+            decoded_headers.push(ResponseHeader {
+                name: "content-type".to_string(),
+                value: ct.clone(),
+            });
+        }
+    }
+
+    let body = if literal.is_empty() {
+        ResponseBody::Empty
+    } else {
+        ResponseBody::Literal(literal)
+    };
+    // Note: ResponseBody::Inline is reserved for a future body="..." argument.
+    // It is not produced by the v1 parser but the variant exists for forward compat.
+
+    ResponseAction {
+        name: name.clone(),
+        status: *status,
+        headers: decoded_headers,
+        delay: *delay,
+        body,
+    }
+}
+
+fn decode_response_headers(raw: &str) -> Vec<ResponseHeader> {
+    raw.split(';')
+        .map(str::trim)
+        .filter(|entry| !entry.is_empty())
+        .filter_map(|entry| {
+            let (name, value) = entry.split_once(':')?;
+            Some(ResponseHeader {
+                name: name.trim().to_lowercase(),
+                value: value.trim().to_string(),
+            })
+        })
+        .collect()
 }
 
 fn to_verify_action(
@@ -88,8 +149,8 @@ mod tests {
     use crate::parsers::code_block_type::VerifyCodeBlock;
     use crate::types::BackgroundAction;
     use crate::types::{
-        CreateFileAction, FilePath, OutputExpectation, ScriptAction, ScriptName, Source, Stream,
-        TargetOs, VerifyAction,
+        CreateFileAction, FilePath, MockName, OutputExpectation, ResponseAction, ResponseBody,
+        ResponseHeader, ScriptAction, ScriptName, Source, Stream, TargetOs, VerifyAction,
     };
 
     #[test]
@@ -224,6 +285,122 @@ mod tests {
         assert_eq!(
             create_action(&CodeBlockType::Skip(), "content".to_string()),
             None
+        );
+    }
+
+    #[test]
+    fn create_action_for_response_with_defaults() {
+        use crate::types::{DelayMillis, ResponseCodeBlock, StatusCode};
+
+        assert_eq!(
+            create_action(
+                &CodeBlockType::Response(ResponseCodeBlock {
+                    name: MockName("my-mock".to_string()),
+                    status: StatusCode(200),
+                    headers: None,
+                    content_type: None,
+                    delay: DelayMillis(0),
+                    body: ResponseBody::Empty,
+                }),
+                "{\"hello\": \"world\"}".to_string(),
+            ),
+            Some(Action::Response(ResponseAction {
+                name: MockName("my-mock".to_string()),
+                status: StatusCode(200),
+                headers: vec![],
+                delay: DelayMillis(0),
+                body: ResponseBody::Literal("{\"hello\": \"world\"}".to_string()),
+            }))
+        );
+    }
+
+    #[test]
+    fn create_action_for_response_with_empty_literal() {
+        use crate::types::{DelayMillis, ResponseCodeBlock, StatusCode};
+
+        assert_eq!(
+            create_action(
+                &CodeBlockType::Response(ResponseCodeBlock {
+                    name: MockName("no-body".to_string()),
+                    status: StatusCode(204),
+                    headers: None,
+                    content_type: None,
+                    delay: DelayMillis(0),
+                    body: ResponseBody::Empty,
+                }),
+                String::new(),
+            ),
+            Some(Action::Response(ResponseAction {
+                name: MockName("no-body".to_string()),
+                status: StatusCode(204),
+                headers: vec![],
+                delay: DelayMillis(0),
+                body: ResponseBody::Empty,
+            }))
+        );
+    }
+
+    #[test]
+    fn create_action_for_response_with_content_type() {
+        use crate::types::{DelayMillis, ResponseCodeBlock, StatusCode};
+
+        assert_eq!(
+            create_action(
+                &CodeBlockType::Response(ResponseCodeBlock {
+                    name: MockName("json-mock".to_string()),
+                    status: StatusCode(200),
+                    headers: None,
+                    content_type: Some("application/json".to_string()),
+                    delay: DelayMillis(0),
+                    body: ResponseBody::Empty,
+                }),
+                "{}".to_string(),
+            ),
+            Some(Action::Response(ResponseAction {
+                name: MockName("json-mock".to_string()),
+                status: StatusCode(200),
+                headers: vec![ResponseHeader {
+                    name: "content-type".to_string(),
+                    value: "application/json".to_string(),
+                }],
+                delay: DelayMillis(0),
+                body: ResponseBody::Literal("{}".to_string()),
+            }))
+        );
+    }
+
+    #[test]
+    fn create_action_for_response_with_explicit_headers() {
+        use crate::types::{DelayMillis, ResponseCodeBlock, StatusCode};
+
+        assert_eq!(
+            create_action(
+                &CodeBlockType::Response(ResponseCodeBlock {
+                    name: MockName("hdr-mock".to_string()),
+                    status: StatusCode(200),
+                    headers: Some("X-Custom:value; Content-Type:text/plain".to_string()),
+                    content_type: Some("application/json".to_string()),
+                    delay: DelayMillis(100),
+                    body: ResponseBody::Empty,
+                }),
+                "hello".to_string(),
+            ),
+            Some(Action::Response(ResponseAction {
+                name: MockName("hdr-mock".to_string()),
+                status: StatusCode(200),
+                headers: vec![
+                    ResponseHeader {
+                        name: "x-custom".to_string(),
+                        value: "value".to_string(),
+                    },
+                    ResponseHeader {
+                        name: "content-type".to_string(),
+                        value: "text/plain".to_string(),
+                    },
+                ],
+                delay: DelayMillis(100),
+                body: ResponseBody::Literal("hello".to_string()),
+            }))
         );
     }
 }

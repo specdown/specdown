@@ -1,6 +1,6 @@
 pub use action_result::{
     ActionResult, BackgroundExitStatus, BackgroundStartResult, BackgroundStopResult,
-    CreateFileResult, ScriptResult, VerifyResult,
+    CreateFileResult, ResponseResult, ResponseStatus, ScriptResult, VerifyResult,
 };
 pub use printer::Printer;
 

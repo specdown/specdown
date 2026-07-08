@@ -6,6 +6,7 @@ pub use run_event::RunEvent;
 pub use runnable_action::to_runnable;
 pub use state::State;
 
+use crate::results::{ActionResult, ResponseResult, ResponseStatus};
 use crate::types::Action;
 
 mod background;
@@ -63,6 +64,17 @@ impl<'a> Runner<'a> {
                 }
                 Err(error) => RunEvent::ErrorOccurred(error),
             },
+            Action::Response(resp_action) => {
+                // Response actions require a mock server which is not yet
+                // implemented. Return an unpaired result so the error is
+                // visible in test output.
+                let result = ActionResult::Response(ResponseResult {
+                    name: resp_action.name.clone(),
+                    status: ResponseStatus::Unpaired,
+                });
+                self.state.add_result(&result);
+                RunEvent::TestCompleted(result)
+            }
             _ => to_runnable(action)
                 .run(self.state, self.executor)
                 .map(|result| {

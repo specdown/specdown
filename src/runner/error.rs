@@ -12,6 +12,8 @@ pub enum Error {
     BadShellCommand { command: String, message: String },
     #[error("Background scripts are not supported with this executor")]
     BackgroundNotSupported,
+    #[error("The mock server has not been started")]
+    MockServerNotStarted,
     #[error("Failed to spawn background process: {message}")]
     SpawnFailed { message: String },
     #[cfg(feature = "container")]
