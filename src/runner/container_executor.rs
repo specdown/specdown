@@ -461,12 +461,14 @@ impl Executor for ContainerExecutor {
             &self.binds,
             label,
         )
-        .map(|e| Box::new(e) as Box<dyn Executor>)
-        .unwrap_or_else(|err| {
-            // If we can't create a new executor, create a dummy that
-            // returns the error on first use. This should be extremely rare.
-            Box::new(super::executor::FailedExecutor(err))
-        })
+        .map_or_else(
+            |err| {
+                // If we can't create a new executor, create a dummy that
+                // returns the error on first use. This should be extremely rare.
+                Box::new(super::executor::FailedExecutor(err)) as Box<dyn Executor>
+            },
+            |e| Box::new(e) as Box<dyn Executor>,
+        )
     }
 }
 
@@ -537,24 +539,6 @@ impl BackgroundHandle for ContainerBackgroundHandle {
                 .ok()?;
             Some(())
         });
-    }
-
-    fn wait(&mut self) -> Option<i32> {
-        let exec_id = self.exec_id.clone();
-        let docker = self.docker.clone();
-        self.runtime.block_on(async move {
-            loop {
-                match docker.inspect_exec(&exec_id).await {
-                    Ok(info) => {
-                        if info.running != Some(true) {
-                            return info.exit_code.map(|c| i32::try_from(c).unwrap_or(0));
-                        }
-                    }
-                    Err(_) => return None,
-                }
-                tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-            }
-        })
     }
 
     fn try_wait(&mut self) -> Option<i32> {
@@ -732,7 +716,9 @@ mod tests {
             .expect("spawn to succeed");
 
         handle.kill();
-        let _ = handle.wait();
+        while handle.try_wait().is_none() {
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
     }
 
     #[test]

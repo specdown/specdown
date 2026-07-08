@@ -18,7 +18,7 @@ Start a background server that listens for connections:
 ```shell,background(name="server")
 while true; do
   echo "server ready" > server_output.txt
-  sleep 60
+  sleep 30
 done
 ```
 
@@ -65,7 +65,7 @@ Given the file `background_stopped.md`:
 # Background Stopped Example
 
 ```shell,background(name="long_running")
-sleep 60
+sleep 30
 ```
 ~~~
 
@@ -98,7 +98,7 @@ Given the file `background_unnamed.md`:
 # Background Unnamed Example
 
 ```shell,background()
-sleep 60
+sleep 30
 ```
 ~~~
 
@@ -209,7 +209,7 @@ Given the file `background_killed.md`:
 # Background Killed Example
 
 ```shell,background(name="long_running")
-sleep 60
+sleep 30
 ```
 ~~~
 
@@ -261,7 +261,7 @@ Given the file `background_ready_file.md`:
 
 ```shell,background(name="server",ready_when="file:ready.flag")
 touch ready.flag
-sleep 60
+sleep 30
 ```
 
 ```shell,script(name="check_server")
@@ -298,16 +298,8 @@ Given the file `background_ready_port.md`:
 ~~~markdown,file(path="background_ready_port.md")
 # Background Ready (port) Example
 
-```shell,background(name="server",ready_when="port:18080",timeout_secs=10)
-python3 -c "
-import socket, time
-s = socket.socket()
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(('127.0.0.1', 18080))
-s.listen(1)
-while True:
-    time.sleep(1)
-"
+```shell,background(name="server",ready_when="port:19284",timeout_secs=15)
+python3 -m http.server 19284 --bind 127.0.0.1
 ```
 
 ```shell,script(name="check_server")
@@ -344,9 +336,9 @@ Given the file `background_ready_exit.md`:
 ~~~markdown,file(path="background_ready_exit.md")
 # Background Ready (exit) Example
 
-```shell,background(name="server",ready_when="exit:test -f ready.flag",timeout_secs=10)
+```shell,background(name="server",ready_when="exit:test -f ready.flag",timeout_secs=15)
 touch ready.flag
-sleep 60
+sleep 30
 ```
 
 ```shell,script(name="check_server")

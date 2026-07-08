@@ -7,6 +7,7 @@ use crate::types::{FilePath, ScriptCode, ScriptName, DEFAULT_READY_WHEN_TIMEOUT_
 use super::background_handle::BackgroundHandle;
 use super::executor::Executor;
 use super::Error;
+use std::net::{SocketAddr, TcpStream, ToSocketAddrs};
 
 use std::path::Path;
 use std::time::{Duration, Instant};
@@ -14,8 +15,17 @@ use std::time::{Duration, Instant};
 /// How long to wait between readiness polls.
 const READY_POLL_INTERVAL: Duration = Duration::from_millis(100);
 
-/// Grace period after SIGTERM before escalating to SIGKILL, in milliseconds.
-const GRACEFUL_SHUTDOWN_GRACE_MS: u64 = 5_000;
+/// Grace period after SIGTERM before escalating to SIGKILL.
+const GRACEFUL_SHUTDOWN_GRACE: Duration = Duration::from_secs(5);
+
+/// Hard cap on how long `stop()` will wait for a killed process to be
+/// reaped. Prevents a zombie or un-reaped child from hanging the test
+/// suite indefinitely on any platform.
+const STOP_DEADLINE: Duration = Duration::from_secs(10);
+
+/// Hard cap on how long the `ready_when` timeout path will wait to reap
+/// the killed process before returning the error.
+const REAP_DEADLINE: Duration = Duration::from_secs(5);
 
 pub struct BackgroundProcess {
     pub handle: Box<dyn BackgroundHandle>,
@@ -93,8 +103,7 @@ fn wait_for_ready(
         }
 
         if Instant::now() >= deadline {
-            handle.kill();
-            let _ = handle.wait();
+            kill_and_reap(handle, REAP_DEADLINE);
             return Err(Error::ReadyWhenTimeout {
                 script_name: name,
                 timeout_secs,
@@ -111,18 +120,20 @@ fn condition_is_met(condition: &ReadyWhen, executor: &dyn Executor) -> bool {
     match condition {
         ReadyWhen::FileExists(FilePath(path)) => Path::new(path).exists(),
         ReadyWhen::PortOpen(port) => {
-            let addr_str = format!("127.0.0.1:{port}");
-            let addr = addr_str.parse().unwrap_or_else(|_| {
-                "127.0.0.1:0"
-                    .parse::<std::net::SocketAddr>()
-                    .expect("fallback socket addr is valid")
-            });
-            std::net::TcpStream::connect_timeout(&addr, Duration::from_millis(500)).is_ok()
+            // Resolve "localhost" so the OS picks IPv4 (127.0.0.1) or IPv6
+            // (::1) depending on what is available — works on IPv6-only hosts.
+            let addrs: Vec<SocketAddr> = ("localhost", *port)
+                .to_socket_addrs()
+                .map(Iterator::collect)
+                .unwrap_or_default();
+            addrs
+                .iter()
+                .any(|addr| TcpStream::connect_timeout(addr, Duration::from_millis(500)).is_ok())
         }
         ReadyWhen::CheckExitZero(script_code) => match executor.execute(script_code) {
             Ok(output) => output.exit_code == Some(0),
             // A command that fails to execute is not "ready yet" — keep
-            // polling. (e.g. curl not yet installed, or server not up.)
+            // polling (e.g. curl not yet installed, or server not up).
             Err(_) => false,
         },
     }
@@ -145,17 +156,16 @@ fn script_name_name(script_name: Option<&ScriptName>) -> String {
 pub fn stop(mut bg: BackgroundProcess) -> ActionResult {
     // Check if the process has already exited on its own.
     if let Some(exit_code) = bg.handle.try_wait() {
-        // The process exited before we could kill it.
         ActionResult::BackgroundStop(BackgroundStopResult {
             script_name: bg.script_name,
             exit_status: BackgroundExitStatus::Exited(ExitCode(exit_code)),
         })
     } else {
-        // The process is still running. Send SIGTERM first (graceful), wait
-        // a short grace period, then escalate to SIGKILL if it is still
-        // alive.
+        // The process is still running. Send SIGTERM, wait the grace period,
+        // then escalate to SIGKILL.
         graceful_stop(&mut *bg.handle);
-        let _ = bg.handle.wait();
+        // Hard-cap the final reap so a zombie can never block forever.
+        kill_and_reap(&mut *bg.handle, STOP_DEADLINE);
         ActionResult::BackgroundStop(BackgroundStopResult {
             script_name: bg.script_name,
             exit_status: BackgroundExitStatus::Killed,
@@ -163,19 +173,14 @@ pub fn stop(mut bg: BackgroundProcess) -> ActionResult {
     }
 }
 
-/// Send SIGTERM, poll for exit up to the grace period, then SIGKILL.
-///
-/// This implements the "TERM → wait → KILL" escalation so that background
-/// processes get a chance to shut down gracefully (flush buffers, close
-/// sockets) before being force-killed.
+/// Send SIGTERM, poll for exit up to [`GRACEFUL_SHUTDOWN_GRACE`], then
+/// SIGKILL.
 fn graceful_stop(handle: &mut dyn BackgroundHandle) {
     handle.terminate();
 
-    let grace = Duration::from_millis(GRACEFUL_SHUTDOWN_GRACE_MS);
-    let deadline = Instant::now() + grace;
+    let deadline = Instant::now() + GRACEFUL_SHUTDOWN_GRACE;
     while Instant::now() < deadline {
         if handle.try_wait().is_some() {
-            // Process exited gracefully after SIGTERM.
             return;
         }
         std::thread::sleep(Duration::from_millis(50));
@@ -185,6 +190,20 @@ fn graceful_stop(handle: &mut dyn BackgroundHandle) {
     handle.kill();
 }
 
+/// Kill a handle and poll `try_wait` until it reports exit or `deadline`
+/// elapses, whichever comes first. Guarantees bounded execution time
+/// regardless of OS reaping behaviour.
+fn kill_and_reap(handle: &mut dyn BackgroundHandle, deadline: Duration) {
+    handle.kill();
+    let deadline = Instant::now() + deadline;
+    while Instant::now() < deadline {
+        if handle.try_wait().is_some() {
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(50));
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,46 +211,32 @@ mod tests {
     use crate::types::ScriptName;
     use std::sync::{Arc, Mutex};
 
-    /// A mock background handle whose exit behaviour is scriptable.
+    /// A mock background handle that stays running forever.
     ///
-    /// - `try_wait` returns `None` until `exit_after` calls have been made,
-    ///   then returns `Some(exit_code)`.
-    /// - `kill`/`terminate`/`wait` are recorded.
+    /// `try_wait` always returns `None`, `kill`/`terminate` are recorded.
     #[derive(Debug)]
     struct MockHandle {
-        exit_code: i32,
-        try_wait_calls: Arc<Mutex<usize>>,
         killed: Arc<Mutex<bool>>,
         terminated: Arc<Mutex<bool>>,
-        waited: Arc<Mutex<bool>>,
     }
 
     impl MockHandle {
-        fn running(exit_code: i32) -> Self {
+        fn new() -> Self {
             Self {
-                exit_code,
-                try_wait_calls: Arc::new(Mutex::new(0)),
                 killed: Arc::new(Mutex::new(false)),
                 terminated: Arc::new(Mutex::new(false)),
-                waited: Arc::new(Mutex::new(false)),
             }
         }
     }
 
     impl BackgroundHandle for MockHandle {
         fn terminate(&mut self) {
-            *self.terminated.lock().expect("mtx") = true;
+            *self.terminated.lock().expect("mutex poisoned") = true;
         }
         fn kill(&mut self) {
-            *self.killed.lock().expect("mtx") = true;
-        }
-        fn wait(&mut self) -> Option<i32> {
-            *self.waited.lock().expect("mtx") = true;
-            Some(self.exit_code)
+            *self.killed.lock().expect("mutex poisoned") = true;
         }
         fn try_wait(&mut self) -> Option<i32> {
-            let mut calls = self.try_wait_calls.lock().expect("mtx");
-            *calls += 1;
             None
         }
     }
@@ -304,20 +309,18 @@ mod tests {
 
     #[test]
     fn wait_for_ready_returns_ok_when_condition_already_met() {
-        let mut handle = MockHandle::running(0);
+        let mut handle = MockHandle::new();
         let cond = ReadyWhen::CheckExitZero(ScriptCode("true".to_string()));
         let name = ScriptName("srv".to_string());
-        // condition_is_met returns true immediately
         let result = wait_for_ready(&mut handle, &cond, 1, Some(&name), &ReadyExecutor);
         assert!(result.is_ok());
     }
 
     #[test]
     fn wait_for_ready_returns_timeout_when_never_ready() {
-        let mut handle = MockHandle::running(0);
+        let mut handle = MockHandle::new();
         let cond = ReadyWhen::CheckExitZero(ScriptCode("false".to_string()));
         let name = ScriptName("srv".to_string());
-        // timeout_secs=1 -> should time out quickly
         let result = wait_for_ready(&mut handle, &cond, 1, Some(&name), &NeverReadyExecutor);
         match result {
             Err(Error::ReadyWhenTimeout {
@@ -329,21 +332,21 @@ mod tests {
                 assert_eq!(timeout_secs, 1);
                 assert_eq!(condition, "exit:false");
             }
-            other => panic!("expected ReadyWhenTimeout, got {:?}", other),
+            _ => panic!("expected ReadyWhenTimeout"),
         }
     }
 
     #[test]
     fn graceful_stop_sends_terminate_then_kill_if_still_alive() {
-        let mut handle = MockHandle::running(0);
+        let mut handle = MockHandle::new();
         graceful_stop(&mut handle);
-        assert!(*handle.terminated.lock().expect("mtx"));
-        assert!(*handle.killed.lock().expect("mtx"));
+        assert!(*handle.terminated.lock().expect("mutex poisoned"));
+        assert!(*handle.killed.lock().expect("mutex poisoned"));
     }
 
     #[test]
     fn stop_reports_killed_when_process_was_running() {
-        let handle: Box<dyn BackgroundHandle> = Box::new(MockHandle::running(0));
+        let handle: Box<dyn BackgroundHandle> = Box::new(MockHandle::new());
         let bg = BackgroundProcess {
             handle,
             script_name: Some(ScriptName("srv".to_string())),
@@ -354,7 +357,7 @@ mod tests {
                 exit_status: BackgroundExitStatus::Killed,
                 ..
             }) => {}
-            other => panic!("expected Killed, got {:?}", other),
+            _ => panic!("expected Killed"),
         }
     }
 }

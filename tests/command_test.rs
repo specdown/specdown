@@ -229,18 +229,6 @@ fn test_doc_background_scripts() {
 }
 
 #[test]
-fn test_doc_background_ready_when() {
-    // The ready_when examples are part of background_scripts.md, but we run
-    // a focused smoke test here to ensure the ready_when feature (file,
-    // port, and exit forms) works end-to-end via the built binary.
-    let result = specdown_run_with_path()
-        .arg("docs/specs/background_scripts.md")
-        .ok();
-
-    assert_ok(&result);
-}
-
-#[test]
 fn test_doc_container_executor() {
     let result = specdown_run_with_path()
         .arg("docs/specs/container_executor.md")

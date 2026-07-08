@@ -36,12 +36,6 @@ pub trait BackgroundHandle: Debug + Send {
     /// did not stop the process within the grace period.
     fn kill(&mut self);
 
-    /// Wait for the process to exit and return its exit code.
-    ///
-    /// Returns `None` if the process was killed by a signal and no exit code
-    /// is available.
-    fn wait(&mut self) -> Option<i32>;
-
     /// Check if the process has already exited without blocking.
     ///
     /// Returns `Some(exit_code)` if the process has exited, or `None` if it
@@ -66,17 +60,20 @@ pub trait BackgroundHandle: Debug + Send {
 
 impl BackgroundHandle for std::process::Child {
     fn terminate(&mut self) {
-        // On Unix, send SIGTERM so the process can shut down gracefully.
-        // On Windows there is no SIGTERM equivalent, so fall back to the
-        // std `kill` (TerminateProcess).
+        // Send SIGTERM to the entire process group so that grandchildren
+        // (e.g. python3 spawned by `bash -c`) are also terminated gracefully.
+        // On Windows there is no SIGTERM equivalent, so fall back to
+        // `TerminateProcess`.
         #[cfg(not(windows))]
         {
             if let Some(pid) = self.pid() {
-                // SAFETY: the PID comes from `Child::id()` which is the
-                // child's real OS PID; SIGTERM (15) is a valid signal.
-                // `kill(2)` with a real PID and a valid signal is safe.
+                // SAFETY: `pid` is the child's real OS PID from `Child::id()`.
+                // Since we spawned with `process_group(0)`, the child's PID
+                // equals its PGID, so `killpg(pid, SIGTERM)` targets the
+                // entire process group. `killpg` with a valid PGID and a
+                // valid signal is safe.
                 unsafe {
-                    libc::kill(pid, libc::SIGTERM);
+                    libc::killpg(pid, libc::SIGTERM);
                 }
             }
         }
@@ -87,24 +84,30 @@ impl BackgroundHandle for std::process::Child {
     }
 
     fn kill(&mut self) {
+        // Kill the entire process group first to reap grandchildren, then
+        // kill the direct child as a fallback.
+        #[cfg(not(windows))]
+        {
+            if let Some(pid) = self.pid() {
+                // SAFETY: same rationale as `terminate` above.
+                unsafe {
+                    libc::killpg(pid, libc::SIGKILL);
+                }
+            }
+        }
         let _ = std::process::Child::kill(self);
-    }
-
-    fn wait(&mut self) -> Option<i32> {
-        std::process::Child::wait(self)
-            .ok()
-            .and_then(|status| status.code())
     }
 
     fn try_wait(&mut self) -> Option<i32> {
         std::process::Child::try_wait(self)
             .ok()
-            .and_then(|status| status?.code())
+            .flatten()
+            .and_then(|status| status.code())
     }
 
     fn pid(&self) -> Option<i32> {
         // `Child::id()` returns `u32`; the trait returns `i32`. PIDs are
-        // always positive and fit in i32 on all real platforms.
+        // always positive and fit in `i32` on all real platforms.
         #[allow(clippy::cast_possible_wrap)]
         Some(self.id() as i32)
     }
