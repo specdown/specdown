@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.6.1](https://github.com/specdown/specdown/compare/v1.6.0..v1.6.1) - 2026-07-09
+#### Bug Fixes
+- bump crossterm from 0.28.1 to 0.29.0 - ([81a8016](https://github.com/specdown/specdown/commit/81a8016eea87e419f837da229ab6c5813f5aa86e)) - dependabot[bot]
+- bump indoc from 2.0.5 to 2.0.7 - ([6735aef](https://github.com/specdown/specdown/commit/6735aef31d1c846522e404333c890eb5ae138d7a)) - dependabot[bot]
+#### Continuous Integration
+- bump armakuni/github-actions/.github/workflows/check-conventional-commits.yml - ([4deab48](https://github.com/specdown/specdown/commit/4deab48da1c639631c4eed9cde9f4cad1604c48f)) - dependabot[bot]
+- bump armakuni/github-actions/.github/workflows/tag-and-release.yml - ([e2098c7](https://github.com/specdown/specdown/commit/e2098c74a641045a3f3359c07b30d49ca231fb86)) - dependabot[bot]
+
+- - -
+
 ## [v1.6.0](https://github.com/specdown/specdown/compare/v1.5.3..v1.6.0) - 2026-07-09
 #### Bug Fixes
 - **(ci)** inline checkout-rust-project to drop ~/.cargo/bin from cache - ([ad39738](https://github.com/specdown/specdown/commit/ad3973847b2f2616239799afffcd6d3996245b96)) - PurpleBooth
