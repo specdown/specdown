@@ -1,6 +1,6 @@
 [package]
 name = "specdown"
-version = "1.5.3"
+version = "1.6.0"
 description = "A tool to test markdown files and drive development from documentation."
 repository = "https://github.com/specdown/specdown"
 readme = "README.md"

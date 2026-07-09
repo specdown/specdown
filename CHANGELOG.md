@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.6.0](https://github.com/specdown/specdown/compare/v1.5.3..v1.6.0) - 2026-07-09
+#### Bug Fixes
+- **(ci)** inline checkout-rust-project to drop ~/.cargo/bin from cache - ([ad39738](https://github.com/specdown/specdown/commit/ad3973847b2f2616239799afffcd6d3996245b96)) - PurpleBooth
+- resolve clippy map_unwrap_or in container_executor - ([9a38054](https://github.com/specdown/specdown/commit/9a3805428c9f36e28c41c9bf284e7bcb0af0bf44)) - Billie Thompson
+- upgrade crossbeam-epoch to fix RUSTSEC-2026-0204 - ([36398b0](https://github.com/specdown/specdown/commit/36398b07a644234e4e423afe55b8a8c2da9d63f0)) - Billie Thompson
+- resolve pre-existing test_doc_errors failure - ([33e040a](https://github.com/specdown/specdown/commit/33e040a4a64ae67895b500f01ac38673f216869c)) - Billie Thompson
+- resolve rebase conflicts and fold in unique container naming (#598) - ([fdbd140](https://github.com/specdown/specdown/commit/fdbd140fa22c5d0fd939e09299eb8023a78145f1)) - Billie Thompson
+- resolve clippy format_push_string and print error events - ([e89e240](https://github.com/specdown/specdown/commit/e89e240e30e637ab1fdf81a033915697e085ba09)) - Billie Thompson
+- inline format args for clippy uninlined_format_args lint - ([fea31b5](https://github.com/specdown/specdown/commit/fea31b54ceff12a98db6b0fe581178906aa984af)) - Billie Thompson
+- make Printer and BasicPrinter thread-safe for parallel execution - ([64ec855](https://github.com/specdown/specdown/commit/64ec855869f02a38571fd62593a0bdb2f0a1fe83)) - Billie Thompson
+- update help output in running_specs.md and simplify --jobs doc comment - ([aa7f7c2](https://github.com/specdown/specdown/commit/aa7f7c25a4d0ba56f2d3a78241af5aa42bc69d9b)) - Billie Thompson
+- serialize CWD-touching tests with mutex to prevent race condition - ([d4b2326](https://github.com/specdown/specdown/commit/d4b23264df0d602ab92b6ec8a8d42af00c37e914)) - Billie Thompson
+- resolve clippy pedantic items_after_statements warning - ([3726f1e](https://github.com/specdown/specdown/commit/3726f1e1c6a79c9c6108f4e368a0db7ad71576b7)) - Billie Thompson
+#### Continuous Integration
+- bump actions version - ([005a98c](https://github.com/specdown/specdown/commit/005a98c44f2293b7d92dfa65f149eea0990689e2)) - Tom Oram
+#### Features
+- **(run)** implement parallel spec execution with rayon - ([c816376](https://github.com/specdown/specdown/commit/c816376297922b2d52ddf7d91eb893e3d793c6a8)) - Billie Thompson
+- **(run)** add --jobs/-j flag to specdown run command - ([381a91a](https://github.com/specdown/specdown/commit/381a91aba66cb8ce5cf8ced9cf8a5370d9747799)) - Billie Thompson
+- add response block type for HTTP API mocking - ([c761c21](https://github.com/specdown/specdown/commit/c761c21a286063859bcec2471cf53603349c0461)) - Billie Thompson
+- persist container across spec file and add --container-volume mount option - ([a6766bb](https://github.com/specdown/specdown/commit/a6766bb63c910f7e511f69c5aebd803f5ef7dba5)) - Billie Thompson
+- add container executor using Docker socket API - ([904eaa6](https://github.com/specdown/specdown/commit/904eaa607fdd23ad3c40246e63a5334f51ed9629)) - PurpleBooth
+- support escaped double quotes in string arguments - ([883cd4d](https://github.com/specdown/specdown/commit/883cd4d81e18e57bbbce687ed15a745f525a5486)) - PurpleBooth
+#### Miscellaneous Chores
+- retrigger CI (cached rustup architecture mismatch) - ([4955304](https://github.com/specdown/specdown/commit/49553048ec271eed11e640e22be9f58c3ea747f8)) - Billie Thompson
+#### Refactoring
+- extract test helper and remove unwraps from integration tests - ([ff1af29](https://github.com/specdown/specdown/commit/ff1af295c2a846b182f6878155ff05139a6a4786)) - Billie Thompson
+
+- - -
+
 ## [v1.5.3](https://github.com/specdown/specdown/compare/v1.5.2..v1.5.3) - 2026-07-02
 #### Bug Fixes
 - bump comrak from 0.52.0 to 0.53.0 - ([9c206a4](https://github.com/specdown/specdown/commit/9c206a4a9bb0a4d1b728ae45b337cebdac79927f)) - dependabot[bot]
