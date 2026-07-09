@@ -12,6 +12,14 @@ pub enum Error {
     BadShellCommand { command: String, message: String },
     #[error("Background scripts are not supported with this executor")]
     BackgroundNotSupported,
+    #[error("The mock server has not been started")]
+    MockServerNotStarted,
     #[error("Failed to spawn background process: {message}")]
     SpawnFailed { message: String },
+    #[cfg(feature = "container")]
+    #[error("The container executor requires Docker, but it is not available: {message}")]
+    DockerNotAvailable { message: String },
+    #[cfg(not(feature = "container"))]
+    #[error("The container executor feature is not enabled. Rebuild specdown with `--features container`")]
+    ContainerFeatureNotEnabled,
 }

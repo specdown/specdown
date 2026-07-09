@@ -5,6 +5,7 @@ use shell_words::ParseError;
 
 use crate::types::ScriptCode;
 
+use super::background_handle::BackgroundHandle;
 use super::executor::Output;
 use super::{Error, Executor};
 use std::env;
@@ -120,16 +121,46 @@ impl Executor for ShellExecutor {
             })
     }
 
-    fn spawn(&self, script: &ScriptCode) -> Result<std::process::Child, Error> {
+    fn spawn(&self, script: &ScriptCode) -> Result<Box<dyn BackgroundHandle>, Error> {
         let ScriptCode(code_string) = script;
 
         let mut command = self.build_command(code_string);
         command.stdout(std::process::Stdio::null());
         command.stderr(std::process::Stdio::null());
 
-        command.spawn().map_err(|err| Error::SpawnFailed {
-            message: err.to_string(),
-        })
+        command
+            .spawn()
+            .map(|child| Box::new(child) as Box<dyn BackgroundHandle>)
+            .map_err(|err| Error::SpawnFailed {
+                message: err.to_string(),
+            })
+    }
+
+    fn clone_box(&self, _label: &str) -> Box<dyn Executor> {
+        // ShellExecutor is stateless (each execute() spawns a fresh process),
+        // so cloning just creates a new instance with the same configuration.
+        // The label is not used since the shell executor has no persistent state
+        // to namespace.
+        let env: Vec<(String, String)> = self
+            .env
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+        let paths: Vec<String> = self
+            .paths
+            .iter()
+            .map(|p| p.to_string_lossy().to_string())
+            .collect();
+        let shell_cmd = if self.args.is_empty() {
+            self.command.clone()
+        } else {
+            format!("{} {}", self.command, self.args.join(" "))
+        };
+
+        ShellExecutor::new::<String>(&shell_cmd, &env, &self.unset_env, &paths).map_or_else(
+            |err| Box::new(super::executor::FailedExecutor(err)) as Box<dyn Executor>,
+            |e| Box::new(e) as Box<dyn Executor>,
+        )
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::types::{
-    BackgroundAction, CreateFileAction, ExitCode, OutputExpectation, ScriptAction, ScriptName,
-    VerifyAction,
+    BackgroundAction, CreateFileAction, ExitCode, MockName, OutputExpectation, ScriptAction,
+    ScriptName, VerifyAction,
 };
 
 #[derive(Debug, Eq, PartialEq)]
@@ -9,6 +9,7 @@ pub enum ActionError {
     UnexpectedOutputIsPresent(ScriptResult),
     OutputDoesNotMatch(VerifyResult),
     BackgroundExitedWithError(BackgroundStopResult),
+    UnpairedResponse(MockName),
 }
 
 trait ActionErrorProvider {
@@ -118,6 +119,31 @@ pub enum BackgroundExitStatus {
     Exited(ExitCode),
 }
 
+/// Whether a response block was successfully paired with a request block.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub enum ResponseStatus {
+    /// The response was paired with a matching request block.
+    #[default]
+    Paired,
+    /// No matching request block was found for this response.
+    Unpaired,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ResponseResult {
+    pub name: MockName,
+    pub status: ResponseStatus,
+}
+
+impl ActionErrorProvider for ResponseResult {
+    fn error(&self) -> Option<ActionError> {
+        match self.status {
+            ResponseStatus::Paired => None,
+            ResponseStatus::Unpaired => Some(ActionError::UnpairedResponse(self.name.clone())),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ActionResult {
     Script(ScriptResult),
@@ -125,6 +151,7 @@ pub enum ActionResult {
     CreateFile(CreateFileResult),
     BackgroundStart(BackgroundStartResult),
     BackgroundStop(BackgroundStopResult),
+    Response(ResponseResult),
 }
 
 impl ActionResult {
@@ -143,6 +170,7 @@ impl ActionResult {
             Self::CreateFile(result) => result,
             Self::BackgroundStart(result) => result,
             Self::BackgroundStop(result) => result,
+            Self::Response(result) => result,
         }
     }
 }
@@ -413,6 +441,39 @@ mod tests {
                 assert_eq!(
                     result.error(),
                     Some(ActionError::BackgroundExitedWithError(stop_result))
+                );
+                assert!(!result.success());
+            }
+        }
+
+        mod response {
+            use crate::results::action_result::{
+                ActionError, ActionResult, ResponseResult, ResponseStatus,
+            };
+            use crate::types::MockName;
+
+            #[test]
+            fn returns_none_when_paired() {
+                let result = ActionResult::Response(ResponseResult {
+                    name: MockName("my-mock".to_string()),
+                    status: ResponseStatus::Paired,
+                });
+                assert_eq!(result.error(), None);
+                assert!(result.success());
+            }
+
+            #[test]
+            fn returns_unpaired_response_error_when_unpaired() {
+                let response_result = ResponseResult {
+                    name: MockName("orphan".to_string()),
+                    status: ResponseStatus::Unpaired,
+                };
+                let result = ActionResult::Response(response_result.clone());
+                assert_eq!(
+                    result.error(),
+                    Some(ActionError::UnpairedResponse(MockName(
+                        "orphan".to_string()
+                    )))
                 );
                 assert!(!result.success());
             }

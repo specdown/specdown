@@ -11,7 +11,7 @@ use crate::types::{ExitCode, OutputExpectation, Stream, VerifyAction};
 use super::action_result::ActionResult;
 use super::action_result::{
     ActionError, BackgroundExitStatus, BackgroundStartResult, BackgroundStopResult,
-    CreateFileResult, ScriptResult, VerifyResult,
+    CreateFileResult, ResponseResult, ScriptResult, VerifyResult,
 };
 use super::printer::Printer;
 
@@ -134,6 +134,9 @@ impl BasicPrinter {
                         .map_or("<unnamed>".to_string(), Into::into)
                 )
             }
+            ActionResult::Response(ResponseResult { name, .. }) => {
+                format!("setting response for mock '{name}'")
+            }
         }
     }
 
@@ -172,6 +175,9 @@ impl BasicPrinter {
                 }
                 BackgroundExitStatus::Killed => "succeeded".to_string(),
             },
+            Some(ActionError::UnpairedResponse(_)) => {
+                "failed (no matching request block)".to_string()
+            }
             None => "succeeded".to_string(),
         }
     }
@@ -195,7 +201,7 @@ impl BasicPrinter {
             }) => {
                 self.display_diff(&String::from(expected_value.clone()), got);
             }
-            ActionError::BackgroundExitedWithError(_) => {}
+            ActionError::BackgroundExitedWithError(_) | ActionError::UnpairedResponse(_) => {}
         }
     }
 
@@ -818,6 +824,43 @@ mod tests {
             output.contains("all good"),
             "display_success_item should contain the text, got: {:?}",
             output
+        );
+    }
+
+    #[test]
+    fn action_title_formats_response_with_mock_name() {
+        use crate::results::action_result::{ResponseResult, ResponseStatus};
+        use crate::types::MockName;
+        let result = ActionResult::Response(ResponseResult {
+            name: MockName("list-users".to_string()),
+            status: ResponseStatus::Paired,
+        });
+        let title = BasicPrinter::action_title(&result);
+        assert!(
+            title.contains("list-users"),
+            "action_title for response should contain the mock name, got: {:?}",
+            title
+        );
+        assert!(
+            title.contains("response"),
+            "action_title for response should contain 'response', got: {:?}",
+            title
+        );
+    }
+
+    #[test]
+    fn action_result_message_shows_failure_for_unpaired_response() {
+        use crate::results::action_result::{ResponseResult, ResponseStatus};
+        use crate::types::MockName;
+        let result = ActionResult::Response(ResponseResult {
+            name: MockName("orphan".to_string()),
+            status: ResponseStatus::Unpaired,
+        });
+        let msg = BasicPrinter::action_result_message(&result);
+        assert!(
+            msg.contains("no matching request block"),
+            "action_result_message for unpaired response should mention 'no matching request block', got: {:?}",
+            msg
         );
     }
 }

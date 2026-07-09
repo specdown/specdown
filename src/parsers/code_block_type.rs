@@ -1,7 +1,10 @@
 use crate::parsers::error::{Error, Result};
 use crate::parsers::function_string_parser;
 use crate::parsers::function_string_parser::Function;
-use crate::types::{ExitCode, FilePath, OutputExpectation, ScriptName, Source, Stream, TargetOs};
+use crate::types::{
+    DelayMillis, ExitCode, FilePath, MockName, OutputExpectation, ResponseBody, ResponseCodeBlock,
+    ScriptName, Source, StatusCode, Stream, TargetOs,
+};
 use nom::combinator::map_res;
 use nom::{IResult, Parser};
 
@@ -29,6 +32,7 @@ pub enum CodeBlockType {
     Verify(VerifyCodeBlock),
     CreateFile(FilePath),
     Background(BackgroundCodeBlock),
+    Response(ResponseCodeBlock),
     Skip(),
 }
 
@@ -42,6 +46,7 @@ fn from_function(f: Function) -> Result<CodeBlockType> {
         "verify" => verify_to_code_block_type(&f),
         "file" => file_to_code_block_type(&f),
         "background" => background_to_code_block_type(&f),
+        "response" => response_to_code_block_type(&f),
         "skip" => Ok(skip_to_code_block_type(&f)),
         _ => Err(Error::UnknownFunction(f.name)),
     }
@@ -97,6 +102,61 @@ fn background_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     };
     Ok(CodeBlockType::Background(BackgroundCodeBlock {
         script_name: name,
+    }))
+}
+
+fn response_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
+    let name = MockName(f.get_string_argument("name")?);
+
+    let status = if f.has_argument("status") {
+        let raw = f.get_integer_argument("status")?;
+        StatusCode::parse(raw).map_err(|_| Error::InvalidArgumentValue {
+            function: "response".to_string(),
+            argument: "status".to_string(),
+            expected: "an HTTP status code between 100 and 599".to_string(),
+            got: raw.to_string(),
+        })?
+    } else {
+        StatusCode::default()
+    };
+
+    let headers = if f.has_argument("headers") {
+        Some(f.get_string_argument("headers")?)
+    } else {
+        None
+    };
+
+    let content_type = if f.has_argument("content_type") {
+        Some(f.get_string_argument("content_type")?)
+    } else {
+        None
+    };
+
+    let delay = if f.has_argument("delay") {
+        let raw = f.get_integer_argument("delay")?;
+        DelayMillis::parse(raw).map_err(|_| Error::InvalidArgumentValue {
+            function: "response".to_string(),
+            argument: "delay".to_string(),
+            expected: "a delay in milliseconds between 0 and 300000".to_string(),
+            got: raw.to_string(),
+        })?
+    } else {
+        DelayMillis::default()
+    };
+
+    let body = if f.has_argument("body") {
+        ResponseBody::Inline(f.get_string_argument("body")?)
+    } else {
+        ResponseBody::Empty
+    };
+
+    Ok(CodeBlockType::Response(ResponseCodeBlock {
+        name,
+        status,
+        headers,
+        content_type,
+        delay,
+        body,
     }))
 }
 
