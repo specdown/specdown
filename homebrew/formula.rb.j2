@@ -2,7 +2,21 @@ class Specdown < Formula
   desc "Use your markdown documentation as tests"
   homepage "https://github.com/{{ github_repo }}"
   license "Apache-2.0"
-  depends_on "help2man" => :build
+{# The `help2man` build dependency is disabled, and with it the man page generation in
+   `install` below. Restore both together.
+
+     depends_on "help2man" => :build
+
+   `brew test-bot` only builds a bottle when every build dependency already has a bottle
+   for the exact OS of the runner it is on (see `build_bottle?` in
+   Homebrew/homebrew-test-bot, lib/tests/formulae.rb). help2man publishes no Intel macOS
+   bottle newer than `sonoma`, and the only Intel macOS runners GitHub still offers are
+   `macos-15-intel` and `macos-26-intel`. So while help2man is a build dependency, no
+   Intel macOS bottle for specdown can be produced at all, and test-bot silently skips
+   the formula on those runners rather than installing it.
+
+   Re-enable once help2man ships an Intel bottle for a macOS that GitHub still runs, or
+   once the tap stops building Intel macOS bottles. #}  version_scheme 1
 
   on_macos do
     on_arm do
@@ -12,6 +26,7 @@ class Specdown < Formula
     on_intel do
       url "https://github.com/{{ github_repo }}/releases/download/{{ git_tag }}/specdown-x86_64-apple-darwin"
       sha256 "{{ macos_x86_sha }}"
+      version "{{ version }}"
     end
   end
 
@@ -19,6 +34,7 @@ class Specdown < Formula
     on_intel do
       url "https://github.com/{{ github_repo }}/releases/download/{{ git_tag }}/specdown-x86_64-unknown-linux-gnu"
       sha256 "{{ linux_x86_sha }}"
+      version "{{ version }}"
     end
     on_arm do
       url "https://github.com/{{ github_repo }}/releases/download/{{ git_tag }}/specdown-aarch64-unknown-linux-gnu"
@@ -32,34 +48,25 @@ class Specdown < Formula
   end
 
   def install
-    if OS.mac?
-      if Hardware::CPU.arm?
-        bin.install "specdown-aarch64-apple-darwin" => "specdown"
-      elsif Hardware::CPU.intel?
-        bin.install "specdown-x86_64-apple-darwin" => "specdown"
-      end
-    elsif OS.linux?
-      if Hardware::CPU.intel?
-        bin.install "specdown-x86_64-unknown-linux-gnu" => "specdown"
-      elsif Hardware::CPU.arm?
-        bin.install "specdown-aarch64-unknown-linux-gnu" => "specdown"
-      end
+    binary = if OS.mac?
+      Hardware::CPU.arm? ? "specdown-aarch64-apple-darwin" : "specdown-x86_64-apple-darwin"
+    else
+      Hardware::CPU.arm? ? "specdown-aarch64-unknown-linux-gnu" : "specdown-x86_64-unknown-linux-gnu"
     end
 
-    generate_completions_from_executable(bin/"specdown", "completion", shells: [
-      :bash,
-      :fish,
-      :zsh,
-    ])
+    chmod 0755, binary
+    bin.install binary => "specdown"
 
-    # Man pages
-    output = Utils.safe_popen_read("help2man", "#{bin}/specdown")
+    generate_completions_from_executable(bin/"specdown", "completion")
+{# Man page generation, disabled with the help2man build dependency above.
+
+    output = Utils.safe_popen_read("help2man", bin/"specdown")
     (man1/"specdown.1").write output
-  end
+#}  end
 
   test do
-    system "#{bin}/specdown", "-h"
-    system "#{bin}/specdown", "-V"
+    system bin/"specdown", "-h"
+    system bin/"specdown", "-V"
 
     resource("testdata").stage do
       assert_match "5 functions run (5 succeeded / 0 failed)", shell_output("#{bin}/specdown run README.md")
