@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-conventional-commits:
-    uses: armakuni/github-actions/.github/workflows/check-conventional-commits.yml@v0.19.14
+    uses: armakuni/github-actions/.github/workflows/check-conventional-commits.yml@v0.19.15
 
   run-tests:
     uses: ./.github/workflows/run-tests.yml
