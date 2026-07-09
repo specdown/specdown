@@ -171,7 +171,7 @@ Given `empty_spec.md`:
 Running the following command will fail:
 
 ```shell
-specdown run --workspace-dir dirname --temporary-workspace-dir empty_shell_command_example.md
+specdown --no-colour run --workspace-dir dirname --temporary-workspace-dir empty_shell_command_example.md
 ```
 
 With the following error message:
@@ -193,7 +193,7 @@ Given `empty_shell_command_example.md`:
 Running the following command will fail:
 
 ```shell
-specdown run --shell-command '' empty_shell_command_example.md
+specdown --no-colour run --shell-command '' empty_shell_command_example.md
 ```
 
 With the following error message:
@@ -213,7 +213,7 @@ Given `invalid_shell_command_example.md`:
 Running the following command will fail:
 
 ```shell
-specdown run --shell-command 'invalid " command' invalid_shell_command_example.md
+specdown --no-colour run --shell-command 'invalid " command' invalid_shell_command_example.md
 ```
 
 With the following error message:
@@ -237,7 +237,7 @@ echo "Hello world"
 Running the following command will fail:
 
 ```shell
-specdown run --shell-command 'does-not-exist' missing_shell_example.md
+specdown --no-colour run --shell-command 'does-not-exist' missing_shell_example.md
 ```
 
 With the following error message:
