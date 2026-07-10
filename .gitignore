@@ -6,3 +6,4 @@
 *.bak
 .tests/
 .release/
+test.txt
