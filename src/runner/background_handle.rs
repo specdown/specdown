@@ -79,6 +79,11 @@ impl BackgroundHandle for std::process::Child {
         }
         #[cfg(windows)]
         {
+            // On Windows there is no SIGTERM equivalent. TerminateProcess is
+            // force-kill, so the grace-period poll in graceful_stop() is a
+            // no-op — the process is already dead after this call. The
+            // graceful_stop() function skips the grace-period loop on Windows
+            // for this reason.
             let _ = std::process::Child::kill(self);
         }
     }

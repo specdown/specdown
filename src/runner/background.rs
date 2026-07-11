@@ -16,6 +16,10 @@ use std::time::{Duration, Instant};
 const READY_POLL_INTERVAL: Duration = Duration::from_millis(100);
 
 /// Grace period after SIGTERM before escalating to SIGKILL.
+///
+/// Only used on Unix; on Windows, `terminate()` is force-kill so no
+/// grace period is polled.
+#[cfg_attr(windows, allow(dead_code))]
 const GRACEFUL_SHUTDOWN_GRACE: Duration = Duration::from_secs(5);
 
 /// Hard cap on how long `stop()` will wait for a killed process to be
@@ -178,15 +182,23 @@ pub fn stop(mut bg: BackgroundProcess) -> ActionResult {
 fn graceful_stop(handle: &mut dyn BackgroundHandle) {
     handle.terminate();
 
-    let deadline = Instant::now() + GRACEFUL_SHUTDOWN_GRACE;
-    while Instant::now() < deadline {
-        if handle.try_wait().is_some() {
-            return;
+    // On Unix, poll for exit during the grace period before escalating
+    // to SIGKILL. On Windows, terminate() is already force-kill
+    // (TerminateProcess), so the grace-period poll is a no-op and is
+    // skipped.
+    #[cfg(not(windows))]
+    {
+        let deadline = Instant::now() + GRACEFUL_SHUTDOWN_GRACE;
+        while Instant::now() < deadline {
+            if handle.try_wait().is_some() {
+                return;
+            }
+            std::thread::sleep(Duration::from_millis(50));
         }
-        std::thread::sleep(Duration::from_millis(50));
     }
 
-    // Still alive after the grace period — force kill.
+    // Still alive after the grace period (Unix), or already dead
+    // (Windows: terminate() is force-kill). Force-kill as a last resort.
     handle.kill();
 }
 
