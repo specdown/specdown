@@ -7,7 +7,7 @@ use crate::types::{FilePath, ScriptCode, ScriptName, DEFAULT_READY_WHEN_TIMEOUT_
 use super::background_handle::BackgroundHandle;
 use super::executor::Executor;
 use super::Error;
-use std::net::{SocketAddr, TcpStream, ToSocketAddrs};
+use std::net::{SocketAddr, TcpStream};
 
 use std::path::Path;
 use std::time::{Duration, Instant};
@@ -127,15 +127,18 @@ fn condition_is_met(condition: &ReadyWhen, executor: &dyn Executor) -> bool {
     match condition {
         ReadyWhen::FileExists(FilePath(path)) => Path::new(path).exists(),
         ReadyWhen::PortOpen(port) => {
-            // Resolve "localhost" so the OS picks IPv4 (127.0.0.1) or IPv6
-            // (::1) depending on what is available — works on IPv6-only hosts.
-            let addrs: Vec<SocketAddr> = ("localhost", *port)
-                .to_socket_addrs()
-                .map(Iterator::collect)
-                .unwrap_or_default();
-            addrs
-                .iter()
-                .any(|addr| TcpStream::connect_timeout(addr, Duration::from_millis(500)).is_ok())
+            // Probe the loopback address directly rather than resolving
+            // "localhost" via DNS. The background script binds to 127.0.0.1
+            // (IPv4), but on macOS/Windows "localhost" may resolve to ::1
+            // (IPv6) first, causing the readiness check to fail against an
+            // IPv4-only listener. Try IPv4 first, then ::1 as a fallback for
+            // IPv6-only hosts. Each attempt is bounded so a stalled socket
+            // does not eat the readiness budget.
+            let timeout = Duration::from_millis(500);
+            let ipv4 = SocketAddr::from(([127, 0, 0, 1], *port));
+            let ipv6 = SocketAddr::from(([0, 0, 0, 0, 0, 0, 0, 1], *port));
+            TcpStream::connect_timeout(&ipv4, timeout).is_ok()
+                || TcpStream::connect_timeout(&ipv6, timeout).is_ok()
         }
         ReadyWhen::CheckExitZero(script_code) => match executor.execute(script_code) {
             Ok(output) => output.exit_code == Some(0),
@@ -476,11 +479,15 @@ mod tests {
         );
 
         // The process must be reaped — try_wait reports an exit.
+        //
+        // On Unix, SIGKILL => ExitStatus::code() == None => sentinel -1.
+        // On Windows, TerminateProcess => exit code 1 (no signal death).
         let code = BackgroundHandle::try_wait(&mut child);
+        let expected = if cfg!(windows) { 1 } else { -1 };
         assert_eq!(
             code,
-            Some(-1),
-            "signal-killed process should report Some(-1) after reaping, got {code:?}"
+            Some(expected),
+            "force-killed process should report Some({expected}) after reaping, got {code:?}"
         );
     }
 

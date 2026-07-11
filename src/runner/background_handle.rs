@@ -126,11 +126,17 @@ mod tests {
     use std::thread;
     use std::time::Duration;
 
-    /// Signal-killed processes have `ExitStatus::code() == None`.
-    /// `try_wait()` must return `Some(-1)` (the sentinel), not `None`,
-    /// so that callers treating `None` as "still running" do not stall.
+    /// A force-killed process must report an exit code, not `None`.
+    ///
+    /// On Unix, `Child::kill()` sends SIGKILL, so `ExitStatus::code()` is
+    /// `None` and `try_wait()` returns the `Some(-1)` sentinel so callers
+    /// treating `None` as "still running" do not stall.
+    ///
+    /// On Windows, `Child::kill()` calls `TerminateProcess` with exit code 1,
+    /// so `ExitStatus::code()` is `Some(1)` and `try_wait()` returns
+    /// `Some(1)` directly. There is no "signal death" concept on Windows.
     #[test]
-    fn try_wait_returns_negative_one_on_signal_death() {
+    fn try_wait_returns_exit_code_on_signal_death() {
         let mut child = Command::new("sleep")
             .arg("30")
             .stdout(Stdio::null())
@@ -138,17 +144,21 @@ mod tests {
             .spawn()
             .expect("failed to spawn sleep");
 
-        // SIGKILL → signal death (ExitStatus::code() returns None)
+        // SIGKILL (Unix) / TerminateProcess (Windows)
         child.kill().expect("failed to kill child");
 
         // Give the kernel a moment to deliver the signal and mark the exit.
         thread::sleep(Duration::from_millis(200));
 
         let result = BackgroundHandle::try_wait(&mut child);
+
+        // On Unix, signal death => ExitStatus::code() == None => sentinel -1.
+        // On Windows, TerminateProcess => exit code 1.
+        let expected = if cfg!(windows) { 1 } else { -1 };
         assert_eq!(
             result,
-            Some(-1),
-            "try_wait() should return Some(-1) for signal-killed processes, got {result:?}"
+            Some(expected),
+            "try_wait() should return Some({expected}) for force-killed process, got {result:?}"
         );
     }
 
