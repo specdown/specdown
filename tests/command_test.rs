@@ -35,12 +35,7 @@ fn specdown_run_with_path() -> Command {
 
 #[test]
 fn test_readme() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
-        .arg("README.md")
-        .ok();
+    let result = specdown_run_with_path().arg("README.md").ok();
 
     assert_ok(&result);
 }
@@ -60,10 +55,7 @@ fn test_doc_index() {
 #[cfg(not(windows))]
 #[test]
 fn test_doc_display_help() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
+    let result = specdown_run_with_path()
         .arg("docs/cli/display_help.md")
         .ok();
 
@@ -90,10 +82,7 @@ fn test_doc_config_file() {
 
 #[test]
 fn test_doc_creating_test_files() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
+    let result = specdown_run_with_path()
         .arg("docs/specs/creating_test_files.md")
         .ok();
 
@@ -102,10 +91,7 @@ fn test_doc_creating_test_files() {
 
 #[test]
 fn test_doc_verifying_script_output() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
+    let result = specdown_run_with_path()
         .arg("docs/specs/verifying_script_output.md")
         .ok();
 
@@ -114,10 +100,7 @@ fn test_doc_verifying_script_output() {
 
 #[test]
 fn test_doc_verifying_exit_codes() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
+    let result = specdown_run_with_path()
         .arg("docs/specs/verifying_exit_codes.md")
         .ok();
 
@@ -126,10 +109,7 @@ fn test_doc_verifying_exit_codes() {
 
 #[test]
 fn test_doc_global_environment_variables() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
+    let result = specdown_run_with_path()
         .arg("docs/specs/global_environment_variables.md")
         .ok();
 
@@ -138,10 +118,7 @@ fn test_doc_global_environment_variables() {
 
 #[test]
 fn test_doc_output_expectations() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
+    let result = specdown_run_with_path()
         .arg("docs/specs/output_expectations.md")
         .ok();
 
@@ -192,10 +169,7 @@ fn test_doc_escaped_quotes_in_string_arguments() {
 
 #[test]
 fn test_doc_skipping_code_blocks() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
+    let result = specdown_run_with_path()
         .arg("docs/specs/skipping_code_blocks.md")
         .ok();
 
@@ -205,11 +179,7 @@ fn test_doc_skipping_code_blocks() {
 #[cfg(not(windows))]
 #[test]
 fn test_doc_completion() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("docs/cli/completion.md")
-        .ok();
+    let result = specdown_run_with_path().arg("docs/cli/completion.md").ok();
 
     assert_ok(&result);
 }
@@ -217,10 +187,7 @@ fn test_doc_completion() {
 #[cfg(not(windows))]
 #[test]
 fn test_doc_stripping_specs() {
-    let result = Command::cargo_bin("specdown")
-        .unwrap()
-        .arg("run")
-        .arg("--temporary-workspace-dir")
+    let result = specdown_run_with_path()
         .arg("docs/cli/stripping_specs.md")
         .ok();
 
@@ -259,15 +226,15 @@ fn test_displays_error_when_required_args_are_missing() {
         .stderr(formatdoc!(
             "
             A tool to test markdown files and drive development from documentation.
-            
+
             Usage: {} [OPTIONS] <COMMAND>
-            
+
             Commands:
               completion  Output completion for a shell of your choice
               run         Runs a given Markdown Specification
               strip       Outputs a version of the markdown with all specdown functions removed
               help        Print this message or the help of the given subcommand(s)
-            
+
             Options:
                   --no-colour      Disables coloured output
                   --config <PATH>  Load settings from a specific config file instead of looking for `specdown.toml` in the current directory

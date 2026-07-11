@@ -22,6 +22,7 @@ jobs:
   cargo-test:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: macos-latest
@@ -29,6 +30,8 @@ jobs:
           - os: ubuntu-latest
           - os: ubuntu-24.04-arm
           - os: windows-latest
+          - os: ubuntu-latest
+            container-features: true
     steps:
       - name: "workaround: Add rustup bin to PATH"
         if: runner.os == 'macOS'
@@ -43,7 +46,16 @@ jobs:
           takeown /F 'C:\Windows\System32\bash.exe'
           icacls 'C:\Windows\System32\bash.exe' /grant administrators:F
           ren 'C:\Windows\System32\bash.exe' wsl-bash.exe
-      - run: make test
+      - name: Run tests
+        if: ${{ !matrix.container-features }}
+        run: make test
+      - name: Run tests with container feature
+        if: ${{ matrix.container-features }}
+        run: |
+          export PATH="$(pwd)/target/debug:$PATH"
+          cargo test --features container -- --nocapture
+          docker pull bash:5
+          cargo test --features container -- --ignored --nocapture
 
   lint:
     runs-on: ${{ matrix.os }}
@@ -61,3 +73,4 @@ jobs:
       - name: Check markdown links
         uses: gaurav-nelson/github-action-markdown-link-check@1.0.17
         if: matrix.os == 'ubuntu-latest'
+
