@@ -26,4 +26,15 @@ pub enum Error {
     #[cfg(not(feature = "container"))]
     #[error("The container executor feature is not enabled. Rebuild specdown with `--features container`")]
     ContainerFeatureNotEnabled,
+    /// A `background` block with a `ready_when` condition exited before the
+    /// condition became true.
+    #[error("Background script '{script_name}' exited with code {exit_code} before the ready_when condition was met")]
+    BackgroundExitedBeforeReady { script_name: String, exit_code: i32 },
+    /// A `ready_when` condition was not satisfied within the timeout.
+    #[error("Background script '{script_name}' did not become ready within {timeout_secs} seconds (ready_when: {condition})")]
+    ReadyWhenTimeout {
+        script_name: String,
+        timeout_secs: u32,
+        condition: String,
+    },
 }

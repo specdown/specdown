@@ -47,11 +47,17 @@ fn to_script_action(code_block: &ScriptCodeBlock, literal: String) -> ScriptActi
 }
 
 fn to_background_action(code_block: &BackgroundCodeBlock, literal: String) -> BackgroundAction {
-    let BackgroundCodeBlock { script_name } = code_block;
+    let BackgroundCodeBlock {
+        script_name,
+        ready_when,
+        timeout_secs,
+    } = code_block;
 
     BackgroundAction {
         script_name: script_name.clone(),
         script_code: ScriptCode(literal),
+        ready_when: ready_when.clone(),
+        timeout_secs: *timeout_secs,
     }
 }
 
@@ -149,8 +155,9 @@ mod tests {
     use crate::parsers::code_block_type::VerifyCodeBlock;
     use crate::types::BackgroundAction;
     use crate::types::{
-        CreateFileAction, FilePath, MockName, OutputExpectation, ResponseAction, ResponseBody,
-        ResponseHeader, ScriptAction, ScriptName, Source, Stream, TargetOs, VerifyAction,
+        CreateFileAction, FilePath, MockName, OutputExpectation, ReadyWhen, ResponseAction,
+        ResponseBody, ResponseHeader, ScriptAction, ScriptName, Source, Stream, TargetOs,
+        VerifyAction,
     };
 
     #[test]
@@ -256,12 +263,16 @@ mod tests {
             create_action(
                 &CodeBlockType::Background(BackgroundCodeBlock {
                     script_name: Some(ScriptName("bg-script".to_string())),
+                    ready_when: None,
+                    timeout_secs: None,
                 }),
                 "code".to_string(),
             ),
             Some(Action::Background(BackgroundAction {
                 script_name: Some(ScriptName("bg-script".to_string())),
                 script_code: ScriptCode("code".to_string()),
+                ready_when: None,
+                timeout_secs: None,
             }))
         );
     }
@@ -270,12 +281,58 @@ mod tests {
     fn create_action_for_background_without_name() {
         assert_eq!(
             create_action(
-                &CodeBlockType::Background(BackgroundCodeBlock { script_name: None }),
+                &CodeBlockType::Background(BackgroundCodeBlock {
+                    script_name: None,
+                    ready_when: None,
+                    timeout_secs: None,
+                }),
                 "code".to_string(),
             ),
             Some(Action::Background(BackgroundAction {
                 script_name: None,
                 script_code: ScriptCode("code".to_string()),
+                ready_when: None,
+                timeout_secs: None,
+            }))
+        );
+    }
+
+    #[test]
+    fn create_action_for_background_with_ready_when_file() {
+        assert_eq!(
+            create_action(
+                &CodeBlockType::Background(BackgroundCodeBlock {
+                    script_name: Some(ScriptName("server".to_string())),
+                    ready_when: Some(ReadyWhen::FileExists(FilePath("/tmp/ready".to_string()))),
+                    timeout_secs: None,
+                }),
+                "code".to_string(),
+            ),
+            Some(Action::Background(BackgroundAction {
+                script_name: Some(ScriptName("server".to_string())),
+                script_code: ScriptCode("code".to_string()),
+                ready_when: Some(ReadyWhen::FileExists(FilePath("/tmp/ready".to_string()))),
+                timeout_secs: None,
+            }))
+        );
+    }
+
+    #[test]
+    fn create_action_for_background_with_ready_when_and_timeout() {
+        assert_eq!(
+            create_action(
+                &CodeBlockType::Background(BackgroundCodeBlock {
+                    script_name: Some(ScriptName("server".to_string())),
+                    ready_when: Some(ReadyWhen::PortOpen(8080)),
+                    timeout_secs: Some(5),
+                }),
+                "code".to_string(),
+            ),
+            Some(Action::Background(BackgroundAction {
+                script_name: Some(ScriptName("server".to_string())),
+                script_code: ScriptCode("code".to_string()),
+                ready_when: Some(ReadyWhen::PortOpen(8080)),
+                timeout_secs: Some(5),
             }))
         );
     }

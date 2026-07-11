@@ -128,6 +128,17 @@ impl Executor for ShellExecutor {
         command.stdout(std::process::Stdio::null());
         command.stderr(std::process::Stdio::null());
 
+        // Put the child in its own process group so we can kill the entire
+        // process tree (child + grandchildren) on shutdown. Without this,
+        // grandchildren (e.g. python3 spawned by bash) get reparented to PID 1
+        // when the direct child (bash) is killed, becoming orphans that hold
+        // ports and resources indefinitely.
+        #[cfg(not(windows))]
+        {
+            use std::os::unix::process::CommandExt;
+            command.process_group(0);
+        }
+
         command
             .spawn()
             .map(|child| Box::new(child) as Box<dyn BackgroundHandle>)
