@@ -80,6 +80,14 @@ fn test_doc_running_specs() {
     assert_ok(&result);
 }
 
+#[cfg(not(windows))]
+#[test]
+fn test_doc_config_file() {
+    let result = specdown_run_with_path().arg("docs/cli/config_file.md").ok();
+
+    assert_ok(&result);
+}
+
 #[test]
 fn test_doc_creating_test_files() {
     let result = Command::cargo_bin("specdown")
@@ -261,9 +269,10 @@ fn test_displays_error_when_required_args_are_missing() {
               help        Print this message or the help of the given subcommand(s)
             
             Options:
-                  --no-colour  Disables coloured output
-              -h, --help       Print help
-              -V, --version    Print version
+                  --no-colour      Disables coloured output
+                  --config <PATH>  Load settings from a specific config file instead of looking for `specdown.toml` in the current directory
+              -h, --help           Print help
+              -V, --version        Print version
             ",
             BINARY_NAME
         ));
