@@ -54,6 +54,7 @@ jobs:
         run: |
           export PATH="$(pwd)/target/debug:$PATH"
           cargo test --features container -- --nocapture
+          docker pull bash:5
           cargo test --features container -- --ignored --nocapture
 
   lint:
