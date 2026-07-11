@@ -45,6 +45,13 @@ jobs:
           ren 'C:\Windows\System32\bash.exe' wsl-bash.exe
       - run: make test
 
+  container-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --features container -- --ignored
+
   lint:
     runs-on: ${{ matrix.os }}
     strategy:
