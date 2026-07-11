@@ -95,7 +95,7 @@ fn wait_for_ready(
     loop {
         // If the process has already exited, readiness can never be reached.
         if let Some(exit_code) = handle.try_wait() {
-            handle.kill();
+            kill_and_reap(handle, REAP_DEADLINE);
             return Err(Error::BackgroundExitedBeforeReady {
                 script_name: name,
                 exit_code,
