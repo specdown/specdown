@@ -67,3 +67,10 @@ jobs:
       - name: Check markdown links
         uses: gaurav-nelson/github-action-markdown-link-check@1.0.17
         if: matrix.os == 'ubuntu-latest'
+
+  container-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --features container -- --ignored
