@@ -45,6 +45,22 @@ jobs:
           ren 'C:\Windows\System32\bash.exe' wsl-bash.exe
       - run: make test
 
+  container-compile-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: tomphp/github-actions/checkout-rust-project@v0.8.3
+      - name: Check container feature compiles
+        run: cargo check --features container
+
+  container-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: tomphp/github-actions/checkout-rust-project@v0.8.3
+      - name: Run container feature tests (non-Docker)
+        run: cargo test --features container -- --nocapture
+      - name: Run container feature tests (Docker)
+        run: cargo test --features container -- --nocapture --ignored
+
   lint:
     runs-on: ${{ matrix.os }}
     strategy:
