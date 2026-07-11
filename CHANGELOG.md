@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.7.0](https://github.com/specdown/specdown/compare/v1.6.3..v1.7.0) - 2026-07-11
+#### Bug Fixes
+- add --add-path to integration tests for container feature - ([9bc3aa5](https://github.com/specdown/specdown/commit/9bc3aa5dba6a0172a7f0b2d28e13b1fea145c671)) - Hermes Builder
+- pull bash:5 image before running ignored container tests - ([21e18e7](https://github.com/specdown/specdown/commit/21e18e7eb41c273084520563df047f312c396ec7)) - Billie Thompson
+- add target/debug to PATH for container-features CI tests - ([d17c3e6](https://github.com/specdown/specdown/commit/d17c3e6ad795c0ec6e648587acb836c2ad480c18)) - Billie Thompson
+#### Continuous Integration
+- enable container tests in normal CI process - ([b0ea771](https://github.com/specdown/specdown/commit/b0ea771a68ac38df3795ed7607489b83d4e038ad)) - Billie Thompson
+#### Features
+- add config file support - ([399588b](https://github.com/specdown/specdown/commit/399588bfee1b1e8bdc19e2ee35f098a700692422)) - Tom Oram
+#### Miscellaneous Chores
+- remove test file - ([fa0a062](https://github.com/specdown/specdown/commit/fa0a0624ca32a4dbac10d4aecc781d49e4ea281d)) - Tom Oram
+
+- - -
+
 ## [v1.6.3](https://github.com/specdown/specdown/compare/v1.6.2..v1.6.3) - 2026-07-10
 #### Bug Fixes
 - bump tempfile from 3.17.1 to 3.27.0 - ([c54b9a4](https://github.com/specdown/specdown/commit/c54b9a486ed5a8c8e020812033ed6b72e2352f62)) - dependabot[bot]
