@@ -52,6 +52,7 @@ jobs:
       - name: Run tests with container feature
         if: ${{ matrix.container-features }}
         run: |
+          export PATH="$(pwd)/target/debug:$PATH"
           cargo test --features container -- --nocapture
           cargo test --features container -- --ignored --nocapture
 
