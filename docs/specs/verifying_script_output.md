@@ -143,9 +143,10 @@ Commands:
   help        Print this message or the help of the given subcommand(s)
 
 Options:
-      --no-colour  Disables coloured output
-  -h, --help       Print help
-  -V, --version    Print version
+      --no-colour      Disables coloured output
+      --config <PATH>  Load settings from a specific config file instead of looking for `specdown.toml` in the current directory
+  -h, --help           Print help
+  -V, --version        Print version
 ```
 
 ```text,verify(script_name="os_specific",target_os="linux")
@@ -160,9 +161,10 @@ Commands:
   help        Print this message or the help of the given subcommand(s)
 
 Options:
-      --no-colour  Disables coloured output
-  -h, --help       Print help
-  -V, --version    Print version
+      --no-colour      Disables coloured output
+      --config <PATH>  Load settings from a specific config file instead of looking for `specdown.toml` in the current directory
+  -h, --help           Print help
+  -V, --version        Print version
 ```
 
 ```text,verify(script_name="os_specific",target_os="macos")
@@ -177,9 +179,10 @@ Commands:
   help        Print this message or the help of the given subcommand(s)
 
 Options:
-      --no-colour  Disables coloured output
-  -h, --help       Print help
-  -V, --version    Print version
+      --no-colour      Disables coloured output
+      --config <PATH>  Load settings from a specific config file instead of looking for `specdown.toml` in the current directory
+  -h, --help           Print help
+  -V, --version        Print version
 ```
 ````
 
@@ -227,9 +230,10 @@ Commands:
   help        Print this message or the help of the given subcommand(s)
 
 Options:
-      --no-colour  Disables coloured output
-  -h, --help       Print help
-  -V, --version    Print version
+      --no-colour      Disables coloured output
+      --config <PATH>  Load settings from a specific config file instead of looking for `specdown.toml` in the current directory
+  -h, --help           Print help
+  -V, --version        Print version
 ```
 
 ```text,verify(script_name="os_specific_negation",target_os="windows")
@@ -244,9 +248,10 @@ Commands:
   help        Print this message or the help of the given subcommand(s)
 
 Options:
-      --no-colour  Disables coloured output
-  -h, --help       Print help
-  -V, --version    Print version
+      --no-colour      Disables coloured output
+      --config <PATH>  Load settings from a specific config file instead of looking for `specdown.toml` in the current directory
+  -h, --help           Print help
+  -V, --version        Print version
 ```
 ````
 

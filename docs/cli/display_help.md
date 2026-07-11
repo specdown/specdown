@@ -23,9 +23,10 @@ specdown
       help        Print this message or the help of the given subcommand(s)
     
     Options:
-          --no-colour  Disables coloured output
-      -h, --help       Print help
-      -V, --version    Print version
+          --no-colour      Disables coloured output
+          --config <PATH>  Load settings from a specific config file instead of looking for `specdown.toml` in the current directory
+      -h, --help           Print help
+      -V, --version        Print version
 
 ## Windows Output
 
@@ -40,9 +41,10 @@ specdown
       help        Print this message or the help of the given subcommand(s)
       
     Options:
-          --no-colour  Disables coloured output
-      -h, --help       Print help
-      -V, --version    Print version
+          --no-colour      Disables coloured output
+          --config <PATH>  Load settings from a specific config file instead of looking for `specdown.toml` in the current directory
+      -h, --help           Print help
+      -V, --version        Print version
 
 ## Sub-commands
 

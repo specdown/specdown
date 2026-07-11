@@ -421,7 +421,7 @@ Options:
       --shell-command <SHELL_COMMAND>
           The shell command used to execute script blocks
           
-          [default: "bash -c"]
+          Defaults to "bash -c" if not set via this flag or the `[run]` table in `specdown.toml`.
 
       --env <ENV>
           Set an environment variable (format: 'VAR_NAME=value')
@@ -434,15 +434,11 @@ Options:
 
   -j, --jobs <JOBS>
           Number of parallel jobs to run (0 = all CPUs, default = 1 for backward compatibility)
-          
-          [default: 1]
 
       --executor <EXECUTOR>
           The executor to use for running scripts.
           
           `shell` (default) runs scripts directly in the host shell. `container` runs scripts inside a Docker container via the Docker Engine socket API. Requires specdown to be built with the `container` feature.
-          
-          [default: shell]
 
           Possible values:
           - shell:     Run scripts directly in the host shell (default)
@@ -491,7 +487,7 @@ Options:
       --shell-command <SHELL_COMMAND>
           The shell command used to execute script blocks
           
-          [default: "bash -c"]
+          Defaults to "bash -c" if not set via this flag or the `[run]` table in `specdown.toml`.
 
       --env <ENV>
           Set an environment variable (format: 'VAR_NAME=value')
@@ -504,15 +500,11 @@ Options:
 
   -j, --jobs <JOBS>
           Number of parallel jobs to run (0 = all CPUs, default = 1 for backward compatibility)
-          
-          [default: 1]
 
       --executor <EXECUTOR>
           The executor to use for running scripts.
           
           `shell` (default) runs scripts directly in the host shell. `container` runs scripts inside a Docker container via the Docker Engine socket API. Requires specdown to be built with the `container` feature.
-          
-          [default: shell]
 
           Possible values:
           - shell:     Run scripts directly in the host shell (default)

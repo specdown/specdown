@@ -12,6 +12,7 @@ All documentation is written as SpecDown tests and form part of the test suite.
 - CLI
   - [Displaying Help](cli/display_help.md)
   - [Running Specs](cli/running_specs.md)
+  - [Configuration File](cli/config_file.md)
   - [Stripping Specs](cli/stripping_specs.md)
   - [Completion](cli/completion.md)
 - Specs
