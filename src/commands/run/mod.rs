@@ -1,9 +1,11 @@
 use std::path::PathBuf;
 
-pub use arguments::Arguments;
-use arguments::ExecutorKind;
+use merge::Merge;
+
 use file_reader::FileReader;
 use run_command::RunCommand;
+use settings::ExecutorKind;
+pub use settings::RunSettings;
 
 use crate::config::Config;
 use crate::exit_codes::ExitCode;
@@ -12,17 +14,26 @@ use crate::runner::shell_executor::ShellExecutor;
 use crate::runner::{Error, RunEvent};
 use crate::workspace::{ExistingDir, TemporaryDirectory, Workspace};
 
-mod arguments;
+mod config_file;
 mod exit_code;
 mod file_reader;
 mod run_command;
+mod settings;
 
-pub fn execute(config: &Config, args: &Arguments) {
+/// The shell command used to invoke script blocks when neither the command
+/// line nor `specdown.toml` sets one.
+const DEFAULT_SHELL_COMMAND: &str = "bash -c";
+
+/// The number of parallel jobs used when neither the command line nor
+/// `specdown.toml` sets one.
+const DEFAULT_JOBS: u32 = 1;
+
+pub fn execute(config: &Config, args: &RunSettings) {
     let printer = BasicPrinter::new(config.colour);
     let printer_mutex =
         std::sync::Mutex::new(Box::new(printer) as Box<dyn crate::results::Printer>);
 
-    let events = create_run_command(args).map_or_else(
+    let events = create_run_command(config, args).map_or_else(
         |err| {
             let events = vec![RunEvent::ErrorOccurred(err)];
             let mut guard = printer_mutex.lock().expect("printer mutex poisoned");
@@ -39,22 +50,30 @@ pub fn execute(config: &Config, args: &Arguments) {
     std::process::exit(exit_code as i32)
 }
 
-fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
+fn create_run_command(config: &Config, cli_settings: &RunSettings) -> Result<RunCommand, Error> {
+    let current_dir = std::env::current_dir().expect("Failed to get current workspace directory");
+
+    let mut args = cli_settings.clone();
+    let file_settings =
+        config_file::load_run_settings(config.config_path.as_deref(), &current_dir)?;
+    args.merge(file_settings);
+
     let temp_workspace_dir = args.temporary_workspace_dir;
     let workspace_init_command = args.workspace_init_command.clone();
-    let shell_cmd = args.shell_command.clone();
+    let shell_cmd = args
+        .shell_command
+        .clone()
+        .unwrap_or_else(|| DEFAULT_SHELL_COMMAND.to_string());
     let mut env = parse_environment_variables(&args.env);
 
     // Resolve jobs: 0 means "run all in parallel" — map to CPU count.
-    let jobs = if args.jobs == 0 {
-        num_cpus::get()
-    } else {
-        args.jobs as usize
+    let jobs = match args.jobs.unwrap_or(DEFAULT_JOBS) {
+        0 => num_cpus::get(),
+        jobs => jobs as usize,
     };
 
     let unset_env = args.unset_env.clone();
     let paths = args.add_path.clone();
-    let current_dir = std::env::current_dir().expect("Failed to get current workspace directory");
     let file_reader = FileReader::new(current_dir.clone());
 
     let mut workspace = create_workspace(args.workspace_dir.clone(), temp_workspace_dir);
@@ -101,7 +120,7 @@ fn create_run_command(args: &Arguments) -> Result<RunCommand, Error> {
         jobs,
     };
 
-    match args.executor_config.executor {
+    match args.executor_config.executor.unwrap_or_default() {
         ExecutorKind::Shell => ShellExecutor::new(&shell_cmd, &env, &unset_env, &paths)
             .map(|e| new_command(Box::new(e))),
         ExecutorKind::Container => {

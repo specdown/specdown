@@ -11,6 +11,8 @@
     missing_docs
 )]
 
+use std::path::PathBuf;
+
 use crate::config::Config;
 use clap::{CommandFactory, Parser, Subcommand};
 
@@ -31,6 +33,11 @@ struct Cli {
     #[clap(long)]
     no_colour: bool,
 
+    /// Load settings from a specific config file instead of looking for
+    /// `specdown.toml` in the current directory
+    #[clap(long, value_name = "PATH")]
+    config: Option<PathBuf>,
+
     #[clap(subcommand)]
     command: Commands,
 }
@@ -41,7 +48,7 @@ enum Commands {
     Completion(commands::completion::Arguments),
 
     /// Runs a given Markdown Specification
-    Run(Box<commands::run::Arguments>),
+    Run(Box<commands::run::RunSettings>),
 
     /// Outputs a version of the markdown with all specdown functions removed
     Strip(commands::strip::Arguments),
@@ -52,6 +59,7 @@ fn main() {
 
     let config = Config {
         colour: !cli.no_colour,
+        config_path: cli.config,
     };
 
     match cli.command {
