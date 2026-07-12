@@ -27,7 +27,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use bollard::container::{
     Config, CreateContainerOptions, LogOutput, RemoveContainerOptions, StartContainerOptions,
@@ -44,9 +44,6 @@ use super::background_handle::BackgroundHandle;
 use super::executor::Output;
 use super::{Error, Executor};
 use std::convert::TryFrom;
-
-/// Monotonically increasing counter for unique background PID-file names.
-static BG_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 /// Monotonically increasing counter for unique container names.
 static CONTAINER_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -422,20 +419,19 @@ impl Executor for ContainerExecutor {
     fn spawn(&self, script: &ScriptCode) -> Result<Box<dyn BackgroundHandle>, Error> {
         let ScriptCode(code_string) = script;
         let container_id = self.ensure_container()?;
-        let container_id_for_handle = container_id.clone();
 
         let docker = self.docker.clone();
         let env = self.container_env();
         let working_dir = self.working_dir.clone();
+        let cmd = self.exec_command(code_string);
 
-        // Wrap the script so it records its PID inside the container.
-        // This lets us kill the background process later via another exec.
-        let bg_num = BG_COUNTER.fetch_add(1, Ordering::SeqCst);
-        let pid_file = format!("/tmp/.specdown_bg_{bg_num}");
-        let wrapped_code = format!("echo $$ > {pid_file}; exec {code_string}");
-        let cmd = self.exec_command(&wrapped_code);
-
-        let exec_id = self.runtime.block_on(async move {
+        // Create the exec and start it in *attached* mode (not detached).
+        // In attached mode the Docker API returns an output stream that
+        // remains open for the lifetime of the process.  When the stream
+        // ends, the process has exited; we then call `inspect_exec` to
+        // retrieve the real exit code from the Docker API — no bash wrapper
+        // script, PID file, or exit-code file required.
+        let (exec_id, start_result) = self.runtime.block_on(async move {
             let exec = docker
                 .create_exec(
                     &container_id,
@@ -451,22 +447,69 @@ impl Executor for ContainerExecutor {
                     message: format!("Failed to create background exec: {err}"),
                 })?;
 
-            // Start detached so it runs in the background
-            docker
-                .start_exec(
-                    &exec.id,
-                    Some(StartExecOptions {
-                        detach: true,
-                        ..Default::default()
-                    }),
-                )
+            // Start in attached mode (detach: false) so we receive the
+            // output stream.  The stream's completion signals process exit.
+            let start_result = docker
+                .start_exec(&exec.id, None::<StartExecOptions>)
                 .await
                 .map_err(|err| Error::SpawnFailed {
                     message: format!("Failed to start background exec: {err}"),
                 })?;
 
-            Ok::<String, Error>(exec.id)
+            Ok::<_, Error>((exec.id, start_result))
         })?;
+
+        // Shared slot for the exit code.  The background drain task writes
+        // to it once the output stream ends; `try_wait` reads it.
+        let exit_code: Arc<Mutex<Option<i32>>> = Arc::new(Mutex::new(None));
+        let exit_code_for_task = exit_code.clone();
+
+        let docker_for_task = self.docker.clone();
+        let exec_id_for_task = exec_id.clone();
+
+        // Spawn a dedicated OS thread with its own tokio runtime to drain
+        // the output stream in the background.  When the stream ends the
+        // process has exited, so we call `inspect_exec` to retrieve the
+        // exit code and store it in the shared slot.
+        std::thread::Builder::new()
+            .name("container-bg-drain".to_string())
+            .spawn(move || {
+                let Ok(runtime) = tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                else {
+                    return;
+                };
+
+                runtime.block_on(async move {
+                    // Drain the output stream until the process exits.
+                    if let bollard::exec::StartExecResults::Attached {
+                        output: mut output_stream,
+                        ..
+                    } = start_result
+                    {
+                        while let Some(msg) = output_stream.next().await {
+                            if msg.is_err() {
+                                break;
+                            }
+                        }
+                    }
+
+                    // The stream has ended — the process has exited.  Query
+                    // the Docker API for the real exit code.
+                    if let Ok(inspect) = docker_for_task.inspect_exec(&exec_id_for_task).await {
+                        let code = inspect
+                            .exit_code
+                            .map_or(-1, |c| i32::try_from(c).unwrap_or(-1));
+                        if let Ok(mut slot) = exit_code_for_task.lock() {
+                            *slot = Some(code);
+                        }
+                    }
+                });
+            })
+            .map_err(|err| Error::SpawnFailed {
+                message: format!("Failed to spawn background drain thread: {err}"),
+            })?;
 
         let handle_runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -476,11 +519,10 @@ impl Executor for ContainerExecutor {
             })?;
 
         Ok(Box::new(ContainerBackgroundHandle {
-            container_id: container_id_for_handle,
             exec_id,
-            pid_file,
             docker: self.docker.clone(),
             runtime: handle_runtime,
+            exit_code,
         }) as Box<dyn BackgroundHandle>)
     }
 
@@ -547,63 +589,107 @@ impl Drop for ContainerExecutor {
 /// A handle to a background process running inside the persistent
 /// container via Docker exec.
 ///
-/// The process is tracked by its exec ID. To kill it, we read the PID
-/// (recorded at spawn time) and send `SIGTERM` from another exec.
+/// The process is started in *attached* mode.  A background drain thread
+/// holds the output stream; when the stream ends (process exited) it calls
+/// `inspect_exec` to retrieve the exit code and stores it in the shared
+/// `exit_code` slot.  `try_wait` reads that slot (with an `inspect_exec`
+/// fallback for externally-killed processes).  `terminate` and `kill` use
+/// `inspect_exec` to obtain the host-side PID of the exec's process and
+/// deliver a signal directly via the `libc` crate — no shell commands
+/// inside the container.
 #[derive(Debug)]
 pub struct ContainerBackgroundHandle {
-    container_id: String,
     exec_id: String,
-    pid_file: String,
     docker: Docker,
     runtime: tokio::runtime::Runtime,
+    /// Exit code written by the background drain task when the exec's
+    /// output stream ends and `inspect_exec` returns the final code.
+    /// `None` while the process is still running.
+    exit_code: Arc<Mutex<Option<i32>>>,
 }
 
 impl BackgroundHandle for ContainerBackgroundHandle {
+    /// Send SIGTERM to the background process for a graceful shutdown.
+    ///
+    /// Uses `inspect_exec` to obtain the host-side PID of the exec's
+    /// process, then delivers `SIGTERM` directly via `libc::kill`.  No
+    /// shell command is executed inside the container.
+    fn terminate(&mut self) {
+        self.signal(libc::SIGTERM);
+    }
+
+    /// Send SIGKILL to the background process to force immediate exit.
+    ///
+    /// Uses `inspect_exec` to obtain the host-side PID of the exec's
+    /// process, then delivers `SIGKILL` directly via `libc::kill`.  No
+    /// shell command is executed inside the container.
     fn kill(&mut self) {
-        let container_id = self.container_id.clone();
-        let pid_file = self.pid_file.clone();
-        let docker = self.docker.clone();
-        let _ = self.runtime.block_on(async move {
-            // Kill the background process using its recorded PID, then
-            // clean up the PID file.
-            let kill_cmd = vec![
-                "sh".to_string(),
-                "-c".to_string(),
-                format!("kill -TERM $(cat {pid_file}) 2>/dev/null; rm -f {pid_file}"),
-            ];
-            let exec = docker
-                .create_exec(
-                    &container_id,
-                    CreateExecOptions::<String> {
-                        cmd: Some(kill_cmd),
-                        ..Default::default()
-                    },
-                )
-                .await
-                .ok()?;
-            docker
-                .start_exec(&exec.id, None::<StartExecOptions>)
-                .await
-                .ok()?;
-            Some(())
-        });
+        self.signal(libc::SIGKILL);
     }
 
     fn try_wait(&mut self) -> Option<i32> {
+        // The exit code is written by the background drain task when the
+        // output stream ends.  If it is still `None`, the process is still
+        // running (or the drain task hasn't yet detected the stream end).
+        // This is the non-blocking fast path: just check the shared slot.
+        if let Some(code) = *self.exit_code.lock().expect("exit_code mutex poisoned") {
+            return Some(code);
+        }
+
+        // Fallback: the output stream may not end promptly when the process
+        // is killed by an external signal (e.g. via `kill()`).  Poll the
+        // Docker API directly to check whether the exec has exited.
         let exec_id = self.exec_id.clone();
         let docker = self.docker.clone();
+        let exit_code_slot = self.exit_code.clone();
         self.runtime.block_on(async move {
-            match docker.inspect_exec(&exec_id).await {
-                Ok(info) => {
-                    if info.running == Some(true) {
-                        None
-                    } else {
-                        info.exit_code.map(|c| i32::try_from(c).unwrap_or(0))
-                    }
-                }
-                Err(_) => None,
+            let inspect = docker.inspect_exec(&exec_id).await.ok()?;
+
+            if inspect.running == Some(true) {
+                return None;
             }
+
+            // The process has exited.  Retrieve the exit code from the
+            // Docker API and cache it so subsequent `try_wait` calls don't
+            // need to poll again.
+            let code = inspect
+                .exit_code
+                .map_or(-1, |c| i32::try_from(c).unwrap_or(-1));
+            if let Ok(mut slot) = exit_code_slot.lock() {
+                *slot = Some(code);
+            }
+            Some(code)
         })
+    }
+}
+
+impl ContainerBackgroundHandle {
+    /// Deliver a Unix signal to the background process.
+    ///
+    /// Calls `inspect_exec` to discover the host-side PID of the exec's
+    /// process, then sends `signal` to that PID using `libc::kill`.  This
+    /// avoids any shell command inside the container.  Best-effort: errors
+    /// are silently ignored (e.g. the process may have already exited).
+    fn signal(&self, signal: libc::c_int) {
+        let exec_id = self.exec_id.clone();
+        let docker = self.docker.clone();
+        let _ = self.runtime.block_on(async move {
+            let inspect = docker.inspect_exec(&exec_id).await.ok()?;
+
+            // The Docker API exposes the host-side PID of the exec process
+            // via the `pid` field.  This is the process we need to signal.
+            // Use try_from to avoid silent truncation from i64 to i32.
+            let pid = i32::try_from(inspect.pid?).ok()?;
+            if pid > 0 {
+                // SAFETY: `pid` is a valid host PID returned by the Docker
+                // API for a process we own.  `libc::kill` with a valid PID
+                // and a valid signal is safe.
+                unsafe {
+                    libc::kill(pid, signal);
+                }
+            }
+            Some(())
+        });
     }
 }
 
@@ -756,6 +842,9 @@ mod tests {
         let mut handle = executor
             .spawn(&ScriptCode("sleep 60".to_string()))
             .expect("spawn to succeed");
+
+        // try_wait should return None while the process is running
+        assert_eq!(handle.try_wait(), None);
 
         handle.kill();
         while handle.try_wait().is_none() {
