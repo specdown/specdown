@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.9.0](https://github.com/specdown/specdown/compare/v1.8.0..v1.9.0) - 2026-07-12
+#### Documentation
+- regenerate docs pages with the new sidebar layout - ([76bfd12](https://github.com/specdown/specdown/commit/76bfd122aaf7fc269480c6b600a8370e68ffb8f9)) - Tom Oram
+#### Features
+- add --workspace-per-spec run argument - ([769d767](https://github.com/specdown/specdown/commit/769d76740c2862322f7727fa8d13e81db1590638)) - Tom Oram
+- add --follow-links flag to run command - ([b0621d8](https://github.com/specdown/specdown/commit/b0621d8a1be7413e06e5cab739bd402e96c6f862)) - Tom Oram
+
+- - -
+
 ## [v1.8.0](https://github.com/specdown/specdown/compare/v1.7.0..v1.8.0) - 2026-07-12
 #### Bug Fixes
 - use raw socket listener instead of http.server for port readiness spec - ([2c61e58](https://github.com/specdown/specdown/commit/2c61e58760b14a68b50f7136469171349ff982b9)) - Billie Thompson
