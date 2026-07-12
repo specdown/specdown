@@ -23,6 +23,9 @@ pub enum Error {
     #[cfg(feature = "container")]
     #[error("The container executor requires Docker, but it is not available: {message}")]
     DockerNotAvailable { message: String },
+    #[cfg(feature = "container")]
+    #[error("Failed to pull Docker image '{image}': {message}")]
+    ImagePullFailed { image: String, message: String },
     #[cfg(not(feature = "container"))]
     #[error("The container executor feature is not enabled. Rebuild specdown with `--features container`")]
     ContainerFeatureNotEnabled,

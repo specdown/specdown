@@ -33,6 +33,7 @@ use bollard::container::{
     Config, CreateContainerOptions, LogOutput, RemoveContainerOptions, StartContainerOptions,
 };
 use bollard::exec::{CreateExecOptions, StartExecOptions};
+use bollard::image::CreateImageOptions;
 use bollard::models::HostConfig;
 use bollard::Docker;
 use futures_util::StreamExt;
@@ -216,6 +217,47 @@ impl ContainerExecutor {
         format!("specdown-{hash}-{counter}")
     }
 
+    /// Ensure the configured Docker image is present on the host.
+    ///
+    /// If the image is already available locally (fast path via
+    /// `docker.inspect_image`), this returns immediately without any
+    /// network traffic. If the inspect fails — meaning the image is not
+    /// present — the image is pulled from the registry via the Docker
+    /// Engine API. Any error during the pull stream is surfaced as
+    /// [`Error::ImagePullFailed`].
+    ///
+    /// This is an associated function (taking `&Docker` rather than
+    /// `&self`) so that it can be invoked inside the `async move` block
+    /// in [`ensure_container`](Self::ensure_container) where `self` has
+    /// been moved out, and so it can be tested independently.
+    async fn ensure_image_pulled(docker: &Docker, image: &str) -> Result<(), Error> {
+        // Fast path: the image is already present locally.
+        if docker.inspect_image(image).await.is_ok() {
+            return Ok(());
+        }
+
+        // Image not found — pull it from the registry.
+        let mut pull_stream = docker.create_image(
+            Some(CreateImageOptions {
+                from_image: image,
+                ..Default::default()
+            }),
+            None,
+            None,
+        );
+
+        while let Some(result) = pull_stream.next().await {
+            if let Err(err) = result {
+                return Err(Error::ImagePullFailed {
+                    image: image.to_string(),
+                    message: err.to_string(),
+                });
+            }
+        }
+
+        Ok(())
+    }
+
     /// Return the ID of the persistent container, creating and starting it
     /// if it does not yet exist.
     ///
@@ -241,6 +283,12 @@ impl ContainerExecutor {
         let container_name = Self::unique_container_name(&self.label);
 
         let container_id = self.runtime.block_on(async move {
+            // Ensure the image exists locally before attempting to create
+            // the container. If the image is missing it is pulled
+            // automatically; pull failures are surfaced as
+            // Error::ImagePullFailed.
+            Self::ensure_image_pulled(&docker, &image).await?;
+
             let config = Config {
                 image: Some(image),
                 entrypoint: Some(vec!["sleep".to_string()]),
@@ -588,15 +636,14 @@ mod tests {
     use super::{ContainerExecutor, Executor, ScriptCode};
     use std::path::PathBuf;
 
-    // These tests require a running Docker daemon.
-    // They are ignored by default; run with `cargo test -- --ignored`.
+    // These tests require a running Docker daemon. They are skipped
+    // (via the docker_available guard) when no Docker socket is present.
 
     fn docker_available() -> bool {
         std::path::Path::new("/var/run/docker.sock").exists()
     }
 
     #[test]
-    #[ignore = "requires Docker daemon"]
     fn container_executor_executes_simple_command() {
         if !docker_available() {
             return;
@@ -621,7 +668,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires Docker daemon"]
     fn container_executor_captures_stderr() {
         if !docker_available() {
             return;
@@ -645,7 +691,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires Docker daemon"]
     fn container_executor_captures_exit_code() {
         if !docker_available() {
             return;
@@ -662,7 +707,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires Docker daemon"]
     fn container_executor_sets_environment_variables() {
         if !docker_available() {
             return;
@@ -686,7 +730,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires Docker daemon"]
     fn container_executor_persists_state_across_script_blocks() {
         if !docker_available() {
             return;
@@ -720,7 +763,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires Docker daemon"]
     fn container_executor_spawns_and_stops_background_container() {
         if !docker_available() {
             return;
@@ -770,5 +812,107 @@ mod tests {
             hash.starts_with(|c: char| c.is_ascii_hexdigit()),
             "hash should start with a hex digit"
         );
+    }
+
+    #[test]
+    fn image_pull_failed_error_includes_image_and_message() {
+        let error = super::Error::ImagePullFailed {
+            image: "myimage:latest".to_string(),
+            message: "network unreachable".to_string(),
+        };
+        let display = format!("{error}");
+        assert!(
+            display.contains("myimage:latest"),
+            "error should contain the image name: {}",
+            display
+        );
+        assert!(
+            display.contains("network unreachable"),
+            "error should contain the message: {}",
+            display
+        );
+    }
+
+    /// A small image used to exercise the pull path end-to-end without
+    /// pulling the larger `bash:5` image. `busybox` includes `sleep` so
+    /// it is compatible with the container's `sleep infinity` entrypoint.
+    const PULL_TEST_IMAGE: &str = "busybox:latest";
+
+    /// Remove a Docker image from the local cache so the pull path can
+    /// be exercised on the next run. Best-effort — logs but does not
+    /// propagate errors.
+    fn remove_image(image: &str) {
+        let _ = std::process::Command::new("docker")
+            .args(["rmi", "-f", image])
+            .output();
+    }
+
+    #[test]
+    fn container_executor_auto_pulls_missing_image() {
+        if !docker_available() {
+            return;
+        }
+
+        // Ensure the image is NOT present so the pull path is exercised.
+        remove_image(PULL_TEST_IMAGE);
+
+        // Creating the executor and running a command should trigger an
+        // automatic pull of the missing image. We use `busybox` which
+        // includes `sleep` (required by the container's entrypoint) and
+        // `true` (used as the test command).
+        let executor = ContainerExecutor::new::<PathBuf>(
+            PULL_TEST_IMAGE,
+            "/bin/sh -c",
+            &[],
+            &[],
+            &[],
+            &[],
+            "test-auto-pull",
+        )
+        .expect("executor to be created");
+
+        // `ensure_container` runs inside `execute`, which pulls the image.
+        let output = executor
+            .execute(&ScriptCode("true".to_string()))
+            .expect("execution should succeed after auto-pull");
+
+        assert_eq!(
+            output.exit_code,
+            Some(0),
+            "command should succeed after pull"
+        );
+
+        // Clean up the pulled image.
+        remove_image(PULL_TEST_IMAGE);
+    }
+
+    #[test]
+    fn container_executor_runs_when_image_already_present() {
+        if !docker_available() {
+            return;
+        }
+
+        // Ensure the default `bash:5` image is present (pull if needed).
+        let _ = std::process::Command::new("docker")
+            .args(["pull", "bash:5"])
+            .output();
+
+        let executor = ContainerExecutor::new::<PathBuf>(
+            "bash:5",
+            "bash -c",
+            &[],
+            &[],
+            &[],
+            &[],
+            "test-present",
+        )
+        .expect("executor to be created");
+
+        let output = executor
+            .execute(&ScriptCode("echo already_present".to_string()))
+            .expect("execution to succeed");
+
+        assert_eq!(output.stdout, "already_present\n");
+        assert_eq!(output.exit_code, Some(0));
     }
 }
