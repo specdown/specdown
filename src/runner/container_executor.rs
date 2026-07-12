@@ -589,24 +589,6 @@ impl BackgroundHandle for ContainerBackgroundHandle {
         });
     }
 
-    fn wait(&mut self) -> Option<i32> {
-        let exec_id = self.exec_id.clone();
-        let docker = self.docker.clone();
-        self.runtime.block_on(async move {
-            loop {
-                match docker.inspect_exec(&exec_id).await {
-                    Ok(info) => {
-                        if info.running != Some(true) {
-                            return info.exit_code.map(|c| i32::try_from(c).unwrap_or(0));
-                        }
-                    }
-                    Err(_) => return None,
-                }
-                tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-            }
-        })
-    }
-
     fn try_wait(&mut self) -> Option<i32> {
         let exec_id = self.exec_id.clone();
         let docker = self.docker.clone();
@@ -776,7 +758,9 @@ mod tests {
             .expect("spawn to succeed");
 
         handle.kill();
-        let _ = handle.wait();
+        while handle.try_wait().is_none() {
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
     }
 
     #[test]

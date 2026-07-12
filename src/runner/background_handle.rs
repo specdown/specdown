@@ -16,36 +16,192 @@ use std::fmt::Debug;
 ///   wrapping a Docker container managed via the socket API
 ///   (only available with the `container` feature)
 pub trait BackgroundHandle: Debug + Send {
-    /// Signal the process to terminate (SIGTERM equivalent).
-    fn kill(&mut self);
-
-    /// Wait for the process to exit and return its exit code.
+    /// Signal the process to terminate gracefully (SIGTERM equivalent).
     ///
-    /// Returns `None` if the process was killed by a signal and no exit code
-    /// is available.
-    fn wait(&mut self) -> Option<i32>;
+    /// This is the *first* signal sent during graceful shutdown. The runner
+    /// waits a short grace period for the process to exit; if it is still
+    /// alive after that, [`kill`](Self::kill) (SIGKILL) is sent as a last
+    /// resort.
+    ///
+    /// The default implementation delegates to [`kill`](Self::kill) for
+    /// backwards compatibility with executors that do not distinguish
+    /// between graceful and forceful termination.
+    fn terminate(&mut self) {
+        self.kill();
+    }
+
+    /// Forcefully kill the process (SIGKILL equivalent).
+    ///
+    /// This is the *escalation* signal used when [`terminate`](Self::terminate)
+    /// did not stop the process within the grace period.
+    fn kill(&mut self);
 
     /// Check if the process has already exited without blocking.
     ///
     /// Returns `Some(exit_code)` if the process has exited, or `None` if it
     /// is still running.
     fn try_wait(&mut self) -> Option<i32>;
+
+    /// The OS process identifier, for signal delivery.
+    ///
+    /// Returns `None` on executors that do not expose a PID (e.g. the
+    /// container executor tracks a PID inside the container instead). The
+    /// shell [`BackgroundHandle`] impl for [`std::process::Child`] returns
+    /// `Some(child.id())`.
+    ///
+    /// Currently only used by the Unix `terminate` implementation to deliver
+    /// SIGTERM; on platforms that do not use it the method is still part of
+    /// the trait surface for future executors.
+    #[allow(dead_code)]
+    fn pid(&self) -> Option<i32> {
+        None
+    }
 }
 
 impl BackgroundHandle for std::process::Child {
-    fn kill(&mut self) {
-        let _ = std::process::Child::kill(self);
+    fn terminate(&mut self) {
+        // Send SIGTERM to the entire process group so that grandchildren
+        // (e.g. python3 spawned by `bash -c`) are also terminated gracefully.
+        // On Windows there is no SIGTERM equivalent, so fall back to
+        // `TerminateProcess`.
+        #[cfg(not(windows))]
+        {
+            if let Some(pid) = self.pid() {
+                // SAFETY: `pid` is the child's real OS PID from `Child::id()`.
+                // Since we spawned with `process_group(0)`, the child's PID
+                // equals its PGID, so `killpg(pid, SIGTERM)` targets the
+                // entire process group. `killpg` with a valid PGID and a
+                // valid signal is safe.
+                unsafe {
+                    libc::killpg(pid, libc::SIGTERM);
+                }
+            }
+        }
+        #[cfg(windows)]
+        {
+            // On Windows there is no SIGTERM equivalent. TerminateProcess is
+            // force-kill, so the grace-period poll in graceful_stop() is a
+            // no-op — the process is already dead after this call. The
+            // graceful_stop() function skips the grace-period loop on Windows
+            // for this reason.
+            let _ = std::process::Child::kill(self);
+        }
     }
 
-    fn wait(&mut self) -> Option<i32> {
-        std::process::Child::wait(self)
-            .ok()
-            .and_then(|status| status.code())
+    fn kill(&mut self) {
+        // Kill the entire process group first to reap grandchildren, then
+        // kill the direct child as a fallback.
+        #[cfg(not(windows))]
+        {
+            if let Some(pid) = self.pid() {
+                // SAFETY: same rationale as `terminate` above.
+                unsafe {
+                    libc::killpg(pid, libc::SIGKILL);
+                }
+            }
+        }
+        let _ = std::process::Child::kill(self);
     }
 
     fn try_wait(&mut self) -> Option<i32> {
         std::process::Child::try_wait(self)
             .ok()
-            .and_then(|status| status?.code())
+            .flatten()
+            .map(|status| status.code().unwrap_or(-1))
+    }
+
+    fn pid(&self) -> Option<i32> {
+        // `Child::id()` returns `u32`; the trait returns `i32`. PIDs are
+        // always positive and fit in `i32` on all real platforms.
+        #[allow(clippy::cast_possible_wrap)]
+        Some(self.id() as i32)
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::uninlined_format_args)]
+mod tests {
+    use super::BackgroundHandle;
+    use std::process::{Command, Stdio};
+    use std::thread;
+    use std::time::Duration;
+
+    /// A force-killed process must report an exit code, not `None`.
+    ///
+    /// On Unix, `Child::kill()` sends SIGKILL, so `ExitStatus::code()` is
+    /// `None` and `try_wait()` returns the `Some(-1)` sentinel so callers
+    /// treating `None` as "still running" do not stall.
+    ///
+    /// On Windows, `Child::kill()` calls `TerminateProcess` with exit code 1,
+    /// so `ExitStatus::code()` is `Some(1)` and `try_wait()` returns
+    /// `Some(1)` directly. There is no "signal death" concept on Windows.
+    #[test]
+    fn try_wait_returns_exit_code_on_signal_death() {
+        let mut child = Command::new("sleep")
+            .arg("30")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .expect("failed to spawn sleep");
+
+        // SIGKILL (Unix) / TerminateProcess (Windows)
+        child.kill().expect("failed to kill child");
+
+        // Give the kernel a moment to deliver the signal and mark the exit.
+        thread::sleep(Duration::from_millis(200));
+
+        let result = BackgroundHandle::try_wait(&mut child);
+
+        // On Unix, signal death => ExitStatus::code() == None => sentinel -1.
+        // On Windows, TerminateProcess => exit code 1.
+        let expected = if cfg!(windows) { 1 } else { -1 };
+        assert_eq!(
+            result,
+            Some(expected),
+            "try_wait() should return Some({expected}) for force-killed process, got {result:?}"
+        );
+    }
+
+    /// A process that exits cleanly with a non-zero code must report that code.
+    #[test]
+    fn try_wait_returns_exit_code_on_clean_exit() {
+        let mut child = Command::new("sh")
+            .arg("-c")
+            .arg("exit 42")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .expect("failed to spawn sh");
+
+        // Wait for it to exit.
+        thread::sleep(Duration::from_millis(200));
+
+        let result = BackgroundHandle::try_wait(&mut child);
+        assert_eq!(
+            result,
+            Some(42),
+            "try_wait() should return Some(42) for clean exit 42, got {result:?}"
+        );
+    }
+
+    /// A process that is still running must return `None`.
+    #[test]
+    fn try_wait_returns_none_while_running() {
+        let mut child = Command::new("sleep")
+            .arg("30")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .expect("failed to spawn sleep");
+
+        let result = BackgroundHandle::try_wait(&mut child);
+        assert_eq!(
+            result, None,
+            "try_wait() should return None while the process is still running, got {result:?}"
+        );
+
+        // Clean up so the test doesn't leave a sleeping process.
+        child.kill().expect("failed to kill child");
+        let _ = child.wait();
     }
 }

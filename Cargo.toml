@@ -45,6 +45,7 @@ futures-util = { version = "0.3", optional = true }
 serde = { version = "1.0.228", features = ["derive"] }
 toml = "1.1.2"
 merge = "0.2.0"
+libc = "0.2"
 [dev-dependencies]
 assert_cmd = "2.2.2"
 indoc = "2.0.5"

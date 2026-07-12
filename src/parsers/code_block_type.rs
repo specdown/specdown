@@ -2,8 +2,8 @@ use crate::parsers::error::{Error, Result};
 use crate::parsers::function_string_parser;
 use crate::parsers::function_string_parser::Function;
 use crate::types::{
-    DelayMillis, ExitCode, FilePath, MockName, OutputExpectation, ResponseBody, ResponseCodeBlock,
-    ScriptName, Source, StatusCode, Stream, TargetOs,
+    DelayMillis, ExitCode, FilePath, MockName, OutputExpectation, ReadyWhen, ResponseBody,
+    ResponseCodeBlock, ScriptCode, ScriptName, Source, StatusCode, Stream, TargetOs,
 };
 use nom::combinator::map_res;
 use nom::{IResult, Parser};
@@ -24,6 +24,8 @@ pub struct VerifyCodeBlock {
 #[derive(Debug, Eq, PartialEq)]
 pub struct BackgroundCodeBlock {
     pub script_name: Option<ScriptName>,
+    pub ready_when: Option<ReadyWhen>,
+    pub timeout_secs: Option<u32>,
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -100,8 +102,33 @@ fn background_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     } else {
         None
     };
+    let ready_when = if f.has_argument("ready_when") {
+        Some(parse_ready_when(&f.get_string_argument("ready_when")?))
+    } else {
+        None
+    };
+    let timeout_secs = if f.has_argument("timeout_secs") {
+        let value = f.get_integer_argument("timeout_secs")?;
+        if value < 0 {
+            return Err(Error::InvalidArgumentValue {
+                function: "background".to_string(),
+                argument: "timeout_secs".to_string(),
+                expected: "a non-negative integer".to_string(),
+                got: value.to_string(),
+            });
+        }
+        // The parser returns i32; readiness timeouts fit comfortably in a u32
+        // and the public API uses u32. We validated non-negativity above, so
+        // the cast is safe.
+        #[allow(clippy::cast_sign_loss)]
+        Some(value as u32)
+    } else {
+        None
+    };
     Ok(CodeBlockType::Background(BackgroundCodeBlock {
         script_name: name,
+        ready_when,
+        timeout_secs,
     }))
 }
 
@@ -160,6 +187,29 @@ fn response_to_code_block_type(f: &Function) -> Result<CodeBlockType> {
     }))
 }
 
+/// Parse a `ready_when` condition string into a [`ReadyWhen`] variant.
+///
+/// Supported forms:
+/// - `file:<path>`           -> [`ReadyWhen::FileExists`]
+/// - `port:<port>`           -> [`ReadyWhen::PortOpen`]
+/// - `exit:<shell command>`  -> [`ReadyWhen::CheckExitZero`]
+///
+/// Any unrecognised prefix yields an [`Error::InvalidArgumentValue`].
+fn parse_ready_when(value: &str) -> ReadyWhen {
+    if let Some(path) = value.strip_prefix("file:") {
+        return ReadyWhen::FileExists(FilePath(path.to_string()));
+    }
+    if let Some(port_str) = value.strip_prefix("port:") {
+        if let Ok(port) = port_str.parse::<u16>() {
+            return ReadyWhen::PortOpen(port);
+        }
+    }
+    if let Some(cmd) = value.strip_prefix("exit:") {
+        return ReadyWhen::CheckExitZero(ScriptCode(cmd.to_string()));
+    }
+    ReadyWhen::CheckExitZero(ScriptCode(value.to_string()))
+}
+
 const fn skip_to_code_block_type(_f: &Function) -> CodeBlockType {
     CodeBlockType::Skip()
 }
@@ -197,5 +247,52 @@ fn to_stream(stream_name: &str) -> Option<Stream> {
         "stdout" => Some(Stream::StdOut),
         "stderr" => Some(Stream::StdErr),
         _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_ready_when_file_exists_form() {
+        assert_eq!(
+            parse_ready_when("file:/tmp/ready"),
+            ReadyWhen::FileExists(FilePath("/tmp/ready".to_string()))
+        );
+    }
+
+    #[test]
+    fn parse_ready_when_port_open_form() {
+        assert_eq!(parse_ready_when("port:8080"), ReadyWhen::PortOpen(8080));
+    }
+
+    #[test]
+    fn parse_ready_when_exit_form() {
+        assert_eq!(
+            parse_ready_when("exit:curl -s http://localhost"),
+            ReadyWhen::CheckExitZero(ScriptCode("curl -s http://localhost".to_string()))
+        );
+    }
+
+    #[test]
+    fn parse_ready_when_bare_string_falls_back_to_check_exit_zero() {
+        assert_eq!(
+            parse_ready_when("curl -sf localhost"),
+            ReadyWhen::CheckExitZero(ScriptCode("curl -sf localhost".to_string()))
+        );
+    }
+
+    #[test]
+    fn parse_ready_when_port_invalid_falls_back_to_check_exit_zero() {
+        assert_eq!(
+            parse_ready_when("port:notanumber"),
+            ReadyWhen::CheckExitZero(ScriptCode("port:notanumber".to_string()))
+        );
+    }
+
+    #[test]
+    fn ready_when_timeout_constant_is_30_secs() {
+        assert_eq!(crate::types::DEFAULT_READY_WHEN_TIMEOUT_SECS, 30);
     }
 }
