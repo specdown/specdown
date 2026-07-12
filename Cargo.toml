@@ -39,7 +39,7 @@ rayon = "1.10"
 
 # Container executor support (Docker socket API) — optional, behind the
 # `container` feature so the default build has no Docker dependency.
-bollard = { version = "0.18", default-features = false, features = ["http", "pipe"], optional = true }
+bollard = { version = "0.21", default-features = false, features = ["http", "pipe"], optional = true }
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "process", "io-util", "macros"], optional = true }
 futures-util = { version = "0.3", optional = true }
 serde = { version = "1.0.228", features = ["derive"] }
