@@ -22,6 +22,11 @@ pub fn parse(markdown: &str) -> Result<Vec<Action>> {
         .map(|actions| actions.into_iter().flatten().collect())
 }
 
+/// Finds the URLs of every Markdown link in `markdown`, in document order.
+pub fn find_links(markdown: &str) -> Result<Vec<String>> {
+    self::markdown::find_links(markdown).map_err(Into::into)
+}
+
 fn to_action(element: &markdown::Element) -> Result<Option<Action>> {
     match element {
         markdown::Element::FencedCodeBlock { info, literal } => {

@@ -136,4 +136,26 @@ pub struct RunSettings {
     #[clap(flatten)]
     #[serde(rename = "executor")]
     pub executor_config: ExecutorConfig,
+
+    /// Follow local Markdown links found in spec files and run every linked
+    /// file too, recursively. Files are deduplicated by canonical path, so
+    /// link cycles are handled safely and each file only runs once.
+    ///
+    /// This can also be enabled via a `specdown.toml` config file
+    /// (`follow_links = true`) in the current directory; either the flag or
+    /// the config file being set enables the behaviour.
+    #[clap(long)]
+    #[merge(strategy = merge::bool::overwrite_false)]
+    pub follow_links: bool,
+
+    /// Create a new temporary workspace directory for every spec file that
+    /// is run, instead of sharing one temporary workspace across the whole
+    /// invocation. `workspace_init_command` (if set) is re-run for each new
+    /// per-spec workspace, before that spec file's actions run.
+    ///
+    /// Requires `--temporary-workspace-dir` (or `temporary_workspace_dir =
+    /// true` in `specdown.toml`) to also be set; specdown errors otherwise.
+    #[clap(long)]
+    #[merge(strategy = merge::bool::overwrite_false)]
+    pub workspace_per_spec: bool,
 }

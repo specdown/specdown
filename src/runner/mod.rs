@@ -6,6 +6,8 @@ pub use run_event::RunEvent;
 pub use runnable_action::to_runnable;
 pub use state::State;
 
+use std::path::Path;
+
 use crate::results::{ActionResult, ResponseResult, ResponseStatus};
 use crate::types::Action;
 
@@ -25,14 +27,16 @@ mod verify;
 
 pub struct Runner<'a> {
     executor: &'a dyn Executor,
+    working_dir: &'a Path,
     state: &'a mut State,
     background_processes: Vec<background::BackgroundProcess>,
 }
 
 impl<'a> Runner<'a> {
-    pub fn create(executor: &'a dyn Executor, state: &'a mut State) -> Self {
+    pub fn create(executor: &'a dyn Executor, working_dir: &'a Path, state: &'a mut State) -> Self {
         Runner {
             executor,
+            working_dir,
             state,
             background_processes: Vec::new(),
         }
@@ -56,14 +60,16 @@ impl<'a> Runner<'a> {
 
     fn run_action(&mut self, action: &Action) -> RunEvent {
         match action {
-            Action::Background(bg_action) => match background::start(bg_action, self.executor) {
-                Ok((result, bg_process)) => {
-                    self.state.add_result(&result);
-                    self.background_processes.push(bg_process);
-                    RunEvent::TestCompleted(result)
+            Action::Background(bg_action) => {
+                match background::start(bg_action, self.executor, self.working_dir) {
+                    Ok((result, bg_process)) => {
+                        self.state.add_result(&result);
+                        self.background_processes.push(bg_process);
+                        RunEvent::TestCompleted(result)
+                    }
+                    Err(error) => RunEvent::ErrorOccurred(error),
                 }
-                Err(error) => RunEvent::ErrorOccurred(error),
-            },
+            }
             Action::Response(resp_action) => {
                 // Response actions require a mock server which is not yet
                 // implemented. Return an unpaired result so the error is
@@ -76,7 +82,7 @@ impl<'a> Runner<'a> {
                 RunEvent::TestCompleted(result)
             }
             _ => to_runnable(action)
-                .run(self.state, self.executor)
+                .run(self.state, self.executor, self.working_dir)
                 .map(|result| {
                     self.state.add_result(&result);
                     RunEvent::TestCompleted(result)
@@ -133,7 +139,7 @@ mod tests {
     fn run_returns_events_for_each_action() {
         let mock = MockExecutor::with_success(Some(0), "hello", "");
         let mut state = State::new();
-        let mut runner = Runner::create(&mock, &mut state);
+        let mut runner = Runner::create(&mock, Path::new("."), &mut state);
 
         let actions = vec![
             Action::Script(ScriptAction {
@@ -191,7 +197,7 @@ mod tests {
             message: "not found".to_string(),
         });
         let mut state = State::new();
-        let mut runner = Runner::create(&mock, &mut state);
+        let mut runner = Runner::create(&mock, Path::new("."), &mut state);
 
         let actions = vec![Action::Script(ScriptAction {
             script_name: Some(ScriptName("fail_script".to_string())),
@@ -224,7 +230,7 @@ mod tests {
     fn run_returns_empty_vec_for_empty_actions() {
         let mock = MockExecutor::with_success(Some(0), "", "");
         let mut state = State::new();
-        let mut runner = Runner::create(&mock, &mut state);
+        let mut runner = Runner::create(&mock, Path::new("."), &mut state);
 
         let events = runner.run(&[]);
         assert!(
@@ -237,7 +243,7 @@ mod tests {
     fn run_updates_state_with_results() {
         let mock = MockExecutor::with_success(Some(0), "output", "");
         let mut state = State::new();
-        let mut runner = Runner::create(&mock, &mut state);
+        let mut runner = Runner::create(&mock, Path::new("."), &mut state);
 
         let actions = vec![Action::Script(ScriptAction {
             script_name: Some(ScriptName("state_test".to_string())),

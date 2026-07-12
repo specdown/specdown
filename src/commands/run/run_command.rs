@@ -7,13 +7,33 @@ use crate::parsers;
 use crate::results::Printer;
 use crate::runner::{Error, Executor, RunEvent, Runner, State};
 use crate::types::ScriptCode;
+use crate::workspace::{TemporaryDirectory, Workspace};
 
+use super::executor_factory::ExecutorFactory;
 use super::file_reader::FileReader;
+use super::specdown_env;
+
+/// How workspaces and executors are provided to `RunCommand`.
+pub enum RunMode {
+    /// One workspace and one executor, shared by every spec file — the
+    /// behaviour used whenever `--workspace-per-spec` is not set.
+    SharedWorkspace {
+        executor: Box<dyn Executor>,
+        working_dir: PathBuf,
+    },
+    /// A fresh temporary workspace (and fresh executor instance) is created
+    /// for every spec file; `workspace_init_command` is re-run each time.
+    /// Used when `--workspace-per-spec` is set.
+    PerSpecWorkspace {
+        factory: Box<dyn ExecutorFactory>,
+        start_dir: PathBuf,
+        working_dir_suffix: Option<PathBuf>,
+    },
+}
 
 pub struct RunCommand {
     pub spec_files: Vec<PathBuf>,
-    pub executor: Box<dyn Executor>,
-    pub working_dir: PathBuf,
+    pub run_mode: RunMode,
     pub workspace_init_command: Option<String>,
     pub file_reader: FileReader,
     /// The number of parallel jobs to use when running specs.
@@ -32,21 +52,38 @@ impl RunCommand {
     /// introduces each spec file's results. The events are also returned in
     /// original file order for exit-code computation.
     pub fn execute_with_printer(&self, printer: &Mutex<Box<dyn Printer>>) -> Vec<RunEvent> {
-        self.change_to_working_directory();
+        match &self.run_mode {
+            RunMode::SharedWorkspace {
+                executor,
+                working_dir,
+            } => {
+                self.initialise_workspace(executor.as_ref());
 
-        self.initialise_workspace();
-
-        if self.jobs > 1 {
-            self.execute_parallel_with_printer(printer)
-        } else {
-            self.execute_sequential_with_printer(printer)
+                if self.jobs > 1 {
+                    self.execute_parallel_shared(printer, executor.as_ref(), working_dir)
+                } else {
+                    self.execute_sequential_shared(printer, executor.as_ref(), working_dir)
+                }
+            }
+            RunMode::PerSpecWorkspace { .. } => {
+                if self.jobs > 1 {
+                    self.execute_parallel_per_spec(printer)
+                } else {
+                    self.execute_sequential_per_spec(printer)
+                }
+            }
         }
     }
 
-    fn execute_sequential_with_printer(&self, printer: &Mutex<Box<dyn Printer>>) -> Vec<RunEvent> {
+    fn execute_sequential_shared(
+        &self,
+        printer: &Mutex<Box<dyn Printer>>,
+        executor: &dyn Executor,
+        working_dir: &Path,
+    ) -> Vec<RunEvent> {
         let mut all_events = Vec::new();
         for spec_file in &self.spec_files {
-            let events = self.run_spec_file(spec_file);
+            let events = self.run_spec_file_with_executor(spec_file, executor, working_dir);
             let mut guard = printer.lock().expect("printer mutex poisoned");
             for event in &events {
                 guard.print(event);
@@ -57,7 +94,12 @@ impl RunCommand {
         all_events
     }
 
-    fn execute_parallel_with_printer(&self, printer: &Mutex<Box<dyn Printer>>) -> Vec<RunEvent> {
+    fn execute_parallel_shared(
+        &self,
+        printer: &Mutex<Box<dyn Printer>>,
+        executor: &dyn Executor,
+        working_dir: &Path,
+    ) -> Vec<RunEvent> {
         let pool = rayon::ThreadPoolBuilder::new()
             .num_threads(self.jobs)
             .build()
@@ -72,10 +114,10 @@ impl RunCommand {
                     // their own isolated container/instance. The spec file
                     // path is passed as a label so the container executor
                     // can incorporate a file-hash into the container name.
-                    let executor = self
-                        .executor
-                        .clone_box(spec_file.to_str().unwrap_or("unknown"));
-                    let events = self.run_spec_file_with_executor(spec_file, &*executor);
+                    let cloned_executor =
+                        executor.clone_box(spec_file.to_str().unwrap_or("unknown"));
+                    let events =
+                        self.run_spec_file_with_executor(spec_file, &*cloned_executor, working_dir);
                     // Lock the printer so output from this spec file is printed
                     // atomically and never interleaves with output from another.
                     let mut guard = printer.lock().expect("printer mutex poisoned");
@@ -92,19 +134,105 @@ impl RunCommand {
         results.into_iter().flatten().collect()
     }
 
-    fn initialise_workspace(&self) {
+    fn initialise_workspace(&self, executor: &dyn Executor) {
         if let Some(command) = self.workspace_init_command.clone() {
-            self.executor
+            executor
                 .execute(&ScriptCode(command))
                 .expect("Failed to initialise workspace");
         }
     }
 
-    fn run_spec_file(&self, spec_file: &Path) -> Vec<RunEvent> {
-        self.run_spec_file_with_executor(spec_file, &*self.executor)
+    fn execute_sequential_per_spec(&self, printer: &Mutex<Box<dyn Printer>>) -> Vec<RunEvent> {
+        let mut all_events = Vec::new();
+        for spec_file in &self.spec_files {
+            let events = self.run_spec_file_per_spec(spec_file);
+            let mut guard = printer.lock().expect("printer mutex poisoned");
+            for event in &events {
+                guard.print(event);
+            }
+            drop(guard);
+            all_events.extend(events);
+        }
+        all_events
     }
 
-    /// Run a single spec file using the given executor.
+    fn execute_parallel_per_spec(&self, printer: &Mutex<Box<dyn Printer>>) -> Vec<RunEvent> {
+        let pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(self.jobs)
+            .build()
+            .expect("Failed to create thread pool for parallel execution");
+
+        let results: Vec<Vec<RunEvent>> = pool.install(|| {
+            self.spec_files
+                .par_iter()
+                .map(|spec_file| {
+                    // Each spec file builds its own fresh workspace and
+                    // executor here (see `build_spec_workspace`) — nothing
+                    // is shared across threads, so this is safe under real
+                    // parallel execution.
+                    let events = self.run_spec_file_per_spec(spec_file);
+                    let mut guard = printer.lock().expect("printer mutex poisoned");
+                    for event in &events {
+                        guard.print(event);
+                    }
+                    events
+                })
+                .collect()
+        });
+
+        // `par_iter().collect()` preserves original order, so flattening
+        // yields events in the original spec-file order.
+        results.into_iter().flatten().collect()
+    }
+
+    /// Creates a fresh temporary workspace and a fresh executor for a single
+    /// spec file, in `RunMode::PerSpecWorkspace` mode.
+    fn build_spec_workspace(
+        &self,
+        spec_file: &Path,
+    ) -> Result<(Box<dyn Executor>, PathBuf), Error> {
+        let RunMode::PerSpecWorkspace {
+            factory,
+            start_dir,
+            working_dir_suffix,
+        } = &self.run_mode
+        else {
+            unreachable!("build_spec_workspace requires RunMode::PerSpecWorkspace")
+        };
+
+        let mut workspace = TemporaryDirectory::create();
+        workspace.initialize();
+
+        let working_dir = working_dir_suffix.clone().map_or_else(
+            || workspace.dir().clone(),
+            |dir| workspace.dir().clone().join(dir),
+        );
+
+        let extra_env = specdown_env::build(start_dir, workspace.dir(), &working_dir);
+        let label = spec_file.to_str().unwrap_or("unknown");
+        let executor = factory.build(label, &extra_env, &working_dir)?;
+
+        Ok((executor, working_dir))
+    }
+
+    /// Runs a single spec file in its own fresh workspace: builds the
+    /// workspace and executor, re-runs `workspace_init_command` in it, then
+    /// runs the spec file's own actions.
+    fn run_spec_file_per_spec(&self, spec_file: &Path) -> Vec<RunEvent> {
+        match self.build_spec_workspace(spec_file) {
+            Ok((executor, working_dir)) => {
+                self.initialise_workspace(executor.as_ref());
+                self.run_spec_file_with_executor(spec_file, executor.as_ref(), &working_dir)
+            }
+            Err(err) => vec![
+                RunEvent::SpecFileStarted(spec_file.to_path_buf()),
+                RunEvent::ErrorOccurred(err),
+                RunEvent::SpecFileCompleted { success: false },
+            ],
+        }
+    }
+
+    /// Run a single spec file using the given executor and working directory.
     ///
     /// This is used by parallel execution to pass a cloned executor
     /// (via `Executor::clone_box`) so each spec file gets its own
@@ -113,9 +241,10 @@ impl RunCommand {
         &self,
         spec_file: &Path,
         executor: &dyn Executor,
+        working_dir: &Path,
     ) -> Vec<RunEvent> {
         let mut state = State::new();
-        let mut runner = Runner::create(executor, &mut state);
+        let mut runner = Runner::create(executor, working_dir, &mut state);
 
         let start_events = vec![RunEvent::SpecFileStarted(spec_file.to_path_buf())];
         let contents = self.file_reader.read_file(spec_file);
@@ -133,10 +262,6 @@ impl RunCommand {
             .chain(run_events)
             .chain(end_events)
             .collect()
-    }
-
-    fn change_to_working_directory(&self) {
-        std::env::set_current_dir(&self.working_dir).expect("Failed to set running directory");
     }
 }
 
@@ -197,11 +322,6 @@ mod tests {
         Mutex::new(Box::new(NullPrinter))
     }
 
-    /// A mutex to serialize tests that change the process-wide CWD
-    /// (`RunCommand::execute_with_printer()` calls `std::env::set_current_dir`).
-    /// Without this, parallel test execution causes data races on the CWD.
-    static CWD_MUTEX: Mutex<()> = Mutex::new(());
-
     /// A mock executor that always succeeds.
     struct CountingExecutor {
         #[allow(dead_code)]
@@ -256,22 +376,14 @@ mod tests {
     ) -> RunCommand {
         RunCommand {
             spec_files,
-            executor,
-            working_dir,
+            run_mode: RunMode::SharedWorkspace {
+                executor,
+                working_dir,
+            },
             workspace_init_command: None,
             file_reader,
             jobs,
         }
-    }
-
-    /// Run a closure while holding the CWD mutex, saving and restoring the
-    /// process-wide working directory around it.
-    fn with_saved_cwd<F: FnOnce() -> Vec<RunEvent>>(f: F) -> Vec<RunEvent> {
-        let _guard = CWD_MUTEX.lock().expect("CWD mutex poisoned");
-        let original_dir = std::env::current_dir().expect("Failed to get current directory");
-        let events = f();
-        std::env::set_current_dir(&original_dir).expect("Failed to restore current directory");
-        events
     }
 
     #[test]
@@ -290,7 +402,7 @@ mod tests {
             1,
         );
         let printer = null_printer();
-        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
+        let events = cmd.execute_with_printer(&printer);
 
         // Each spec file produces: SpecFileStarted, TestCompleted(s), SpecFileCompleted
         assert!(
@@ -333,7 +445,7 @@ mod tests {
             4,
         );
         let printer = null_printer();
-        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
+        let events = cmd.execute_with_printer(&printer);
 
         // Collect the SpecFileStarted events in order
         let started_paths: Vec<_> = events
@@ -366,7 +478,7 @@ mod tests {
             2,
         );
         let printer = null_printer();
-        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
+        let events = cmd.execute_with_printer(&printer);
 
         let exit_code = exit_code::from_events(&events);
         assert_ne!(
@@ -389,7 +501,7 @@ mod tests {
             4,
         );
         let printer = null_printer();
-        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
+        let events = cmd.execute_with_printer(&printer);
 
         assert!(
             events
@@ -417,7 +529,7 @@ mod tests {
             4,
         );
         let printer = null_printer();
-        let events = with_saved_cwd(|| cmd.execute_with_printer(&printer));
+        let events = cmd.execute_with_printer(&printer);
         assert!(events.is_empty(), "No spec files should produce no events");
     }
 
@@ -438,7 +550,7 @@ mod tests {
         );
         let (printer, output) = CapturingPrinter::new_pair();
         let printer_mutex = Mutex::new(Box::new(printer) as Box<dyn Printer>);
-        let _events = with_saved_cwd(|| cmd.execute_with_printer(&printer_mutex));
+        let _events = cmd.execute_with_printer(&printer_mutex);
 
         let captured = output.lock().expect("capture mutex poisoned");
         let captured_str = captured.as_str();
@@ -494,7 +606,7 @@ mod tests {
         );
         let (printer, output) = CapturingPrinter::new_pair();
         let printer_mutex = Mutex::new(Box::new(printer) as Box<dyn Printer>);
-        let _events = with_saved_cwd(|| cmd.execute_with_printer(&printer_mutex));
+        let _events = cmd.execute_with_printer(&printer_mutex);
 
         let captured = output.lock().expect("capture mutex poisoned");
 
@@ -527,7 +639,7 @@ mod tests {
         );
         let (printer, output) = CapturingPrinter::new_pair();
         let printer_mutex = Mutex::new(Box::new(printer) as Box<dyn Printer>);
-        let _events = with_saved_cwd(|| cmd.execute_with_printer(&printer_mutex));
+        let _events = cmd.execute_with_printer(&printer_mutex);
 
         let captured = output.lock().expect("capture mutex poisoned");
 
@@ -541,6 +653,280 @@ mod tests {
         assert!(
             seq1_pos < seq2_pos,
             "Sequential output should print seq1 before seq2"
+        );
+    }
+
+    // ------------------------------------------------------------------
+    // `--workspace-per-spec` (`RunMode::PerSpecWorkspace`) tests
+    // ------------------------------------------------------------------
+
+    use super::super::executor_factory::ExecutorFactory;
+    use std::collections::HashSet;
+
+    type RecordedCall = (String, Vec<(String, String)>, PathBuf);
+
+    /// An executor whose `execute()` calls all increment a *shared* counter,
+    /// so tests can assert how many times `execute()` was called across
+    /// every executor instance a factory builds (each spec file in
+    /// `PerSpecWorkspace` mode gets its own executor instance).
+    struct SharedCountingExecutor {
+        count: Arc<AtomicUsize>,
+    }
+
+    impl Executor for SharedCountingExecutor {
+        fn execute(&self, _script: &ScriptCode) -> Result<Output, Error> {
+            self.count.fetch_add(1, Ordering::SeqCst);
+            Ok(Output {
+                stdout: String::new(),
+                stderr: String::new(),
+                exit_code: Some(0),
+            })
+        }
+    }
+
+    /// A mock `ExecutorFactory` that records every `build()` call (label,
+    /// extra env, working dir) and hands back a `SharedCountingExecutor`
+    /// wired to a shared call counter. The `calls` and `execute_count`
+    /// handles are `Arc`s shared with the factory, so tests can inspect them
+    /// after `RunCommand::execute_with_printer` runs without needing to
+    /// downcast the `Box<dyn ExecutorFactory>` trait object stored on
+    /// `RunCommand`.
+    struct RecordingExecutorFactory {
+        calls: Arc<Mutex<Vec<RecordedCall>>>,
+        execute_count: Arc<AtomicUsize>,
+    }
+
+    impl RecordingExecutorFactory {
+        fn new() -> (Self, Arc<Mutex<Vec<RecordedCall>>>, Arc<AtomicUsize>) {
+            let calls = Arc::new(Mutex::new(Vec::new()));
+            let execute_count = Arc::new(AtomicUsize::new(0));
+            let factory = Self {
+                calls: Arc::clone(&calls),
+                execute_count: Arc::clone(&execute_count),
+            };
+            (factory, calls, execute_count)
+        }
+    }
+
+    impl ExecutorFactory for RecordingExecutorFactory {
+        fn build(
+            &self,
+            label: &str,
+            extra_env: &[(String, String)],
+            working_dir: &Path,
+        ) -> Result<Box<dyn Executor>, Error> {
+            self.calls.lock().expect("mutex poisoned").push((
+                label.to_string(),
+                extra_env.to_vec(),
+                working_dir.to_path_buf(),
+            ));
+            Ok(Box::new(SharedCountingExecutor {
+                count: Arc::clone(&self.execute_count),
+            }))
+        }
+    }
+
+    fn make_per_spec_run_command(
+        spec_files: Vec<PathBuf>,
+        factory: Box<dyn ExecutorFactory>,
+        start_dir: PathBuf,
+        file_reader: FileReader,
+        jobs: usize,
+        workspace_init_command: Option<String>,
+    ) -> RunCommand {
+        RunCommand {
+            spec_files,
+            run_mode: RunMode::PerSpecWorkspace {
+                factory,
+                start_dir,
+                working_dir_suffix: None,
+            },
+            workspace_init_command,
+            file_reader,
+            jobs,
+        }
+    }
+
+    #[test]
+    fn per_spec_sequential_builds_a_fresh_workspace_for_every_spec_file() {
+        let dir = tempdir().expect("Failed to create temp dir");
+        let spec1 = write_spec_file(dir.path(), "spec1.md", SIMPLE_SPEC);
+        let spec2 = write_spec_file(dir.path(), "spec2.md", SIMPLE_SPEC);
+        let file_reader = FileReader::new(dir.path().to_path_buf());
+        let (factory, calls, _execute_count) = RecordingExecutorFactory::new();
+
+        let cmd = make_per_spec_run_command(
+            vec![spec1, spec2],
+            Box::new(factory),
+            dir.path().to_path_buf(),
+            file_reader,
+            1,
+            None,
+        );
+        let printer = null_printer();
+        let _events = cmd.execute_with_printer(&printer);
+
+        let recorded = calls.lock().expect("mutex poisoned");
+        assert_eq!(
+            recorded.len(),
+            2,
+            "factory.build should be called once per spec file"
+        );
+        assert!(recorded[0].0.ends_with("spec1.md"));
+        assert!(recorded[1].0.ends_with("spec2.md"));
+        assert_ne!(
+            recorded[0].2, recorded[1].2,
+            "each spec file should get a distinct working directory"
+        );
+    }
+
+    #[test]
+    fn per_spec_parallel_builds_isolated_workspace_per_spec_file() {
+        let dir = tempdir().expect("Failed to create temp dir");
+        let spec1 = write_spec_file(dir.path(), "spec1.md", SIMPLE_SPEC);
+        let spec2 = write_spec_file(dir.path(), "spec2.md", SIMPLE_SPEC);
+        let spec3 = write_spec_file(dir.path(), "spec3.md", SIMPLE_SPEC);
+        let file_reader = FileReader::new(dir.path().to_path_buf());
+        let (factory, calls, _execute_count) = RecordingExecutorFactory::new();
+
+        let cmd = make_per_spec_run_command(
+            vec![spec1, spec2, spec3],
+            Box::new(factory),
+            dir.path().to_path_buf(),
+            file_reader,
+            4,
+            None,
+        );
+        let printer = null_printer();
+        let _events = cmd.execute_with_printer(&printer);
+
+        let recorded = calls.lock().expect("mutex poisoned");
+        assert_eq!(
+            recorded.len(),
+            3,
+            "factory.build should be called once per spec file, even in parallel"
+        );
+
+        let distinct_working_dirs: HashSet<&PathBuf> = recorded
+            .iter()
+            .map(|(_, _, working_dir)| working_dir)
+            .collect();
+        assert_eq!(
+            distinct_working_dirs.len(),
+            3,
+            "every spec file should get its own distinct workspace directory"
+        );
+    }
+
+    #[test]
+    fn per_spec_reruns_workspace_init_command_for_every_spec_file() {
+        let dir = tempdir().expect("Failed to create temp dir");
+        let spec1 = write_spec_file(dir.path(), "spec1.md", SIMPLE_SPEC);
+        let spec2 = write_spec_file(dir.path(), "spec2.md", SIMPLE_SPEC);
+        let file_reader = FileReader::new(dir.path().to_path_buf());
+        let (factory, _calls, execute_count) = RecordingExecutorFactory::new();
+
+        let cmd = make_per_spec_run_command(
+            vec![spec1, spec2],
+            Box::new(factory),
+            dir.path().to_path_buf(),
+            file_reader,
+            1,
+            Some("echo init".to_string()),
+        );
+        let printer = null_printer();
+        let _events = cmd.execute_with_printer(&printer);
+
+        // Each spec file: 1 workspace_init_command execution + 1 script
+        // execution from SIMPLE_SPEC = 2 executor.execute() calls per file.
+        assert_eq!(
+            execute_count.load(Ordering::SeqCst),
+            4,
+            "workspace_init_command should be re-run once per spec file, not once total"
+        );
+    }
+
+    #[test]
+    fn per_spec_workspace_env_vars_differ_per_spec_file() {
+        let dir = tempdir().expect("Failed to create temp dir");
+        let spec1 = write_spec_file(dir.path(), "spec1.md", SIMPLE_SPEC);
+        let spec2 = write_spec_file(dir.path(), "spec2.md", SIMPLE_SPEC);
+        let file_reader = FileReader::new(dir.path().to_path_buf());
+        let (factory, calls, _execute_count) = RecordingExecutorFactory::new();
+
+        let cmd = make_per_spec_run_command(
+            vec![spec1, spec2],
+            Box::new(factory),
+            dir.path().to_path_buf(),
+            file_reader,
+            1,
+            None,
+        );
+        let printer = null_printer();
+        let _events = cmd.execute_with_printer(&printer);
+
+        let recorded = calls.lock().expect("mutex poisoned");
+        let workspace_dir_env = |extra_env: &[(String, String)]| -> String {
+            extra_env
+                .iter()
+                .find(|(k, _)| k == "SPECDOWN_WORKSPACE_DIR")
+                .map(|(_, v)| v.clone())
+                .expect("SPECDOWN_WORKSPACE_DIR should be set")
+        };
+
+        let env1 = workspace_dir_env(&recorded[0].1);
+        let env2 = workspace_dir_env(&recorded[1].1);
+        assert_ne!(
+            env1, env2,
+            "SPECDOWN_WORKSPACE_DIR should differ between spec files"
+        );
+    }
+
+    /// End-to-end test using the *real* `ShellExecutorFactory` and real
+    /// `TemporaryDirectory` (no mocks), under real parallel execution
+    /// (`jobs: 4`): spec A writes a file, spec B asserts it's absent. This
+    /// is the strongest evidence that per-spec workspace isolation holds
+    /// under genuine parallel execution, not just via mocks.
+    #[cfg(not(windows))]
+    #[test]
+    fn per_spec_parallel_execution_isolates_files_between_spec_files_for_real() {
+        use super::super::executor_factory::ShellExecutorFactory;
+
+        let dir = tempdir().expect("Failed to create temp dir");
+        let spec_a = write_spec_file(
+            dir.path(),
+            "a.md",
+            "# A\n\n```shell,script(name=\"write\")\necho hi >mine.txt\n```\n",
+        );
+        let spec_b = write_spec_file(
+            dir.path(),
+            "b.md",
+            "# B\n\n```shell,script(name=\"check\", expected_exit_code=1)\ntest -e mine.txt\n```\n",
+        );
+        let file_reader = FileReader::new(dir.path().to_path_buf());
+
+        let factory = Box::new(ShellExecutorFactory {
+            shell_cmd: "bash -c".to_string(),
+            base_env: Vec::new(),
+            unset_env: Vec::new(),
+            paths: Vec::new(),
+        });
+
+        let cmd = make_per_spec_run_command(
+            vec![spec_a, spec_b],
+            factory,
+            dir.path().to_path_buf(),
+            file_reader,
+            4,
+            None,
+        );
+        let printer = null_printer();
+        let events = cmd.execute_with_printer(&printer);
+
+        let exit_code = exit_code::from_events(&events);
+        assert_eq!(
+            exit_code as i32, 0,
+            "spec B should not see the file created by spec A's own workspace"
         );
     }
 }

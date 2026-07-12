@@ -39,6 +39,7 @@ pub struct BackgroundProcess {
 pub fn start(
     action: &BackgroundAction,
     executor: &dyn Executor,
+    working_dir: &Path,
 ) -> Result<(ActionResult, BackgroundProcess), Error> {
     let BackgroundAction {
         script_name,
@@ -60,6 +61,7 @@ pub fn start(
             timeout,
             script_name.as_ref(),
             executor,
+            working_dir,
         )?;
     }
 
@@ -88,6 +90,7 @@ fn wait_for_ready(
     timeout_secs: u32,
     script_name: Option<&ScriptName>,
     executor: &dyn Executor,
+    working_dir: &Path,
 ) -> Result<(), Error> {
     let name = script_name_name(script_name);
     let deadline = Instant::now() + Duration::from_secs(u64::from(timeout_secs));
@@ -105,7 +108,7 @@ fn wait_for_ready(
             });
         }
 
-        if condition_is_met(condition, executor) {
+        if condition_is_met(condition, executor, working_dir) {
             return Ok(());
         }
 
@@ -123,9 +126,9 @@ fn wait_for_ready(
 }
 
 /// Evaluate a single readiness condition.
-fn condition_is_met(condition: &ReadyWhen, executor: &dyn Executor) -> bool {
+fn condition_is_met(condition: &ReadyWhen, executor: &dyn Executor, working_dir: &Path) -> bool {
     match condition {
-        ReadyWhen::FileExists(FilePath(path)) => Path::new(path).exists(),
+        ReadyWhen::FileExists(FilePath(path)) => working_dir.join(path).exists(),
         ReadyWhen::PortOpen(port) => {
             // Probe the loopback address directly rather than resolving
             // "localhost" via DNS. The background script binds to 127.0.0.1
@@ -290,7 +293,7 @@ mod tests {
     fn condition_is_met_file_exists_when_path_present() {
         let tmp = tempfile::NamedTempFile::new().expect("temp file");
         let cond = ReadyWhen::FileExists(FilePath(tmp.path().to_string_lossy().to_string()));
-        assert!(condition_is_met(&cond, &ReadyExecutor));
+        assert!(condition_is_met(&cond, &ReadyExecutor, Path::new(".")));
     }
 
     #[test]
@@ -298,19 +301,31 @@ mod tests {
         let cond = ReadyWhen::FileExists(FilePath(
             "/this/path/should/not/exist/specdown-test".to_string(),
         ));
-        assert!(!condition_is_met(&cond, &ReadyExecutor));
+        assert!(!condition_is_met(&cond, &ReadyExecutor, Path::new(".")));
+    }
+
+    #[test]
+    fn condition_is_met_file_exists_resolves_relative_paths_against_working_dir() {
+        let dir = tempfile::tempdir().expect("failed to create temp dir");
+        std::fs::write(dir.path().join("ready.flag"), "").expect("failed to write flag file");
+        let cond = ReadyWhen::FileExists(FilePath("ready.flag".to_string()));
+        assert!(condition_is_met(&cond, &ReadyExecutor, dir.path()));
     }
 
     #[test]
     fn condition_is_met_check_exit_zero_when_executor_exits_zero() {
         let cond = ReadyWhen::CheckExitZero(ScriptCode("true".to_string()));
-        assert!(condition_is_met(&cond, &ReadyExecutor));
+        assert!(condition_is_met(&cond, &ReadyExecutor, Path::new(".")));
     }
 
     #[test]
     fn condition_is_met_check_exit_zero_false_when_executor_exits_nonzero() {
         let cond = ReadyWhen::CheckExitZero(ScriptCode("false".to_string()));
-        assert!(!condition_is_met(&cond, &NeverReadyExecutor));
+        assert!(!condition_is_met(
+            &cond,
+            &NeverReadyExecutor,
+            Path::new(".")
+        ));
     }
 
     #[test]
@@ -331,7 +346,14 @@ mod tests {
         let mut handle = MockHandle::new();
         let cond = ReadyWhen::CheckExitZero(ScriptCode("true".to_string()));
         let name = ScriptName("srv".to_string());
-        let result = wait_for_ready(&mut handle, &cond, 1, Some(&name), &ReadyExecutor);
+        let result = wait_for_ready(
+            &mut handle,
+            &cond,
+            1,
+            Some(&name),
+            &ReadyExecutor,
+            Path::new("."),
+        );
         assert!(result.is_ok());
     }
 
@@ -340,7 +362,14 @@ mod tests {
         let mut handle = MockHandle::new();
         let cond = ReadyWhen::CheckExitZero(ScriptCode("false".to_string()));
         let name = ScriptName("srv".to_string());
-        let result = wait_for_ready(&mut handle, &cond, 1, Some(&name), &NeverReadyExecutor);
+        let result = wait_for_ready(
+            &mut handle,
+            &cond,
+            1,
+            Some(&name),
+            &NeverReadyExecutor,
+            Path::new("."),
+        );
         match result {
             Err(Error::ReadyWhenTimeout {
                 script_name,
