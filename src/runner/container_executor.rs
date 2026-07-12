@@ -387,11 +387,14 @@ impl Executor for ContainerExecutor {
         let bg_num = BG_COUNTER.fetch_add(1, Ordering::SeqCst);
         let pid_file = format!("/tmp/.specdown_bg_{bg_num}");
         let exit_file = format!("/tmp/.specdown_bg_exit_{bg_num}");
-        // The wrapper writes the shell PID to `pid_file` and then runs the
-        // user script in the foreground.  When the script exits the wrapper
-        // writes `$?` to `exit_file` and itself terminates, so `kill -0` on
-        // the PID will fail once the background work is done.
-        let wrapped_code = format!("echo $$ > {pid_file}\n{code_string}\necho $? > {exit_file}");
+        // The wrapper writes the shell PID to `pid_file`, installs an EXIT
+        // trap that records `$?` to `exit_file`, and then runs the user
+        // script in the foreground.  Using `trap ... EXIT` (instead of a
+        // trailing `echo $?` line) ensures the exit code is captured even
+        // when the script calls `exit N` or is terminated by a signal —
+        // both of which bypass any statement after the script body.
+        let wrapped_code =
+            format!("echo $$ > {pid_file}\ntrap 'echo $? > {exit_file}' EXIT\n{code_string}");
         let cmd = self.exec_command(&wrapped_code);
 
         self.runtime.block_on(async move {
@@ -560,13 +563,20 @@ impl BackgroundHandle for ContainerBackgroundHandle {
         let exit_file = self.exit_file.clone();
         let docker = self.docker.clone();
         self.runtime.block_on(async move {
-            // Run `kill -0 $(cat <pid_file>)` inside the container.
-            // Exit 0  → process still alive → return None.
-            // Non-zero → process dead → read exit_file for the exit code.
+            // Inside the container:
+            //   1. If `pid_file` does not exist, the background process has
+            //      not started yet → treat as "still running" (return None).
+            //      Without this guard, a missing `pid_file` makes `cat`
+            //      emit nothing, so `kill -0` runs with no PID argument and
+            //      fails — which would otherwise be misread as "dead" and
+            //      fall through to the exit-file branch (returning Some(0)).
+            //   2. If `pid_file` exists, run `kill -0 $(cat <pid_file>)`.
+            //      Exit 0  → process still alive → return None.
+            //      Non-zero → process dead → read exit_file for the exit code.
             let check_cmd = vec![
                 "sh".to_string(),
                 "-c".to_string(),
-                format!("kill -0 $(cat {pid_file}) 2>/dev/null"),
+                format!("test -f {pid_file} && kill -0 $(cat {pid_file}) 2>/dev/null"),
             ];
 
             let exec = docker
@@ -574,6 +584,9 @@ impl BackgroundHandle for ContainerBackgroundHandle {
                     &container_id,
                     CreateExecOptions::<String> {
                         cmd: Some(check_cmd),
+                        attach_stdout: Some(true),
+                        attach_stderr: Some(true),
+                        attach_stdin: Some(false),
                         ..Default::default()
                     },
                 )
@@ -599,10 +612,15 @@ impl BackgroundHandle for ContainerBackgroundHandle {
                 }
             }
 
-            // Inspect the exec to get the exit code of `kill -0`.
+            // Inspect the exec to get the exit code of the liveness check.
             let inspect = docker.inspect_exec(&exec.id).await.ok()?;
 
-            if inspect.exit_code == Some(0) {
+            // If the exec hasn't completed yet (exit_code is None), the
+            // liveness check is still running or Docker hasn't finalised the
+            // status — treat as "not done yet" and return None.
+            let check_exit_code = inspect.exit_code?;
+
+            if check_exit_code == 0 {
                 // Process is still alive.
                 return None;
             }
@@ -619,6 +637,9 @@ impl BackgroundHandle for ContainerBackgroundHandle {
                     &container_id,
                     CreateExecOptions::<String> {
                         cmd: Some(read_cmd),
+                        attach_stdout: Some(true),
+                        attach_stderr: Some(true),
+                        attach_stdin: Some(false),
                         ..Default::default()
                     },
                 )
