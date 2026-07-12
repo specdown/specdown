@@ -31,6 +31,10 @@ github_username:  specdown
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
 
 markdown: kramdown
 

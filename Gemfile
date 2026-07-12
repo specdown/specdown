@@ -16,6 +16,7 @@ gem "minima", "~> 2.5"
 # If you have any plugins, put them here!
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.17"
+  gem "jekyll-relative-links", "~> 0.7"
 end
 
 # Jekyll 4 no longer bundles webrick by default.
