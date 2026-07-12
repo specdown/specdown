@@ -299,7 +299,7 @@ Given the file `background_ready_port.md`:
 # Background Ready (port) Example
 
 ```shell,background(name="server",ready_when="port:19284",timeout_secs=15)
-python3 -m http.server 19284 --bind 127.0.0.1
+python3 -c "import socket,time; s=socket.socket(); s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1); s.bind(('127.0.0.1',19284)); s.listen(1); time.sleep(999)" 2>/dev/null || python -c "import socket,time; s=socket.socket(); s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1); s.bind(('127.0.0.1',19284)); s.listen(1); time.sleep(999)"
 ```
 
 ```shell,script(name="check_server")

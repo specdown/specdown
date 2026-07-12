@@ -46,26 +46,6 @@ jobs:
           takeown /F 'C:\Windows\System32\bash.exe'
           icacls 'C:\Windows\System32\bash.exe' /grant administrators:F
           ren 'C:\Windows\System32\bash.exe' wsl-bash.exe
-      - name: "diagnostic: check python3 and port binding"
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          echo "=== which python3 ==="
-          which python3 || echo "python3 NOT FOUND"
-          python3 --version || true
-          echo "=== test bind to port 19284 ==="
-          python3 -m http.server 19284 --bind 127.0.0.1 &
-          SERVER_PID=$!
-          sleep 2
-          echo "=== server PID: $SERVER_PID ==="
-          echo "=== is server alive? ==="
-          kill -0 $SERVER_PID 2>/dev/null && echo "YES" || echo "NO"
-          echo "=== lsof for port 19284 ==="
-          lsof -i :19284 2>/dev/null || true
-          echo "=== firewall status ==="
-          /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate 2>/dev/null || echo "no socketfilterfw"
-          kill $SERVER_PID 2>/dev/null || true
-          wait $SERVER_PID 2>/dev/null || true
       - name: Run tests
         if: ${{ !matrix.container-features }}
         run: make test
