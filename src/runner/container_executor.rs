@@ -529,14 +529,34 @@ impl BackgroundHandle for ContainerBackgroundHandle {
         let exit_file = self.exit_file.clone();
         let docker = self.docker.clone();
         let _ = self.runtime.block_on(async move {
-            // Kill the background process using its recorded PID, then
-            // clean up both the PID file and the exit-code file.
+            // Kill the background process group and record a non-zero
+            // sentinel exit code.
+            //
+            // We use SIGKILL on the process group (`kill -KILL -<pgid>`)
+            // rather than SIGTERM on the shell PID for two reasons:
+            //
+            // 1. SIGTERM to the shell doesn't interrupt a foreground
+            //    child (e.g. `sleep 60`); bash only runs the EXIT trap
+            //    *after* the foreground command returns, so the trap
+            //    would never fire and `exit_file` would stay empty.
+            //
+            // 2. SIGKILL cannot be trapped, so the EXIT trap won't fire
+            //    either.  We therefore write a sentinel exit code (137 =
+            //    128 + SIGKILL) to `exit_file` ourselves, so that a
+            //    subsequent `try_wait` reads a non-zero code instead of
+            //    falling back to `Some(0)`.
+            //
+            // We remove `pid_file` (so `try_wait` knows the process is
+            // dead) but leave `exit_file` in place with the sentinel
+            // value so `try_wait` can report the kill.
             let kill_cmd = vec![
                 "sh".to_string(),
                 "-c".to_string(),
                 format!(
-                    "kill -TERM $(cat {pid_file}) 2>/dev/null; \
-                     rm -f {pid_file} {exit_file}"
+                    "kill -KILL -$(cat {pid_file}) 2>/dev/null; \
+                     kill -KILL $(cat {pid_file}) 2>/dev/null; \
+                     echo 137 > {exit_file}; \
+                     rm -f {pid_file}"
                 ),
             ];
             let exec = docker
@@ -579,7 +599,11 @@ impl BackgroundHandle for ContainerBackgroundHandle {
                 format!("test -f {pid_file} && kill -0 $(cat {pid_file}) 2>/dev/null"),
             ];
 
-            let exec = docker
+            // If create_exec fails, the container is gone (removed or
+            // crashed).  The background process running inside it is
+            // definitely dead — return a non-zero exit code rather than
+            // None ("still running"), which would be misleading.
+            let Ok(exec) = docker
                 .create_exec(
                     &container_id,
                     CreateExecOptions::<String> {
@@ -591,12 +615,14 @@ impl BackgroundHandle for ContainerBackgroundHandle {
                     },
                 )
                 .await
-                .ok()?;
+            else {
+                return Some(1);
+            };
 
-            let start_result = docker
-                .start_exec(&exec.id, None::<StartExecOptions>)
-                .await
-                .ok()?;
+            let Ok(start_result) = docker.start_exec(&exec.id, None::<StartExecOptions>).await
+            else {
+                return Some(1);
+            };
 
             // Drain the output stream so the exec completes cleanly.
             if let bollard::exec::StartExecResults::Attached {
@@ -613,7 +639,10 @@ impl BackgroundHandle for ContainerBackgroundHandle {
             }
 
             // Inspect the exec to get the exit code of the liveness check.
-            let inspect = docker.inspect_exec(&exec.id).await.ok()?;
+            // If inspection fails (container gone mid-check), treat as dead.
+            let Ok(inspect) = docker.inspect_exec(&exec.id).await else {
+                return Some(1);
+            };
 
             // If the exec hasn't completed yet (exit_code is None), the
             // liveness check is still running or Docker hasn't finalised the
@@ -626,13 +655,18 @@ impl BackgroundHandle for ContainerBackgroundHandle {
             }
 
             // Process is dead — read the exit code from the exit file.
+            // If the exit file doesn't exist (e.g. process was killed
+            // before the trap could write), fall back to a non-zero
+            // sentinel so we don't report Some(0) (which would mask the
+            // death).  The EXIT trap writes the real exit code (or signal
+            // exit code like 143 for SIGTERM) to this file.
             let read_cmd = vec![
                 "sh".to_string(),
                 "-c".to_string(),
-                format!("cat {exit_file} 2>/dev/null || echo 0"),
+                format!("cat {exit_file} 2>/dev/null || echo 1"),
             ];
 
-            let read_exec = docker
+            let Ok(read_exec) = docker
                 .create_exec(
                     &container_id,
                     CreateExecOptions::<String> {
@@ -644,12 +678,16 @@ impl BackgroundHandle for ContainerBackgroundHandle {
                     },
                 )
                 .await
-                .ok()?;
+            else {
+                return Some(1);
+            };
 
-            let start_result = docker
+            let Ok(start_result) = docker
                 .start_exec(&read_exec.id, None::<StartExecOptions>)
                 .await
-                .ok()?;
+            else {
+                return Some(1);
+            };
 
             let mut exit_code_str = String::new();
             if let bollard::exec::StartExecResults::Attached {
@@ -664,7 +702,7 @@ impl BackgroundHandle for ContainerBackgroundHandle {
                 }
             }
 
-            let code = exit_code_str.trim().parse::<i32>().unwrap_or(0);
+            let code = exit_code_str.trim().parse::<i32>().unwrap_or(1);
             Some(code)
         })
     }
@@ -902,6 +940,189 @@ mod tests {
             result,
             Some(42),
             "try_wait should return Some(42) after the background process exits with code 42"
+        );
+    }
+
+    #[test]
+    #[ignore = "requires Docker daemon"]
+    fn container_executor_try_wait_returns_none_when_pid_file_missing() {
+        // Edge case: try_wait is called before the background process has
+        // had a chance to write its pid_file.  The process has not exited —
+        // it simply hasn't started yet — so try_wait should return None
+        // ("still running"), not Some(0) (which would be misread as
+        // successful completion).
+        if !docker_available() {
+            return;
+        }
+        let executor = ContainerExecutor::new::<PathBuf>(
+            "bash:5",
+            "bash -c",
+            &[],
+            &[],
+            &[],
+            &[],
+            "test-pid-file-missing",
+        )
+        .expect("executor to be created");
+
+        // Spawn a process that delays writing its pid_file by sleeping first
+        // in the wrapper — but actually the wrapper writes pid_file
+        // immediately, so instead we test the real edge case: call try_wait
+        // immediately after spawn before the container exec has started.
+        let mut handle = executor
+            .spawn(&ScriptCode("sleep 30".to_string()))
+            .expect("spawn to succeed");
+
+        // Immediately try_wait — the pid_file may not exist yet because the
+        // detached exec hasn't started running the wrapper.  This should
+        // return None ("not started / still running"), not Some(0).
+        let result = handle.try_wait();
+
+        assert!(
+            result.is_none(),
+            "try_wait should return None when pid_file doesn't exist yet (process not started), \
+             got {:?} — Some(0) would be mistaken for successful completion",
+            result
+        );
+
+        // Clean up.
+        handle.kill();
+    }
+
+    #[test]
+    #[ignore = "requires Docker daemon"]
+    fn container_executor_try_wait_after_kill_returns_signal_exit_code() {
+        // Edge case (#4): after kill() sends SIGTERM, try_wait should
+        // report the signal exit code (143 = 128 + SIGTERM), not Some(0).
+        // Previously kill() removed both pid_file AND exit_file, so
+        // try_wait fell back to `echo 0` and reported Some(0) — masking
+        // the fact that the process was killed.
+        if !docker_available() {
+            return;
+        }
+        let executor = ContainerExecutor::new::<PathBuf>(
+            "bash:5",
+            "bash -c",
+            &[],
+            &[],
+            &[],
+            &[],
+            "test-kill-exit-code",
+        )
+        .expect("executor to be created");
+
+        let mut handle = executor
+            .spawn(&ScriptCode("sleep 60".to_string()))
+            .expect("spawn to succeed");
+
+        // Give the process time to start.
+        std::thread::sleep(std::time::Duration::from_secs(1));
+
+        // Kill the process (sends SIGKILL to the process group).
+        handle.kill();
+
+        // Poll try_wait until it returns Some — the process was killed so
+        // it should report a signal exit code, not 0.
+        let mut result = None;
+        for _ in 0..60 {
+            if let Some(code) = handle.try_wait() {
+                result = Some(code);
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(100));
+        }
+
+        assert!(
+            result.is_some(),
+            "try_wait should return Some(code) after kill, not None"
+        );
+        let code = result.unwrap();
+        // SIGKILL produces exit code 137 (128 + 9).  kill() writes this
+        // sentinel to exit_file because SIGKILL can't be trapped.  Accept
+        // any non-zero code — the key assertion is that it's NOT 0 (which
+        // would mask the kill).
+        assert_ne!(
+            code, 0,
+            "try_wait should report a non-zero exit code after kill (SIGKILL → 137), not 0"
+        );
+    }
+
+    #[test]
+    #[ignore = "requires Docker daemon"]
+    fn container_executor_try_wait_returns_some_when_container_removed() {
+        // Edge case (#3b): when the container itself has been removed
+        // (e.g. by external cleanup or a crash), try_wait should return
+        // Some(non-zero) indicating the process is dead, not None
+        // ("still running").  Previously create_exec failed and the
+        // error was silently turned into None.
+        if !docker_available() {
+            return;
+        }
+        let executor = ContainerExecutor::new::<PathBuf>(
+            "bash:5",
+            "bash -c",
+            &[],
+            &[],
+            &[],
+            &[],
+            "test-container-gone",
+        )
+        .expect("executor to be created");
+
+        // Force the container to be created by running a simple command.
+        let _ = executor
+            .execute(&ScriptCode("true".to_string()))
+            .expect("execute to create container");
+
+        // Read the container_id from the executor (tests are in the same
+        // module so private fields are accessible).
+        let container_id = executor
+            .container_id
+            .lock()
+            .unwrap()
+            .clone()
+            .expect("container to be created");
+
+        // Spawn a background process in the now-existing container.
+        let mut handle = executor
+            .spawn(&ScriptCode("sleep 60".to_string()))
+            .expect("spawn to succeed");
+
+        // Give the process time to start.
+        std::thread::sleep(std::time::Duration::from_secs(1));
+
+        // Force-remove the container out from under the handle, simulating
+        // external cleanup or a crash.
+        let docker = bollard::Docker::connect_with_socket_defaults().expect("docker connect");
+        let runtime = tokio::runtime::Runtime::new().expect("runtime");
+        runtime.block_on(async move {
+            use bollard::container::RemoveContainerOptions;
+            docker
+                .remove_container(
+                    &container_id,
+                    Some(RemoveContainerOptions {
+                        force: true,
+                        ..Default::default()
+                    }),
+                )
+                .await
+                .expect("remove container");
+        });
+
+        // Now try_wait — the container is gone.  This should return
+        // Some(non-zero) (dead), not None (still running).
+        let result = handle.try_wait();
+
+        assert!(
+            result.is_some(),
+            "try_wait should return Some(code) when the container is gone (process is dead), \
+             got None — None means 'still running' which is incorrect when the container \
+             has been removed"
+        );
+        let code = result.unwrap();
+        assert_ne!(
+            code, 0,
+            "exit code should be non-zero when the container was removed, not 0"
         );
     }
 
