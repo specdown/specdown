@@ -60,5 +60,5 @@ $(GH_PAGES_LOCATION)/logo/logo.png:
 
 $(GH_PAGES_LOCATION)/docs/%.md:
 	mkdir -p "$(@D)"
-	echo "---\nlayout: page\n---\n" >"$@"
+	echo "---\nlayout: docs\n---\n" >"$@"
 	specdown strip "$(subst $(GH_PAGES_LOCATION)/,,$@)" >>"$@"
