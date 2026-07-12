@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.8.0](https://github.com/specdown/specdown/compare/v1.7.0..v1.8.0) - 2026-07-12
+#### Bug Fixes
+- use raw socket listener instead of http.server for port readiness spec - ([2c61e58](https://github.com/specdown/specdown/commit/2c61e58760b14a68b50f7136469171349ff982b9)) - Billie Thompson
+- probe loopback IP directly in port readiness check for cross-platform reliability - ([eacf87e](https://github.com/specdown/specdown/commit/eacf87ef41e65a4b35a8310870317636bf068f2f)) - Boothinator
+#### Continuous Integration
+- add macOS diagnostic step to investigate port readiness failure - ([f0f8caa](https://github.com/specdown/specdown/commit/f0f8caa0630bb775d54fc8a54524eb32761e9a8e)) - Boothinator
+#### Features
+- auto-pull Docker image before container run - ([99b0462](https://github.com/specdown/specdown/commit/99b0462c3fe2d34be7dd1dfaffea3daad21e7d65)) - PurpleBooth
+- add ready_when readiness polling and background process lifecycle hardening - ([489d6c4](https://github.com/specdown/specdown/commit/489d6c42fb35f49976d3410be7dade5be8a51f19)) - Billie Thompson
+
+- - -
+
 ## [v1.7.0](https://github.com/specdown/specdown/compare/v1.6.3..v1.7.0) - 2026-07-11
 #### Bug Fixes
 - add --add-path to integration tests for container feature - ([9bc3aa5](https://github.com/specdown/specdown/commit/9bc3aa5dba6a0172a7f0b2d28e13b1fea145c671)) - Hermes Builder
