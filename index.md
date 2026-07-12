@@ -2,14 +2,14 @@
 layout: page
 ---
 
-<div class="hero" markdown="0">
-  <img class="logo" alt="specdown" src="{{ '/logo/logo.png' | relative_url }}">
+<div align="center" class="hero" markdown="0">
+  <img class="logo" alt="specdown" src="./logo/logo.png">
   <h1>SpecDown</h1>
   <p class="tagline">A tool to test markdown files and drive development from documentation.</p>
-  <div class="button-row">
-    <a class="btn btn--primary" href="{{ '/docs/index.html' | relative_url }}">Get Started</a>
-    <a class="btn btn--secondary" href="https://github.com/{{ site.github_username }}/specdown" target="_blank" rel="noopener">View on GitHub</a>
-  </div>
+  <p class="button-row">
+    <a class="btn btn--primary" href="./docs/index.md">Get Started</a>
+    <a class="btn btn--secondary" href="https://github.com/specdown/specdown">View on GitHub</a>
+  </p>
 </div>
 
 ## This document is an executable specification
