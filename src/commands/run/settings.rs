@@ -136,4 +136,15 @@ pub struct RunSettings {
     #[clap(flatten)]
     #[serde(rename = "executor")]
     pub executor_config: ExecutorConfig,
+
+    /// Follow local Markdown links found in spec files and run every linked
+    /// file too, recursively. Files are deduplicated by canonical path, so
+    /// link cycles are handled safely and each file only runs once.
+    ///
+    /// This can also be enabled via a `specdown.toml` config file
+    /// (`follow_links = true`) in the current directory; either the flag or
+    /// the config file being set enables the behaviour.
+    #[clap(long)]
+    #[merge(strategy = merge::bool::overwrite_false)]
+    pub follow_links: bool,
 }

@@ -4,6 +4,8 @@ use crate::parsers;
 
 #[derive(Debug, Eq, thiserror::Error, PartialEq, Clone)]
 pub enum Error {
+    #[error("Failed to follow link to '{path}': {message}")]
+    LinkedFileUnreadable { path: String, message: String },
     #[error("{0}")]
     RunFailed(#[from] parsers::Error),
     #[error("Failed to load config file '{}': {message}", path.display())]

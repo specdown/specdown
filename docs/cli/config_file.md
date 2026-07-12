@@ -260,6 +260,6 @@ cd bad-config && specdown --no-colour --config bad.toml run
   |
 2 | shell_comand = "typo"
   | ^^^^^^^^^^^^
-unknown field `shell_comand`, expected one of `files`, `workspace_dir`, `temporary_workspace_dir`, `working_dir`, `workspace_init_command`, `shell_command`, `env`, `unset_env`, `add_path`, `jobs`, `executor`
+unknown field `shell_comand`, expected one of `files`, `workspace_dir`, `temporary_workspace_dir`, `working_dir`, `workspace_init_command`, `shell_command`, `env`, `unset_env`, `add_path`, `jobs`, `executor`, `follow_links`
 
 ```

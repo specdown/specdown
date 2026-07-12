@@ -31,6 +31,24 @@ fn get_root_children<'a>(root: &'a AstNode<'a>) -> Result<Children<'a, RefCell<A
     }
 }
 
+/// Finds the URLs of every Markdown link (`[text](url)`) in `markdown`,
+/// in document order. Links can appear nested anywhere in the tree (e.g.
+/// inside a paragraph or list item), so this walks every descendant node
+/// rather than just the top-level block elements.
+pub fn find_links(markdown: &str) -> Result<Vec<String>, Error> {
+    let arena = Arena::new();
+    let root = parse_document(&arena, markdown, &Options::default());
+    get_root_children(root)?;
+
+    Ok(root
+        .descendants()
+        .filter_map(|node| match &node.data.borrow().value {
+            NodeValue::Link(link) => Some(link.url.clone()),
+            _ => None,
+        })
+        .collect())
+}
+
 fn to_element<'a>(node: &'a AstNode<'a>) -> Option<Element> {
     match node.data.borrow().value.clone() {
         NodeValue::CodeBlock(block) => Some(block)

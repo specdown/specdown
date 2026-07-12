@@ -452,6 +452,11 @@ Options:
           
           Only effective with `--executor container`.
 
+      --follow-links
+          Follow local Markdown links found in spec files and run every linked file too, recursively. Files are deduplicated by canonical path, so link cycles are handled safely and each file only runs once.
+          
+          This can also be enabled via a `specdown.toml` config file (`follow_links = true`) in the current directory; either the flag or the config file being set enables the behaviour.
+
   -h, --help
           Print help (see a summary with '-h')
 ```
@@ -517,6 +522,11 @@ Options:
           Uses Docker CLI bind-mount syntax: `<host_path>:<container_path>[:options]`. For example, `--container-volume /host/data:/data` mounts the host directory `/host/data` at `/data` inside the container. Append `:ro` for a read-only mount.
           
           Only effective with `--executor container`.
+
+      --follow-links
+          Follow local Markdown links found in spec files and run every linked file too, recursively. Files are deduplicated by canonical path, so link cycles are handled safely and each file only runs once.
+          
+          This can also be enabled via a `specdown.toml` config file (`follow_links = true`) in the current directory; either the flag or the config file being set enables the behaviour.
 
   -h, --help
           Print help (see a summary with '-h')

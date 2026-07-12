@@ -16,6 +16,7 @@ use crate::workspace::{ExistingDir, TemporaryDirectory, Workspace};
 
 mod config_file;
 mod exit_code;
+mod file_discovery;
 mod file_reader;
 mod run_command;
 mod settings;
@@ -76,6 +77,9 @@ fn create_run_command(config: &Config, cli_settings: &RunSettings) -> Result<Run
     let paths = args.add_path.clone();
     let file_reader = FileReader::new(current_dir.clone());
 
+    let spec_files =
+        file_discovery::build_file_list(&args.spec_files, &current_dir, args.follow_links)?;
+
     let mut workspace = create_workspace(args.workspace_dir.clone(), temp_workspace_dir);
     workspace.initialize();
 
@@ -112,7 +116,7 @@ fn create_run_command(config: &Config, cli_settings: &RunSettings) -> Result<Run
     ));
 
     let new_command = |e: Box<dyn crate::runner::Executor>| RunCommand {
-        spec_files: args.spec_files.clone(),
+        spec_files: spec_files.clone(),
         executor: e,
         working_dir: actual_working_dir,
         workspace_init_command,

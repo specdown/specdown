@@ -80,6 +80,16 @@ fn test_doc_config_file() {
     assert_ok(&result);
 }
 
+#[cfg(not(windows))]
+#[test]
+fn test_doc_follow_links() {
+    let result = specdown_run_with_path()
+        .arg("docs/cli/follow_links.md")
+        .ok();
+
+    assert_ok(&result);
+}
+
 #[test]
 fn test_doc_creating_test_files() {
     let result = specdown_run_with_path()
