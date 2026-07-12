@@ -147,4 +147,15 @@ pub struct RunSettings {
     #[clap(long)]
     #[merge(strategy = merge::bool::overwrite_false)]
     pub follow_links: bool,
+
+    /// Create a new temporary workspace directory for every spec file that
+    /// is run, instead of sharing one temporary workspace across the whole
+    /// invocation. `workspace_init_command` (if set) is re-run for each new
+    /// per-spec workspace, before that spec file's actions run.
+    ///
+    /// Requires `--temporary-workspace-dir` (or `temporary_workspace_dir =
+    /// true` in `specdown.toml`) to also be set; specdown errors otherwise.
+    #[clap(long)]
+    #[merge(strategy = merge::bool::overwrite_false)]
+    pub workspace_per_spec: bool,
 }

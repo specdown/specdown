@@ -176,6 +176,20 @@ With the following error message:
   ✗ --workspace-dir and --temporary-workspace-dir cannot be specified at the same time
 ```
 
+### Setting `--workspace-per-spec` without `--temporary-workspace-dir`
+
+Running the following command will fail:
+
+```shell,script(name="workspace_per_spec_without_temp_dir_example", expected_exit_code=2)
+specdown run --workspace-per-spec empty_spec.md
+```
+
+With the following error message:
+
+```text,verify(script_name="workspace_per_spec_without_temp_dir_example")
+  ✗ --workspace-per-spec requires --temporary-workspace-dir
+```
+
 ### Shell Command Errors
 
 #### Empty Shell Command

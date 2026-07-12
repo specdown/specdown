@@ -20,6 +20,7 @@ pub struct ShellExecutor {
     env: HashMap<String, String>,
     unset_env: Vec<String>,
     paths: Vec<PathBuf>,
+    working_dir: Option<PathBuf>,
 }
 
 impl ShellExecutor {
@@ -54,7 +55,17 @@ impl ShellExecutor {
             env: env.iter().cloned().collect(),
             unset_env: unset_env.to_vec(),
             paths: paths.iter().map(PathBuf::from).collect(),
+            working_dir: None,
         }
+    }
+
+    /// Sets the directory spawned commands (both `execute()` and `spawn()`)
+    /// run in. When unset, spawned commands inherit the current process's
+    /// working directory, as before this method existed.
+    #[must_use]
+    pub fn with_working_dir(mut self, working_dir: PathBuf) -> Self {
+        self.working_dir = Some(working_dir);
+        self
     }
 
     fn parse_error_to_error(shell_command: &str, err: ParseError) -> Error {
@@ -99,6 +110,10 @@ impl ShellExecutor {
 
         for name in &self.unset_env {
             command.env_remove(name);
+        }
+
+        if let Some(working_dir) = &self.working_dir {
+            command.current_dir(working_dir);
         }
 
         command
@@ -168,9 +183,16 @@ impl Executor for ShellExecutor {
             format!("{} {}", self.command, self.args.join(" "))
         };
 
+        let working_dir = self.working_dir.clone();
         ShellExecutor::new::<String>(&shell_cmd, &env, &self.unset_env, &paths).map_or_else(
             |err| Box::new(super::executor::FailedExecutor(err)) as Box<dyn Executor>,
-            |e| Box::new(e) as Box<dyn Executor>,
+            |e| {
+                let e = match working_dir {
+                    Some(dir) => e.with_working_dir(dir),
+                    None => e,
+                };
+                Box::new(e) as Box<dyn Executor>
+            },
         )
     }
 }
@@ -321,6 +343,52 @@ mod tests {
                 .execute(&ScriptCode("echo -n $PATH".to_string()))
                 .expect("success");
             assert_eq!(format!("my/bin:other/bin:{path}"), output.stdout);
+        }
+
+        #[cfg(not(windows))]
+        #[test]
+        fn with_working_dir_sets_the_directory_commands_run_in() {
+            let dir = tempfile::tempdir().expect("failed to create temp dir");
+            let shell = ShellExecutor::new::<PathBuf>("bash -c", &[], &[], &[])
+                .expect("shell to be created")
+                .with_working_dir(dir.path().to_path_buf());
+
+            let output = shell
+                .execute(&ScriptCode("pwd".to_string()))
+                .expect("success");
+
+            let expected = dir
+                .path()
+                .canonicalize()
+                .expect("failed to canonicalize temp dir");
+            assert_eq!(output.stdout.trim(), expected.to_str().unwrap());
+        }
+
+        #[cfg(not(windows))]
+        #[test]
+        fn clone_box_propagates_working_dir() {
+            let dir = tempfile::tempdir().expect("failed to create temp dir");
+            let shell = ShellExecutor::new::<PathBuf>("bash -c", &[], &[], &[])
+                .expect("shell to be created")
+                .with_working_dir(dir.path().to_path_buf());
+
+            let cloned = shell.clone_box("label");
+            let output = cloned
+                .execute(&ScriptCode("pwd".to_string()))
+                .expect("success");
+
+            let expected = dir
+                .path()
+                .canonicalize()
+                .expect("failed to canonicalize temp dir");
+            assert_eq!(output.stdout.trim(), expected.to_str().unwrap());
+        }
+
+        #[test]
+        fn without_working_dir_inherits_process_cwd() {
+            let shell =
+                ShellExecutor::new::<PathBuf>("echo", &[], &[], &[]).expect("shell to be created");
+            assert_eq!(shell.build_command("hello").get_current_dir(), None);
         }
     }
 }

@@ -215,6 +215,155 @@ specdown run \
     init_workspace_test.md
 ```
 
+### Isolating Workspaces Per Spec File: `--workspace-per-spec`
+
+By default, `--temporary-workspace-dir` creates a single temporary workspace
+shared by the whole invocation — every spec file given on the command line
+runs in the same workspace, and `--workspace-init-command` (if set) only
+runs once, before the first spec file.
+
+`--workspace-per-spec` changes this: it creates a **new** temporary
+workspace for **every spec file**, and re-runs `--workspace-init-command` in
+each new workspace before that file's own actions run. It requires
+`--temporary-workspace-dir` to also be set; specdown reports an error
+otherwise (see [Errors](../errors.md)).
+
+Given `per_spec_workspace_1.md`, which reads a marker file created by the
+init command, then creates a file of its own:
+
+~~~markdown,file(path="per_spec_workspace_1.md")
+# Per Spec Workspace 1
+
+```shell,script(name="show_marker")
+cat "$SPECDOWN_WORKSPACE_DIR"/marker.txt
+```
+
+```text,verify(script_name="show_marker")
+fresh marker
+```
+
+```shell,script(name="create_own_file")
+echo "created by spec 1" >spec1_only.txt
+```
+~~~
+
+And `per_spec_workspace_2.md`, which also reads the marker file, then checks
+that the file created by `per_spec_workspace_1.md` is **not** visible in its
+own workspace:
+
+~~~markdown,file(path="per_spec_workspace_2.md")
+# Per Spec Workspace 2
+
+```shell,script(name="show_marker")
+cat "$SPECDOWN_WORKSPACE_DIR"/marker.txt
+```
+
+```text,verify(script_name="show_marker")
+fresh marker
+```
+
+```shell,script(name="check_isolated", expected_exit_code=1)
+test -e spec1_only.txt
+```
+~~~
+
+Running both files in one invocation with `--workspace-per-spec` re-runs the
+init command for each file and gives each one its own workspace:
+
+```shell,script(name="workspace_per_spec_example")
+specdown run \
+    --temporary-workspace-dir \
+    --workspace-per-spec \
+    --workspace-init-command 'echo "fresh marker" >marker.txt' \
+    per_spec_workspace_1.md per_spec_workspace_2.md
+```
+
+```text,verify(script_name="workspace_per_spec_example")
+Running tests for per_spec_workspace_1.md:
+
+  ✓ running script 'show_marker' succeeded
+  ✓ verifying stdout from 'show_marker' succeeded
+  ✓ running script 'create_own_file' succeeded
+
+  3 functions run (3 succeeded / 0 failed)
+
+Running tests for per_spec_workspace_2.md:
+
+  ✓ running script 'show_marker' succeeded
+  ✓ verifying stdout from 'show_marker' succeeded
+  ✓ running script 'check_isolated' succeeded
+
+  3 functions run (3 succeeded / 0 failed)
+
+```
+
+#### Enabling via `specdown.toml`
+
+`--workspace-per-spec` can also be turned on via a `specdown.toml` file
+(alongside `temporary_workspace_dir = true`, since it requires it), instead
+of passing both flags on every invocation:
+
+```shell,script(name="workspace_per_spec_config_setup")
+mkdir -p per-spec-config
+```
+
+```toml,file(path="per-spec-config/specdown.toml")
+[run]
+temporary_workspace_dir = true
+workspace_per_spec = true
+```
+
+Given the same two spec files, copied inside `per-spec-config/`:
+
+~~~markdown,file(path="per-spec-config/config_1.md")
+# Per Spec Workspace 1
+
+```shell,script(name="show_marker")
+cat "$SPECDOWN_WORKSPACE_DIR"/marker.txt
+```
+
+```text,verify(script_name="show_marker")
+fresh marker
+```
+
+```shell,script(name="create_own_file")
+echo "created by spec 1" >spec1_only.txt
+```
+~~~
+
+~~~markdown,file(path="per-spec-config/config_2.md")
+# Per Spec Workspace 2
+
+```shell,script(name="check_isolated", expected_exit_code=1)
+test -e spec1_only.txt
+```
+~~~
+
+Running `specdown run config_1.md config_2.md` from inside `per-spec-config`,
+with **no** `--temporary-workspace-dir` or `--workspace-per-spec` flag, still
+gives each file its own workspace because of the config file:
+
+```shell,script(name="workspace_per_spec_config_example")
+cd per-spec-config && specdown --no-colour run --workspace-init-command 'echo "fresh marker" >marker.txt' config_1.md config_2.md
+```
+
+```text,verify(script_name="workspace_per_spec_config_example")
+Running tests for config_1.md:
+
+  ✓ running script 'show_marker' succeeded
+  ✓ verifying stdout from 'show_marker' succeeded
+  ✓ running script 'create_own_file' succeeded
+
+  3 functions run (3 succeeded / 0 failed)
+
+Running tests for config_2.md:
+
+  ✓ running script 'check_isolated' succeeded
+
+  1 functions run (1 succeeded / 0 failed)
+
+```
+
 ### Setting the Working Directory: `--working-dir`
 
 The working directory is a sub-directory or the workspace where script actions
@@ -457,6 +606,11 @@ Options:
           
           This can also be enabled via a `specdown.toml` config file (`follow_links = true`) in the current directory; either the flag or the config file being set enables the behaviour.
 
+      --workspace-per-spec
+          Create a new temporary workspace directory for every spec file that is run, instead of sharing one temporary workspace across the whole invocation. `workspace_init_command` (if set) is re-run for each new per-spec workspace, before that spec file's actions run.
+          
+          Requires `--temporary-workspace-dir` (or `temporary_workspace_dir = true` in `specdown.toml`) to also be set; specdown errors otherwise.
+
   -h, --help
           Print help (see a summary with '-h')
 ```
@@ -527,6 +681,11 @@ Options:
           Follow local Markdown links found in spec files and run every linked file too, recursively. Files are deduplicated by canonical path, so link cycles are handled safely and each file only runs once.
           
           This can also be enabled via a `specdown.toml` config file (`follow_links = true`) in the current directory; either the flag or the config file being set enables the behaviour.
+
+      --workspace-per-spec
+          Create a new temporary workspace directory for every spec file that is run, instead of sharing one temporary workspace across the whole invocation. `workspace_init_command` (if set) is re-run for each new per-spec workspace, before that spec file's actions run.
+          
+          Requires `--temporary-workspace-dir` (or `temporary_workspace_dir = true` in `specdown.toml`) to also be set; specdown errors otherwise.
 
   -h, --help
           Print help (see a summary with '-h')
