@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: docs
 ---
 
 # Verifying Exit Codes

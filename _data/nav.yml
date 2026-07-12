@@ -1,0 +1,40 @@
+- title: CLI
+  items:
+    - title: Displaying Help
+      url: /docs/cli/display_help.html
+    - title: Running Specs
+      url: /docs/cli/running_specs.html
+    - title: Configuration File
+      url: /docs/cli/config_file.html
+    - title: Stripping Specs
+      url: /docs/cli/stripping_specs.html
+    - title: Completion
+      url: /docs/cli/completion.html
+- title: Specs
+  items:
+    - title: Verifying Script Output
+      url: /docs/specs/verifying_script_output.html
+    - title: Verifying Exit Codes
+      url: /docs/specs/verifying_exit_codes.html
+    - title: Output Expectations
+      url: /docs/specs/output_expectations.html
+    - title: Global Environment Variables
+      url: /docs/specs/global_environment_variables.html
+    - title: Skipping Code Blocks
+      url: /docs/specs/skipping_code_blocks.html
+    - title: Creating Test Files
+      url: /docs/specs/creating_test_files.html
+    - title: Background Scripts
+      url: /docs/specs/background_scripts.html
+    - title: Escaped Quotes in String Arguments
+      url: /docs/specs/escaped_quotes_in_string_arguments.html
+    - title: Jobs Flag
+      url: /docs/specs/jobs_flag.html
+    - title: Container Executor
+      url: /docs/specs/container_executor.html
+- title: Errors
+  items:
+    - title: Errors
+      url: /docs/errors.html
+    - title: Errors (Windows)
+      url: /docs/errors_windows.html

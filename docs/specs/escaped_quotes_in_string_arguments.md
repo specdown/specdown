@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: docs
 ---
 
 # Escaped Quotes in String Arguments

@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: docs
 ---
 
 # Global Environment Variables

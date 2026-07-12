@@ -1,0 +1,17 @@
+<nav class="sidebar" aria-label="Documentation">
+  <div class="sidebar__group">
+    <ul class="sidebar__list">
+      <li><a href="{{ '/docs/index.html' | relative_url }}" class="{% if page.url == '/docs/index.html' %}active{% endif %}">Overview</a></li>
+    </ul>
+  </div>
+  {% for group in site.data.nav %}
+  <div class="sidebar__group">
+    <p class="sidebar__title">{{ group.title }}</p>
+    <ul class="sidebar__list">
+      {% for item in group.items %}
+      <li><a href="{{ item.url | relative_url }}" class="{% if page.url == item.url %}active{% endif %}">{{ item.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+</nav>

@@ -28,13 +28,15 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  specdown
 
 # Build settings
-theme: minima
 plugins:
   - jekyll-feed
   - jekyll-relative-links
 
 relative_links:
   enabled: true
+
+sass:
+  style: compressed
 
 markdown: kramdown
 
@@ -65,3 +67,7 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
+  - .tests/
+  - .release/
+  - target/
+  - test.txt
