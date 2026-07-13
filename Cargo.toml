@@ -26,7 +26,7 @@ clap = { version = "4.5.31", features = ["derive"] }
 clap_derive = "4.1.8"
 clap_complete_command = "0.6.1"
 crossterm = "0.29.0"
-comrak = { version = "0.53.0", default-features = false }
+comrak = { version = "0.54.0", default-features = false }
 nom = "8.0.0"
 termdiff = "4.1.1"
 strip-ansi-escapes = "0.2.1"
