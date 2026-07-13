@@ -613,8 +613,11 @@ impl BackgroundHandle for ContainerBackgroundHandle {
     ///
     /// Uses `inspect_exec` to obtain the host-side PID of the exec's
     /// process, then delivers `SIGTERM` directly via `libc::kill`.  No
-    /// shell command is executed inside the container.
+    /// shell command is executed inside the container.  On non-Unix
+    /// platforms (e.g. Windows) this is a no-op — the process is
+    /// cleaned up when the container is removed.
     fn terminate(&mut self) {
+        #[cfg(unix)]
         self.signal(libc::SIGTERM);
     }
 
@@ -622,8 +625,11 @@ impl BackgroundHandle for ContainerBackgroundHandle {
     ///
     /// Uses `inspect_exec` to obtain the host-side PID of the exec's
     /// process, then delivers `SIGKILL` directly via `libc::kill`.  No
-    /// shell command is executed inside the container.
+    /// shell command is executed inside the container.  On non-Unix
+    /// platforms (e.g. Windows) this is a no-op — the process is
+    /// cleaned up when the container is removed.
     fn kill(&mut self) {
+        #[cfg(unix)]
         self.signal(libc::SIGKILL);
     }
 
@@ -670,6 +676,7 @@ impl ContainerBackgroundHandle {
     /// process, then sends `signal` to that PID using `libc::kill`.  This
     /// avoids any shell command inside the container.  Best-effort: errors
     /// are silently ignored (e.g. the process may have already exited).
+    #[cfg(unix)]
     fn signal(&self, signal: libc::c_int) {
         let exec_id = self.exec_id.clone();
         let docker = self.docker.clone();
