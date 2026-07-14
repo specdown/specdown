@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.9.2](https://github.com/specdown/specdown/compare/v1.9.1..v1.9.2) - 2026-07-14
+#### Bug Fixes
+- gate libc::kill/SIGKILL behind #[cfg(unix)] for Windows - ([cab03d1](https://github.com/specdown/specdown/commit/cab03d1f6c8dcd07772843d99808791afab9a589)) - Billie Thompson
+- use Docker API for try_wait, kill, and exit code capture - ([dcabfe9](https://github.com/specdown/specdown/commit/dcabfe960fc109e1ac126426e72ce6308d37daa1)) - Billie Thompson
+
+- - -
+
 ## [v1.9.1](https://github.com/specdown/specdown/compare/v1.9.0..v1.9.1) - 2026-07-13
 #### Bug Fixes
 - bump comrak from 0.53.0 to 0.54.0 - ([1d10b90](https://github.com/specdown/specdown/commit/1d10b90392b2fc512bcfae9382d35ad3d69c762a)) - dependabot[bot]
