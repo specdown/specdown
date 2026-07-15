@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.9.3](https://github.com/specdown/specdown/compare/v1.9.2..v1.9.3) - 2026-07-15
+#### Bug Fixes
+- bump toml from 1.1.2+spec-1.1.0 to 1.1.3+spec-1.1.0 - ([3cf1817](https://github.com/specdown/specdown/commit/3cf1817b7886c008c8217e7b70aa204891f4d8f8)) - dependabot[bot]
+
+- - -
+
 ## [v1.9.2](https://github.com/specdown/specdown/compare/v1.9.1..v1.9.2) - 2026-07-14
 #### Bug Fixes
 - gate libc::kill/SIGKILL behind #[cfg(unix)] for Windows - ([cab03d1](https://github.com/specdown/specdown/commit/cab03d1f6c8dcd07772843d99808791afab9a589)) - Billie Thompson
