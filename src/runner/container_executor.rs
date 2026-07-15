@@ -29,12 +29,12 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
-use bollard::container::{
-    Config, CreateContainerOptions, LogOutput, RemoveContainerOptions, StartContainerOptions,
-};
+use bollard::container::LogOutput;
 use bollard::exec::{CreateExecOptions, StartExecOptions};
-use bollard::image::CreateImageOptions;
-use bollard::models::HostConfig;
+use bollard::models::{ContainerCreateBody, HostConfig};
+use bollard::query_parameters::{
+    CreateContainerOptions, CreateImageOptions, RemoveContainerOptions, StartContainerOptions,
+};
 use bollard::Docker;
 use futures_util::StreamExt;
 
@@ -236,7 +236,7 @@ impl ContainerExecutor {
         // Image not found — pull it from the registry.
         let mut pull_stream = docker.create_image(
             Some(CreateImageOptions {
-                from_image: image,
+                from_image: Some(image.to_string()),
                 ..Default::default()
             }),
             None,
@@ -280,13 +280,18 @@ impl ContainerExecutor {
         let container_name = Self::unique_container_name(&self.label);
 
         let container_id = self.runtime.block_on(async move {
+            // Force `docker` to be fully captured by the async block to
+            // avoid a Rust 2021 drop-order lint (the closure only
+            // partially captures it through method calls).
+            let _ = &docker;
+
             // Ensure the image exists locally before attempting to create
             // the container. If the image is missing it is pulled
             // automatically; pull failures are surfaced as
             // Error::ImagePullFailed.
             Self::ensure_image_pulled(&docker, &image).await?;
 
-            let config = Config {
+            let config = ContainerCreateBody {
                 image: Some(image),
                 entrypoint: Some(vec!["sleep".to_string()]),
                 cmd: Some(vec!["infinity".to_string()]),
@@ -305,8 +310,8 @@ impl ContainerExecutor {
             let create_result = docker
                 .create_container(
                     Some(CreateContainerOptions {
-                        name: container_name,
-                        platform: None,
+                        name: Some(container_name),
+                        platform: String::new(),
                     }),
                     config,
                 )
@@ -316,7 +321,7 @@ impl ContainerExecutor {
                 })?;
 
             docker
-                .start_container(&create_result.id, None::<StartContainerOptions<String>>)
+                .start_container(&create_result.id, None::<StartContainerOptions>)
                 .await
                 .map_err(|err| Error::SpawnFailed {
                     message: format!("Failed to start persistent container: {err}"),
