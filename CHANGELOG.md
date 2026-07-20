@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.9.4](https://github.com/specdown/specdown/compare/v1.9.3..v1.9.4) - 2026-07-20
+#### Bug Fixes
+- bump futures-util from 0.3.32 to 0.3.33 - ([196b0de](https://github.com/specdown/specdown/commit/196b0deea8a60b8fa85f390763c7d2261d80f67b)) - dependabot[bot]
+- bump thiserror from 2.0.18 to 2.0.19 - ([0042efa](https://github.com/specdown/specdown/commit/0042efaace366b00bb018f6a4863f47a16c1ad58)) - dependabot[bot]
+
+- - -
+
 ## [v1.9.3](https://github.com/specdown/specdown/compare/v1.9.2..v1.9.3) - 2026-07-15
 #### Bug Fixes
 - bump toml from 1.1.2+spec-1.1.0 to 1.1.3+spec-1.1.0 - ([3cf1817](https://github.com/specdown/specdown/commit/3cf1817b7886c008c8217e7b70aa204891f4d8f8)) - dependabot[bot]
