@@ -178,7 +178,9 @@ executor = "shell"
 - `shell_command` picks the shell used to run script blocks.
 - `[run.env]` sets environment variables as a table (see above), while
   `unset_env` removes one from the inherited environment.
-- `add_path` prepends a directory to `$PATH`.
+- `add_path` prepends a directory to `$PATH`. Relative paths are resolved from
+  the directory containing `specdown.toml` and converted to absolute paths, so
+  they continue to work when using a temporary workspace.
 - `jobs` controls how many spec files run in parallel.
 - `[run.executor]` selects the executor backend (`shell`, shown here, or
   `container` — see below).
