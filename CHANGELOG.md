@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.9.9](https://github.com/specdown/specdown/compare/v1.9.8..v1.9.9) - 2026-08-05
+#### Bug Fixes
+- bump time from 0.3.54 to 0.3.55 - ([4ab468f](https://github.com/specdown/specdown/commit/4ab468fb6c08e82e270e6a7590f21b0427d069a6)) - dependabot[bot]
+
+- - -
+
 ## [v1.9.8](https://github.com/specdown/specdown/compare/v1.9.7..v1.9.8) - 2026-08-04
 #### Bug Fixes
 - bump termdiff from 4.2.1 to 4.2.2 - ([dbb3b7c](https://github.com/specdown/specdown/commit/dbb3b7c23b8087fc4034bea1a12c9067010090fc)) - dependabot[bot]
