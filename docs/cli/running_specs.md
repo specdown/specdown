@@ -491,8 +491,9 @@ UNSET_ME=1 specdown run --unset-env UNSET_ME unset_environment_variables.md
 ### Adding to `$PATH`
 
 If you want addition paths to be added to your running environment you can use
-`--add-path`. To demonstrate this, let's create a couple of scripts in different
-directories:
+`--add-path`. Relative paths passed on the command line are resolved from the
+working directory where specdown starts. To demonstrate this, let's create a
+couple of scripts in different directories:
 
 ```shell,script(name="create_scripts", expected_exit_code=0)
 mkdir -p vendor/bin
