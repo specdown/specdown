@@ -1598,7 +1598,7 @@ dependencies = [
 
 [[package]]
 name = "specdown"
-version = "1.9.10"
+version = "1.9.11"
 dependencies = [
  "assert_cmd",
  "bollard",
