@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use merge::Merge;
 
@@ -59,9 +59,8 @@ fn create_run_command(config: &Config, cli_settings: &RunSettings) -> Result<Run
     let current_dir = std::env::current_dir().expect("Failed to get current workspace directory");
 
     let mut args = cli_settings.clone();
-    let file_settings =
-        config_file::load_run_settings(config.config_path.as_deref(), &current_dir)?;
-    args.merge(file_settings);
+    let file_config = config_file::load_config(config.config_path.as_deref(), &current_dir)?;
+    args.merge(file_config.settings);
 
     let temp_workspace_dir = args.temporary_workspace_dir;
     let workspace_init_command = args.workspace_init_command.clone();
@@ -78,7 +77,16 @@ fn create_run_command(config: &Config, cli_settings: &RunSettings) -> Result<Run
     };
 
     let unset_env = args.unset_env.clone();
-    let paths = args.add_path.clone();
+    let add_path_base = if cli_settings.add_path.is_empty() {
+        file_config
+            .path
+            .as_deref()
+            .and_then(Path::parent)
+            .unwrap_or(&current_dir)
+    } else {
+        &current_dir
+    };
+    let paths = resolve_add_paths(&args.add_path, add_path_base);
     let file_reader = FileReader::new(current_dir.clone());
     let workspace_per_spec = args.workspace_per_spec;
 
@@ -131,6 +139,20 @@ fn create_run_command(config: &Config, cli_settings: &RunSettings) -> Result<Run
         file_reader,
         jobs,
     })
+}
+
+fn resolve_add_paths(paths: &[String], base: &Path) -> Vec<String> {
+    paths
+        .iter()
+        .map(|path| {
+            let path = Path::new(path);
+            if path.is_absolute() {
+                path.to_string_lossy().into_owned()
+            } else {
+                base.join(path).to_string_lossy().into_owned()
+            }
+        })
+        .collect()
 }
 
 /// Builds the `ExecutorFactory` matching the configured executor kind
@@ -239,7 +261,19 @@ fn parse_environment_variable(string: &str) -> (String, String) {
 
 #[cfg(test)]
 mod tests {
-    use super::workspace_per_spec_validation_error;
+    use super::{resolve_add_paths, workspace_per_spec_validation_error};
+    use std::path::Path;
+
+    #[test]
+    fn resolves_relative_paths_against_the_base_directory() {
+        assert_eq!(
+            resolve_add_paths(
+                &["bin".to_string(), "/absolute/bin".to_string()],
+                Path::new("/project"),
+            ),
+            vec!["/project/bin", "/absolute/bin"]
+        );
+    }
 
     #[test]
     fn errors_when_workspace_per_spec_is_set_without_temporary_workspace_dir() {

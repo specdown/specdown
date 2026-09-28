@@ -5,6 +5,11 @@ use serde::Deserialize;
 use super::settings::RunSettings;
 use crate::runner::Error;
 
+pub struct LoadedConfig {
+    pub settings: RunSettings,
+    pub path: Option<PathBuf>,
+}
+
 /// The default name of the config file looked up in the current directory
 /// when `--config` is not given.
 const DEFAULT_FILE_NAME: &str = "specdown.toml";
@@ -22,36 +27,57 @@ struct ConfigFile {
 /// is an error if it doesn't exist or fails to parse. Otherwise `cwd` is
 /// searched for a `specdown.toml`; if it isn't there, the defaults
 /// (`RunSettings::default()`) are returned rather than an error.
-pub fn load_run_settings(explicit_path: Option<&Path>, cwd: &Path) -> Result<RunSettings, Error> {
-    let (path, is_explicit): (PathBuf, bool) = match explicit_path {
-        Some(p) => (p.to_path_buf(), true),
-        None => (cwd.join(DEFAULT_FILE_NAME), false),
+#[cfg(test)]
+fn load_run_settings(explicit_path: Option<&Path>, cwd: &Path) -> Result<RunSettings, Error> {
+    load_config(explicit_path, cwd).map(|config| config.settings)
+}
+
+pub fn load_config(explicit_path: Option<&Path>, cwd: &Path) -> Result<LoadedConfig, Error> {
+    let (path, error_path, is_explicit): (PathBuf, PathBuf, bool) = if let Some(p) = explicit_path {
+        (make_absolute(p, cwd), p.to_path_buf(), true)
+    } else {
+        let path = cwd.join(DEFAULT_FILE_NAME);
+        (path.clone(), path, false)
     };
 
     let contents = match std::fs::read_to_string(&path) {
         Ok(contents) => contents,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound && !is_explicit => {
-            return Ok(RunSettings::default());
+            return Ok(LoadedConfig {
+                settings: RunSettings::default(),
+                path: None,
+            });
         }
         Err(err) => {
             return Err(Error::ConfigFileLoadFailed {
-                path,
+                path: error_path,
                 message: err.to_string(),
             })
         }
     };
 
     toml::from_str::<ConfigFile>(&contents)
-        .map(|config| config.run)
+        .map(|config| LoadedConfig {
+            settings: config.run,
+            path: Some(path),
+        })
         .map_err(|err| Error::ConfigFileLoadFailed {
-            path,
+            path: error_path,
             message: err.to_string(),
         })
 }
 
+fn make_absolute(path: &Path, cwd: &Path) -> PathBuf {
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        cwd.join(path)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::load_run_settings;
+    use super::{load_config, load_run_settings};
     use crate::commands::run::settings::ExecutorKind;
     use crate::runner::Error;
     use std::fs;
@@ -130,6 +156,22 @@ mod tests {
             load_run_settings(None, dir.path()).expect("expected settings, got an error");
 
         assert_eq!(vec!["A=1".to_string(), "B=2".to_string()], settings.env);
+    }
+
+    #[test]
+    fn test_resolves_relative_add_path_from_config_directory() {
+        let dir = tempfile::tempdir().expect("failed to create a temporary directory");
+        let config_path = dir.path().join("nested").join("custom.toml");
+        fs::create_dir_all(config_path.parent().expect("config should have a parent"))
+            .expect("failed to create config directory");
+        fs::write(&config_path, "[run]\nadd_path = [\"bin\"]\n")
+            .expect("failed to write config file");
+
+        let loaded =
+            load_config(Some(&config_path), dir.path()).expect("expected settings, got an error");
+
+        assert_eq!(Some(config_path), loaded.path);
+        assert_eq!(vec!["bin".to_string()], loaded.settings.add_path);
     }
 
     #[test]
