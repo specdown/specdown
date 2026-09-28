@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - - -
+## [v1.9.14](https://github.com/specdown/specdown/compare/v1.9.13..v1.9.14) - 2026-09-28
+#### Bug Fixes
+- bump thiserror from 2.0.19 to 2.0.21 - ([36ee81e](https://github.com/specdown/specdown/commit/36ee81ed39ccfeff46e4eda5186299c4512904a2)) - dependabot[bot]
+
+- - -
+
 ## [v1.9.13](https://github.com/specdown/specdown/compare/v1.9.12..v1.9.13) - 2026-09-14
 #### Bug Fixes
 - bump toml from 1.1.5+spec-1.1.0 to 1.1.6+spec-1.1.0 - ([61c04f5](https://github.com/specdown/specdown/commit/61c04f544088e8ca46d5e761a182f09510cf890c)) - dependabot[bot]
